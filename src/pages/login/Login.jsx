@@ -224,11 +224,13 @@ const Login = ({ onLogin }) => {
         if (loginEmail.startsWith('tele')) role = 'tele_agent';
         else if (loginEmail.startsWith('admin')) role = 'super_admin';
         else if (loginEmail.startsWith('manager')) role = 'accounts_manager';
+        else if (loginEmail.startsWith('leader')) role = 'team_leader';
 
         const NAMES = {
             tele_agent: ['Tele', 'User'],
             super_admin: ['Admin', 'User'],
             accounts_manager: ['Alex', 'Thompson'],
+            team_leader: ['Sarah', 'Johnson'],
             client: ['Client', 'User'],
         };
 
