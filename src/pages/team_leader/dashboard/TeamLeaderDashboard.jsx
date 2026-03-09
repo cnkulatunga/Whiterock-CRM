@@ -158,7 +158,7 @@ const TeamLeaderDashboard = () => {
                                         className="tele-primary-btn" 
                                         onClick={handleConnectOutlook}
                                         disabled={isConnecting}
-                                        style={{ background: '#0078d4', height: '38px', fontSize: '13px' }}
+                                        style={{ background: '#0078d4' }}
                                     >
                                         {isConnecting ? 'Syncing...' : 'Connect Outlook Account'}
                                     </button>

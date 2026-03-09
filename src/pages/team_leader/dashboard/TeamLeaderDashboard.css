@@ -537,6 +537,15 @@
     .cal-day-cell {
         font-size: 11px;
     }
+
+    .outlook-sync-placeholder .tele-primary-btn {
+        width: 100%;
+        max-width: 250px;
+        margin: 16px auto 0;
+        height: 48px;
+        font-size: 14px;
+        padding: 0 12px;
+    }
     
     /* Performance Table specific optimizations */
     .tele-table td {
