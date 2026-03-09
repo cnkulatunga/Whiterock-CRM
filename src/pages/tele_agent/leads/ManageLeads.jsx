@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import './ManageLeads.css';
 
 const MOCK_LEADS = [
-    { id: 1, name: 'Robert Miller', email: 'robert@example.com', phone: '+1 234-567-890', source: 'Website Form', status: 'Document Collection', lastContact: '2 hours ago', stage: 'Initial' },
-    { id: 2, name: 'Alice Huang', email: 'alice.h@gmail.com', phone: '+1 987-654-321', source: 'Referral', status: 'Verification', lastContact: 'Today, 10:30 AM', stage: 'In Progress' },
+    { id: 1, name: 'Robert Miller', email: 'robert@example.com', phone: '+1 234-567-890', source: 'Website Form', status: 'Document Collected', lastContact: '2 hours ago', stage: 'Initial' },
+    { id: 2, name: 'Alice Huang', email: 'alice.h@gmail.com', phone: '+1 987-654-321', source: 'Referral', status: 'Document Verifications', lastContact: 'Today, 10:30 AM', stage: 'In Progress' },
     { id: 3, name: 'David Rivera', email: 'd.rivera@outlook.com', phone: '+1 456-123-789', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'In Progress' },
-    { id: 4, name: 'Sarah Connor', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost' },
-    { id: 5, name: 'Michael Chen', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Completed', lastContact: '3 days ago', stage: 'Closed' },
-    { id: 6, name: 'Emma Watson', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Verification', lastContact: 'Feb 28, 2024', stage: 'In Progress' },
+    { id: 4, name: 'Sarah Connor', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Loan Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost' },
+    { id: 5, name: 'Michael Chen', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Loan Confirmed', lastContact: '3 days ago', stage: 'Closed' },
+    { id: 6, name: 'Emma Watson', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress' },
 ];
 
 const ManageLeads = ({ onViewDetails }) => {

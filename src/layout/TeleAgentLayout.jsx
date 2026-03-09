@@ -8,6 +8,13 @@ import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
 import TasksFollowups from '../pages/tele_agent/tasks/TasksFollowups';
 
+const INITIAL_TASKS = [
+    { id: 1, title: 'Follow up with Robert Miller', lead: 'Robert Miller', status: 'Pending', date: '2026-03-09', time: '14:00', type: 'Call', reminder: '15m' },
+    { id: 2, title: 'Verify Alice Huang\'s documents', lead: 'Alice Huang', status: 'In Progress', date: '2026-03-09', time: '16:30', type: 'Document', reminder: '1h' },
+    { id: 3, title: 'Check loan eligibility for David Rivera', lead: 'David Rivera', status: 'Completed', date: '2026-03-08', time: '10:00', type: 'Review', reminder: 'none' },
+    { id: 4, title: 'Send welcome email to Michael Chen', lead: 'Michael Chen', status: 'Pending', date: '2026-03-10', time: '10:00', type: 'Email', reminder: '1d' },
+];
+
 /* ─── PLACEHOLDER PAGES ───────────────────────── */
 const PlaceholderPage = ({ title, icon }) => (
     <div className="placeholder-page">
@@ -21,13 +28,16 @@ const PlaceholderPage = ({ title, icon }) => (
 const TeleAgentLayout = ({ onLogout }) => {
     const [activePage, setActivePage] = useState('dashboard');
     const [selectedLeadId, setSelectedLeadId] = useState(null);
+    const [tasks, setTasks] = useState(INITIAL_TASKS);
+    const [pendingTaskDate, setPendingTaskDate] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-    const handleNavigate = (page) => {
+    const handleNavigate = (page, date = null) => {
         setActivePage(page);
         setSelectedLeadId(null);
         setIsSidebarOpen(false);
+        if (date) setPendingTaskDate(date);
     };
 
     const handleViewLeadDetails = (leadId) => {
@@ -38,7 +48,7 @@ const TeleAgentLayout = ({ onLogout }) => {
     const renderContent = () => {
         switch (activePage) {
             case 'dashboard':
-                return <TeleDashboard />;
+                return <TeleDashboard onNavigate={handleNavigate} tasks={tasks} />;
             case 'leads':
                 return <ManageLeads onViewDetails={handleViewLeadDetails} />;
             case 'lead-details':
@@ -46,7 +56,7 @@ const TeleAgentLayout = ({ onLogout }) => {
             case 'create-lead':
                 return <CreateLead onBack={() => setActivePage('leads')} />;
             case 'follow-ups':
-                return <TasksFollowups />;
+                return <TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} />;
             default:
                 return <TeleDashboard />;
         }
@@ -68,18 +78,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
-                    </button>
-
-                    <div className="tele-search-container">
-                        <div className="tele-search-wrapper">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            <input type="text" placeholder="Search leads, phone numbers, or docs..." />
-                        </div>
-                    </div>
-
+                    </button>                    <div className="tele-top-spacer"></div>
                     <div className="tele-top-actions">
                         <button className="tele-primary-btn" onClick={() => setActivePage('create-lead')}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" style={{ marginRight: '8px' }}>

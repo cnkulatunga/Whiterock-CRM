@@ -276,59 +276,104 @@
     overflow-x: auto;
 }
 
-/* ── FORMS ── */
-.form-group {
-    margin-bottom: 20px;
+/* ── NEW DETAILS GRID ── */
+.details-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
 }
 
-.form-group label {
-    display: block;
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.info-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.info-item label {
     font-size: 10px;
     font-weight: 700;
     color: #a0aec0;
-    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
 }
 
-.read-only-input {
-    width: 100%;
-    background: #f7fafc;
+.read-only-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f8fafc;
     border: 1px solid #edf2f7;
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 12px;
     color: #4a5568;
+    font-size: 14px;
+    font-weight: 600;
+    width: fit-content;
 }
 
-.customer-info-box .label,
-.contact-item .label {
-    display: block;
-    font-size: 10px;
-    font-weight: 700;
-    color: #a0aec0;
-    margin-bottom: 4px;
+.read-only-badge svg {
+    color: #2447d7;
+    opacity: 0.7;
 }
 
-.customer-info-box .value {
-    font-size: 18px;
+.prominent-value {
+    font-size: 22px;
     font-weight: 700;
     color: #1a202c;
-    display: block;
-    margin-bottom: 20px;
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    letter-spacing: -0.5px;
 }
 
-.contact-row {
+.contact-link {
     display: flex;
-    gap: 24px;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #ffffff;
+    border: 1px solid #edf2f7;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.contact-item .value {
-    font-size: 14px;
+.contact-link:hover {
+    border-color: #2447d7;
+    background: #f0f4ff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(36, 71, 215, 0.08);
+}
+
+.contact-link span {
+    font-size: 13px;
+    font-weight: 600;
     color: #4a5568;
-    font-weight: 500;
     word-break: break-all;
-    overflow-wrap: anywhere;
+}
+
+.link-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.link-icon.blue { background: #ebf0ff; color: #2447d7; }
+.link-icon.green { background: #ecfdf5; color: #10b981; }
+
+@media (max-width: 480px) {
+    .details-info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .prominent-value {
+        font-size: 18px;
+    }
 }
 
 /* ── NOTES ── */
@@ -631,10 +676,7 @@
         max-width: 80px;
     }
 
-    .contact-row {
-        flex-direction: column;
-        gap: 12px;
-    }
+
 
     .card-body {
         padding: 20px;
@@ -705,16 +747,8 @@
         padding: 16px;
     }
     
-    .form-group label, .customer-info-box .label, .contact-item .label {
+    .info-item label {
         font-size: 9px;
-    }
-
-    .customer-info-box .value {
-        font-size: 16px;
-    }
-
-    .contact-row {
-        gap: 12px;
     }
 
     .progress-fraction {

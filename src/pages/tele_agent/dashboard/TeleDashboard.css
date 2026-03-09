@@ -583,18 +583,24 @@
     line-height: 1.5;
 }
 
+.dashboard-calendar-layout {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 20px;
+}
+
 .calendar-grid-mini {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 4px;
 }
 
 .calendar-section-alt .cal-day-label {
     text-align: center;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 700;
     color: #a0aec0;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
 }
 
 .calendar-section-alt .cal-cell {
@@ -603,37 +609,144 @@
     align-items: center;
     justify-content: center;
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     color: #4a5568;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     position: relative;
+    border: 1px solid transparent;
     transition: all 0.2s;
 }
 
 .calendar-section-alt .cal-cell:hover:not(.empty) {
-    background: #f8fafc;
+    background: #f7fafc;
     color: #2447d7;
 }
 
 .calendar-section-alt .cal-cell.today {
+    background: #f0f4ff;
+    color: #2447d7;
+    border-color: #2447d7;
+}
+
+.calendar-section-alt .cal-cell.selected {
     background: #2447d7;
-    color: #ffffff;
-    font-weight: 700;
+    color: white;
+    box-shadow: 0 4px 6px rgba(36, 71, 215, 0.2);
 }
 
 .calendar-section-alt .cal-cell.has-event::after {
     content: '';
     position: absolute;
     bottom: 4px;
-    width: 4px;
-    height: 4px;
+    width: 3px;
+    height: 3px;
     background: #2447d7;
     border-radius: 50%;
 }
 
-.calendar-section-alt .cal-cell.today.has-event::after {
-    background: #ffffff;
+.calendar-section-alt .cal-cell.selected.has-event::after {
+    background: white;
+}
+
+/* ── DASH DATE SIDEBAR ── */
+.dash-date-sidebar {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 1px solid #edf2f7;
+}
+
+.dash-sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #edf2f7;
+    padding-bottom: 8px;
+}
+
+.dash-sidebar-header h4 {
+    font-size: 12px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.btn-add-dash {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: #2447d7;
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.dash-sidebar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.dash-mini-task {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid #edf2f7;
+}
+
+.dash-task-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dash-task-dot.pending { background: #cbd5e0; }
+.dash-task-dot.in-progress { background: #ed8936; }
+.dash-task-dot.completed { background: #10b981; }
+
+.dash-task-txt {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.task-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #2d3748;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.task-meta {
+    font-size: 10px;
+    color: #a0aec0;
+}
+
+.dash-empty-msg {
+    font-size: 11px;
+    color: #a0aec0;
+    text-align: center;
+    margin-top: 10px;
+}
+
+@media (max-width: 600px) {
+    .dashboard-calendar-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* ── LEADS BY STAGE ── */
