@@ -40,10 +40,44 @@
 .lsa-lender-icon { width: 30px; height: 30px; border-radius: 8px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .lsa-lender-name { font-size: 13px; font-weight: 700; color: #1a202c; }
 .lsa-lender-tier { font-size: 11px; color: #718096; }
+.lsa-lender-select-wrap { display: flex; align-items: center; gap: 10px; min-width: 230px; }
+.lsa-lender-select {
+  height: 36px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a202c;
+  background: #fff;
+  outline: none;
+  min-width: 180px;
+}
+.lsa-lender-select:focus { border-color: #2447d7; box-shadow: 0 0 0 3px rgba(36, 71, 215, 0.12); }
 .lsa-rate { font-weight: 700; color: #16a34a; }
 .lsa-tenure { color: #4a5568; }
 .lsa-date { color: #718096; font-size: 13px; }
 .lsa-status { font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; white-space: nowrap; }
+.lsa-action-cell { display: flex; align-items: center; gap: 8px; }
+.lsa-action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  line-height: 1;
+}
+.lsa-action-approve { color: #15803d; }
+.lsa-action-reject { color: #dc2626; }
+.lsa-action-approve.active { background: #dcfce7; border-color: #86efac; }
+.lsa-action-reject.active { background: #fee2e2; border-color: #fca5a5; }
+.lsa-decision { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; }
+.lsa-decision-pending { color: #a0aec0; }
+.lsa-decision-approved { color: #15803d; }
+.lsa-decision-rejected { color: #dc2626; }
 .lsa-empty { text-align: center; padding: 40px; color: #a0aec0; font-size: 14px; }
 .lsa-footer-info { margin-top: 16px; padding-top: 16px; border-top: 1px solid #f1f5f9; font-size: 13px; color: #718096; }
 

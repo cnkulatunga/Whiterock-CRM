@@ -6,55 +6,66 @@ const APPROVED = [
         id: '#LD-98912', client: 'TechStream Solutions', amount: '$1,200,000.00',
         lender: 'Bank of Whiterock', lenderTier: 'Tier 1 • Trusted Partner',
         approvedDate: 'Oct 23, 2023', interestRate: '3.8%', tenure: '30 Years',
-        status: 'Funded',
     },
     {
         id: '#LD-98845', client: 'Marcus Aurelius', amount: '$75,000.00',
         lender: 'Global Finance', lenderTier: 'Tier 1 • International',
         approvedDate: 'Oct 22, 2023', interestRate: '4.2%', tenure: '15 Years',
-        status: 'Disbursed',
     },
     {
         id: '#LD-98721', client: 'Quantum Capital Fund', amount: '$4,500,000.00',
         lender: 'Apex Capital Group', lenderTier: 'Tier 1 • High Net Worth',
         approvedDate: 'Oct 20, 2023', interestRate: '3.5%', tenure: '20 Years',
-        status: 'Funded',
     },
     {
         id: '#LD-98614', client: 'Prime Wealth Trust', amount: '$980,000.00',
         lender: 'Secure Lenders', lenderTier: 'Tier 2 • Private Equity',
         approvedDate: 'Oct 18, 2023', interestRate: '4.9%', tenure: '25 Years',
-        status: 'Processing',
     },
     {
         id: '#LD-98502', client: 'Global Trade Bank', amount: '$2,200,000.00',
         lender: 'Bank of Whiterock', lenderTier: 'Tier 1 • Trusted Partner',
         approvedDate: 'Oct 15, 2023', interestRate: '3.6%', tenure: '30 Years',
-        status: 'Disbursed',
     },
 ];
 
-const STATUS_STYLE = {
-    Funded:     { bg: '#dcfce7', color: '#15803d' },
-    Disbursed:  { bg: '#dbeafe', color: '#1d4ed8' },
-    Processing: { bg: '#fef9c3', color: '#854d0e' },
-};
+const LENDERS = [
+    'Bank of Whiterock',
+    'Global Finance',
+    'Apex Capital Group',
+    'Secure Lenders',
+    'Northline Credit',
+    'PrimeLend Partners',
+];
 
 const LenderSelectionApproved = () => {
     const [search, setSearch] = useState('');
-    const [filter, setFilter] = useState('All');
+    const [rows, setRows] = useState(
+        APPROVED.map((item) => ({
+            ...item,
+            selectedLender: item.lender,
+            decision: 'pending', // pending | approved | rejected
+        }))
+    );
 
-    const filtered = APPROVED.filter(a => {
+    const setLender = (id, lender) => {
+        setRows((prev) => prev.map((r) => (r.id === id ? { ...r, selectedLender: lender } : r)));
+    };
+
+    const setDecision = (id, decision) => {
+        setRows((prev) => prev.map((r) => (r.id === id ? { ...r, decision } : r)));
+    };
+
+    const filtered = rows.filter(a => {
         const matchSearch = a.client.toLowerCase().includes(search.toLowerCase()) ||
             a.id.toLowerCase().includes(search.toLowerCase()) ||
-            a.lender.toLowerCase().includes(search.toLowerCase());
-        const matchFilter = filter === 'All' || a.status === filter;
-        return matchSearch && matchFilter;
+            a.selectedLender.toLowerCase().includes(search.toLowerCase());
+        return matchSearch;
     });
 
-    const totalFunded = APPROVED.filter(a => a.status === 'Funded').length;
-    const totalDisbursed = APPROVED.filter(a => a.status === 'Disbursed').length;
-    const totalProcessing = APPROVED.filter(a => a.status === 'Processing').length;
+    const totalApproved = rows.filter(a => a.decision === 'approved').length;
+    const totalRejected = rows.filter(a => a.decision === 'rejected').length;
+    const totalPending = rows.filter(a => a.decision === 'pending').length;
     const totalValue = '$8,955,000.00';
 
     return (
@@ -63,7 +74,7 @@ const LenderSelectionApproved = () => {
             <div className="lsa-header">
                 <div>
                     <h1 className="lsa-title">Lender Selection Approved</h1>
-                    <p className="lsa-subtitle">All approved leads with confirmed lender assignments and disbursement status.</p>
+                    <p className="lsa-subtitle">Accounts manager can assign lender and approve or reject each lead.</p>
                 </div>
                 <button className="lsa-export-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -88,7 +99,7 @@ const LenderSelectionApproved = () => {
                     </div>
                     <div>
                         <div className="lsa-stat-value">{APPROVED.length}</div>
-                        <div className="lsa-stat-label">Total Approved</div>
+                        <div className="lsa-stat-label">Total Leads</div>
                     </div>
                 </div>
                 <div className="lsa-stat-card">
@@ -100,8 +111,8 @@ const LenderSelectionApproved = () => {
                         </svg>
                     </div>
                     <div>
-                        <div className="lsa-stat-value">{totalFunded}</div>
-                        <div className="lsa-stat-label">Funded</div>
+                        <div className="lsa-stat-value">{totalApproved}</div>
+                        <div className="lsa-stat-label">Approved</div>
                     </div>
                 </div>
                 <div className="lsa-stat-card">
@@ -113,8 +124,8 @@ const LenderSelectionApproved = () => {
                         </svg>
                     </div>
                     <div>
-                        <div className="lsa-stat-value">{totalDisbursed}</div>
-                        <div className="lsa-stat-label">Disbursed</div>
+                        <div className="lsa-stat-value">{totalRejected}</div>
+                        <div className="lsa-stat-label">Rejected</div>
                     </div>
                 </div>
                 <div className="lsa-stat-card">
@@ -126,8 +137,8 @@ const LenderSelectionApproved = () => {
                         </svg>
                     </div>
                     <div>
-                        <div className="lsa-stat-value">{totalProcessing}</div>
-                        <div className="lsa-stat-label">Processing</div>
+                        <div className="lsa-stat-value">{totalPending}</div>
+                        <div className="lsa-stat-label">Pending</div>
                     </div>
                 </div>
                 <div className="lsa-stat-card">
@@ -162,17 +173,6 @@ const LenderSelectionApproved = () => {
                                 onChange={e => setSearch(e.target.value)}
                             />
                         </div>
-                        <div className="lsa-filter-tabs">
-                            {['All', 'Funded', 'Disbursed', 'Processing'].map(f => (
-                                <button
-                                    key={f}
-                                    className={`lsa-filter-tab ${filter === f ? 'active' : ''}`}
-                                    onClick={() => setFilter(f)}
-                                >
-                                    {f}
-                                </button>
-                            ))}
-                        </div>
                     </div>
                 </div>
 
@@ -182,23 +182,22 @@ const LenderSelectionApproved = () => {
                             <th>LEAD ID</th>
                             <th>CLIENT NAME</th>
                             <th>AMOUNT</th>
-                            <th>LENDER</th>
+                            <th>LENDER SELECTOR</th>
                             <th>INTEREST RATE</th>
                             <th>TENURE</th>
                             <th>APPROVED DATE</th>
-                            <th>STATUS</th>
+                            <th>ACTION</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filtered.map((row) => {
-                            const ss = STATUS_STYLE[row.status] || {};
                             return (
                                 <tr key={row.id}>
                                     <td className="lsa-lead-id">{row.id}</td>
                                     <td className="lsa-client">{row.client}</td>
                                     <td className="lsa-amount">{row.amount}</td>
                                     <td>
-                                        <div className="lsa-lender-cell">
+                                        <div className="lsa-lender-select-wrap">
                                             <div className="lsa-lender-icon">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="#4a5568" strokeWidth="1.5"
                                                     strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
@@ -206,18 +205,39 @@ const LenderSelectionApproved = () => {
                                                     <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                                                 </svg>
                                             </div>
-                                            <div>
-                                                <div className="lsa-lender-name">{row.lender}</div>
-                                                <div className="lsa-lender-tier">{row.lenderTier}</div>
-                                            </div>
+                                            <select
+                                                className="lsa-lender-select"
+                                                value={row.selectedLender}
+                                                onChange={(e) => setLender(row.id, e.target.value)}
+                                            >
+                                                {LENDERS.map((lender) => (
+                                                    <option key={`${row.id}-${lender}`} value={lender}>
+                                                        {lender}
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </td>
                                     <td className="lsa-rate">{row.interestRate}</td>
                                     <td className="lsa-tenure">{row.tenure}</td>
                                     <td className="lsa-date">{row.approvedDate}</td>
-                                    <td>
-                                        <span className="lsa-status" style={{ background: ss.bg, color: ss.color }}>
-                                            {row.status}
+                                    <td className="lsa-action-cell">
+                                        <button
+                                            className={`lsa-action-btn lsa-action-approve ${row.decision === 'approved' ? 'active' : ''}`}
+                                            onClick={() => setDecision(row.id, 'approved')}
+                                            title="Approve"
+                                        >
+                                            ✓
+                                        </button>
+                                        <button
+                                            className={`lsa-action-btn lsa-action-reject ${row.decision === 'rejected' ? 'active' : ''}`}
+                                            onClick={() => setDecision(row.id, 'rejected')}
+                                            title="Reject"
+                                        >
+                                            X
+                                        </button>
+                                        <span className={`lsa-decision lsa-decision-${row.decision}`}>
+                                            {row.decision}
                                         </span>
                                     </td>
                                 </tr>
