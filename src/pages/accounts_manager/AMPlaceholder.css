@@ -1,0 +1,48 @@
+.am-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: white;
+    border-radius: 16px;
+    padding: 80px 40px;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    min-height: 400px;
+}
+
+.am-placeholder-icon {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+}
+
+.am-placeholder h2 {
+    font-size: 22px;
+    font-weight: 800;
+    color: #1a202c;
+    margin: 0 0 10px;
+}
+
+.am-placeholder p {
+    font-size: 15px;
+    color: #718096;
+    max-width: 340px;
+    line-height: 1.6;
+    margin: 0 0 20px;
+}
+
+.am-placeholder-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 14px;
+    background: #ebf0ff;
+    color: #2447d7;
+    border-radius: 20px;
+    letter-spacing: 0.3px;
+}

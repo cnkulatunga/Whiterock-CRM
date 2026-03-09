@@ -223,13 +223,20 @@ const Login = ({ onLogin }) => {
         let role = 'client';
         if (loginEmail.startsWith('tele')) role = 'tele_agent';
         else if (loginEmail.startsWith('admin')) role = 'super_admin';
-        else if (loginEmail.startsWith('team')) role = 'team_leader';
+        else if (loginEmail.startsWith('manager')) role = 'accounts_manager';
+
+        const NAMES = {
+            tele_agent: ['Tele', 'User'],
+            super_admin: ['Admin', 'User'],
+            accounts_manager: ['Alex', 'Thompson'],
+            client: ['Client', 'User'],
+        };
 
         const mockUser = {
             id: '123',
             email: loginEmail,
-            first_name: role === 'tele_agent' ? 'Tele' : (role === 'super_admin' ? 'Admin' : 'Client'),
-            last_name: 'User',
+            first_name: NAMES[role][0],
+            last_name: NAMES[role][1],
             role: role
         };
         localStorage.setItem('user', JSON.stringify(mockUser));
