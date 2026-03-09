@@ -25,24 +25,21 @@ const IconFolder = () => (
 );
 
 /* ─── DATA MOCK ─── */
-const FOLLOW_UPS = [
-    { id: 1, name: 'Robert Miller', phone: '+1 234-567-890', initials: 'RM', time: '10:30 AM', relativeTime: 'In 15 mins', status: 'Call Pending', statusColor: '#2447d7' },
-    { id: 2, name: 'Alice Huang', phone: '+1 987-654-321', initials: 'AH', time: '01:15 PM', relativeTime: 'In 3 hours', status: 'Scheduled', statusColor: '#a0aec0' },
-    { id: 3, name: 'David Rivera', phone: '+1 456-123-789', initials: 'DR', time: '04:00 PM', relativeTime: 'In 6 hours', status: 'Scheduled', statusColor: '#a0aec0' },
-];
+// Removed FOLLOW_UPS mock data, using prop instead.
 
 const LEADS_BY_STAGE = [
-    { stage: 'NEW', count: 42, percentage: 85 },
-    { stage: 'CONTACTED', count: 28, percentage: 60 },
-    { stage: 'QUALIFIED', count: 34, percentage: 75 },
-    { stage: 'PROPOSAL SENT', count: 15, percentage: 35 },
-    { stage: 'NEGOTIATION', count: 9, percentage: 20 },
+    { stage: 'DOCUMENT COLLECTED', count: 42, percentage: 85 },
+    { stage: 'DOCUMENT VERIFICATIONS', count: 28, percentage: 60 },
+    { stage: 'LENDER SELECTION', count: 34, percentage: 75 },
+    { stage: 'LOAN CONFIRMED', count: 12, percentage: 30 },
+    { stage: 'LOAN REJECTED', count: 3, percentage: 10 },
 ];
 
 /* ─── MAIN COMPONENT ─── */
-const TeleDashboard = () => {
+const TeleDashboard = ({ onNavigate, tasks }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const [useGoogleCalendar, setUseGoogleCalendar] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
     // Calendar Logic
     const [viewDate, setViewDate] = useState(new Date());
@@ -106,7 +103,7 @@ const TeleDashboard = () => {
                     <div className="tele-card follow-ups-card">
                         <div className="card-header-row">
                             <h2 className="card-title">Today's Follow-ups</h2>
-                            <button className="view-all-link">View all schedule</button>
+                            <button className="view-all-link" onClick={() => onNavigate('follow-ups')}>View all schedule</button>
                         </div>
                         <div className="table-responsive">
                             <table className="tele-table">
@@ -118,24 +115,24 @@ const TeleDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {FOLLOW_UPS.map(item => (
+                                    {tasks.slice(0, 3).map(item => (
                                         <tr key={item.id}>
                                             <td className="lead-cell">
-                                                <div className="lead-avatar" style={{ backgroundColor: item.id === 1 ? '#ebf0ff' : (item.id === 2 ? '#f3e8ff' : '#ecfdf5') }}>
-                                                    <span style={{ color: item.id === 1 ? '#2447d7' : (item.id === 2 ? '#7c3aed' : '#10b981') }}>{item.initials}</span>
+                                                <div className="lead-avatar" style={{ backgroundColor: '#ebf0ff' }}>
+                                                    <span style={{ color: '#2447d7' }}>{item.lead.split(' ').map(n=>n[0]).join('')}</span>
                                                 </div>
                                                 <div className="lead-text">
-                                                    <div className="lead-name">{item.name}</div>
-                                                    <div className="lead-phone">{item.phone}</div>
+                                                    <div className="lead-name">{item.lead}</div>
+                                                    <div className="lead-phone">{item.type}</div>
                                                 </div>
                                             </td>
                                             <td className="time-cell">
                                                 <div className="time-main">{item.time}</div>
-                                                <div className="time-rel" style={{ color: item.id === 1 ? '#10b981' : '#a0aec0' }}>{item.relativeTime}</div>
+                                                <div className="time-rel" style={{ color: '#a0aec0' }}>Scheduled</div>
                                             </td>
                                             <td className="status-cell">
                                                 <div className="status-indicator">
-                                                    <span className="status-dot-small" style={{ backgroundColor: item.statusColor }}></span>
+                                                    <span className="status-dot-small" style={{ backgroundColor: item.status === 'Completed' ? '#10b981' : (item.status === 'In Progress' ? '#ed8936' : '#cbd5e0') }}></span>
                                                     {item.status}
                                                 </div>
                                             </td>
@@ -200,16 +197,53 @@ const TeleDashboard = () => {
                                 ></iframe>
                             </div>
                         ) : (
-                            <div className="calendar-grid-mini">
-                                {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(day => (
-                                    <div key={day} className="cal-day-label">{day}</div>
-                                ))}
-                                {[...Array(emptySlots)].map((_, i) => <div key={`empty-${i}`} className="cal-cell empty"></div>)}
-                                {calendarDays.map(day => (
-                                    <div key={day} className={`cal-cell ${isToday(day) ? 'today' : ''} ${[6, 7, 12, 18, 24].includes(day) ? 'has-event' : ''}`}>
-                                        {day}
+                            <div className="dashboard-calendar-layout">
+                                <div className="calendar-grid-mini">
+                                    {['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'].map(day => (
+                                        <div key={day} className="cal-day-label">{day}</div>
+                                    ))}
+                                    {[...Array(emptySlots)].map((_, i) => <div key={`empty-${i}`} className="cal-cell empty"></div>)}
+                                    {calendarDays.map(day => {
+                                        const dateStr = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                                        const dayTasks = tasks.filter(t => t.date === dateStr);
+                                        const isSelected = selectedDate === dateStr;
+                                        return (
+                                            <div 
+                                                key={day} 
+                                                className={`cal-cell ${isToday(day) ? 'today' : ''} ${dayTasks.length > 0 ? 'has-event' : ''} ${isSelected ? 'selected' : ''}`}
+                                                onClick={() => setSelectedDate(dateStr)}
+                                            >
+                                                {day}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                
+                                <div className="dash-date-sidebar">
+                                    <div className="dash-sidebar-header">
+                                        <h4>{selectedDate}</h4>
+                                        <button className="btn-add-dash" onClick={() => onNavigate('follow-ups', selectedDate)}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12">
+                                                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                                            </svg>
+                                        </button>
                                     </div>
-                                ))}
+                                    <div className="dash-sidebar-list">
+                                        {tasks.filter(t => t.date === selectedDate).length > 0 ? (
+                                            tasks.filter(t => t.date === selectedDate).map(t => (
+                                                <div key={t.id} className="dash-mini-task">
+                                                    <span className={`dash-task-dot ${t.status.toLowerCase().replace(' ', '-')}`}></span>
+                                                    <div className="dash-task-txt">
+                                                        <span className="task-name">{t.title}</span>
+                                                        <span className="task-meta">{t.time}</span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="dash-empty-msg">No tasks</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </section>

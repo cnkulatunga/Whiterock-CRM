@@ -40,14 +40,14 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                                 </svg>
                             </div>
                         </div>
-                        <span className="step-label">Document Collection</span>
+                        <span className="step-label">Document Collected</span>
                     </div>
                     <div className="step-line active"></div>
                     <div className="step active">
                         <div className="step-icon-wrapper">
                             <div className="step-icon-inner"></div>
                         </div>
-                        <span className="step-label active">Document Verification</span>
+                        <span className="step-label active">Document Verifications</span>
                     </div>
                     <div className="step-line"></div>
                     <div className="step">
@@ -61,14 +61,14 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                         <div className="step-icon-wrapper">
                             <div className="step-dot"></div>
                         </div>
-                        <span className="step-label">Loan Complete</span>
+                        <span className="step-label">Loan Confirmed</span>
                     </div>
                     <div className="step-line"></div>
                     <div className="step">
                         <div className="step-icon-wrapper">
                             <div className="step-dot"></div>
                         </div>
-                        <span className="step-label">Rejected</span>
+                        <span className="step-label">Loan Rejected</span>
                     </div>
                 </div>
             </div>
@@ -83,22 +83,34 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                             <h3>Lead Details</h3>
                         </div>
                         <div className="card-body">
-                            <div className="form-group">
-                                <label>LEAD ID (READ ONLY)</label>
-                                <input type="text" value={leadId} readOnly className="read-only-input" />
-                            </div>
-                            <div className="customer-info-box">
-                                <span className="label">CUSTOMER NAME</span>
-                                <span className="value">Robert C. Mayfield</span>
-                            </div>
-                            <div className="contact-row">
-                                <div className="contact-item">
-                                    <span className="label">EMAIL</span>
-                                    <span className="value">r.mayfield@example.com</span>
+                            <div className="details-info-grid">
+                                <div className="info-item full-width">
+                                    <label>LEAD ID</label>
+                                    <div className="read-only-badge">
+                                        <IconInfo />
+                                        <span>{leadId}</span>
+                                    </div>
                                 </div>
-                                <div className="contact-item">
-                                    <span className="label">PHONE</span>
-                                    <span className="value">(555) 012-3456</span>
+                                
+                                <div className="info-item full-width">
+                                    <label>CUSTOMER NAME</label>
+                                    <div className="prominent-value">Robert C. Mayfield</div>
+                                </div>
+
+                                <div className="info-item">
+                                    <label>EMAIL ADDRESS</label>
+                                    <div className="contact-link">
+                                        <div className="link-icon blue"><IconEmail /></div>
+                                        <span>r.mayfield@example.com</span>
+                                    </div>
+                                </div>
+
+                                <div className="info-item">
+                                    <label>PHONE NUMBER</label>
+                                    <div className="contact-link">
+                                        <div className="link-icon green"><IconPhone /></div>
+                                        <span>(555) 012-3456</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -182,6 +194,16 @@ const IconScore = () => (
 const IconCompliance = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+    </svg>
+);
+const IconEmail = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
+    </svg>
+);
+const IconPhone = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
     </svg>
 );
 

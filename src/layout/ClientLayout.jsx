@@ -47,15 +47,7 @@ const ClientLayout = ({ onLogout }) => {
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </button>
-                    <div className="search-container">
-                        <div className="search-input-wrapper">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                                strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                            <input type="text" placeholder="Search applications..." />
-                        </div>
-                    </div>
+
                 </div>
                 <div className="client-content" key={activePage}>
                     {PAGE_MAP[activePage] ?? <Dashboard />}
