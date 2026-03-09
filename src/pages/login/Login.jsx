@@ -239,7 +239,8 @@ const Login = ({ onLogin }) => {
             email: loginEmail,
             first_name: NAMES[role][0],
             last_name: NAMES[role][1],
-            role: role
+            role: role,
+            is_staff: role === 'super_admin'
         };
         localStorage.setItem('user', JSON.stringify(mockUser));
         if (onLogin) onLogin();

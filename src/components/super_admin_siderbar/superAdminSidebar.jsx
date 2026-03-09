@@ -1,5 +1,5 @@
 import React from 'react';
-import './Sidebar.css';
+import './superAdminSidebar.css';
 
 const NAV_GROUPS = [
     {
@@ -7,7 +7,8 @@ const NAV_GROUPS = [
         items: [
             {
                 id: 'dashboard',
-                label: 'Dashboard',
+                label: 'Executive Overview',
+                badge: null,
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                         strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
@@ -19,8 +20,9 @@ const NAV_GROUPS = [
                 ),
             },
             {
-                id: 'user-management',
-                label: 'User Management',
+                id: 'leads',
+                label: 'Leads Management',
+                badge: null,
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                         strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
@@ -32,30 +34,33 @@ const NAV_GROUPS = [
                 ),
             },
             {
-                id: 'leads',
-                label: 'Leads',
+                id: 'finance',
+                label: 'Finance & Payments',
+                badge: null,
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                         strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        <rect x="2" y="5" width="20" height="14" rx="2" />
+                        <line x1="2" y1="10" x2="22" y2="10" />
                     </svg>
                 ),
             },
             {
-                id: 'accounts',
-                label: 'Accounts',
+                id: 'user-management',
+                label: 'User Management',
+                badge: null,
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                         strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                        <rect x="2" y="7" width="20" height="14" rx="2" />
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
                     </svg>
                 ),
             },
             {
                 id: 'reports',
-                label: 'Reports',
+                label: 'Audit Logs',
+                badge: null,
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                         strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
@@ -67,27 +72,12 @@ const NAV_GROUPS = [
             },
         ],
     },
-    {
-        group: 'SYSTEM',
-        items: [
-            {
-                id: 'settings',
-                label: 'Settings',
-                icon: (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                        <circle cx="12" cy="12" r="3" />
-                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                    </svg>
-                ),
-            },
-        ],
-    },
 ];
 
-const Sidebar = ({ activePage, onNavigate, onLogout }) => {
+const SuperAdminSidebar = ({ activePage, onNavigate, onLogout }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'User';
+    const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'Alex Sterling';
+    const email = user.email || 'alex@whiterock.com';
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     return (
@@ -102,7 +92,10 @@ const Sidebar = ({ activePage, onNavigate, onLogout }) => {
                         <path d="M2 12l10 5 10-5" />
                     </svg>
                 </div>
-                <span className="sidebar-logo-text">Whiterock</span>
+                <div className="sidebar-logo-texts">
+                    <span className="sidebar-logo-text">Whiterock CRM</span>
+                    <span className="sidebar-logo-role">SUPER ADMIN</span>
+                </div>
             </div>
 
             {/* ── Navigation ── */}
@@ -118,6 +111,9 @@ const Sidebar = ({ activePage, onNavigate, onLogout }) => {
                             >
                                 <span className="nav-item-icon">{item.icon}</span>
                                 <span className="nav-item-label">{item.label}</span>
+                                {item.badge && (
+                                    <span className="nav-item-badge">{item.badge}</span>
+                                )}
                             </button>
                         ))}
                     </div>
@@ -140,7 +136,7 @@ const Sidebar = ({ activePage, onNavigate, onLogout }) => {
                                 </svg>
                             </button>
                         </div>
-                        <span className="sidebar-user-role">{user.is_staff ? 'Super Admin' : 'Staff'}</span>
+                        <span className="sidebar-user-role">{email}</span>
                     </div>
                 </div>
             </div>
@@ -148,4 +144,4 @@ const Sidebar = ({ activePage, onNavigate, onLogout }) => {
     );
 };
 
-export default Sidebar;
+export default SuperAdminSidebar;
