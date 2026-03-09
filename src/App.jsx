@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Login from './pages/login/Login';
 import ClientLayout from './layout/ClientLayout';
-import SuperAdminLayout from './layout/AppLayout';
+import SuperAdminLayout from './layout/SuperAdminLayout';
 import TeleAgentLayout from './layout/TeleAgentLayout';
 import AccountsManagerLayout from './layout/AccountsManagerLayout';
 import TeamLeaderLayout from './layout/TeamLeaderLayout';

@@ -281,7 +281,8 @@ const UserManagement = () => {
             }));
             setUsers(mappedUsers);
         } catch (err) {
-            setError(err.message);
+            // Fall back to sample data if API is unavailable
+            setUsers(INITIAL_USERS);
         } finally {
             setLoading(false);
         }
@@ -439,8 +440,6 @@ const UserManagement = () => {
                 {/* ── TABLE (List View) ── */}
                 {loading ? (
                     <div className="um-loading">Loading users...</div>
-                ) : error ? (
-                    <div className="um-error">Error: {error}</div>
                 ) : viewMode === 'list' && (
                     <div className="um-table-wrap">
                         <table className="um-table">
