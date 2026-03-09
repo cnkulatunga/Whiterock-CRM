@@ -3,6 +3,7 @@ import Login from './pages/login/Login';
 import ClientLayout from './layout/ClientLayout';
 import SuperAdminLayout from './layout/AppLayout';
 import TeleAgentLayout from './layout/TeleAgentLayout';
+import AccountsManagerLayout from './layout/AccountsManagerLayout';
 import './App.css';
 
 function App() {
@@ -27,6 +28,8 @@ function App() {
                 return <SuperAdminLayout onLogout={handleLogout} />;
             case 'tele_agent':
                 return <TeleAgentLayout onLogout={handleLogout} />;
+            case 'accounts_manager':
+                return <AccountsManagerLayout onLogout={handleLogout} />;
             case 'client':
             default:
                 return <ClientLayout onLogout={handleLogout} />;
