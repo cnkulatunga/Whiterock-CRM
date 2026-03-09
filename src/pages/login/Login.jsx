@@ -223,6 +223,7 @@ const Login = ({ onLogin }) => {
         let role = 'client';
         if (loginEmail.startsWith('tele')) role = 'tele_agent';
         else if (loginEmail.startsWith('admin')) role = 'super_admin';
+        else if (loginEmail.startsWith('team')) role = 'team_leader';
 
         const mockUser = {
             id: '123',
