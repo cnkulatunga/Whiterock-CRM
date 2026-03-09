@@ -1,26 +1,6 @@
-import React, { useState } from 'react';
+
 import './SuperAdminDashboard.css';
 
-/* ─── REVENUE CHART DATA ──────────────────── */
-const REVENUE_DATA = {
-  '1M': [
-    { label: 'W1', value: 40 }, { label: 'W2', value: 65 },
-    { label: 'W3', value: 50 }, { label: 'W4', value: 90 },
-  ],
-  '6M': [
-    { label: 'JAN', value: 42 }, { label: 'FEB', value: 58 },
-    { label: 'MAR', value: 48 }, { label: 'APR', value: 62 },
-    { label: 'MAY', value: 75 }, { label: 'JUN', value: 100 },
-  ],
-  '1Y': [
-    { label: 'JAN', value: 30 }, { label: 'FEB', value: 45 },
-    { label: 'MAR', value: 40 }, { label: 'APR', value: 55 },
-    { label: 'MAY', value: 60 }, { label: 'JUN', value: 80 },
-    { label: 'JUL', value: 70 }, { label: 'AUG', value: 85 },
-    { label: 'SEP', value: 78 }, { label: 'OCT', value: 90 },
-    { label: 'NOV', value: 88 }, { label: 'DEC', value: 100 },
-  ],
-};
 
 /* ─── SVG ICONS ───────────────────────────── */
 const IcoDownload = () => (
@@ -77,32 +57,6 @@ const KpiCard = ({ icon, iconBg, label, value, trend, trendLabel }) => (
   </div>
 );
 
-/* ─── BAR CHART ───────────────────────────── */
-const BarChart = ({ data }) => {
-  const max = Math.max(...data.map(d => d.value));
-  return (
-    <div className="sa-bar-chart">
-      {data.map((d, i) => {
-        const isActive = i === data.length - 1;
-        const pct = (d.value / max) * 100;
-        return (
-          <div className="sa-bar-col" key={d.label}>
-            <div className="sa-bar-wrap">
-              {isActive && (
-                <div className="sa-bar-tooltip">$2.4M</div>
-              )}
-              <div
-                className={`sa-bar ${isActive ? 'sa-bar--active' : ''}`}
-                style={{ height: `${pct}%` }}
-              />
-            </div>
-            <span className="sa-bar-label">{d.label}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
-};
 
 /* ─── FUNNEL ROW ──────────────────────────── */
 const FunnelRow = ({ label, value, max, color }) => (
@@ -162,7 +116,6 @@ const QuickAction = ({ icon, iconBg, title, desc }) => (
    MAIN COMPONENT
 ═══════════════════════════════════════════ */
 const SuperAdminDashboard = () => {
-  const [chartRange, setChartRange] = useState('6M');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const firstName = user.first_name || 'Alex';
 
@@ -262,23 +215,9 @@ const SuperAdminDashboard = () => {
           </div>
         </div>
 
-        {/* ── ROW 3: CHART + QUICK ACTIONS ── */}
+        {/* ── ROW 3: QUICK ACTIONS ── */}
         <div className="sa-row3">
-          <div className="sa-chart-card">
-            <div className="sa-chart-header">
-              <span className="sa-chart-title">Revenue Trends</span>
-              <div className="sa-chart-tabs">
-                {['1M', '6M', '1Y'].map(r => (
-                  <button key={r}
-                    className={`sa-chart-tab ${chartRange === r ? 'sa-chart-tab--active' : ''}`}
-                    onClick={() => setChartRange(r)}>{r}</button>
-                ))}
-              </div>
-            </div>
-            <BarChart data={REVENUE_DATA[chartRange]} />
-          </div>
-
-          <div className="sa-qa-card">
+          <div className="sa-qa-card sa-qa-card--full">
             <h3 className="sa-section-title">Quick Actions</h3>
             <QuickAction
               iconBg="#eef2ff"

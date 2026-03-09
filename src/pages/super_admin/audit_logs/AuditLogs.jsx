@@ -233,19 +233,6 @@ const AuditLogs = () => {
                         onChange={e => setSearch(e.target.value)}
                     />
                 </div>
-                <div className="al-topbar-right">
-                    <button className="al-icon-btn"><IcoBell /></button>
-                    <button className="al-icon-btn"><IcoSettings /></button>
-                    <div className="al-user-chip">
-                        <div className="al-user-info">
-                            <span className="al-user-name">{adminName}</span>
-                            <span className="al-user-role">Super Administrator</span>
-                        </div>
-                        <div className="al-user-avatar">
-                            {adminName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
-                        </div>
-                    </div>
-                </div>
             </header>
 
             <div className="al-content">
