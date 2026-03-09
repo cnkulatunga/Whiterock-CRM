@@ -355,6 +355,7 @@ const Login = ({ onLogin }) => {
                                         <span className="input-icon"><IconLock /></span>
                                         <input
                                             id="login-password"
+                                            className="input-has-toggle"
                                             type={showLoginPw ? 'text' : 'password'}
                                             placeholder="••••••••"
                                             autoComplete="current-password"
@@ -497,7 +498,7 @@ const Login = ({ onLogin }) => {
                                             <div className="input-wrapper">
                                                 <input
                                                     id="new-password"
-                                                    className="input-no-icon"
+                                                    className="input-no-icon input-has-toggle"
                                                     type={showNewPw ? 'text' : 'password'}
                                                     placeholder="••••••••"
                                                     value={newPw}
@@ -516,7 +517,7 @@ const Login = ({ onLogin }) => {
                                             <div className="input-wrapper">
                                                 <input
                                                     id="confirm-password"
-                                                    className="input-no-icon"
+                                                    className="input-no-icon input-has-toggle"
                                                     type={showConfirmPw ? 'text' : 'password'}
                                                     placeholder="••••••••"
                                                     value={confirmPw}
