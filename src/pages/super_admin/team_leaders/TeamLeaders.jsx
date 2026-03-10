@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useUsers } from '../../../context/UsersContext';
 
-/* ─── INITIAL TEAM MEMBERSHIPS (leaderId → members[]) ── */
+/* ─── INITIAL TEAM MEMBERSHIPS ────────────────── */
 const INITIAL_MEMBERSHIPS = {
-    2: [ // Marcus Smith's team
+    2: [
         { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', phone: '', status: 'Active' },
     ],
-    5: [ // Diana Fernandez's team
+    5: [
         { id: 6, name: 'Leo Kumar', email: 'leo.k@whiterock.crm', phone: '', status: 'Active' },
         { id: 7, name: 'Nina Hassan', email: 'nina.h@whiterock.crm', phone: '', status: 'Inactive' },
     ],
@@ -15,14 +15,14 @@ const INITIAL_MEMBERSHIPS = {
 
 /* ─── AVATAR COLORS ───────────────────────────── */
 const AVATAR_COLORS = [
-    { bg: '#ebf0ff', text: '#2447d7' },
-    { bg: '#f3e8ff', text: '#7c3aed' },
-    { bg: '#ecfdf5', text: '#059669' },
-    { bg: '#fffbeb', text: '#d97706' },
-    { bg: '#fef2f2', text: '#dc2626' },
-    { bg: '#e0f2fe', text: '#0ea5e9' },
-    { bg: '#fdf2f8', text: '#db2777' },
-    { bg: '#f8fafc', text: '#475569' },
+    { bg: 'linear-gradient(135deg,#6366f1,#4f46e5)', text: '#fff' },
+    { bg: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', text: '#fff' },
+    { bg: 'linear-gradient(135deg,#10b981,#059669)', text: '#fff' },
+    { bg: 'linear-gradient(135deg,#f59e0b,#d97706)', text: '#fff' },
+    { bg: 'linear-gradient(135deg,#ef4444,#dc2626)', text: '#fff' },
+    { bg: 'linear-gradient(135deg,#0ea5e9,#0284c7)', text: '#fff' },
+    { bg: 'linear-gradient(135deg,#ec4899,#db2777)', text: '#fff' },
+    { bg: 'linear-gradient(135deg,#14b8a6,#0d9488)', text: '#fff' },
 ];
 
 const getInitials = (name) =>
@@ -45,14 +45,14 @@ const IconPlus = () => (
 );
 const IconChevron = ({ open }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
-        strokeLinecap="round" strokeLinejoin="round" width="16" height="16"
-        className={`transition-transform duration-300 ${open ? 'rotate-180' : 'rotate-0'}`}>
+        strokeLinecap="round" strokeLinejoin="round" width="14" height="14"
+        style={{ transition: 'transform 0.3s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}>
         <polyline points="6 9 12 15 18 9" />
     </svg>
 );
 const IconUsers = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-        strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -60,44 +60,57 @@ const IconUsers = () => (
     </svg>
 );
 const IconUserSingle = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-        strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
         <circle cx="12" cy="7" r="4" />
     </svg>
 );
 const IconTeams = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-        strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
         <rect x="2" y="3" width="20" height="14" rx="2" />
         <path d="M8 21h8M12 17v4" />
     </svg>
 );
 const IconBan = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
-        strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+        strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
         <circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
     </svg>
 );
 const IconActivate = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"
-        strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+        strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
         <polyline points="22 4 12 14.01 9 11.01" />
     </svg>
 );
 const IconTrash = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-        strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+        strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
         <polyline points="3 6 5 6 21 6" />
         <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
         <path d="M10 11v6M14 11v6" />
         <path d="M9 6V4h6v2" />
     </svg>
 );
+const IconMail = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
+    </svg>
+);
+const IconFilter = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+        strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    </svg>
+);
 
-/* ─── SHARED: USER PICKER MODAL ───────────────── */
-const UserPickerModal = ({ title, subtitle, iconWrapClass, confirmLabel, confirmBtnClass, excludeIds, onClose, onSelect }) => {
+/* ─── USER PICKER MODAL ───────────────────────── */
+const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirmBtnStyle, excludeIds, onClose, onSelect }) => {
     const { users } = useUsers();
     const [search, setSearch] = useState('');
     const [selected, setSelected] = useState(null);
@@ -116,84 +129,80 @@ const UserPickerModal = ({ title, subtitle, iconWrapClass, confirmLabel, confirm
     };
 
     return (
-        <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-sm z-[9999] flex items-center justify-center animate-fadeIn p-6" onClick={onClose}>
-            <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-[500px] overflow-hidden animate-slideUp" onClick={(e) => e.stopPropagation()}>
-                <div className="p-8 border-b border-[#f1f5f9] flex justify-between items-start">
-                    <div className="flex gap-5">
-                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${iconWrapClass}`}>
+        <div
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(6px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', animation: 'fadeIn 0.2s ease' }}
+            onClick={onClose}
+        >
+            <div
+                style={{ background: '#fff', borderRadius: '24px', boxShadow: '0 32px 80px rgba(36,71,215,0.18)', width: '100%', maxWidth: '480px', overflow: 'hidden', animation: 'slideUp 0.25s ease' }}
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div style={{ padding: '28px 28px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                        <div style={{ width: '52px', height: '52px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, ...iconWrapStyle }}>
                             <IconUsers />
                         </div>
-                        <div className="flex flex-col gap-1">
-                            <h3 className="text-xl font-black text-[#1a202c] tracking-tight">{title}</h3>
-                            <p className="text-[13px] font-medium text-[#718096] leading-relaxed">{subtitle}</p>
+                        <div>
+                            <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>{title}</h3>
+                            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0', fontWeight: 500 }}>{subtitle}</p>
                         </div>
                     </div>
-                    <button className="text-[#a0aec0] hover:text-[#1a202c] transition-colors p-2" onClick={onClose}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '4px', borderRadius: '8px', display: 'flex' }} onClick={onClose}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>
 
-                <div className="p-8">
-                    <div className="relative group mb-6">
-                        <div className="absolute left-5 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors">
-                            <IconSearch />
-                        </div>
+                <div style={{ padding: '20px 28px' }}>
+                    {/* Search */}
+                    <div style={{ position: 'relative', marginBottom: '16px' }}>
+                        <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
                         <input
-                            className="w-full bg-[#f8fafc] border-2 border-[#edf2f7] p-4 pl-14 rounded-2xl text-[14px] font-bold text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/20 transition-all"
+                            style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 14px 12px 40px', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
                             type="text"
                             placeholder="Search by name or email..."
                             value={search}
-                            onChange={(e) => { setSearch(e.target.value); setError(''); }}
+                            onChange={e => { setSearch(e.target.value); setError(''); }}
                             autoFocus
+                            onFocus={e => e.target.style.borderColor = '#6366f1'}
+                            onBlur={e => e.target.style.borderColor = '#e2e8f0'}
                         />
                     </div>
 
-                    <div className="max-h-[320px] overflow-y-auto flex flex-col gap-3 pr-2 custom-scrollbar">
+                    {/* List */}
+                    <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {available.length === 0 ? (
-                            <div className="py-12 text-center flex flex-col items-center gap-3">
-                                <div className="w-16 h-16 rounded-full bg-[#f8fafc] flex items-center justify-center text-[#cbd5e0]">
-                                    <IconSearch />
-                                </div>
-                                <span className="text-[14px] font-bold text-[#cbd5e0]">{search ? 'No users match your search.' : 'No users available to assign.'}</span>
+                            <div style={{ padding: '40px 0', textAlign: 'center', color: '#94a3b8' }}>
+                                <div style={{ fontSize: '13px', fontWeight: 600 }}>{search ? 'No users match your search.' : 'No users available.'}</div>
                             </div>
-                        ) : (
-                            available.map((u) => {
-                                const av = getAvatarColor(u.id);
-                                const isSelected = selected?.id === u.id;
-                                return (
-                                    <div
-                                        key={u.id}
-                                        className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all cursor-pointer group ${isSelected ? 'border-[#2447d7] bg-[#f0f4ff]' : 'border-transparent bg-[#f8fafc] hover:bg-white hover:border-[#edf2f7] hover:shadow-md'}`}
-                                        onClick={() => { setSelected(u); setError(''); }}
-                                    >
-                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center font-black text-[13px] shadow-sm transform transition-transform group-hover:scale-110" style={{ background: av.bg, color: av.text }}>
-                                            {getInitials(u.name)}
-                                        </div>
-                                        <div className="flex flex-col flex-1 min-w-0">
-                                            <span className={`text-[14px] font-black truncate tracking-tight ${isSelected ? 'text-[#2447d7]' : 'text-[#1a202c]'}`}>{u.name}</span>
-                                            <span className="text-[11px] font-bold text-[#a0aec0] truncate">{u.email}</span>
-                                        </div>
-                                        <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${u.status === 'Active' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : 'bg-[#f1f5f9] text-[#64748b] border-[#e2e8f0]'}`}>
-                                            <div className={`w-1 h-1 rounded-full ${u.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
-                                            {u.status}
-                                        </div>
-                                        {isSelected && (
-                                            <div className="w-6 h-6 rounded-full bg-[#2447d7] flex items-center justify-center text-white scale-125 animate-popIn">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" width="12" height="12"><polyline points="20 6 9 17 4 12" /></svg>
-                                            </div>
-                                        )}
+                        ) : available.map(u => {
+                            const av = getAvatarColor(u.id);
+                            const isSel = selected?.id === u.id;
+                            return (
+                                <div
+                                    key={u.id}
+                                    onClick={() => { setSelected(u); setError(''); }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '12px', border: `1.5px solid ${isSel ? '#6366f1' : '#f1f5f9'}`, background: isSel ? '#eef2ff' : '#fafafa', cursor: 'pointer', transition: 'all 0.15s' }}
+                                >
+                                    <div style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', background: av.bg, color: av.text, flexShrink: 0 }}>{getInitials(u.name)}</div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{ fontSize: '14px', fontWeight: 700, color: isSel ? '#4f46e5' : '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
+                                        <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>{u.email}</div>
                                     </div>
-                                );
-                            })
-                        )}
+                                    <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px', background: u.status === 'Active' ? '#dcfce7' : '#f1f5f9', color: u.status === 'Active' ? '#16a34a' : '#64748b' }}>{u.status}</span>
+                                    {isSel && <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg></div>}
+                                </div>
+                            );
+                        })}
                     </div>
 
-                    {error && <div className="mt-4 p-3 bg-[#fef2f2] border border-[#fee2e2] text-[#dc2626] text-[12px] font-black uppercase tracking-wider text-center rounded-xl animate-shake">{error}</div>}
+                    {error && <div style={{ marginTop: '12px', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', fontSize: '12px', fontWeight: 700, borderRadius: '10px', textAlign: 'center' }}>{error}</div>}
                 </div>
 
-                <div className="p-8 bg-[#fcfdff] border-t border-[#f1f5f9] flex gap-4">
-                    <button className="flex-1 p-4 bg-white border-2 border-[#edf2f7] rounded-2xl text-[14px] font-black text-[#718096] hover:bg-[#f8fafc] transition-all active:scale-95" onClick={onClose}>Cancel</button>
-                    <button className={`flex-1 p-4 rounded-2xl text-[14px] font-black text-white shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 ${confirmBtnClass}`} onClick={handle} disabled={!selected}>
+                {/* Footer */}
+                <div style={{ padding: '16px 28px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '12px' }}>
+                    <button style={{ flex: 1, padding: '12px', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#64748b', cursor: 'pointer', transition: 'all 0.15s' }} onClick={onClose}>Cancel</button>
+                    <button style={{ flex: 1, padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#fff', border: 'none', cursor: selected ? 'pointer' : 'not-allowed', opacity: selected ? 1 : 0.5, transition: 'all 0.15s', ...confirmBtnStyle }} onClick={handle} disabled={!selected}>
                         {confirmLabel}
                     </button>
                 </div>
@@ -202,18 +211,26 @@ const UserPickerModal = ({ title, subtitle, iconWrapClass, confirmLabel, confirm
     );
 };
 
-/* ─── MODAL: ADD TELE AGENT ───────────────────── */
+/* ─── ADD TELE AGENT MODAL ────────────────────── */
 const AddAgentModal = ({ leaderName, existingMemberIds, onClose, onAdd }) => (
     <UserPickerModal
         title="Add Tele Agent"
-        subtitle={`Select a user to assign to ${leaderName}'s team`}
-        iconWrapClass="bg-[#ebfef5] text-[#059669]"
+        subtitle={`Assign a user to ${leaderName}'s team`}
+        iconWrapStyle={{ background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff' }}
         confirmLabel="Add to Team"
-        confirmBtnClass="bg-[#10b981] shadow-[#10b981]/20 hover:bg-[#059669]"
+        confirmBtnStyle={{ background: 'linear-gradient(135deg,#10b981,#059669)', boxShadow: '0 4px 15px rgba(16,185,129,0.3)' }}
         excludeIds={existingMemberIds}
         onClose={onClose}
         onSelect={onAdd}
     />
+);
+
+/* ─── STAT PILL ───────────────────────────────── */
+const StatPill = ({ label, value, accent }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '10px 20px', background: '#f8fafc', borderRadius: '12px', minWidth: '80px' }}>
+        <span style={{ fontSize: '22px', fontWeight: 900, color: accent || '#0f172a', letterSpacing: '-0.5px', lineHeight: 1.1 }}>{value}</span>
+        <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{label}</span>
+    </div>
 );
 
 /* ─── TEAM LEADER CARD ────────────────────────── */
@@ -222,121 +239,174 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
     const [showAddAgent, setShowAddAgent] = useState(false);
     const av = getAvatarColor(leader.id);
     const activeMembers = leader.members.filter(m => m.status === 'Active').length;
+    const totalMembers = leader.members.length;
+    const fillPct = totalMembers > 0 ? Math.round((activeMembers / totalMembers) * 100) : 0;
+    const isActive = leader.status === 'Active';
 
     return (
         <>
-            <div className={`bg-white rounded-[2.5rem] border border-[#edf2f7] shadow-sm overflow-hidden transition-all duration-500 flex flex-col group ${leader.status === 'Inactive' ? 'opacity-70 grayscale-[0.5]' : 'hover:shadow-2xl hover:translate-y-[-4px]'}`}>
-                {/* ── Card Header ── */}
-                <div className="p-8 flex items-center justify-between lg:flex-col lg:items-start lg:gap-8">
-                    <div className="flex items-center gap-6">
-                        <div className="w-20 h-20 rounded-3xl flex items-center justify-center font-black text-2xl shadow-lg transform transition-transform group-hover:scale-110 group-hover:rotate-3"
-                            style={{ background: av.bg, color: av.text }}>
-                            {getInitials(leader.name)}
+            <div style={{
+                background: '#fff',
+                borderRadius: '20px',
+                border: '1px solid #e8edf5',
+                boxShadow: '0 2px 12px rgba(15,23,42,0.06)',
+                overflow: 'hidden',
+                transition: 'box-shadow 0.25s, transform 0.25s',
+                opacity: isActive ? 1 : 0.72,
+                fontFamily: "'Sora', sans-serif",
+            }}
+            onMouseEnter={e => { if (isActive) { e.currentTarget.style.boxShadow = '0 8px 36px rgba(99,102,241,0.14)'; e.currentTarget.style.transform = 'translateY(-2px)'; } }}
+            onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(15,23,42,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
+                {/* Main content */}
+                <div style={{ padding: '24px 28px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                    {/* Avatar */}
+                    <div style={{ width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '20px', color: av.text, background: av.bg, flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.2)' }}>
+                        {getInitials(leader.name)}
+                    </div>
+
+                    {/* Info */}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                            <span style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>{leader.name}</span>
+                            <span style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '5px',
+                                fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px',
+                                background: isActive ? '#dcfce7' : '#f1f5f9',
+                                color: isActive ? '#16a34a' : '#64748b',
+                                border: `1px solid ${isActive ? '#bbf7d0' : '#e2e8f0'}`
+                            }}>
+                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isActive ? '#22c55e' : '#94a3b8', display: 'inline-block', animation: isActive ? 'pulse 2s infinite' : 'none' }} />
+                                {leader.status}
+                            </span>
                         </div>
-                        <div className="flex flex-col gap-1.5">
-                            <div className="flex items-center gap-3">
-                                <span className="text-xl font-black text-[#1a202c] tracking-tight">{leader.name}</span>
-                                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${leader.status === 'Active' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : 'bg-[#f1f5f9] text-[#64748b] border-[#e2e8f0]'}`}>
-                                    <div className={`w-1.5 h-1.5 rounded-full ${leader.status === 'Active' ? 'bg-[#059669] animate-pulse' : 'bg-[#64748b]'}`} />
-                                    {leader.status}
-                                </div>
-                            </div>
-                            <span className="text-[14px] font-bold text-[#cbd5e0]">{leader.email}</span>
-                            {leader.phone && <span className="text-[12px] font-black text-[#cbd5e0] font-mono">{leader.phone}</span>}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', fontSize: '13px', fontWeight: 500 }}>
+                            <IconMail />
+                            {leader.email}
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-8 bg-[#fcfdff] p-6 rounded-[2rem] border border-[#f1f5f9] shadow-inner lg:w-full lg:justify-center">
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl font-black text-[#1a202c] tracking-tighter">{leader.members.length}</span>
-                            <span className="text-[10px] font-black text-[#cbd5e0] uppercase tracking-[0.2em] mt-1">Total Agents</span>
-                        </div>
-                        <div className="w-[1.5px] h-10 bg-[#f1f5f9]" />
-                        <div className="flex flex-col items-center">
-                            <span className="text-2xl font-black text-[#10b981] tracking-tighter">{activeMembers}</span>
-                            <span className="text-[10px] font-black text-[#cbd5e0] uppercase tracking-[0.2em] mt-1">Active Now</span>
-                        </div>
+                    {/* Stats */}
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+                        <StatPill label="Total Agents" value={totalMembers} />
+                        <div style={{ width: '1px', height: '40px', background: '#e8edf5' }} />
+                        <StatPill label="Active" value={activeMembers} accent="#10b981" />
                     </div>
-                </div>
 
-                {/* ── Card Actions ── */}
-                <div className="px-8 py-6 bg-[#fbfeff] border-t border-[#f7fafc] mt-auto flex justify-between items-center sm:flex-col sm:gap-6">
-                    <div className="flex items-center">
+                    {/* Actions */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                         <button
-                            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-wider border-2 transition-all active:scale-95 ${leader.status === 'Active' ? 'text-[#e53e3e] border-[#fee2e2] bg-white hover:bg-[#fff5f5]' : 'text-[#2447d7] border-[#d9e8ff] bg-white hover:bg-[#f0f7ff]'}`}
                             onClick={() => onToggleLeader(leader.id)}
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                                cursor: 'pointer', border: `1.5px solid ${isActive ? '#fecaca' : '#bfdbfe'}`,
+                                background: isActive ? '#fef2f2' : '#eff6ff',
+                                color: isActive ? '#dc2626' : '#2563eb', transition: 'all 0.15s'
+                            }}
                         >
-                            {leader.status === 'Active' ? <><IconBan /> Deactivate</> : <><IconActivate /> Activate</>}
+                            {isActive ? <><IconBan /> Deactivate</> : <><IconActivate /> Activate</>}
                         </button>
-                    </div>
-                    <div className="flex items-center gap-3 w-full justify-end sm:justify-center">
-                        <button className="flex items-center gap-2.5 bg-white border border-[#edf2f7] text-[#10b981] px-5 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-wider hover:bg-[#f0fdf4] transition-all shadow-sm active:scale-95" onClick={() => setShowAddAgent(true)}>
+                        <button
+                            onClick={() => setShowAddAgent(true)}
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                                cursor: 'pointer', border: '1.5px solid #d1fae5',
+                                background: '#ecfdf5', color: '#059669', transition: 'all 0.15s'
+                            }}
+                        >
                             <IconPlus /> Add Agent
                         </button>
-                        <button className={`flex items-center gap-2.5 px-6 py-2.5 rounded-xl text-[12px] font-black uppercase tracking-wider transition-all shadow-lg active:scale-95 ${expanded ? 'bg-[#1a202c] text-white shadow-[#1a202c]/20' : 'bg-[#2447d7] text-white shadow-[#2447d7]/20 hover:bg-[#1732a3]'}`} onClick={() => setExpanded(e => !e)}>
-                            View Team ({leader.members.length})
-                            <IconChevron open={expanded} />
+                        <button
+                            onClick={() => setExpanded(e => !e)}
+                            style={{
+                                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                                padding: '9px 18px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
+                                cursor: 'pointer', border: 'none',
+                                background: expanded ? '#1e293b' : 'linear-gradient(135deg,#6366f1,#4f46e5)',
+                                color: '#fff', transition: 'all 0.2s',
+                                boxShadow: expanded ? '0 2px 8px rgba(30,41,59,0.2)' : '0 4px 14px rgba(99,102,241,0.3)'
+                            }}
+                        >
+                            View Team ({totalMembers}) <IconChevron open={expanded} />
                         </button>
                     </div>
                 </div>
 
-                {/* ── Expanded Members List ── */}
+
+
+                {/* ── Expanded Members ── */}
                 {expanded && (
-                    <div className="p-8 pt-4 bg-[#fcfdff] border-t border-[#f7fafc] animate-slideDown overflow-hidden">
-                        <div className="mb-6 flex items-center gap-3">
-                            <div className="w-1.5 h-6 bg-[#2447d7] rounded-full" />
-                            <span className="text-[11px] font-black text-[#1a202c] uppercase tracking-[0.2em]">Tele Agents — {leader.name}'s Team</span>
+                    <div style={{ borderTop: '1px solid #f1f5f9', background: '#fafbff' }}>
+                        {/* Section label */}
+                        <div style={{ padding: '18px 28px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ width: '3px', height: '18px', background: 'linear-gradient(180deg,#6366f1,#8b5cf6)', borderRadius: '999px' }} />
+                                <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                                    Tele Agents — {leader.name}'s Team
+                                </span>
+                            </div>
+                            <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8' }}>{totalMembers} member{totalMembers !== 1 ? 's' : ''}</span>
                         </div>
+
                         {leader.members.length === 0 ? (
-                            <div className="py-16 text-center bg-white rounded-3xl border-2 border-dashed border-[#edf2f7] flex flex-col items-center gap-6">
-                                <div className="w-16 h-16 rounded-full bg-[#f8fafc] flex items-center justify-center text-[#cbd5e0] rotate-12 group-hover:rotate-0 transition-transform">
-                                    <IconUsers />
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[14px] font-bold text-[#cbd5e0]">No agents assigned yet.</span>
-                                    <button className="text-[12px] font-black text-[#2447d7] hover:underline" onClick={() => setShowAddAgent(true)}>
-                                        + Add the first agent to this team
-                                    </button>
-                                </div>
+                            <div style={{ padding: '40px 28px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}><IconUsers /></div>
+                                <span style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>No agents assigned yet.</span>
+                                <button style={{ fontSize: '13px', fontWeight: 700, color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setShowAddAgent(true)}>
+                                    + Add the first agent
+                                </button>
                             </div>
                         ) : (
-                            <div className="flex flex-col gap-3">
-                                {leader.members.map((member) => {
+                            <div style={{ padding: '0 28px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                {leader.members.map(member => {
                                     const mav = getAvatarColor(member.id);
+                                    const mActive = member.status === 'Active';
                                     return (
-                                        <div key={member.id} className={`flex items-center justify-between p-5 bg-white rounded-[1.5rem] border border-[#edf2f7] shadow-sm hover:shadow-md transition-all group/member ${member.status === 'Inactive' ? 'opacity-60 grayscale-[0.3]' : ''}`}>
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-[14px] shadow-sm transform transition-transform group-hover/member:rotate-6"
-                                                    style={{ background: mav.bg, color: mav.text }}>
-                                                    {getInitials(member.name)}
-                                                </div>
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="text-[15px] font-black text-[#1a202c] tracking-tight">{member.name}</span>
-                                                    <span className="text-[12px] font-bold text-[#cbd5e0]">{member.email}</span>
-                                                </div>
+                                        <div key={member.id} style={{
+                                            display: 'flex', alignItems: 'center', gap: '14px',
+                                            padding: '14px 18px', background: '#fff', borderRadius: '14px',
+                                            border: '1px solid #e8edf5', opacity: mActive ? 1 : 0.65,
+                                            transition: 'box-shadow 0.2s',
+                                        }}
+                                        onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.1)'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}
+                                        >
+                                            {/* Avatar */}
+                                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', background: mav.bg, color: mav.text, flexShrink: 0 }}>
+                                                {getInitials(member.name)}
                                             </div>
-                                            <div className="flex items-center gap-6 lg:flex-wrap lg:justify-end">
-                                                {member.phone && <span className="text-[12px] font-bold text-[#cbd5e0] font-mono bg-[#f8fafc] px-2.5 py-1 rounded-lg lg:hidden">{member.phone}</span>}
-                                                <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border ${member.status === 'Active' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : 'bg-[#f1f5f9] text-[#64748b] border-[#e2e8f0]'}`}>
-                                                    <div className={`w-1 h-1 rounded-full ${member.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
-                                                    {member.status}
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <button
-                                                        className={`w-9 h-9 rounded-xl flex items-center justify-center border transition-all active:scale-90 ${member.status === 'Active' ? 'bg-[#fff5f5] text-[#e53e3e] border-[#fee2e2]' : 'bg-[#ecfdf5] text-[#10b981] border-[#d1fae5]'}`}
-                                                        title={member.status === 'Active' ? 'Deactivate agent' : 'Activate agent'}
-                                                        onClick={() => onToggleAgent(leader.id, member.id)}
-                                                    >
-                                                        {member.status === 'Active' ? <IconBan /> : <IconActivate />}
-                                                    </button>
-                                                    <button
-                                                        className="w-9 h-9 rounded-xl flex items-center justify-center bg-[#f8fafc] text-[#cbd5e0] border border-[#f1f5f9] hover:bg-[#fff5f5] hover:text-[#e53e3e] hover:border-[#fee2e2] transition-all active:scale-90 group/trash"
-                                                        title="Remove from team"
-                                                        onClick={() => onRemoveAgent(leader.id, member.id)}
-                                                    >
-                                                       <IconTrash />
-                                                    </button>
-                                                </div>
+                                            {/* Info */}
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{member.name}</div>
+                                                <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}><IconMail />{member.email}</div>
+                                            </div>
+                                            {/* Status badge */}
+                                            <span style={{
+                                                fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px',
+                                                background: mActive ? '#dcfce7' : '#f1f5f9',
+                                                color: mActive ? '#16a34a' : '#64748b',
+                                                border: `1px solid ${mActive ? '#bbf7d0' : '#e2e8f0'}`
+                                            }}>{member.status}</span>
+                                            {/* Action buttons */}
+                                            <div style={{ display: 'flex', gap: '6px' }}>
+                                                <button
+                                                    title={mActive ? 'Deactivate agent' : 'Activate agent'}
+                                                    onClick={() => onToggleAgent(leader.id, member.id)}
+                                                    style={{ width: '34px', height: '34px', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: `1.5px solid ${mActive ? '#fecaca' : '#bbf7d0'}`, background: mActive ? '#fef2f2' : '#dcfce7', color: mActive ? '#dc2626' : '#16a34a', transition: 'all 0.15s' }}
+                                                >
+                                                    {mActive ? <IconBan /> : <IconActivate />}
+                                                </button>
+                                                <button
+                                                    title="Remove from team"
+                                                    onClick={() => onRemoveAgent(leader.id, member.id)}
+                                                    style={{ width: '34px', height: '34px', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: '1.5px solid #e2e8f0', background: '#f8fafc', color: '#94a3b8', transition: 'all 0.15s' }}
+                                                    onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fecaca'; }}
+                                                    onMouseLeave={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
+                                                >
+                                                    <IconTrash />
+                                                </button>
                                             </div>
                                         </div>
                                     );
@@ -352,7 +422,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                     leaderName={leader.name}
                     existingMemberIds={leader.members.map(m => m.id)}
                     onClose={() => setShowAddAgent(false)}
-                    onAdd={(user) => onAddAgent(leader.id, user)}
+                    onAdd={user => onAddAgent(leader.id, user)}
                 />
             )}
         </>
@@ -362,10 +432,10 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
 /* ─── MAIN PAGE ───────────────────────────────── */
 const TeamLeaders = ({ onNavigate }) => {
     const { users, setUsers } = useUsers();
-    const [memberships, setMemberships] = useState(INITIAL_MEMBERSHIPS); // { leaderId: members[] }
+    const [memberships, setMemberships] = useState(INITIAL_MEMBERSHIPS);
     const [search, setSearch] = useState('');
+    const [filterTab, setFilterTab] = useState('All'); // All | Active | Inactive
 
-    /* Leaders = users with role "Team Leader" */
     const leaders = users
         .filter(u => u.role === 'Team Leader')
         .map(u => ({
@@ -374,18 +444,16 @@ const TeamLeaders = ({ onNavigate }) => {
             members: memberships[u.id] || [],
         }));
 
-    /* KPI stats */
     const totalLeaders = leaders.length;
     const totalAgents = leaders.reduce((sum, l) => sum + l.members.length, 0);
     const activeTeams = leaders.filter(l => l.status === 'Active').length;
 
-    /* Search filter */
-    const filtered = leaders.filter(l =>
-        l.name.toLowerCase().includes(search.toLowerCase()) ||
-        l.email.toLowerCase().includes(search.toLowerCase())
-    );
+    const filtered = leaders.filter(l => {
+        const matchSearch = l.name.toLowerCase().includes(search.toLowerCase()) || l.email.toLowerCase().includes(search.toLowerCase());
+        const matchTab = filterTab === 'All' || l.status === filterTab;
+        return matchSearch && matchTab;
+    });
 
-    /* Add agent to leader */
     const handleAddAgent = (leaderId, user) => {
         setMemberships(prev => ({
             ...prev,
@@ -400,7 +468,6 @@ const TeamLeaders = ({ onNavigate }) => {
         ));
     };
 
-    /* Toggle agent status */
     const handleToggleAgent = (leaderId, memberId) => {
         setMemberships(prev => ({
             ...prev,
@@ -411,7 +478,6 @@ const TeamLeaders = ({ onNavigate }) => {
         }));
     };
 
-    /* Remove agent */
     const handleRemoveAgent = (leaderId, memberId) => {
         setMemberships(prev => ({
             ...prev,
@@ -419,117 +485,147 @@ const TeamLeaders = ({ onNavigate }) => {
         }));
     };
 
+    const TABS = ['All', 'Active', 'Inactive'];
+    const tabCounts = {
+        All: leaders.length,
+        Active: leaders.filter(l => l.status === 'Active').length,
+        Inactive: leaders.filter(l => l.status === 'Inactive').length,
+    };
+
     return (
-        <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', fontFamily: "'Sora', sans-serif", animation: 'fadeIn 0.3s ease' }}>
 
             {/* ── MOBILE HEADER PORTAL ── */}
             {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
                 <div className="p-4 px-6 fixed top-[60px] left-0 right-0 bg-white border-b border-[#edf2f7] z-40 flex items-center gap-4">
                     <div className="relative group flex-1">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#6366f1] transition-colors">
                             <IconSearch />
                         </div>
                         <input
                             type="text"
-                            className="w-full bg-[#f1f5f9] border-2 border-transparent p-3 pl-12 rounded-2xl text-sm font-bold text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/20 transition-all"
+                            className="w-full bg-[#f1f5f9] border-2 border-transparent p-3 pl-12 rounded-2xl text-sm font-bold text-[#0f172a] outline-none focus:bg-white focus:border-[#6366f1]/20 transition-all"
                             placeholder="Search leaders..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)}
+                            onChange={e => setSearch(e.target.value)}
                         />
                     </div>
-                    <button className="w-12 h-12 bg-[#2447d7] text-white rounded-2xl flex items-center justify-center shadow-lg shadow-[#2447d7]/20 active:scale-90 transition-all" onClick={() => onNavigate('user-management')}>
+                    <button className="w-12 h-12 bg-[#6366f1] text-white rounded-2xl flex items-center justify-center shadow-lg active:scale-90 transition-all" onClick={() => onNavigate('user-management')}>
                         <IconPlus />
                     </button>
                 </div>,
                 document.getElementById('mobile-header-portal')
             )}
 
-            <div className="flex flex-col gap-8">
-
-                {/* Page heading */}
-                <header className="flex justify-between items-end gap-6 flex-wrap lg:items-start lg:flex-col sm:mb-4">
-                    <div className="flex flex-col gap-1.5">
-                        <h1 className="text-[1.75rem] font-black text-[#1a202c] tracking-tight sm:text-2xl">Team Leaders</h1>
-                        <p className="text-[0.95rem] text-[#718096] font-medium leading-relaxed">Manage team leaders and their tele agent members.</p>
-                    </div>
-                    <div className="flex items-center gap-4 overflow-x-auto pb-2 w-full max-w-[500px] sm:max-w-none">
-                         <div className="relative group flex-1 min-w-[280px] lg:hidden">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors">
-                                <IconSearch />
-                            </div>
-                            <input
-                                className="w-full bg-white border border-[#edf2f7] p-3 pl-12 rounded-2xl text-[14px] font-bold text-[#1a202c] outline-none focus:border-[#2447d7] transition-all shadow-sm"
-                                type="text"
-                                placeholder="Search team leaders..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                        </div>
-                        <button className="flex items-center gap-2.5 bg-[#2447d7] text-white px-6 py-3 rounded-2xl text-sm font-black tracking-tight hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all shadow-xl shadow-[#2447d7]/20 active:scale-95 whitespace-nowrap" onClick={() => onNavigate('user-management')}>
-                            <IconPlus /> Add Team Leader
-                        </button>
-                    </div>
-                </header>
-
-                {/* KPI Summary */}
-                <div className="grid grid-cols-3 gap-6 lg:grid-cols-1">
-                    <div className="bg-white rounded-[2rem] border border-[#edf2f7] p-8 shadow-sm flex items-center gap-6 hover:shadow-xl hover:translate-y-[-2px] transition-all group">
-                        <div className="w-16 h-16 rounded-2xl bg-[#ebf0ff] text-[#2447d7] flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-[#2447d7] group-hover:text-white transition-all"><IconUsers /></div>
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-3xl font-black text-[#1a202c] tracking-tighter">{totalLeaders}</span>
-                            <span className="text-[10px] font-black text-[#cbd5e0] uppercase tracking-[0.2em]">Total Leaders</span>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-[2rem] border border-[#edf2f7] p-8 shadow-sm flex items-center gap-6 hover:shadow-xl hover:translate-y-[-2px] transition-all group">
-                        <div className="w-16 h-16 rounded-2xl bg-[#ecfdf5] text-[#10b981] flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-[#10b981] group-hover:text-white transition-all"><IconUserSingle /></div>
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-3xl font-black text-[#1a202c] tracking-tighter">{totalAgents}</span>
-                            <span className="text-[10px] font-black text-[#cbd5e0] uppercase tracking-[0.2em]">Active Agents</span>
-                        </div>
-                    </div>
-                    <div className="bg-white rounded-[2rem] border border-[#edf2f7] p-8 shadow-sm flex items-center gap-6 hover:shadow-xl hover:translate-y-[-2px] transition-all group">
-                        <div className="w-16 h-16 rounded-2xl bg-[#f3e8ff] text-[#7c3aed] flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-[#7c3aed] group-hover:text-white transition-all"><IconTeams /></div>
-                        <div className="flex flex-col gap-0.5">
-                            <span className="text-3xl font-black text-[#1a202c] tracking-tighter">{activeTeams}</span>
-                            <span className="text-[10px] font-black text-[#cbd5e0] uppercase tracking-[0.2em]">Active Teams</span>
-                        </div>
-                    </div>
+            {/* ── PAGE HEADER ── */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+                <div>
+                    <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>Team Leaders</h1>
+                    <p style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, margin: '5px 0 0' }}>Manage team leaders and their tele agent members.</p>
                 </div>
-
-                {/* Leaders List */}
-                <div className="mt-4">
-                    {filtered.length === 0 ? (
-                        <div className="py-24 flex flex-col items-center gap-8 justify-center bg-white rounded-[3rem] border-2 border-dashed border-[#edf2f7]">
-                            <div className="w-24 h-24 rounded-[2rem] bg-[#f8fafc] flex items-center justify-center text-[#cbd5e0] shadow-inner mb-4">
-                                <IconUsers />
-                            </div>
-                            <div className="text-center flex flex-col gap-2">
-                                <h3 className="text-2xl font-black text-[#1a202c] tracking-tight">No match found</h3>
-                                <p className="text-[15px] font-medium text-[#718096] max-w-[400px] leading-relaxed">{search ? 'Try refining your search text or adding a new leader to the system.' : 'It seems your leadership roster is empty. Begin by onboarding your first team leader.'}</p>
-                            </div>
-                            {!search && (
-                                <button className="flex items-center gap-3 bg-[#2447d7] text-white px-8 py-4 rounded-2xl text-md font-black hover:bg-[#1732a3] shadow-2xl shadow-[#2447d7]/20 transition-all active:scale-95" onClick={() => onNavigate('user-management')}>
-                                    <IconPlus /> Add Team Leader
-                                </button>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="flex flex-col gap-8">
-                            {filtered.map((leader) => (
-                                <LeaderCard
-                                    key={leader.id}
-                                    leader={leader}
-                                    onAddAgent={handleAddAgent}
-                                    onToggleLeader={handleToggleLeader}
-                                    onToggleAgent={handleToggleAgent}
-                                    onRemoveAgent={handleRemoveAgent}
-                                />
-                            ))}
-                        </div>
-                    )}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {/* Search bar */}
+                    <div className="lg:hidden" style={{ position: 'relative' }}>
+                        <span style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
+                        <input
+                            style={{ background: '#fff', border: '1.5px solid #e2e8f0', padding: '10px 14px 10px 38px', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: '#0f172a', outline: 'none', width: '240px', transition: 'border-color 0.2s, box-shadow 0.2s' }}
+                            type="text"
+                            placeholder="Search team leaders..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
+                            onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
+                        />
+                    </div>
+                    <button
+                        onClick={() => onNavigate('user-management')}
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.35)', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(99,102,241,0.4)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.35)'; }}
+                    >
+                        <IconPlus /> Add Team Leader
+                    </button>
                 </div>
             </div>
 
+            {/* ── KPI CARDS ── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }} className="lg:grid-cols-1">
+                {[
+                    { icon: <IconUsers />, value: totalLeaders, label: 'Total Leaders', grad: 'linear-gradient(135deg,#6366f1,#4f46e5)', light: '#eef2ff', soft: '#c7d2fe' },
+                    { icon: <IconUserSingle />, value: totalAgents, label: 'Total Tele Agents', grad: 'linear-gradient(135deg,#10b981,#059669)', light: '#ecfdf5', soft: '#a7f3d0' },
+                    { icon: <IconTeams />, value: activeTeams, label: 'Active Teams', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', light: '#f5f3ff', soft: '#ddd6fe' },
+                ].map((kpi, i) => (
+                    <div key={i} style={{
+                        background: '#fff', borderRadius: '18px', border: '1px solid #e8edf5',
+                        padding: '24px', display: 'flex', alignItems: 'center', gap: '18px',
+                        boxShadow: '0 2px 10px rgba(15,23,42,0.05)', transition: 'all 0.25s',
+                        cursor: 'default'
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 10px rgba(15,23,42,0.05)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    >
+                        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: kpi.light, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1px solid ${kpi.soft}`, color: kpi.grad.includes('6366f1') ? '#6366f1' : kpi.grad.includes('10b981') ? '#059669' : '#7c3aed', transition: 'all 0.2s' }}>
+                            {kpi.icon}
+                        </div>
+                        <div>
+                            <div style={{ fontSize: '30px', fontWeight: 900, color: '#0f172a', letterSpacing: '-1px', lineHeight: 1 }}>{kpi.value}</div>
+                            <div style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginTop: '4px', letterSpacing: '0.02em' }}>{kpi.label}</div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* ── FILTER TABS ── */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #e8edf5', paddingBottom: '0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '6px', color: '#94a3b8' }}><IconFilter /></div>
+                {TABS.map(tab => (
+                    <button
+                        key={tab}
+                        onClick={() => setFilterTab(tab)}
+                        style={{
+                            padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
+                            color: filterTab === tab ? '#6366f1' : '#64748b',
+                            borderBottom: `2.5px solid ${filterTab === tab ? '#6366f1' : 'transparent'}`,
+                            transition: 'all 0.2s', marginBottom: '-1px', display: 'flex', alignItems: 'center', gap: '6px'
+                        }}
+                    >
+                        {tab}
+                        <span style={{ fontSize: '11px', fontWeight: 800, padding: '1px 7px', borderRadius: '999px', background: filterTab === tab ? '#eef2ff' : '#f1f5f9', color: filterTab === tab ? '#6366f1' : '#94a3b8' }}>
+                            {tabCounts[tab]}
+                        </span>
+                    </button>
+                ))}
+            </div>
+
+            {/* ── LEADERS LIST ── */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {filtered.length === 0 ? (
+                    <div style={{ padding: '60px 24px', textAlign: 'center', background: '#fff', borderRadius: '20px', border: '2px dashed #e2e8f0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}><IconUsers /></div>
+                        <h3 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>No results found</h3>
+                        <p style={{ fontSize: '14px', color: '#64748b', maxWidth: '380px', margin: 0 }}>{search ? 'Try refining your search or clearing the filter.' : 'Begin by adding your first team leader.'}</p>
+                        {!search && filterTab === 'All' && (
+                            <button
+                                onClick={() => onNavigate('user-management')}
+                                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 14px rgba(99,102,241,0.3)', marginTop: '4px' }}
+                            >
+                                <IconPlus /> Add Team Leader
+                            </button>
+                        )}
+                    </div>
+                ) : (
+                    filtered.map(leader => (
+                        <LeaderCard
+                            key={leader.id}
+                            leader={leader}
+                            onAddAgent={handleAddAgent}
+                            onToggleLeader={handleToggleLeader}
+                            onToggleAgent={handleToggleAgent}
+                            onRemoveAgent={handleRemoveAgent}
+                        />
+                    ))
+                )}
+            </div>
         </div>
     );
 };
