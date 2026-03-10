@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import './UserManagement.css';
-
-/* ─── SAMPLE DATA ─────────────────────────────── */
-const INITIAL_USERS = [
-    { id: 1, name: 'Jane Doe', email: 'jane.doe@whiterock.crm', initials: 'JD', color: '#dbeafe', textColor: '#1d4ed8', role: 'Super Admin', roleColor: 'role--super', status: 'Active' },
-    { id: 2, name: 'Marcus Smith', email: 'm.smith@whiterock.crm', initials: 'MS', color: '#f3e8ff', textColor: '#7c3aed', role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', initials: 'CL', color: '#f1f5f9', textColor: '#64748b', role: 'Tele Agent', roleColor: 'role--agent', status: 'Inactive' },
-    { id: 4, name: 'Sarah White', email: 'sarah.w@whiterock.crm', initials: 'SW', color: '#fef9c3', textColor: '#a16207', role: 'Accounts Manager', roleColor: 'role--accounts', status: 'Active' },
-];
+import { useUsers } from '../../../context/UsersContext';
 
 const ALL_ROLES = ['All Roles', 'Super Admin', 'Team Leader', 'Tele Agent', 'Accounts Manager'];
 const ALL_STATUSES = ['All Status', 'Active', 'Inactive'];
@@ -221,8 +214,7 @@ const CreateUserModal = ({ onClose, onCreate }) => {
 
 /* ─── MAIN COMPONENT ──────────────────────────── */
 const UserManagement = () => {
-    const [users, setUsers] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const { users, setUsers } = useUsers();
     const [error, setError] = useState(null);
     const [search, setSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('All Roles');
@@ -259,15 +251,12 @@ const UserManagement = () => {
     }, []);
 
     const fetchUsers = async () => {
-        setLoading(true);
         try {
             const res = await fetch('http://localhost:8000/api/users/', {
                 credentials: 'include'
             });
             if (!res.ok) throw new Error('Failed to fetch users');
             const data = await res.json();
-
-            // Map DRF fields to component fields if necessary
             const mappedUsers = data.map(u => ({
                 id: u.id,
                 name: `${u.first_name} ${u.last_name}`.trim() || u.email.split('@')[0],
@@ -281,10 +270,7 @@ const UserManagement = () => {
             }));
             setUsers(mappedUsers);
         } catch (err) {
-            // Fall back to sample data if API is unavailable
-            setUsers(INITIAL_USERS);
-        } finally {
-            setLoading(false);
+            /* keep showing sample data already in state */
         }
     };
 
@@ -297,24 +283,42 @@ const UserManagement = () => {
         return matchSearch && matchRole && matchStatus;
     });
 
+    /* Build a local user object from a form */
+    const buildLocalUser = (id, form) => ({
+        id,
+        name: form.name,
+        email: form.email,
+        initials: getInitials(form.name),
+        color: avatarColors[id % avatarColors.length].bg,
+        textColor: avatarColors[id % avatarColors.length].text,
+        role: form.role,
+        roleColor: roleColorMap[form.role] || 'role--agent',
+        status: form.status,
+    });
+
     /* Toggle status */
     const toggleStatus = async (id) => {
-        const user = users.find(u => u.id === id);
+        /* optimistic local update */
+        setUsers(prev => prev.map(u => u.id === id
+            ? { ...u, status: u.status === 'Active' ? 'Inactive' : 'Active' }
+            : u
+        ));
         try {
-            const res = await fetch(`http://localhost:8000/api/users/${id}/`, {
+            const user = users.find(u => u.id === id);
+            await fetch(`http://localhost:8000/api/users/${id}/`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({ is_active: user.status !== 'Active' }),
             });
-            if (res.ok) fetchUsers();
-        } catch (err) {
-            console.error('Failed to toggle status:', err);
-        }
+        } catch { /* local state already updated */ }
     };
 
     /* Create user */
     const handleCreate = async (form) => {
+        const tempId = Date.now();
+        /* add to local list immediately */
+        setUsers(prev => [...prev, buildLocalUser(tempId, form)]);
         try {
             const res = await fetch('http://localhost:8000/api/users/', {
                 method: 'POST',
@@ -328,14 +332,14 @@ const UserManagement = () => {
                     is_staff: form.role === 'Super Admin',
                 }),
             });
-            if (res.ok) fetchUsers();
-        } catch (err) {
-            console.error('Failed to create user:', err);
-        }
+            if (res.ok) fetchUsers(); /* replace temp with real API data */
+        } catch { /* keep local entry */ }
     };
 
     /* Edit user */
     const handleEdit = async (id, form) => {
+        /* update locally right away */
+        setUsers(prev => prev.map(u => u.id === id ? buildLocalUser(id, form) : u));
         try {
             const res = await fetch(`http://localhost:8000/api/users/${id}/`, {
                 method: 'PATCH',
@@ -350,9 +354,7 @@ const UserManagement = () => {
                 }),
             });
             if (res.ok) fetchUsers();
-        } catch (err) {
-            console.error('Failed to edit user:', err);
-        }
+        } catch { /* keep local edit */ }
     };
 
     return (
@@ -438,9 +440,7 @@ const UserManagement = () => {
                 </div>
 
                 {/* ── TABLE (List View) ── */}
-                {loading ? (
-                    <div className="um-loading">Loading users...</div>
-                ) : viewMode === 'list' && (
+                {viewMode === 'list' && (
                     <div className="um-table-wrap">
                         <table className="um-table">
                             <thead>
