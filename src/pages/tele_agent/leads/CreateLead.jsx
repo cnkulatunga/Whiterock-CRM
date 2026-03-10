@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import './CreateLead.css';
 
 const CreateLead = ({ onBack }) => {
+    const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const [formData, setFormData] = useState({
         customerName: '',
         nic: '',
@@ -19,10 +21,18 @@ const CreateLead = ({ onBack }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleCancelClick = () => {
+        setShowCancelConfirm(true);
+    };
+
+    const handleConfirmCancel = () => {
+        setShowCancelConfirm(false);
+        onBack();
+    };
+
     const handleSaveAndSend = () => {
         console.log('Saving Lead & Sending Credentials:', formData);
-        alert('Lead Saved and Credentials Sent Successfully!');
-        onBack();
+        setShowSuccess(true);
     };
 
     return (
@@ -170,7 +180,7 @@ const CreateLead = ({ onBack }) => {
 
                     {/* Final Actions */}
                     <div className="form-actions-footer">
-                        <button className="btn-cancel" onClick={onBack}>Cancel</button>
+                        <button className="btn-cancel" onClick={handleCancelClick}>Cancel</button>
                         <button className="btn-save-send" onClick={handleSaveAndSend}>
                             <IconKey />
                             Send Credentials & Save
@@ -178,6 +188,53 @@ const CreateLead = ({ onBack }) => {
                     </div>
                 </div>
             </div>
+
+            {showCancelConfirm && (
+                <div className="create-lead-modal-overlay" role="dialog" aria-modal="true">
+                    <div className="create-lead-modal-card">
+                        <div className="create-lead-modal-header warning">
+                            <IconClose />
+                            <h3>Cancel Lead Creation?</h3>
+                        </div>
+                        <div className="create-lead-modal-body">
+                            <p>Are you sure you want to cancel? Any unsaved changes will be lost.</p>
+                        </div>
+                        <div className="create-lead-modal-footer">
+                            <button className="btn-modal-secondary" onClick={() => setShowCancelConfirm(false)}>
+                                Keep Editing
+                            </button>
+                            <button className="btn-modal-danger" onClick={handleConfirmCancel}>
+                                Yes, Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showSuccess && (
+                <div className="create-lead-modal-overlay" role="dialog" aria-modal="true">
+                    <div className="create-lead-modal-card">
+                        <div className="create-lead-modal-header success">
+                            <IconCheck />
+                            <h3>Saved & Shared</h3>
+                        </div>
+                        <div className="create-lead-modal-body">
+                            <p>Lead saved successfully and credentials shared with the customer.</p>
+                        </div>
+                        <div className="create-lead-modal-footer">
+                            <button
+                                className="btn-modal-primary"
+                                onClick={() => {
+                                    setShowSuccess(false);
+                                    onBack();
+                                }}
+                            >
+                                Back to Leads
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
