@@ -291,7 +291,7 @@
   background: #fff;
   border: 1.5px solid #e8edf5;
   border-radius: 14px;
-  overflow: hidden;
+  overflow-x: auto;
 }
 
 .um-table {
@@ -792,16 +792,65 @@
 
 /* ══════════════════════════════════════
    MOBILE RESPONSIVE  ≤ 768px
+   Updated for better mobile support
 ══════════════════════════════════════ */
 @media (max-width: 768px) {
   .um-topbar {
-    padding: 0 14px;
-    height: 54px;
-    gap: 10px;
+    display: none;
+  }
+
+  .um-mobile-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    padding-left: 4px;
+  }
+
+  .um-search-wrap--mobile {
+    flex: 1;
+    max-width: none;
+    background: #f1f5f9;
+    border-radius: 10px;
+    height: 36px;
+    padding: 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #e2e8f0;
+  }
+
+  .um-search-wrap--mobile input {
+    border: none;
+    background: none;
+    outline: none;
+    width: 100%;
+    font-size: 0.82rem;
+    color: #334155;
+  }
+
+  .um-create-btn--mobile {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 10px;
+    flex-shrink: 0;
   }
 
   .um-search-wrap {
     max-width: none;
+    flex: 1;
+  }
+
+  .um-topbar-actions .um-icon-btn {
+    display: none;
+    /* Hide notification/help on mobile */
+  }
+
+  .um-create-btn {
+    padding: 8px 12px;
+    font-size: 0.8rem;
   }
 
   .um-create-btn span:not(:first-child) {
@@ -814,68 +863,109 @@
   }
 
   .um-title {
-    font-size: 1.35rem;
+    font-size: 1.4rem;
+  }
+
+  .um-subtitle {
+    font-size: 0.8rem;
   }
 
   .um-heading-row {
     flex-direction: column;
-    gap: 10px;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .um-view-toggle {
+    width: 100%;
+  }
+
+  .um-view-btn {
+    flex: 1;
+    justify-content: center;
   }
 
   .um-filters {
-    padding: 10px 12px;
-    gap: 8px;
+    padding: 12px;
+    gap: 10px;
+    flex-direction: column;
+    align-items: stretch;
   }
 
+  .um-filter-label {
+    margin-bottom: 4px;
+  }
+
+  .um-select-wrap,
   .um-select {
-    font-size: 0.78rem;
-    padding: 6px 28px 6px 10px;
+    width: 100%;
   }
 
-  /* Table: hide less important columns on small screens */
+  .um-clear-btn {
+    margin-left: 0;
+    justify-content: center;
+    padding: 8px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+  }
+
+  /* Table: Ensure all columns are visible with horizontal scroll */
+  .um-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .um-table {
+    min-width: 600px;
+    /* Force scroll on mobile to keep data readable */
+  }
+
   .um-table th:nth-child(3),
-  .um-table td:nth-child(3) {
-    display: none;
+  .um-table td:nth-child(3),
+  .um-table th:nth-child(2),
+  .um-table td:nth-child(2) {
+    display: table-cell;
+    /* Restore visibility */
   }
 
   .um-table th {
     padding: 10px 12px;
-    font-size: 0.68rem;
+    font-size: 0.65rem;
   }
 
   .um-table td {
-    padding: 12px 12px;
+    padding: 12px;
   }
 
   .um-user-name {
-    font-size: 0.82rem;
+    font-size: 0.85rem;
   }
 
   .um-user-email {
-    font-size: 0.72rem;
+    font-size: 0.75rem;
   }
 
   .um-avatar {
     width: 32px;
     height: 32px;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
   }
 
   .um-pagination {
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
-    padding: 12px 14px;
+    padding: 16px 14px;
   }
 
   .um-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
   }
 
   .modal-box {
     max-width: 100%;
-    margin: 0 8px;
+    margin: 0;
     border-radius: 14px;
   }
 
@@ -884,17 +974,21 @@
   }
 
   .modal-header {
-    padding: 18px 18px 14px;
+    padding: 18px;
   }
 }
 
 @media (max-width: 480px) {
-  .um-table th:nth-child(2),
-  .um-table td:nth-child(2) {
-    display: none;
+  .um-content {
+    padding: 12px;
   }
 
-  .um-grid {
-    grid-template-columns: 1fr 1fr;
+  .um-user-cell {
+    gap: 10px;
+  }
+
+  .um-avatar {
+    width: 30px;
+    height: 30px;
   }
 }

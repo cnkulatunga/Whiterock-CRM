@@ -18,7 +18,7 @@ const PlaceholderPage = ({ title, icon }) => (
     </div>
 );
 
-const DashboardPage = () => <SuperAdminDashboard />;
+const DashboardPage = ({ onNavigate }) => <SuperAdminDashboard onNavigate={onNavigate} />;
 
 const LeadsPage = () => <LeadPerformance />;
 
@@ -90,7 +90,8 @@ const AppLayout = ({ onLogout }) => {
 
     const renderPage = () => {
         if (activePage === 'team-leaders') return <TeamLeadersPage onNavigate={handleNavigate} />;
-        return PAGE_MAP[activePage] ?? <DashboardPage />;
+        const PageComponent = PAGE_MAP[activePage];
+        return PageComponent ? React.cloneElement(PageComponent, { onNavigate: handleNavigate }) : <DashboardPage onNavigate={handleNavigate} />;
     };
 
     return (
@@ -105,17 +106,7 @@ const AppLayout = ({ onLogout }) => {
                         <line x1="3" y1="18" x2="21" y2="18" />
                     </svg>
                 </button>
-                <div className="mobile-topbar-logo">
-                    <div className="mobile-topbar-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2"
-                            strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                            <path d="M2 17l10 5 10-5" />
-                            <path d="M2 12l10 5 10-5" />
-                        </svg>
-                    </div>
-                    <span className="mobile-topbar-title">Whiterock CRM</span>
-                </div>
+                <div id="mobile-header-portal" className="mobile-header-content"></div>
             </header>
 
             {/* ── Sidebar backdrop ── */}

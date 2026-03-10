@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import './AuditLogs.css';
 
 /* ─── SAMPLE DATA ─────────────────────────────── */
@@ -191,10 +192,10 @@ const IcoFilter = () => (
    MAIN COMPONENT
 ═══════════════════════════════════════ */
 const AuditLogs = () => {
-    const [search,    setSearch]    = useState('');
+    const [search, setSearch] = useState('');
     const [dateRange, setDateRange] = useState('Last 24 Hours');
-    const [category,  setCategory]  = useState('All Categories');
-    const [userRole,  setUserRole]  = useState('Any Role');
+    const [category, setCategory] = useState('All Categories');
+    const [userRole, setUserRole] = useState('Any Role');
     const [currentPage, setCurrentPage] = useState(1);
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -210,19 +211,26 @@ const AuditLogs = () => {
     return (
         <div className="al-wrapper">
 
-            {/* ── TOPBAR ── */}
-            <header className="al-topbar">
-                <div className="al-topbar-left">
-                    <div className="al-logo">
-                        <div className="al-logo-icon">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2"
-                                strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                            </svg>
-                        </div>
-                        <span className="al-logo-text">Whiterock CRM</span>
+            {/* ── MOBILE HEADER PORTAL ── */}
+            {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
+                <div className="al-mobile-header-actions">
+                    <div className="al-search-wrap al-search-wrap--mobile">
+                        <IcoSearch />
+                        <input
+                            className="al-global-search"
+                            type="text"
+                            placeholder="Global search..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                        />
                     </div>
-                </div>
+                </div>,
+                document.getElementById('mobile-header-portal')
+            )}
+
+            {/* ── TOPBAR (Desktop only on mobile) ── */}
+            <header className="al-topbar">
+                <div />
                 <div className="al-search-wrap">
                     <IcoSearch />
                     <input

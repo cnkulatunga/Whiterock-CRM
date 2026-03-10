@@ -1,4 +1,4 @@
-
+import ReactDOM from 'react-dom';
 import './SuperAdminDashboard.css';
 
 
@@ -17,13 +17,6 @@ const IcoBell = () => (
     strokeLinecap="round" strokeLinejoin="round" width="17" height="17">
     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-  </svg>
-);
-
-const IcoSearch = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-    strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
-    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
 );
 
@@ -60,12 +53,12 @@ const KpiCard = ({ icon, iconBg, label, value, trend, trendLabel }) => (
 
 /* ─── RECENT ACTIVITY ─────────────────────── */
 const ACTIVITIES = [
-  { type: 'approval', color: '#16a34a', bg: '#dcfce7', label: 'Loan Approved',       detail: 'Ref #4821 — $42,000',          time: '2m ago'  },
-  { type: 'lead',     color: '#2447d7', bg: '#eef2ff', label: 'New Lead Submitted',  detail: 'by Agent Sarah Miller',         time: '8m ago'  },
-  { type: 'doc',      color: '#0ea5e9', bg: '#e0f2fe', label: 'Document Uploaded',   detail: 'KYC — John M.',                 time: '15m ago' },
-  { type: 'reject',   color: '#dc2626', bg: '#fee2e2', label: 'Loan Rejected',       detail: 'Ref #4819 — insufficient docs', time: '34m ago' },
-  { type: 'user',     color: '#7c3aed', bg: '#f3e8ff', label: 'New User Registered', detail: 'Agent — Emily Tan',             time: '1h ago'  },
-  { type: 'deal',     color: '#16a34a', bg: '#dcfce7', label: 'Deal Closed',         detail: '$28,500 — Priya Nair',          time: '2h ago'  },
+  { type: 'approval', color: '#16a34a', bg: '#dcfce7', label: 'Loan Approved', detail: 'Ref #4821 — $42,000', time: '2m ago' },
+  { type: 'lead', color: '#2447d7', bg: '#eef2ff', label: 'New Lead Submitted', detail: 'by Agent Sarah Miller', time: '8m ago' },
+  { type: 'doc', color: '#0ea5e9', bg: '#e0f2fe', label: 'Document Uploaded', detail: 'KYC — John M.', time: '15m ago' },
+  { type: 'reject', color: '#dc2626', bg: '#fee2e2', label: 'Loan Rejected', detail: 'Ref #4819 — insufficient docs', time: '34m ago' },
+  { type: 'user', color: '#7c3aed', bg: '#f3e8ff', label: 'New User Registered', detail: 'Agent — Emily Tan', time: '1h ago' },
+  { type: 'deal', color: '#16a34a', bg: '#dcfce7', label: 'Deal Closed', detail: '$28,500 — Priya Nair', time: '2h ago' },
 ];
 const RecentActivity = () => (
   <div className="sa-activity-rows">
@@ -86,10 +79,10 @@ const RecentActivity = () => (
 
 /* ─── DONUT CHART — DEAL STATUS ───────────── */
 const DONUT_DATA = [
-  { label: 'Active Deals',    value: 452, color: '#2447d7' },
-  { label: 'Approved',        value: 318, color: '#16a34a' },
-  { label: 'Pending Loans',   value: 124, color: '#f59e0b' },
-  { label: 'Rejected',        value: 84,  color: '#dc2626' },
+  { label: 'Active Deals', value: 452, color: '#2447d7' },
+  { label: 'Approved', value: 318, color: '#16a34a' },
+  { label: 'Pending Loans', value: 124, color: '#f59e0b' },
+  { label: 'Rejected', value: 84, color: '#dc2626' },
 ];
 const DonutChart = () => {
   const total = DONUT_DATA.reduce((s, d) => s + d.value, 0);
@@ -131,8 +124,8 @@ const DonutChart = () => {
 };
 
 /* ─── QUICK ACTION ────────────────────────── */
-const QuickAction = ({ icon, iconBg, title, desc }) => (
-  <button className="sa-qa-item">
+const QuickAction = ({ icon, iconBg, title, desc, onClick }) => (
+  <button className="sa-qa-item" onClick={onClick}>
     <div className="sa-qa-icon" style={{ background: iconBg }}>{icon}</div>
     <div className="sa-qa-text">
       <span className="sa-qa-title">{title}</span>
@@ -144,43 +137,48 @@ const QuickAction = ({ icon, iconBg, title, desc }) => (
 /* ═══════════════════════════════════════════
    MAIN COMPONENT
 ═══════════════════════════════════════════ */
-const SuperAdminDashboard = () => {
+const SuperAdminDashboard = ({ onNavigate }) => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const firstName = user.first_name || 'Alex';
 
   return (
     <div className="sa-dashboard">
 
+      {/* ── MOBILE HEADER PORTAL ── */}
+      {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
+        <div className="sa-mobile-header-actions">
+        </div>,
+        document.getElementById('mobile-header-portal')
+      )}
+
       {/* ── TOPBAR ── */}
       <header className="sa-topbar">
-        <div className="sa-heading">
-          <h1>Executive Dashboard</h1>
-          <p>Welcome back, {firstName}. Here's what's happening today.</p>
-        </div>
         <div className="sa-topbar-right">
-          <div className="sa-search">
-            <IcoSearch />
-            <input placeholder="Search data, deals, users..." />
-          </div>
-          <button className="sa-icon-btn"><IcoBell /></button>
-          <button className="sa-export-btn"><IcoDownload /> Export PDF</button>
         </div>
       </header>
 
       <div className="sa-content">
 
+        {/* ── PAGE HEADING ── */}
+        <div className="sa-heading-row">
+          <div>
+            <h1 className="sa-title">Super Admin Overview</h1>
+            <p className="sa-subtitle">Welcome back, {firstName}. Here's what's happening today.</p>
+          </div>
+        </div>
+
         {/* ── TOP ROW: LEADS + REVENUE + VERIFICATION ── */}
         <div className="sa-top-row">
           <KpiCard
             iconBg="#eef2ff"
-            icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
+            icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></svg>}
             label="Total Leads" value="12,840" trend="up" trendLabel="+12%"
           />
 
           <div className="sa-revenue-card">
             <div className="sa-revenue-bg-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" width="90" height="90">
-                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                <line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
             </div>
             <div className="sa-revenue-inner">
@@ -197,7 +195,7 @@ const SuperAdminDashboard = () => {
             <div className="sa-mini-top">
               <div className="sa-mini-icon sa-mini-icon--sky">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
                 </svg>
               </div>
               <div>
@@ -217,18 +215,21 @@ const SuperAdminDashboard = () => {
             <div className="sa-qa-actions-row">
               <QuickAction
                 iconBg="#eef2ff"
-                icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>}
-                title="Create New Lead" desc="Add prospect manually"
+                icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>}
+                title="Manage Leaders" desc="Review team leader performance"
+                onClick={() => onNavigate && onNavigate('team-leaders')}
               />
               <QuickAction
                 iconBg="#f3e8ff"
-                icon={<svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>}
-                title="View Approvals" desc="12 pending payment reviews"
+                icon={<svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>}
+                title="Finance Report" desc="Access revenue & transactions"
+                onClick={() => onNavigate && onNavigate('finance')}
               />
               <QuickAction
                 iconBg="#e0f2fe"
-                icon={<svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
+                icon={<svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>}
                 title="Manage Users" desc="Update permissions & access"
+                onClick={() => onNavigate && onNavigate('user-management')}
               />
             </div>
           </div>

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import './FinanceReport.css';
 
 /* ─── SAMPLE DATA ─────────────────────────────── */
 const TRANSACTIONS = [
-    { id: '#TRX-82910', lead: 'LD-4421', name: 'Alice Simpson',  initials: 'AS', amount: '$4,250.00',  date: 'Oct 24, 2023', status: 'Approved' },
-    { id: '#TRX-82911', lead: 'LD-4422', name: 'Brian Miller',   initials: 'BM', amount: '$1,800.00',  date: 'Oct 24, 2023', status: 'Pending'  },
+    { id: '#TRX-82910', lead: 'LD-4421', name: 'Alice Simpson', initials: 'AS', amount: '$4,250.00', date: 'Oct 24, 2023', status: 'Approved' },
+    { id: '#TRX-82911', lead: 'LD-4422', name: 'Brian Miller', initials: 'BM', amount: '$1,800.00', date: 'Oct 24, 2023', status: 'Pending' },
     { id: '#TRX-82912', lead: 'LD-4423', name: 'Catherine West', initials: 'CW', amount: '$12,400.00', date: 'Oct 23, 2023', status: 'Approved' },
-    { id: '#TRX-82913', lead: 'LD-4424', name: 'David King',     initials: 'DK', amount: '$750.00',    date: 'Oct 23, 2023', status: 'Rejected' },
-    { id: '#TRX-82914', lead: 'LD-4425', name: 'Emma Lee',       initials: 'EL', amount: '$3,120.00',  date: 'Oct 22, 2023', status: 'Approved' },
+    { id: '#TRX-82913', lead: 'LD-4424', name: 'David King', initials: 'DK', amount: '$750.00', date: 'Oct 23, 2023', status: 'Rejected' },
+    { id: '#TRX-82914', lead: 'LD-4425', name: 'Emma Lee', initials: 'EL', amount: '$3,120.00', date: 'Oct 22, 2023', status: 'Approved' },
 ];
 
 const BAR_DATA = [
@@ -21,7 +22,7 @@ const BAR_DATA = [
 
 const DONUT_SEGMENTS = [
     { label: 'Approved', pct: 75, color: '#22c55e' },
-    { label: 'Pending',  pct: 10, color: '#f59e0b' },
+    { label: 'Pending', pct: 10, color: '#f59e0b' },
     { label: 'Rejected', pct: 15, color: '#ef4444' },
 ];
 
@@ -88,7 +89,7 @@ const KpiCard = ({ icon, iconBg, label, value, trend, trendLabel }) => (
         <div className="fr-kpi-top">
             <div className="fr-kpi-icon" style={{ background: iconBg }}>{icon}</div>
             <div className={`fr-kpi-badge ${trend === 'up' ? 'badge--up' : trend === 'down' ? 'badge--down' : 'badge--flat'}`}>
-                {trend === 'up'   && <IcoTrendUp />}
+                {trend === 'up' && <IcoTrendUp />}
                 {trend === 'down' && <IcoTrendDown />}
                 <span>{trendLabel}</span>
             </div>
@@ -102,7 +103,7 @@ const KpiCard = ({ icon, iconBg, label, value, trend, trendLabel }) => (
 const BarChart = () => {
     const maxA = Math.max(...BAR_DATA.map(d => d.a));
     const maxB = Math.max(...BAR_DATA.map(d => d.b));
-    const max  = Math.max(maxA, maxB);
+    const max = Math.max(maxA, maxB);
     return (
         <div className="fr-bar-chart">
             {BAR_DATA.map((d) => (
@@ -120,9 +121,9 @@ const BarChart = () => {
 
 /* ─── DONUT CHART ───────────────────────────────── */
 const DonutChart = () => {
-    const r   = 52;
-    const cx  = 70;
-    const cy  = 70;
+    const r = 52;
+    const cx = 70;
+    const cy = 70;
     const circ = 2 * Math.PI * r;
     let cumPct = 0;
     return (
@@ -161,28 +162,34 @@ const StatusBadge = ({ status }) => (
    MAIN COMPONENT
 ═══════════════════════════════════════ */
 const FinanceReport = () => {
-    const [dateRange,  setDateRange]  = useState('Last 30 Days');
-    const [status,     setStatus]     = useState('All');
-    const [manager,    setManager]    = useState('All Managers');
+    const [dateRange, setDateRange] = useState('Last 30 Days');
+    const [status, setStatus] = useState('All');
+    const [manager, setManager] = useState('All Managers');
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = 3;
 
     return (
         <div className="fr-wrapper">
 
-            {/* ── TOPBAR ── */}
+            {/* ── MOBILE HEADER PORTAL ── */}
+            {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
+                <div className="fr-mobile-header-actions">
+                    <div className="fr-search fr-search--mobile">
+                        <IcoSearch />
+                        <input placeholder="Search reports..." />
+                    </div>
+                </div>,
+                document.getElementById('mobile-header-portal')
+            )}
+
+            {/* ── TOPBAR (Desktop only on mobile) ── */}
             <header className="fr-topbar">
-                <nav className="fr-breadcrumb">
-                    <span>Reports</span>
-                    <span className="fr-bc-sep">›</span>
-                    <span className="fr-bc-active">Financial Report</span>
-                </nav>
+                <div />
                 <div className="fr-topbar-right">
                     <div className="fr-search">
                         <IcoSearch />
                         <input placeholder="Search reports..." />
                     </div>
-                    <button className="fr-icon-btn"><IcoBell /></button>
                 </div>
             </header>
 
@@ -230,22 +237,22 @@ const FinanceReport = () => {
                 <div className="fr-kpi-grid">
                     <KpiCard
                         iconBg="#dcfce7"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>}
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>}
                         label="Total Loans" value="$428,540.00" trend="up" trendLabel="+12%"
                     />
                     <KpiCard
                         iconBg="#fef3c7"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>}
                         label="Pending Loans" value="$42,180.50" trend="flat" trendLabel="-0%"
                     />
                     <KpiCard
                         iconBg="#fee2e2"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>}
                         label="Rejected Loans" value="$8,240.00" trend="down" trendLabel="-4%"
                     />
                     <KpiCard
                         iconBg="#eef2ff"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>}
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>}
                         label="Monthly Revenue" value="$156,200.00" trend="up" trendLabel="+8%"
                     />
                 </div>
