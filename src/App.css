@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 /* Logout Confirmation Modal Styles */
 .logout-modal-overlay {
     position: fixed;

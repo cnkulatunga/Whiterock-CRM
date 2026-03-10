@@ -127,7 +127,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                 </div>
             </section>
 
-            <div className="dashboard-grid-main">
+            <div className="tele-dashboard-main">
 
                 {/* ── LEFT COLUMN ── */}
                 <div className="grid-left">
@@ -138,8 +138,8 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                             <h2 className="card-title">Today's Follow-ups</h2>
                             <button className="view-all-link" onClick={() => onNavigate('follow-ups')}>View all schedule</button>
                         </div>
-                        <div className="table-responsive">
-                            <table className="tele-table">
+                                <div className="table-responsive" style={{ width: '100%', overflowX: 'auto' }}>
+                             <table className="tele-table">
                                 <thead>
                                     <tr>
                                         <th>LEAD NAME</th>
