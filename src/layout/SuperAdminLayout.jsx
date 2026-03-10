@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import './SuperAdminLayout.css';
+import { UsersProvider } from '../context/UsersContext';
 import SuperAdminSidebar from '../components/super_admin_siderbar/superAdminSidebar';
 import UserManagement from '../pages/super_admin/user_management/UserManagement';
 import SuperAdminDashboard from '../pages/super_admin/dashboard/SuperAdminDashboard';
 import FinanceReport from '../pages/super_admin/finance/FinanceReport';
 import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
+import TeamLeaders from '../pages/super_admin/team_leaders/TeamLeaders';
 
 /* ─── PLACEHOLDER PAGES ───────────────────────── */
 const PlaceholderPage = ({ title, icon }) => (
@@ -62,6 +64,8 @@ const DealsPage = () => (
 
 const FinancePage = () => <FinanceReport />;
 
+const TeamLeadersPage = ({ onNavigate }) => <TeamLeaders onNavigate={onNavigate} />;
+
 /* ─── PAGE MAP ────────────────────────────────── */
 const PAGE_MAP = {
     'dashboard': <DashboardPage />,
@@ -77,15 +81,67 @@ const PAGE_MAP = {
 /* ─── APP LAYOUT ──────────────────────────────── */
 const AppLayout = ({ onLogout }) => {
     const [activePage, setActivePage] = useState('dashboard');
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const handleNavigate = (page) => {
+        setActivePage(page);
+        setSidebarOpen(false);
+    };
+
+    const renderPage = () => {
+        if (activePage === 'team-leaders') return <TeamLeadersPage onNavigate={handleNavigate} />;
+        return PAGE_MAP[activePage] ?? <DashboardPage />;
+    };
 
     return (
         <div className="app-layout">
-            <SuperAdminSidebar activePage={activePage} onNavigate={setActivePage} onLogout={onLogout} />
+            {/* ── Mobile top bar ── */}
+            <header className="mobile-topbar">
+                <button className="mobile-hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                        strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <div className="mobile-topbar-logo">
+                    <div className="mobile-topbar-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2"
+                            strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg>
+                    </div>
+                    <span className="mobile-topbar-title">Whiterock CRM</span>
+                </div>
+            </header>
+
+            {/* ── Sidebar backdrop ── */}
+            {sidebarOpen && (
+                <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+            )}
+
+            <SuperAdminSidebar
+                activePage={activePage}
+                onNavigate={handleNavigate}
+                onLogout={onLogout}
+                isOpen={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+            />
+
             <div className="app-main" key={activePage}>
-                {PAGE_MAP[activePage] ?? <DashboardPage />}
+                {renderPage()}
             </div>
         </div>
     );
 };
 
-export default AppLayout;
+const AppLayoutWithProviders = (props) => (
+    <UsersProvider>
+        <AppLayout {...props} />
+    </UsersProvider>
+);
+
+export default AppLayoutWithProviders;

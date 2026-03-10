@@ -58,6 +58,20 @@ const NAV_GROUPS = [
                 ),
             },
             {
+                id: 'team-leaders',
+                label: 'Team Leaders',
+                badge: null,
+                icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg>
+                ),
+            },
+            {
                 id: 'reports',
                 label: 'Audit Logs',
                 badge: null,
@@ -74,14 +88,14 @@ const NAV_GROUPS = [
     },
 ];
 
-const SuperAdminSidebar = ({ activePage, onNavigate, onLogout }) => {
+const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'Alex Sterling';
     const email = user.email || 'alex@whiterock.com';
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar${isOpen ? ' sidebar--open' : ''}`}>
             {/* ── Logo ── */}
             <div className="sidebar-logo">
                 <div className="sidebar-logo-icon">
@@ -96,6 +110,13 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout }) => {
                     <span className="sidebar-logo-text">Whiterock CRM</span>
                     <span className="sidebar-logo-role">SUPER ADMIN</span>
                 </div>
+                <button className="sidebar-close-btn" onClick={onClose} aria-label="Close menu">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
             </div>
 
             {/* ── Navigation ── */}
