@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './TeamLeaderDashboard.css';
 
-const TeamLeaderDashboard = () => {
+const TeamLeaderDashboard = ({ onNavigate }) => {
     // Shared Stats & Mock Data
     const stats = [
         { label: 'Total Active Leads', value: '1,284', trend: '+5.2%', trendType: 'positive' },
@@ -161,6 +161,13 @@ const TeamLeaderDashboard = () => {
                                         style={{ background: '#0078d4' }}
                                     >
                                         {isConnecting ? 'Syncing...' : 'Connect Outlook Account'}
+                                    </button>
+                                    <button 
+                                        className="view-all-link" 
+                                        onClick={() => onNavigate('calendar')}
+                                        style={{ marginTop: '12px', background: 'none', border: 'none', cursor: 'pointer', color: '#2447d7', fontWeight: 600 }}
+                                    >
+                                        Or use local Team Calendar
                                     </button>
                                 </div>
                             )}
