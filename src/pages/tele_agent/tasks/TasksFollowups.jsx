@@ -3,7 +3,8 @@ import './TasksFollowups.css';
 
 // Removed INITIAL_TASKS mock data, using props from layout.
 
-const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate }) => {
+const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, notifyReminderSet }) => {
+
     const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
@@ -38,7 +39,9 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate }) =>
             status: 'Pending'
         };
         setTasks([taskToAdd, ...tasks]);
+        if (notifyReminderSet) notifyReminderSet(taskToAdd);
         setIsAddingTask(false);
+
         setNewTask({
             title: '',
             lead: '',
@@ -54,8 +57,16 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate }) =>
     };
 
     const updateTaskReminder = (id, newReminder) => {
-        setTasks(tasks.map(t => t.id === id ? { ...t, reminder: newReminder } : t));
+        setTasks(tasks.map(t => {
+            if (t.id === id) {
+                const updatedTask = { ...t, reminder: newReminder };
+                if (notifyReminderSet && newReminder !== 'none') notifyReminderSet(updatedTask);
+                return updatedTask;
+            }
+            return t;
+        }));
     };
+
 
     const filteredTasks = tasks.filter(task => {
         const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

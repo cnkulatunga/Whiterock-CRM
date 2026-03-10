@@ -8,7 +8,8 @@ const AGENTS = [
     { id: 4, name: 'Sarah Meow', initials: 'SM', color: '#10b981' },
 ];
 
-const TeamLeaderCalendar = ({ tasks, setTasks, initialDate }) => {
+const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
+
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All'); // All, Personal, Team
     const [searchTerm, setSearchTerm] = useState('');
@@ -36,7 +37,9 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate }) => {
             createdBy: 'Team Leader'
         };
         setTasks([taskToAdd, ...tasks]);
+        if (notifyReminderSet) notifyReminderSet(taskToAdd);
         setIsAddingTask(false);
+
         setNewTask({
             title: '',
             lead: '',

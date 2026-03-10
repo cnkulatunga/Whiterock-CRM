@@ -5,6 +5,9 @@ import TeamLeaderDashboard from '../pages/team_leader/dashboard/TeamLeaderDashbo
 import LeadMonitoring from '../pages/team_leader/lead_monitoring/LeadMonitoring';
 import DocumentVerification from '../pages/team_leader/document_verification/DocumentVerification';
 import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar';
+import { useReminders } from '../hooks/useReminders';
+import NotificationTray from '../components/NotificationTray/NotificationTray';
+
 
 const INITIAL_TASKS = [
     { id: 101, title: 'Weekly Team Sync', lead: null, status: 'Pending', date: '2026-03-09', time: '09:00', type: 'Meeting', reminder: '15m', assignedTo: 'Self' },
@@ -17,6 +20,9 @@ const TeamLeaderLayout = ({ onLogout }) => {
     const [activePage, setActivePage] = useState('dashboard');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [tasks, setTasks] = useState(INITIAL_TASKS);
+    
+    const { notifications, removeNotification, notifyReminderSet } = useReminders(tasks, setTasks);
+
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const handleNavigate = (page) => {
@@ -33,7 +39,8 @@ const TeamLeaderLayout = ({ onLogout }) => {
             case 'document-verification':
                 return <DocumentVerification />;
             case 'calendar':
-                return <TeamLeaderCalendar tasks={tasks} setTasks={setTasks} />;
+                return <TeamLeaderCalendar tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />;
+
             default:
                 return (
                     <div style={{ padding: '40px' }}>
@@ -81,7 +88,9 @@ const TeamLeaderLayout = ({ onLogout }) => {
                 <div className="tele-content tl-content" key={activePage}>
                     {renderContent()}
                 </div>
+                <NotificationTray notifications={notifications} onRemove={removeNotification} />
             </div>
+
         </div>
     );
 };

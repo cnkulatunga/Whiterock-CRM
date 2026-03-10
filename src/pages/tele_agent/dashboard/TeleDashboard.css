@@ -546,14 +546,14 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.google-calendar-wrapper {
+.outlook-calendar-wrapper {
     position: relative;
     border-radius: 12px;
     overflow: hidden;
     background: #fdfdfd;
 }
 
-.google-overlay-notice {
+.outlook-overlay-notice {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -570,17 +570,135 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
-.google-overlay-notice h3 {
+.outlook-overlay-notice h3 {
     margin: 12px 0 8px;
     font-size: 16px;
     color: #1a202c;
     font-weight: 700;
 }
 
-.google-overlay-notice p {
+.outlook-overlay-notice p {
     font-size: 13px;
     color: #718096;
     line-height: 1.5;
+}
+
+/* ── OUTLOOK EVENTS LIST ── */
+.outlook-events-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+}
+
+.outlook-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.user-icon {
+    width: 20px;
+    height: 20px;
+    background: #0078d4;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 10px;
+}
+
+.refresh-btn {
+    background: none;
+    border: none;
+    color: #0078d4;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.outlook-event-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.outlook-event-item {
+    display: flex;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #f1f5f9;
+    transition: background 0.2s;
+}
+
+.outlook-event-item:hover {
+    background: #f8fafc;
+}
+
+.evt-time {
+    display: flex;
+    flex-direction: column;
+    min-width: 60px;
+}
+
+.evt-date {
+    font-size: 11px;
+    font-weight: 700;
+    color: #0078d4;
+}
+
+.evt-hour {
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.evt-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.evt-subject {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.evt-loc {
+    font-size: 10px;
+    color: #64748b;
+}
+
+.no-events {
+    text-align: center;
+    padding: 40px;
+    color: #94a3b8;
+    font-size: 13px;
 }
 
 .dashboard-calendar-layout {
@@ -934,4 +1052,39 @@
         opacity: 1;
         transform: translateY(0);
     }
+}
+
+/* ── TASK TYPE BADGES ── */
+.task-type-badge {
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+}
+
+.task-type-badge.call {
+    background: #ebf0ff;
+    color: #2447d7;
+}
+
+.task-type-badge.document {
+    background: #fffaf0;
+    color: #ed8936;
+}
+
+.task-type-badge.review {
+    background: #f0fff4;
+    color: #38a169;
+}
+
+.task-type-badge.email {
+    background: #faf5ff;
+    color: #805ad5;
+}
+
+.task-type-badge.follow-up {
+    background: #e6fffa;
+    color: #319795;
 }

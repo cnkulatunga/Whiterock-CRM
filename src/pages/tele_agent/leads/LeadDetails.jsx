@@ -132,9 +132,7 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                                 <thead>
                                     <tr>
                                         <th>DOCUMENT</th>
-                                        <th>TIME IN STAGE</th>
-                                        <th>MATCHED</th>
-                                        <th>SCORE</th>
+                                        <th>VERIFICATION STATUS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -145,9 +143,7 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                                                 <span className="doc-file">Uploaded 1h ago</span>
                                             </div>
                                         </td>
-                                        <td><span className="status-indicator">2h 15m</span></td>
-                                        <td><span className="matched-badge">100%</span></td>
-                                        <td><span className="score-badge">8.5</span></td>
+                                        <td><span className="doc-status verified">Verified</span></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -174,26 +170,6 @@ const IconInfo = () => (
 const IconDocs = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-    </svg>
-);
-const IconClock = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
-    </svg>
-);
-const IconMatched = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="8.5" cy="7" r="4" /><polyline points="17 11 19 13 23 9" />
-    </svg>
-);
-const IconScore = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-);
-const IconCompliance = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
 );
 const IconEmail = () => (
