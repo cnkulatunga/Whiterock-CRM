@@ -449,8 +449,8 @@ const TeamLeaders = ({ onNavigate }) => {
                 {/* Page heading */}
                 <header className="flex justify-between items-end gap-6 flex-wrap lg:items-start lg:flex-col sm:mb-4">
                     <div className="flex flex-col gap-1.5">
-                        <h1 className="text-[1.75rem] font-black text-[#1a202c] tracking-tight sm:text-2xl">Team Management</h1>
-                        <p className="text-[0.95rem] text-[#718096] font-medium leading-relaxed">Oversee team leaders and their designated tele agent cohorts.</p>
+                        <h1 className="text-[1.75rem] font-black text-[#1a202c] tracking-tight sm:text-2xl">Team Leaders</h1>
+                        <p className="text-[0.95rem] text-[#718096] font-medium leading-relaxed">Manage team leaders and their tele agent members.</p>
                     </div>
                     <div className="flex items-center gap-4 overflow-x-auto pb-2 w-full max-w-[500px] sm:max-w-none">
                          <div className="relative group flex-1 min-w-[280px] lg:hidden">
@@ -466,7 +466,7 @@ const TeamLeaders = ({ onNavigate }) => {
                             />
                         </div>
                         <button className="flex items-center gap-2.5 bg-[#2447d7] text-white px-6 py-3 rounded-2xl text-sm font-black tracking-tight hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all shadow-xl shadow-[#2447d7]/20 active:scale-95 whitespace-nowrap" onClick={() => onNavigate('user-management')}>
-                            <IconPlus /> Add Leader
+                            <IconPlus /> Add Team Leader
                         </button>
                     </div>
                 </header>
@@ -491,7 +491,7 @@ const TeamLeaders = ({ onNavigate }) => {
                         <div className="w-16 h-16 rounded-2xl bg-[#f3e8ff] text-[#7c3aed] flex items-center justify-center shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-[#7c3aed] group-hover:text-white transition-all"><IconTeams /></div>
                         <div className="flex flex-col gap-0.5">
                             <span className="text-3xl font-black text-[#1a202c] tracking-tighter">{activeTeams}</span>
-                            <span className="text-[10px] font-black text-[#cbd5e0] uppercase tracking-[0.2em]">Total Squads</span>
+                            <span className="text-[10px] font-black text-[#cbd5e0] uppercase tracking-[0.2em]">Active Teams</span>
                         </div>
                     </div>
                 </div>

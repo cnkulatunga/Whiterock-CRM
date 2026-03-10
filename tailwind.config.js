@@ -34,12 +34,22 @@ export default {
           '25%': { transform: 'translateX(-4px)' },
           '75%': { transform: 'translateX(4px)' },
         },
+        popIn: {
+          '0%': { transform: 'scale(0.85)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        slideDown: {
+          '0%': { transform: 'translateY(-12px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
       },
       animation: {
         fadeIn: 'fadeIn 0.2s ease-out',
         slideUp: 'slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
         pageSlide: 'pageSlide 0.22s cubic-bezier(0.22, 1, 0.36, 1) both',
         shake: 'shake 0.2s ease-in-out 0s 2',
+        popIn: 'popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) both',
+        slideDown: 'slideDown 0.25s ease-out',
       },
     },
   },
