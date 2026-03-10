@@ -26,6 +26,8 @@
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    min-width: 0;
+    transition: margin 0.3s ease;
 }
 
 /* Top Bar */
@@ -43,7 +45,7 @@
     left: 260px;
     z-index: 90;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-    transition: left 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .am-mobile-toggle {

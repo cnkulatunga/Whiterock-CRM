@@ -741,10 +741,26 @@
     border: 2px dashed #edf2f7;
 }
 
+@media (max-width: 992px) {
+    .calendar-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .date-details-sidebar {
+        margin-top: 24px;
+    }
+}
+
 @media (max-width: 768px) {
-    .tasks-controls {
+    .tasks-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: 16px;
+    }
+
+    .tasks-controls {
+        flex-direction: column;
+        align-items: stretch;
     }
 
     .search-box {
@@ -752,16 +768,27 @@
     }
 
     .task-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+        padding: 16px;
+    }
+
+    .task-main {
+        gap: 12px;
+    }
+
+    .task-type-icon {
+        width: 40px;
+        height: 40px;
     }
 
     .task-actions {
         width: 100%;
         justify-content: space-between;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #f7fafc;
     }
 }
+
 
 @media (max-width: 480px) {
     .tasks-header h1 {
@@ -782,9 +809,22 @@
     }
 
     .task-meta {
-        flex-direction: column;
-        gap: 8px;
+        gap: 4px;
     }
+
+    .calendar-view-container {
+        padding: 12px;
+    }
+
+    .calendar-day {
+        min-height: 70px;
+        padding: 6px;
+    }
+
+    .day-num {
+        font-size: 11px;
+    }
+
 
     .task-modal {
         padding: 24px 20px;

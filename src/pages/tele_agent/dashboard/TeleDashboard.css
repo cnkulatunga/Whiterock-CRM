@@ -114,6 +114,7 @@
     display: grid;
     grid-template-columns: 1fr 340px;
     gap: 24px;
+    min-width: 0;
 }
 
 @media (max-width: 1280px) {
@@ -438,7 +439,7 @@
 .tele-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 .tele-table th {
@@ -1100,7 +1101,29 @@
     .status-indicator {
         font-size: 11px;
     }
+
+    .tele-table {
+        table-layout: auto;
+    }
+
+    .tele-table th:nth-child(1) { width: auto; }
+    .tele-table th:nth-child(3) { width: auto; }
+    .tele-table th:nth-child(4) { width: auto; }
+
+    .calendar-grid-mini {
+        gap: 2px;
+    }
+
+    .calendar-section-alt .cal-cell {
+        height: 40px;
+        font-size: 13px;
+    }
+
+    .dash-date-sidebar {
+        margin-top: 16px;
+    }
 }
+
 
 .table-responsive {
     width: 100%;
@@ -1120,20 +1143,27 @@
     }
     
     .tele-table th, .tele-table td {
-        padding: 8px 4px;
+        padding: 10px 4px;
         font-size: 11px;
     }
     
     .lead-name {
-        font-size: 11px;
+        font-size: 12px;
+        white-space: normal;
+        line-height: 1.2;
     }
     
+    .time-main {
+        font-size: 12px;
+    }
+
     .status-indicator {
-        font-size: 11px;
+        font-size: 10px;
     }
     
     .lead-cell {
         gap: 4px;
+        min-width: 100px;
     }
     
     .follow-ups-card,
@@ -1141,8 +1171,24 @@
     .streak-card,
     .calendar-section-alt {
         padding: 12px;
+        border-radius: 12px;
+    }
+
+    .calendar-grid-mini {
+        gap: 1px;
+    }
+
+    .calendar-section-alt .cal-cell {
+        height: 36px;
+        font-size: 12px;
+        border-radius: 6px;
+    }
+
+    .cal-day-label {
+        font-size: 9px;
     }
 }
+
 
 @keyframes fadeIn {
     from {
