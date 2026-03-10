@@ -4,8 +4,8 @@ import AccountsManagerSidebar from '../components/accounts_manager_sidebar/Accou
 import AMDashboard from '../pages/accounts_manager/dashboard/AMDashboard';
 import LenderSelector from '../pages/accounts_manager/lender_selector/LenderSelector';
 import LenderSelection from '../pages/accounts_manager/lender_selection/LenderSelection';
-import FinancialPaymentReport from '../pages/accounts_manager/financial_payment_report/FinancialPaymentReport';
-import LeadPerformanceReport from '../pages/accounts_manager/lead_performance_report/LeadPerformanceReport';
+import FinanceReport from '../pages/super_admin/finance/FinanceReport';
+import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
 import AuditLogs from '../pages/accounts_manager/audit_logs/AuditLogs';
 import DraftDashboard from '../pages/accounts_manager/draft_dashboard/DraftDashboard';
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
@@ -25,14 +25,14 @@ const AccountsManagerLayout = ({ onLogout }) => {
     const renderContent = () => {
         switch (activePage) {
             case 'accounts_manager_dashboard': return <AMDashboard onNavigate={handleNavigate} />;
-            case 'lender_selector':             return <LenderSelector onNavigate={handleNavigate} />;
-            case 'lender_selection':            return <LenderSelection lead={selectedLead} />;
-            case 'financial_payment_report':    return <FinancialPaymentReport />;
-            case 'lead_performance_report':     return <LeadPerformanceReport />;
-            case 'audit_logs':                  return <AuditLogs />;
-            case 'draft_dashboard':             return <DraftDashboard onNavigate={handleNavigate} />;
-            case 'lender_selection_approved':   return <LenderSelectionApproved />;
-            default:                            return <AMDashboard onNavigate={handleNavigate} />;
+            case 'lender_selector': return <LenderSelector onNavigate={handleNavigate} />;
+            case 'lender_selection': return <LenderSelection lead={selectedLead} />;
+            case 'financial_payment_report': return <FinanceReport />;
+            case 'lead_performance_report': return <LeadPerformance />;
+            case 'audit_logs': return <AuditLogs />;
+            case 'draft_dashboard': return <DraftDashboard onNavigate={handleNavigate} />;
+            case 'lender_selection_approved': return <LenderSelectionApproved />;
+            default: return <AMDashboard onNavigate={handleNavigate} />;
         }
     };
 
