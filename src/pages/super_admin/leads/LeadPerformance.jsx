@@ -2,21 +2,7 @@ import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import './LeadPerformance.css';
 
-/* ─── DATA ─────────────────────────────────────── */
-const FUNNEL_STAGES = [
-    { label: 'Stage 01: Lead In', pct: 100, count: 1482, color: '#2447d7' },
-    { label: 'Stage 02: Contacted', pct: 72, count: 1067, color: '#93c5fd' },
-    { label: 'Stage 03: Qualified', pct: 48, count: 711, color: '#bfdbfe' },
-    { label: 'Stage 04: Proposal Sent', pct: 32, count: 474, color: '#cbd5e1' },
-    { label: 'Closed: Won', pct: 24, count: 367, color: '#22c55e' },
-];
 
-const SOURCE_SEGMENTS = [
-    { label: 'Direct Inbound', pct: 42, color: '#2447d7' },
-    { label: 'Paid Advertising', pct: 28, color: '#38bdf8' },
-    { label: 'Social Media', pct: 18, color: '#a78bfa' },
-    { label: 'Referrals', pct: 12, color: '#cbd5e1' },
-];
 
 const RECENT_LEADS = [
     { id: '#LD-9482', name: 'Jonathan Doe', initials: 'JD', stage: 'STAGE 03', stageClass: 'stage--03', status: 'Active', statusClass: 'ls--active', agent: 'Sarah Jenkins', date: 'Oct 24, 2023' },
@@ -66,12 +52,7 @@ const IcoTrendUp = () => (
         <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
     </svg>
 );
-const IcoTrendDown = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-        strokeLinecap="round" strokeLinejoin="round" width="11" height="11">
-        <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-    </svg>
-);
+
 
 /* ─── KPI CARD ──────────────────────────────────── */
 const KpiCard = ({ icon, iconBg, label, value, trendIcon, trendText, trendClass }) => (
@@ -90,50 +71,7 @@ const KpiCard = ({ icon, iconBg, label, value, trendIcon, trendText, trendClass 
     </div>
 );
 
-/* ─── FUNNEL BAR ─────────────────────────────────── */
-const FunnelBar = ({ label, pct, count, color }) => (
-    <div className="lp-funnel-row">
-        <div className="lp-funnel-meta">
-            <span className="lp-funnel-label">{label}</span>
-            <span className="lp-funnel-stat">{pct}% ({count.toLocaleString()})</span>
-        </div>
-        <div className="lp-funnel-track">
-            <div className="lp-funnel-fill" style={{ width: `${pct}%`, background: color }} />
-        </div>
-    </div>
-);
 
-/* ─── SOURCE DONUT ───────────────────────────────── */
-const SourceDonut = () => {
-    const r = 58;
-    const cx = 80, cy = 80;
-    const circ = 2 * Math.PI * r;
-    let cumPct = 0;
-
-    return (
-        <svg viewBox="0 0 160 160" width="170" height="170">
-            <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f1f5f9" strokeWidth="22" />
-            {SOURCE_SEGMENTS.map(({ pct, color }) => {
-                const dash = (pct / 100) * circ;
-                const rotDeg = -90 + (cumPct / 100) * 360;
-                cumPct += pct;
-                return (
-                    <circle key={color} cx={cx} cy={cy} r={r}
-                        fill="none" stroke={color} strokeWidth="22"
-                        strokeDasharray={`${dash} ${circ}`}
-                        strokeDashoffset="0"
-                        transform={`rotate(${rotDeg} ${cx} ${cy})`}
-                        strokeLinecap="butt"
-                    />
-                );
-            })}
-            <text x={cx} y={cy - 4} textAnchor="middle" fontSize="18" fontWeight="800"
-                fill="#1a1f36" fontFamily="Sora,sans-serif">Source</text>
-            <text x={cx} y={cy + 14} textAnchor="middle" fontSize="9" fontWeight="600"
-                fill="#94a3b8" fontFamily="Sora,sans-serif" letterSpacing="0.8">METRICS</text>
-        </svg>
-    );
-};
 
 /* ═══════════════════════════════════════
    MAIN COMPONENT
@@ -212,56 +150,14 @@ const LeadPerformance = () => {
                         trendIcon={<IcoTrendUp />} trendText="+12.5% vs last month" trendClass="trend--up"
                     />
                     <KpiCard
-                        iconBg="#dcfce7"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>}
-                        label="Conversion Rate" value="24.8%"
-                        trendIcon={<IcoTrendUp />} trendText="+3.2% vs last month" trendClass="trend--up"
-                    />
-                    <KpiCard
                         iconBg="#fee2e2"
                         icon={<svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" /></svg>}
                         label="Rejection Rate" value="12.1%"
                         trendIcon={<IcoTrendUp />} trendText="+1.4% vs last month" trendClass="trend--danger"
                     />
-                    <KpiCard
-                        iconBg="#fef9c3"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#a16207" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>}
-                        label="Avg Lead Aging" value="4.2 Days"
-                        trendIcon={<IcoTrendDown />} trendText="-0.8 days improvement" trendClass="trend--up"
-                    />
                 </div>
 
-                {/* ── CHARTS ROW ── */}
-                <div className="lp-charts-row">
-                    {/* Sales Funnel */}
-                    <div className="lp-panel">
-                        <h3 className="lp-panel-title">Sales Funnel Efficiency</h3>
-                        <div className="lp-funnel-list">
-                            {FUNNEL_STAGES.map(s => (
-                                <FunnelBar key={s.label} {...s} />
-                            ))}
-                        </div>
-                    </div>
 
-                    {/* Lead Source */}
-                    <div className="lp-panel">
-                        <h3 className="lp-panel-title">Lead Source Breakdown</h3>
-                        <div className="lp-source-body">
-                            <SourceDonut />
-                            <div className="lp-source-legend">
-                                {SOURCE_SEGMENTS.map(({ label, pct, color }) => (
-                                    <div className="lp-source-row" key={label}>
-                                        <div className="lp-source-left">
-                                            <span className="lp-legend-dot" style={{ background: color }} />
-                                            <span className="lp-legend-label">{label}</span>
-                                        </div>
-                                        <span className="lp-legend-pct">{pct}%</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {/* ── RECENT LEADS ── */}
                 <div className="lp-table-card">
