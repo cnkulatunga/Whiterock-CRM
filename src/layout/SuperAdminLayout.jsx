@@ -77,6 +77,16 @@ const PAGE_MAP = {
     'settings': <SettingsPage />,
 };
 
+/* ─── SEARCH PLACEHOLDER MAP ──────────────────── */
+const SEARCH_PLACEHOLDERS = {
+    'dashboard':       'Global search...',
+    'leads':           'Quick search...',
+    'finance':         'Search reports...',
+    'user-management': 'Search users, roles, or emails...',
+    'team-leaders':    'Search team leaders...',
+    'reports':         'Global search...',
+};
+
 /* ─── APP LAYOUT ──────────────────────────────── */
 const AppLayout = ({ onLogout }) => {
     const [activePage, setActivePage] = useState('dashboard');
@@ -92,6 +102,8 @@ const AppLayout = ({ onLogout }) => {
         const PageComponent = PAGE_MAP[activePage];
         return PageComponent ? React.cloneElement(PageComponent, { onNavigate: handleNavigate }) : <DashboardPage onNavigate={handleNavigate} />;
     };
+
+    const searchPlaceholder = SEARCH_PLACEHOLDERS[activePage] || 'Global search...';
 
     return (
         <div className="flex min-h-screen w-full md:flex-col">
@@ -121,8 +133,27 @@ const AppLayout = ({ onLogout }) => {
                 onClose={() => setSidebarOpen(false)}
             />
 
-            <div className="flex-1 flex flex-col min-w-0 md:mt-14 animate-pageSlide" key={activePage}>
-                {renderPage()}
+            <div className="flex-1 flex flex-col min-w-0 md:mt-14 bg-[#f4f6fb]" key={activePage}>
+                {/* ── Desktop top search bar ── */}
+                <div className="md:hidden sticky top-0 z-50 bg-white border-b border-[#e8edf5] px-10 h-[60px] flex items-center justify-end shadow-[0_2px_8px_rgba(36,71,215,0.04)] lg:px-6">
+                    <div className="relative group w-[260px] xl:w-[200px]">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors pointer-events-none">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+                                strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+                                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                        </div>
+                        <input
+                            className="w-full bg-[#f1f5f9] border border-transparent rounded-xl py-2 pl-9 pr-4 text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/20 focus:shadow-sm transition-all placeholder:text-[#a0aec0]"
+                            placeholder={searchPlaceholder}
+                            readOnly
+                        />
+                    </div>
+                </div>
+
+                <div className="flex-1 p-10 lg:p-6 sm:p-4 animate-pageSlide">
+                    {renderPage()}
+                </div>
             </div>
         </div>
     );
