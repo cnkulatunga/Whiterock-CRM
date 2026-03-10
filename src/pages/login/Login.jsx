@@ -170,7 +170,7 @@ const PwReq = ({ met, label }) => (
 /* ═════════════════════════════════════════════
    MAIN COMPONENT
 ═════════════════════════════════════════════ */
-const Login = ({ onLogin }) => {
+const Login = ({ onLogin, defaultRole }) => {
 
     // ── VIEW STATES ──
     // 'login' | 'fp-email' | 'fp-otp' | 'fp-newpw' | 'fp-success'
@@ -221,11 +221,13 @@ const Login = ({ onLogin }) => {
         if (!loginPassword) { setLoginError('Please enter your password.'); return; }
 
         // For now, let's bypass real backend check as requested
-        let role = 'client';
-        if (loginEmail.startsWith('tele')) role = 'tele_agent';
-        else if (loginEmail.startsWith('admin')) role = 'super_admin';
-        else if (loginEmail.startsWith('manager')) role = 'accounts_manager';
-        else if (loginEmail.startsWith('leader')) role = 'team_leader';
+        let role = defaultRole || 'client';
+        if (!defaultRole) {
+            if (loginEmail.startsWith('tele')) role = 'tele_agent';
+            else if (loginEmail.startsWith('admin')) role = 'super_admin';
+            else if (loginEmail.startsWith('manager')) role = 'accounts_manager';
+            else if (loginEmail.startsWith('leader')) role = 'team_leader';
+        }
 
         const NAMES = {
             tele_agent: ['Tele', 'User'],

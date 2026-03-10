@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import Login from './pages/login/Login';
 import ClientLayout from './layout/ClientLayout';
 import SuperAdminLayout from './layout/SuperAdminLayout';
@@ -6,13 +7,73 @@ import TeleAgentLayout from './layout/TeleAgentLayout';
 import AccountsManagerLayout from './layout/AccountsManagerLayout';
 import TeamLeaderLayout from './layout/TeamLeaderLayout';
 
+const ProtectedRoute = ({ children, allowedRoles, isLoggedIn }) => {
+    const userString = localStorage.getItem('user');
+    if (!isLoggedIn || !userString) {
+        return <Navigate to="/login" replace />;
+    }
+    
+    try {
+        const user = JSON.parse(userString);
+        const role = user.role;
+        
+        if (allowedRoles && !allowedRoles.includes(role)) {
+            // Redirect to their respective home if they try to access a restricted role path
+            switch (role) {
+                case 'super_admin': return <Navigate to="/super-admin" replace />;
+                case 'tele_agent': return <Navigate to="/tele-agent" replace />;
+                case 'accounts_manager': return <Navigate to="/accounts-manager" replace />;
+                case 'team_leader': return <Navigate to="/team-leader" replace />;
+                case 'client':
+                default: return <Navigate to="/client" replace />;
+            }
+        }
+        return children;
+    } catch (e) {
+        console.error("Auth error:", e);
+        return <Navigate to="/login" replace />;
+    }
+};
+
+const DashboardHome = ({ isLoggedIn }) => {
+    const userString = localStorage.getItem('user');
+    if (!isLoggedIn || !userString) return <Navigate to="/login" replace />;
+    
+    try {
+        const user = JSON.parse(userString);
+        const role = user.role;
+        switch (role) {
+            case 'super_admin': return <Navigate to="/super-admin" replace />;
+            case 'tele_agent': return <Navigate to="/tele-agent" replace />;
+            case 'accounts_manager': return <Navigate to="/accounts-manager" replace />;
+            case 'team_leader': return <Navigate to="/team-leader" replace />;
+            case 'client':
+            default: return <Navigate to="/client" replace />;
+        }
+    } catch (e) {
+        return <Navigate to="/login" replace />;
+    }
+};
+
 function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('user'));
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+    const navigate = useNavigate();
 
-    // Real login transition
-    const handleLogin = () => {
+    const handleLogin = (role = null) => {
         setIsLoggedIn(true);
+        const userString = localStorage.getItem('user');
+        const user = userString ? JSON.parse(userString) : {};
+        const userRole = role || user.role || 'client';
+        
+        console.log("Logging in as:", userRole);
+        switch (userRole) {
+            case 'super_admin': navigate('/super-admin'); break;
+            case 'tele_agent': navigate('/tele-agent'); break;
+            case 'accounts_manager': navigate('/accounts-manager'); break;
+            case 'team_leader': navigate('/team-leader'); break;
+            default: navigate('/client'); break;
+        }
     };
 
     const handleLogoutTrigger = () => {
@@ -23,34 +84,63 @@ function App() {
         localStorage.removeItem('user');
         setIsLoggedIn(false);
         setShowLogoutConfirm(false);
+        navigate('/login');
     };
 
     const cancelLogout = () => {
         setShowLogoutConfirm(false);
     };
 
-    const renderLayout = () => {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const role = user.role || 'client';
-
-        switch (role) {
-            case 'super_admin':
-                return <SuperAdminLayout onLogout={handleLogoutTrigger} />;
-            case 'tele_agent':
-                return <TeleAgentLayout onLogout={handleLogoutTrigger} />;
-            case 'accounts_manager':
-                return <AccountsManagerLayout onLogout={handleLogoutTrigger} />;
-            case 'team_leader':
-                return <TeamLeaderLayout onLogout={handleLogoutTrigger} />;
-            case 'client':
-            default:
-                return <ClientLayout onLogout={handleLogoutTrigger} />;
-        }
-    };
-
     return (
-        <div className="min-h-screen bg-gray-50">
-            {isLoggedIn ? renderLayout() : <Login onLogin={handleLogin} />}
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+            <Routes>
+                {/* Generic Login */}
+                <Route path="/login" element={isLoggedIn ? <DashboardHome isLoggedIn={isLoggedIn} /> : <Login onLogin={() => handleLogin()} />} />
+                
+                {/* Specific Login Routes */}
+                <Route path="/login/lead" element={isLoggedIn ? <Navigate to="/client" replace /> : <Login onLogin={() => handleLogin('client')} defaultRole="client" />} />
+                <Route path="/login/tele-agent" element={isLoggedIn ? <Navigate to="/tele-agent" replace /> : <Login onLogin={() => handleLogin('tele_agent')} defaultRole="tele_agent" />} />
+                <Route path="/login/team-leader" element={isLoggedIn ? <Navigate to="/team-leader" replace /> : <Login onLogin={() => handleLogin('team_leader')} defaultRole="team_leader" />} />
+                <Route path="/login/accounts-manager" element={isLoggedIn ? <Navigate to="/accounts-manager" replace /> : <Login onLogin={() => handleLogin('accounts_manager')} defaultRole="accounts_manager" />} />
+                <Route path="/login/super-admin" element={isLoggedIn ? <Navigate to="/super-admin" replace /> : <Login onLogin={() => handleLogin('super_admin')} defaultRole="super_admin" />} />
+
+                {/* Role-Protected Layouts */}
+                <Route path="/super-admin/*" element={
+                    <ProtectedRoute isLoggedIn={isLoggedIn} allowedRoles={['super_admin']}>
+                        <SuperAdminLayout onLogout={handleLogoutTrigger} />
+                    </ProtectedRoute>
+                } />
+                
+                <Route path="/tele-agent/*" element={
+                    <ProtectedRoute isLoggedIn={isLoggedIn} allowedRoles={['tele_agent']}>
+                        <TeleAgentLayout onLogout={handleLogoutTrigger} />
+                    </ProtectedRoute>
+                } />
+                
+                <Route path="/accounts-manager/*" element={
+                    <ProtectedRoute isLoggedIn={isLoggedIn} allowedRoles={['accounts_manager']}>
+                        <AccountsManagerLayout onLogout={handleLogoutTrigger} />
+                    </ProtectedRoute>
+                } />
+                
+                <Route path="/team-leader/*" element={
+                    <ProtectedRoute isLoggedIn={isLoggedIn} allowedRoles={['team_leader']}>
+                        <TeamLeaderLayout onLogout={handleLogoutTrigger} />
+                    </ProtectedRoute>
+                } />
+                
+                <Route path="/client/*" element={
+                    <ProtectedRoute isLoggedIn={isLoggedIn} allowedRoles={['client']}>
+                        <ClientLayout onLogout={handleLogoutTrigger} />
+                    </ProtectedRoute>
+                } />
+
+                {/* Root Redirection */}
+                <Route path="/" element={<DashboardHome isLoggedIn={isLoggedIn} />} />
+                
+                {/* Final Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
             
             {showLogoutConfirm && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999] animate-fadeIn">
