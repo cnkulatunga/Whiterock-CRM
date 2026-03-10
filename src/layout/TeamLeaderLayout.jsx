@@ -31,7 +31,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
     const renderContent = () => {
         switch (activePage) {
             case 'dashboard':
-                return <TeamLeaderDashboard onNavigate={handleNavigate} />;
+                return <TeamLeaderDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />;
             case 'lead-monitoring':
                 return <LeadMonitoring />;
             case 'document-verification':
@@ -71,14 +71,6 @@ const TeamLeaderLayout = ({ onLogout }) => {
                     </button>
 
                     <div className="flex-1 max-w-[480px] ml-5 md:ml-1 md:max-w-none">
-                        <div className="relative flex items-center bg-[#f7fafc] rounded-xl px-4 border border-transparent transition-all duration-200 focus-within:bg-white focus-within:border-[#2447d7] focus-within:shadow-[0_0_0_3px_rgba(36,71,215,0.1)]">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" className="mr-3 shrink-0">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            <input type="text" placeholder="Search leads, agents, or files..." 
-                                className="w-full h-11 bg-transparent border-none outline-none text-sm text-[#1a202c] font-medium placeholder:text-[#a0aec0] md:h-10 md:text-[13px] md:placeholder:text-xs" />
-                        </div>
                     </div>
 
                 </div>

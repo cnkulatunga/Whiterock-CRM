@@ -57,6 +57,19 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
         setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
     };
 
+    const updateTaskReminder = (id, newReminder) => {
+        setTasks(tasks.map(t => {
+            if (t.id === id) {
+                const updatedTask = { ...t, reminder: newReminder };
+                if (notifyReminderSet && newReminder !== 'none') notifyReminderSet(updatedTask);
+                return updatedTask;
+            }
+            return t;
+        }));
+    };
+
+    const [showNotifications, setShowNotifications] = useState(false);
+
     const filteredTasks = tasks.filter(task => {
         const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (task.lead && task.lead.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -158,12 +171,43 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                     <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Team & Personal Calendar</h1>
                     <p className="text-[0.95rem] text-[#718096] font-medium">Manage your tasks, follow-ups, and assign work to your team members.</p>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 sm:flex-wrap">
+                    <div className="relative">
+                        <button className={`w-11 h-11 bg-white border border-[#edf2f7] rounded-xl text-[#718096] flex items-center justify-center hover:bg-[#f7fafc] hover:text-[#2447d7] transition-all duration-200 relative ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                            </svg>
+                        </button>
+                        {showNotifications && (
+                            <div className="absolute top-14 right-0 w-[300px] bg-white rounded-2xl shadow-xl border border-[#edf2f7] z-[100] overflow-hidden animate-fadeIn">
+                                <div className="p-4 bg-[#f8fafc] border-b border-[#edf2f7] text-sm font-bold text-[#1a202c]">Reminders & Alerts</div>
+                                <div className="max-h-[300px] overflow-y-auto">
+                                    {tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').length > 0 ? (
+                                        tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').map(t => (
+                                            <div key={t.id} className="p-3 px-4 flex items-center gap-3 border-b border-[#f7fafc] hover:bg-[#f8fafc] transition-colors">
+                                                <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                                                        <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3L2 6" /><path d="M22 6l-3-3" /><path d="M6.38 18.7l-.44 1.1a1 1 0 0 1-1.32.5l-2.2-.9a1 1 0 0 1-.5-1.32l.44-1.1" /><path d="M17.62 18.7l.44 1.1a1 1 0 0 1 1.32.5l2.2-.9a1 1 0 0 1 .5-1.32l-.44-1.1" />
+                                                    </svg>
+                                                </div>
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[13px] font-bold text-[#2d3748] leading-tight flex items-center gap-1.5">{t.title} {t.assignedTo === 'Self' ? <span className="bg-[#f8fafc] text-[#a0aec0] text-[9px] px-1 rounded uppercase tracking-wider border border-[#edf2f7]">Self</span> : ''}</span>
+                                                    <span className="text-[11px] text-[#a0aec0] font-medium">{t.date} at {t.time}</span>
+                                                </div>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <div className="p-6 text-center text-[#a0aec0] text-[13px] italic">No active reminders</div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
                     <div className="flex p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0]">
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><div className="flex items-center gap-2"><IconList size={14} /> List</div></button>
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><div className="flex items-center gap-2"><IconCalendar size={14} /> Calendar</div></button>
                     </div>
-                    <button className="bg-[#2447d7] text-white p-[10px_20px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center gap-2" onClick={() => setIsAddingTask(true)}>
+                    <button className="bg-[#2447d7] text-white p-[10px_20px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center gap-2 sm:w-full sm:justify-center" onClick={() => setIsAddingTask(true)}>
                         <IconPlus /> <span>New Task</span>
                     </button>
                 </div>
@@ -322,22 +366,45 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                             </span>
                                         </div>
                                         {task.message && <p className="text-[12px] text-[#94a3b8] font-medium leading-relaxed mt-1 line-clamp-1 italic">{task.message}</p>}
+                                        {task.reminder && task.reminder !== 'none' && (
+                                            <span className="bg-[#f0f4ff] text-[#2447d7] px-2 py-0.5 rounded-md text-[10px] uppercase font-bold w-fit flex items-center gap-1 mt-1">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10">
+                                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                                </svg>
+                                                Remind {task.reminder === '1d' ? '1 day before' : task.reminder === '1h' ? '1 hour before' : '15 min before'}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="shrink-0 flex items-center">
-                                    <select 
-                                        className={`p-[8px_20px] rounded-xl text-xs font-black uppercase tracking-widest border-2 outline-none transition-all cursor-pointer shadow-sm active:scale-95 ${
-                                            task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#d1fae5]' :
-                                            task.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff] hover:bg-[#d9ebff]' :
-                                            'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5] hover:bg-[#ffedd5]'
-                                        }`}
-                                        value={task.status}
-                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                    >
-                                        <option>Pending</option>
-                                        <option>In Progress</option>
-                                        <option>Completed</option>
-                                    </select>
+                                <div className="shrink-0 flex items-center gap-3 sm:flex-col sm:items-stretch sm:gap-2">
+                                    <div className="flex items-center border border-[#edf2f7] rounded-xl bg-[#f7fafc]">
+                                        <select 
+                                            className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
+                                            value={task.reminder || 'none'}
+                                            onChange={(e) => updateTaskReminder(task.id, e.target.value)}
+                                            title="Update Reminder"
+                                        >
+                                            <option value="none">🔔 Off</option>
+                                            <option value="15m">15m</option>
+                                            <option value="1h">1h</option>
+                                            <option value="1d">1d</option>
+                                        </select>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <select 
+                                            className={`p-[8px_20px] rounded-xl text-xs font-black uppercase tracking-widest border-2 outline-none transition-all cursor-pointer shadow-sm active:scale-95 sm:w-full ${
+                                                task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#d1fae5]' :
+                                                task.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff] hover:bg-[#d9ebff]' :
+                                                'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5] hover:bg-[#ffedd5]'
+                                            }`}
+                                            value={task.status}
+                                            onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                        >
+                                            <option>Pending</option>
+                                            <option>In Progress</option>
+                                            <option>Completed</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         ))
