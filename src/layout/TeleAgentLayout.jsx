@@ -7,6 +7,11 @@ import ManageLeads from '../pages/tele_agent/leads/ManageLeads';
 import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
 import TasksFollowups from '../pages/tele_agent/tasks/TasksFollowups';
+import { useReminders } from '../hooks/useReminders';
+import NotificationTray from '../components/NotificationTray/NotificationTray';
+import ReminderModal from '../components/NotificationTray/ReminderModal';
+
+
 
 const INITIAL_TASKS = [
     { id: 1, title: 'Follow up with Robert Miller', lead: 'Robert Miller', status: 'Pending', date: '2026-03-09', time: '14:00', type: 'Call', reminder: '15m' },
@@ -32,6 +37,10 @@ const TeleAgentLayout = ({ onLogout }) => {
     const [pendingTaskDate, setPendingTaskDate] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
+
+
+
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const handleNavigate = (page, date = null) => {
         setActivePage(page);
@@ -56,7 +65,8 @@ const TeleAgentLayout = ({ onLogout }) => {
             case 'create-lead':
                 return <CreateLead onBack={() => setActivePage('leads')} />;
             case 'follow-ups':
-                return <TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} />;
+                return <TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} notifyReminderSet={notifyReminderSet} />;
+
             default:
                 return <TeleDashboard />;
         }
@@ -92,7 +102,11 @@ const TeleAgentLayout = ({ onLogout }) => {
                 <div className="tele-content" key={activePage}>
                     {renderContent()}
                 </div>
+                <NotificationTray notifications={notifications} onRemove={removeNotification} />
+                {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}
             </div>
+
+
         </div>
     );
 };

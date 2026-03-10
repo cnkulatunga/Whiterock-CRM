@@ -437,7 +437,14 @@
     /* On very small screens, maybe hide labels except active/completed if still overlapping */
     /* For now, let's keep them and see if wrapping helps */
     .progress-bar-container {
-        margin-left: 10px;
-        margin-right: 10px;
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-bottom: 80px;
+    }
+
+    .step-label {
+        font-size: 9px;
+        width: 60px;
+        line-height: 1.1;
     }
 }

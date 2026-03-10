@@ -10,13 +10,23 @@ const MOCK_LEADS = [
     { id: 6, name: 'Emma Watson', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress' },
 ];
 
+const ITEMS_PER_PAGE = 5;
+
 const ManageLeads = ({ onViewDetails }) => {
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
 
     const filteredLeads = MOCK_LEADS.filter(lead =>
         lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         lead.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    const totalPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE);
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const displayedLeads = filteredLeads.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+    const handlePrevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
+    const handleNextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
 
     return (
         <div className="manage-leads-container">
@@ -54,7 +64,10 @@ const ManageLeads = ({ onViewDetails }) => {
                             type="text"
                             placeholder="Search leads..."
                             value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
+                            onChange={(e) => {
+                                setSearchTerm(e.target.value);
+                                setCurrentPage(1); // Reset to first page on search
+                            }}
                         />
                     </div>
                 </div>
@@ -65,14 +78,13 @@ const ManageLeads = ({ onViewDetails }) => {
                             <tr>
                                 <th>LEAD NAME</th>
                                 <th>EMAIL / PHONE</th>
-                                <th>SOURCE</th>
                                 <th>STATUS</th>
                                 <th>LAST CONTACT</th>
                                 <th>ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {filteredLeads.map((lead) => (
+                            {displayedLeads.map((lead) => (
                                 <tr key={lead.id}>
                                     <td className="lead-name-cell">
                                         <div className="lead-avatar-sm">
@@ -85,9 +97,6 @@ const ManageLeads = ({ onViewDetails }) => {
                                             <span className="lead-email">{lead.email}</span>
                                             <span className="lead-phone">{lead.phone}</span>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span className="lead-source-tag">{lead.source}</span>
                                     </td>
                                     <td>
                                         <span className={`status-pill ${lead.status.toLowerCase().replace(' ', '-')}`}>
@@ -105,10 +114,24 @@ const ManageLeads = ({ onViewDetails }) => {
                 </div>
 
                 <div className="table-footer">
-                    <span className="footer-count">Showing 1-{filteredLeads.length} of {MOCK_LEADS.length} leads</span>
+                    <span className="footer-count">
+                        Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredLeads.length)} of {filteredLeads.length} leads
+                    </span>
                     <div className="footer-pagination">
-                        <button className="btn-page" disabled>Previous</button>
-                        <button className="btn-page" disabled>Next</button>
+                        <button 
+                            className="btn-page" 
+                            onClick={handlePrevPage} 
+                            disabled={currentPage === 1 || filteredLeads.length === 0}
+                        >
+                            Previous
+                        </button>
+                        <button 
+                            className="btn-page" 
+                            onClick={handleNextPage} 
+                            disabled={currentPage === totalPages || filteredLeads.length === 0}
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './TeleDashboard.css';
+import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 
 /* ─── SVG ICONS ─── */
 const IconBell = () => (
@@ -38,12 +39,46 @@ const LEADS_BY_STAGE = [
 /* ─── MAIN COMPONENT ─── */
 const TeleDashboard = ({ onNavigate, tasks }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const [useGoogleCalendar, setUseGoogleCalendar] = useState(false);
+    const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [outlookAccount, setOutlookAccount] = useState(null);
+    const [outlookEvents, setOutlookEvents] = useState([]);
+    const [loadingEvents, setLoadingEvents] = useState(false);
+
+    useEffect(() => {
+        const acc = getAccount();
+        if (acc) {
+            setOutlookAccount(acc);
+            fetchOutlookEvents();
+        }
+    }, []);
+
+    const fetchOutlookEvents = async () => {
+        setLoadingEvents(true);
+        try {
+            const evts = await getCalendarEvents();
+            setOutlookEvents(evts);
+        } catch (error) {
+            console.error("Failed to fetch events", error);
+        } finally {
+            setLoadingEvents(false);
+        }
+    };
+
+    const handleOutlookLogin = async () => {
+        try {
+            const acc = await signIn();
+            setOutlookAccount(acc);
+            fetchOutlookEvents();
+        } catch (error) {
+            console.error("Login failed", error);
+        }
+    };
 
     // Calendar Logic
     const [viewDate, setViewDate] = useState(new Date());
     const today = new Date();
+    const todayStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
 
     const currentYear = viewDate.getFullYear();
     const currentMonth = viewDate.getMonth();
@@ -75,7 +110,6 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                 <div className="tele-card stat-card-main">
                     <div className="card-top">
                         <div className="icon-box-blue"><IconUserGroup /></div>
-                        <span className="trend-badge positive">+12%</span>
                     </div>
                     <div className="card-info">
                         <span className="card-label">My Active Leads</span>
@@ -85,7 +119,6 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                 <div className="tele-card stat-card-main">
                     <div className="card-top">
                         <div className="icon-box-yellow"><IconFolder /></div>
-                        <span className="trend-badge stable">Stable</span>
                     </div>
                     <div className="card-info">
                         <span className="card-label">Pending Documents</span>
@@ -110,34 +143,43 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                 <thead>
                                     <tr>
                                         <th>LEAD NAME</th>
-                                        <th>SCHEDULED TIME</th>
+                                        <th className="hide-mobile">TYPE</th>
+                                        <th>TIME</th>
                                         <th>STATUS</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {tasks.slice(0, 3).map(item => (
-                                        <tr key={item.id}>
-                                            <td className="lead-cell">
-                                                <div className="lead-avatar" style={{ backgroundColor: '#ebf0ff' }}>
-                                                    <span style={{ color: '#2447d7' }}>{item.lead.split(' ').map(n=>n[0]).join('')}</span>
-                                                </div>
-                                                <div className="lead-text">
-                                                    <div className="lead-name">{item.lead}</div>
-                                                    <div className="lead-phone">{item.type}</div>
-                                                </div>
-                                            </td>
-                                            <td className="time-cell">
-                                                <div className="time-main">{item.time}</div>
-                                                <div className="time-rel" style={{ color: '#a0aec0' }}>Scheduled</div>
-                                            </td>
-                                            <td className="status-cell">
-                                                <div className="status-indicator">
-                                                    <span className="status-dot-small" style={{ backgroundColor: item.status === 'Completed' ? '#10b981' : (item.status === 'In Progress' ? '#ed8936' : '#cbd5e0') }}></span>
-                                                    {item.status}
-                                                </div>
-                                            </td>
+                                    {tasks.filter(t => t.date === todayStr).length > 0 ? (
+                                        tasks.filter(t => t.date === todayStr).map(item => (
+                                            <tr key={item.id}>
+                                                <td className="lead-cell">
+                                                    <div className="lead-avatar" style={{ backgroundColor: '#ebf0ff' }}>
+                                                        <span style={{ color: '#2447d7' }}>{item.lead.split(' ').map(n=>n[0]).join('')}</span>
+                                                    </div>
+                                                    <div className="lead-text">
+                                                        <div className="lead-name">{item.lead}</div>
+                                                    </div>
+                                                </td>
+                                                <td className="hide-mobile">
+                                                    <span className={`task-type-badge ${item.type?.toLowerCase().replace(' ', '-')}`}>{item.type}</span>
+                                                </td>
+                                                <td className="time-cell">
+                                                    <div className="time-main">{item.time}</div>
+                                                    <div className="time-rel" style={{ color: '#a0aec0' }}>Scheduled</div>
+                                                </td>
+                                                <td className="status-cell">
+                                                    <div className="status-indicator">
+                                                        <span className="status-dot-small" style={{ backgroundColor: item.status === 'Completed' ? '#10b981' : (item.status === 'In Progress' ? '#ed8936' : '#cbd5e0') }}></span>
+                                                        {item.status}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="4" style={{ textAlign: 'center', padding: '20px', color: '#a0aec0' }}>No follow-ups for today</td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -150,20 +192,20 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
 
                             <div className="calendar-type-tabs">
                                 <button
-                                    className={`tab-btn ${!useGoogleCalendar ? 'active' : ''}`}
-                                    onClick={() => setUseGoogleCalendar(false)}
+                                    className={`tab-btn ${!useOutlookCalendar ? 'active' : ''}`}
+                                    onClick={() => setUseOutlookCalendar(false)}
                                 >
                                     Local
                                 </button>
                                 <button
-                                    className={`tab-btn ${useGoogleCalendar ? 'active' : ''}`}
-                                    onClick={() => setUseGoogleCalendar(true)}
+                                    className={`tab-btn ${useOutlookCalendar ? 'active' : ''}`}
+                                    onClick={() => setUseOutlookCalendar(true)}
                                 >
-                                    Google Calendar
+                                    Outlook <span className="hide-mobile">Calendar</span>
                                 </button>
                             </div>
 
-                            {!useGoogleCalendar && (
+                            {!useOutlookCalendar && (
                                 <div className="calendar-controls">
                                     <button className="cal-nav-btn" onClick={prevMonth}>
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><polyline points="15 18 9 12 15 6" /></svg>
@@ -176,25 +218,52 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                             )}
                         </div>
 
-                        {useGoogleCalendar ? (
-                            <div className="google-calendar-wrapper">
-                                <div className="google-overlay-notice">
-                                    <svg viewBox="0 0 24 24" width="32" height="32" fill="#2447d7">
-                                        <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z" />
-                                    </svg>
-                                    <h3>Connect Your Calendar</h3>
-                                    <p>Sync with your Google account to manage your Whiterock CRM appointments directly.</p>
-                                    <button className="tele-primary-btn" style={{ margin: '16px 0' }}>
-                                        Link Account
-                                    </button>
+                        {useOutlookCalendar ? (
+                            <div className="outlook-calendar-wrapper">
+                                {!outlookAccount ? (
+                                    <div className="outlook-overlay-notice">
+                                        <svg viewBox="0 0 24 24" width="36" height="36">
+                                            <path d="M11 2h10v10H11V2M2 2h7v7H2V2m9 9h10v10H11V11M2 11h7v10H2v-10z" fill="#0078d4" />
+                                        </svg>
+                                        <h3>Connect Your Outlook Calendar</h3>
+                                        <p>Sync with your Microsoft 365 account to manage your CRM follow-ups directly from Outlook.</p>
+                                        <button className="tele-primary-btn" style={{ margin: '16px 0', background: '#0078d4' }} onClick={handleOutlookLogin}>
+                                            Sign in with Microsoft
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="outlook-events-container">
+                                        <div className="outlook-header">
+                                            <div className="user-pill">
+                                                <div className="user-icon">{outlookAccount.name[0]}</div>
+                                                <span>{outlookAccount.username}</span>
+                                            </div>
+                                            <button className="refresh-btn" onClick={fetchOutlookEvents} disabled={loadingEvents}>
+                                                {loadingEvents ? 'Updating...' : 'Refresh'}
+                                            </button>
+                                        </div>
+                                        <div className="outlook-event-list">
+                                            {outlookEvents.length > 0 ? (
+                                                outlookEvents.map((evt, i) => (
+                                                    <div key={i} className="outlook-event-item">
+                                                        <div className="evt-time">
+                                                            <span className="evt-date">{new Date(evt.start.dateTime).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+                                                            <span className="evt-hour">{new Date(evt.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                        </div>
+                                                        <div className="evt-details">
+                                                            <div className="evt-subject">{evt.subject}</div>
+                                                            <div className="evt-loc">{evt.location?.displayName || 'No location'}</div>
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <div className="no-events">No upcoming events found in Outlook.</div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="outlook-placeholder-img" style={{ height: '400px', background: '#f8fafc', borderRadius: '12px', opacity: 0.3 }}>
                                 </div>
-                                <iframe
-                                    src="https://calendar.google.com/calendar/embed?src=en.usa%23holiday%40group.v.calendar.google.com&ctz=America%2FNew_York"
-                                    style={{ border: 0, width: '100%', height: '400px', borderRadius: '12px', opacity: 0.7 }}
-                                    frameBorder="0"
-                                    scrolling="no"
-                                    title="Google Calendar Placeholder"
-                                ></iframe>
                             </div>
                         ) : (
                             <div className="dashboard-calendar-layout">

@@ -158,7 +158,7 @@
 }
 
 /* ── ACTIONS ── */
-.form-actions-footer {
+.create-lead-container .form-actions-footer {
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -168,25 +168,26 @@
     border-top: 1px solid #f7fafc;
 }
 
-.btn-secondary-indigo {
-    display: flex;
-    align-items: center;
+.create-lead-container .btn-cancel {
     background: transparent;
-    border: 1px solid #2447d7;
-    color: #2447d7;
-    padding: 10px 20px;
+    border: 1px solid #e2e8f0;
+    color: #718096;
+    padding: 10px 24px;
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
+    width: auto;
+    flex: none;
 }
 
-.btn-secondary-indigo:hover {
-    background: #f0f4ff;
+.create-lead-container .btn-cancel:hover {
+    background: #f7fafc;
+    color: #4a5568;
 }
 
-.btn-save-lead {
+.create-lead-container .btn-save-send {
     display: flex;
     align-items: center;
     background: #2447d7;
@@ -199,9 +200,11 @@
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(36, 71, 215, 0.2);
     transition: all 0.2s;
+    width: auto;
+    flex: none;
 }
 
-.btn-save-lead:hover {
+.create-lead-container .btn-save-send:hover {
     background: #1732a3;
     transform: translateY(-1px);
     box-shadow: 0 6px 15px rgba(36, 71, 215, 0.3);

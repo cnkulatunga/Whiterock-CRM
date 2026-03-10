@@ -19,9 +19,9 @@ const CreateLead = ({ onBack }) => {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleSave = () => {
-        console.log('Saving Lead:', formData);
-        alert('Lead Saved Successfully!');
+    const handleSaveAndSend = () => {
+        console.log('Saving Lead & Sending Credentials:', formData);
+        alert('Lead Saved and Credentials Sent Successfully!');
         onBack();
     };
 
@@ -171,13 +171,9 @@ const CreateLead = ({ onBack }) => {
                     {/* Final Actions */}
                     <div className="form-actions-footer">
                         <button className="btn-cancel" onClick={onBack}>Cancel</button>
-                        <button className="btn-secondary-indigo">
+                        <button className="btn-save-send" onClick={handleSaveAndSend}>
                             <IconKey />
-                            Send Credentials
-                        </button>
-                        <button className="btn-save-lead" onClick={handleSave}>
-                            <IconCheck />
-                            Save Lead
+                            Send Credentials & Save
                         </button>
                     </div>
                 </div>
@@ -210,6 +206,11 @@ const IconKey = () => (
 const IconCheck = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16" style={{ marginRight: '8px' }}>
         <polyline points="20 6 9 17 4 12" />
+    </svg>
+);
+const IconClose = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '8px' }}>
+        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
     </svg>
 );
 
