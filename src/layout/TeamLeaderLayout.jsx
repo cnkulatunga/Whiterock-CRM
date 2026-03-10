@@ -7,6 +7,8 @@ import DocumentVerification from '../pages/team_leader/document_verification/Doc
 import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar';
 import { useReminders } from '../hooks/useReminders';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
+import ReminderModal from '../components/NotificationTray/ReminderModal';
+
 
 
 const INITIAL_TASKS = [
@@ -21,7 +23,8 @@ const TeamLeaderLayout = ({ onLogout }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [tasks, setTasks] = useState(INITIAL_TASKS);
     
-    const { notifications, removeNotification, notifyReminderSet } = useReminders(tasks, setTasks);
+    const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
+
 
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -89,7 +92,9 @@ const TeamLeaderLayout = ({ onLogout }) => {
                     {renderContent()}
                 </div>
                 <NotificationTray notifications={notifications} onRemove={removeNotification} />
+                {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}
             </div>
+
 
         </div>
     );

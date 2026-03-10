@@ -16,8 +16,10 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         date: new Date().toISOString().split('T')[0],
         time: '12:00',
         type: 'Call',
-        reminder: 'none'
+        reminder: 'none',
+        message: ''
     });
+
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [showNotifications, setShowNotifications] = useState(false);
 
@@ -48,8 +50,10 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
             date: new Date().toISOString().split('T')[0],
             time: '12:00',
             type: 'Call',
-            reminder: 'none'
+            reminder: 'none',
+            message: ''
         });
+
     };
 
     const updateTaskStatus = (id, newStatus) => {
@@ -221,7 +225,12 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                         <option value="1d">1 Day Before</option>
                                     </select>
                                 </div>
+                                <div className="form-group full-width">
+                                    <label>Reminder Message / Notes</label>
+                                    <textarea value={newTask.message} onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional details for the reminder..." rows="3" />
+                                </div>
                             </div>
+
                             <div className="modal-footer">
                                 <button type="button" className="btn-cancel" onClick={() => setIsAddingTask(false)}>Cancel</button>
                                 <button type="submit" className="btn-save">Create Task</button>
@@ -286,7 +295,9 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                             <span className="due-date">
                                                 {task.date} • {task.time}
                                             </span>
+                                            {task.message && <p className="task-card-message">{task.message}</p>}
                                             {task.reminder !== 'none' && (
+
                                                 <span className="reminder-tag">
                                                     <IconBellActive />
                                                     Remind {task.reminder === '1d' ? '1 day before' : task.reminder === '1h' ? '1 hour before' : '15 min before'}

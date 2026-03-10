@@ -3,19 +3,41 @@ import { playReminderSound } from '../utils/audio';
 
 export const useReminders = (tasks, setTasks) => {
     const [notifications, setNotifications] = useState([]);
+    const [activeAlerts, setActiveAlerts] = useState([]); // For central modals
     const triggeredReminders = useRef(new Set());
+
+    useEffect(() => {
+        // Request browser notification permission
+        if ("Notification" in window && Notification.permission === "default") {
+            Notification.requestPermission();
+        }
+    }, []);
 
     const removeNotification = useCallback((id) => {
         setNotifications(prev => prev.filter(n => n.id !== id));
     }, []);
 
-    const addNotification = useCallback((title, message, type = 'info') => {
+    const dismissAlert = useCallback((id) => {
+        setActiveAlerts(prev => prev.filter(a => a.id !== id));
+    }, []);
+
+    const addNotification = useCallback((title, message, type = 'info', task = null) => {
         const id = Date.now();
         const notification = { id, title, message, type };
         setNotifications(prev => [...prev, notification]);
         
-        // Auto-remove after 6 seconds
-        setTimeout(() => removeNotification(id), 6000);
+        // Auto-remove after 6 seconds for non-triggers
+        if (type !== 'reminder') {
+            setTimeout(() => removeNotification(id), 6000);
+        } else if (task) {
+            // If it's a reminder trigger, also show the central modal
+            setActiveAlerts(prev => [...prev, { ...task, id }]);
+        }
+        
+        // Browser notification if permitted
+        if ("Notification" in window && Notification.permission === "granted" && type === 'reminder') {
+            new Notification(title, { body: message, icon: '/favicon.ico' });
+        }
         
         // Play sound for all reminder-related notifications
         playReminderSound();
@@ -23,16 +45,10 @@ export const useReminders = (tasks, setTasks) => {
         return id;
     }, [removeNotification]);
 
-
     useEffect(() => {
         const checkReminders = () => {
             const now = new Date();
-            const currentYear = now.getFullYear();
-            const currentMonth = (now.getMonth() + 1).toString().padStart(2, '0');
-            const currentDate = now.getDate().toString().padStart(2, '0');
-            const currentHours = now.getHours().toString().padStart(2, '0');
-            const currentMinutes = now.getMinutes().toString().padStart(2, '0');
-
+            
             tasks.forEach(task => {
                 if (task.reminder === 'none' || task.status === 'Completed') return;
 
@@ -50,13 +66,15 @@ export const useReminders = (tasks, setTasks) => {
                     // Only trigger if it's somewhat recent (within last 30 minutes to avoid flood if someone opens after hours)
                     const diffMinutes = Math.floor((now - triggerTime) / 60000);
                     if (diffMinutes < 30) {
+                        const displayMessage = task.message || `Scheduled for ${task.time} with ${task.lead || 'client'}.`;
                         addNotification(
-                            'Reminder', 
-                            `${task.title} (scheduled for ${task.time} with ${task.lead})`,
-                            'reminder'
+                            `Reminder: ${task.title}`, 
+                            displayMessage,
+                            'reminder',
+                            task
                         );
                         triggeredReminders.current.add(reminderId);
-                    } else if (diffMinutes >= 30) {
+                    } else {
                         // Mark as triggered anyway so it doesn't bother the user again
                         triggeredReminders.current.add(reminderId);
                     }
@@ -73,13 +91,15 @@ export const useReminders = (tasks, setTasks) => {
     // Manual notification trigger for "Reminder Set"
     const notifyReminderSet = useCallback((task) => {
         if (task.reminder !== 'none') {
+            const timeLabel = task.reminder === '1d' ? '1 day before' : task.reminder === '1h' ? '1 hour before' : '15 min before';
             addNotification(
                 'Reminder Set', 
-                `Notifications enabled for "${task.title}" at ${task.time}`,
+                `Alert scheduled for "${task.title}" (${timeLabel})`,
                 'info'
             );
         }
     }, [addNotification]);
 
-    return { notifications, addNotification, notifyReminderSet, removeNotification };
+    return { notifications, activeAlerts, addNotification, notifyReminderSet, removeNotification, dismissAlert };
 };
+

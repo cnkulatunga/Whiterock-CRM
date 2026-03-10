@@ -9,6 +9,8 @@ import CreateLead from '../pages/tele_agent/leads/CreateLead';
 import TasksFollowups from '../pages/tele_agent/tasks/TasksFollowups';
 import { useReminders } from '../hooks/useReminders';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
+import ReminderModal from '../components/NotificationTray/ReminderModal';
+
 
 
 const INITIAL_TASKS = [
@@ -35,7 +37,8 @@ const TeleAgentLayout = ({ onLogout }) => {
     const [pendingTaskDate, setPendingTaskDate] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const { notifications, removeNotification, notifyReminderSet } = useReminders(tasks, setTasks);
+    const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
+
 
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -100,7 +103,9 @@ const TeleAgentLayout = ({ onLogout }) => {
                     {renderContent()}
                 </div>
                 <NotificationTray notifications={notifications} onRemove={removeNotification} />
+                {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}
             </div>
+
 
         </div>
     );

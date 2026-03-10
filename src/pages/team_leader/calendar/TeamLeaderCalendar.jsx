@@ -23,8 +23,10 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
         time: '12:00',
         type: 'Call',
         reminder: 'none',
-        assignedTo: 'Self' // 'Self' or agent ID
+        assignedTo: 'Self',
+        message: ''
     });
+
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [showNotifications, setShowNotifications] = useState(false);
 
@@ -47,8 +49,10 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
             time: '12:00',
             type: 'Call',
             reminder: 'none',
-            assignedTo: 'Self'
+            assignedTo: 'Self',
+            message: ''
         });
+
     };
 
     const updateTaskStatus = (id, newStatus) => {
@@ -215,7 +219,12 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                         <option value="1d">1 Day Before</option>
                                     </select>
                                 </div>
+                                <div className="form-group full-width">
+                                    <label>Reminder Message / Notes</label>
+                                    <textarea value={newTask.message} onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional details for the reminder..." rows="3" />
+                                </div>
                             </div>
+
                             <div className="modal-footer">
                                 <button type="button" className="btn-cancel" onClick={() => setIsAddingTask(false)}>Cancel</button>
                                 <button type="submit" className="btn-save" style={{ background: '#2447D7' }}>Create Task</button>
@@ -297,7 +306,9 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                             <span className="due-date">
                                                 {task.date} • {task.time}
                                             </span>
+                                            {task.message && <p className="task-card-message">{task.message}</p>}
                                         </div>
+
                                     </div>
                                 </div>
                                 <div className="task-actions">
