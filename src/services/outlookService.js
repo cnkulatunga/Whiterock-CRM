@@ -4,14 +4,20 @@ import { msalConfig, loginRequest } from "./outlookAuthConfig";
 
 const myMSALObj = new msal.PublicClientApplication(msalConfig);
 
-// Handle the redirect flow on startup
-myMSALObj.handleRedirectPromise().catch(error => {
-    console.error(error);
-});
+const initMsal = async () => {
+    await myMSALObj.initialize();
+    try {
+        await myMSALObj.handleRedirectPromise();
+    } catch (error) {
+        console.error(error);
+    }
+};
+
+const msalInitPromise = initMsal();
 
 export const signIn = async () => {
     try {
-        await myMSALObj.initialize();
+        await msalInitPromise;
         const loginResponse = await myMSALObj.loginPopup(loginRequest);
         return loginResponse.account;
     } catch (error) {
@@ -21,6 +27,7 @@ export const signIn = async () => {
 };
 
 export const signOut = async () => {
+    await msalInitPromise;
     const logoutRequest = {
         account: myMSALObj.getAccountByHomeId(sessionStorage.getItem("msalAccount")),
         postLogoutRedirectUri: msalConfig.auth.redirectUri,
@@ -35,6 +42,7 @@ export const getAccount = () => {
 };
 
 const getAccessToken = async () => {
+    await msalInitPromise;
     const account = getAccount();
     if (!account) return null;
 
