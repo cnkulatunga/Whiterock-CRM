@@ -37,10 +37,13 @@
     align-items: center;
     gap: 16px;
     padding: 0 32px;
-    position: sticky;
+    position: fixed;
     top: 0;
-    z-index: 100;
+    right: 0;
+    left: 260px;
+    z-index: 90;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: left 0.3s ease;
 }
 
 .am-mobile-toggle {
@@ -165,6 +168,7 @@
 .am-content {
     padding: 36px 40px;
     flex: 1;
+    margin-top: 68px;
 }
 
 /* Responsive */
@@ -179,6 +183,7 @@
 
     .am-top-bar {
         padding: 0 20px;
+        left: 0;
     }
 
     .am-content {

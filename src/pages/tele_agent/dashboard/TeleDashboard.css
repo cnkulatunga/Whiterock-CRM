@@ -116,7 +116,7 @@
     gap: 24px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1280px) {
     .tele-dashboard-main {
         grid-template-columns: 1fr;
     }
@@ -136,12 +136,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
 }
 
 .section-header h2 {
     font-size: 18px;
     font-weight: 700;
     color: #1a202c;
+    margin: 0;
 }
 
 .calendar-widget {
@@ -227,6 +230,12 @@
     height: 4px;
     background: #2447d7;
     border-radius: 50%;
+}
+
+.month-name, .month-selector {
+    font-weight: 700;
+    color: #1a202c;
+    font-size: 16px;
 }
 
 /* ── SIDE PANEL (UPCOMING EVENTS) ── */
@@ -381,6 +390,15 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
+    gap: 12px;
+}
+
+@media (max-width: 480px) {
+    .card-header-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
 }
 
 .card-title {
@@ -420,6 +438,7 @@
 .tele-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
 }
 
 .tele-table th {
@@ -431,9 +450,24 @@
     border-bottom: 1px solid #f7fafc;
 }
 
+.tele-table th:nth-child(1) { width: 45%; }
+.tele-table th:nth-child(2) { width: 20%; }
+.tele-table th:nth-child(3) { width: 15%; }
+.tele-table th:nth-child(4) { width: 20%; }
+
+@media (max-width: 600px) {
+    /* When TYPE column is hidden */
+    .tele-table th:nth-child(1) { width: 50%; }
+    .tele-table th:nth-child(3) { width: 20%; }
+    .tele-table th:nth-child(4) { width: 30%; }
+}
+
 .tele-table td {
     padding: 16px 0;
     border-bottom: 1px solid #f7fafc;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .lead-cell {
@@ -544,6 +578,18 @@
     background: #ffffff;
     color: #2447d7;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 480px) {
+    .calendar-type-tabs {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .tab-btn {
+        padding: 8px;
+        font-size: 12px;
+    }
 }
 
 .outlook-calendar-wrapper {
@@ -705,6 +751,12 @@
     display: grid;
     grid-template-columns: 1fr 200px;
     gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-calendar-layout {
+        grid-template-columns: 1fr;
+    }
 }
 
 .calendar-grid-mini {
@@ -1000,6 +1052,20 @@
         width: 100%;
         justify-content: space-between;
     }
+
+    .tele-table th, .tele-table td {
+        padding: 12px 8px;
+    }
+    
+    .lead-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 11px;
+    }
+
+    .lead-name {
+        font-size: 13px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1040,6 +1106,42 @@
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 600px) {
+    .hide-mobile {
+        display: none !important;
+    }
+}
+
+@media (max-width: 485px) {
+    .lead-avatar {
+        display: none;
+    }
+    
+    .tele-table th, .tele-table td {
+        padding: 8px 4px;
+        font-size: 11px;
+    }
+    
+    .lead-name {
+        font-size: 11px;
+    }
+    
+    .status-indicator {
+        font-size: 11px;
+    }
+    
+    .lead-cell {
+        gap: 4px;
+    }
+    
+    .follow-ups-card,
+    .leads-stage-card,
+    .streak-card,
+    .calendar-section-alt {
+        padding: 12px;
+    }
 }
 
 @keyframes fadeIn {

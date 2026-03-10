@@ -143,8 +143,8 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                 <thead>
                                     <tr>
                                         <th>LEAD NAME</th>
-                                        <th>TYPE</th>
-                                        <th>SCHEDULED TIME</th>
+                                        <th className="hide-mobile">TYPE</th>
+                                        <th>TIME</th>
                                         <th>STATUS</th>
                                     </tr>
                                 </thead>
@@ -160,7 +160,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                                         <div className="lead-name">{item.lead}</div>
                                                     </div>
                                                 </td>
-                                                <td>
+                                                <td className="hide-mobile">
                                                     <span className={`task-type-badge ${item.type?.toLowerCase().replace(' ', '-')}`}>{item.type}</span>
                                                 </td>
                                                 <td className="time-cell">
@@ -201,7 +201,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                     className={`tab-btn ${useOutlookCalendar ? 'active' : ''}`}
                                     onClick={() => setUseOutlookCalendar(true)}
                                 >
-                                    Outlook Calendar
+                                    Outlook <span className="hide-mobile">Calendar</span>
                                 </button>
                             </div>
 
