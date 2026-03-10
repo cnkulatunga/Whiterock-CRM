@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './TeamLeaderCalendar.css';
 
 const AGENTS = [
     { id: 1, name: 'John Smith', initials: 'JS', color: '#2447d7' },
@@ -28,7 +27,6 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
     });
 
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-    const [showNotifications, setShowNotifications] = useState(false);
 
     const handleAddTask = (e) => {
         e.preventDefault();
@@ -59,10 +57,6 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
         setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
     };
 
-    const updateTaskAssignment = (id, assignedTo) => {
-        setTasks(tasks.map(t => t.id === id ? { ...t, assignedTo } : t));
-    };
-
     const filteredTasks = tasks.filter(task => {
         const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (task.lead && task.lead.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -80,66 +74,77 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
     });
 
     const renderCalendar = () => {
-        // Simple calendar grid for March 2026 (placeholder logic)
         const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
         return (
-            <div className="calendar-layout">
-                <div className="calendar-grid">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                        <div key={d} className="calendar-day-header">{d}</div>
-                    ))}
-                    {daysInMonth.map(day => {
-                        const dateStr = `2026-03-${day.toString().padStart(2, '0')}`;
-                        const dayTasks = tasks.filter(t => t.date === dateStr);
-                        const isSelected = selectedDate === dateStr;
-                        return (
-                            <div 
-                                key={day} 
-                                className={`calendar-day ${dayTasks.length > 0 ? 'has-tasks' : ''} ${isSelected ? 'selected' : ''}`}
-                                onClick={() => setSelectedDate(dateStr)}
-                            >
-                                <span className="day-num">{day}</span>
-                                <div className="day-tasks-dots">
-                                    {dayTasks.map(t => (
-                                        <div 
-                                            key={t.id} 
-                                            className={`task-dot ${t.status.toLowerCase().replace(' ', '-')} ${t.assignedTo !== 'Self' ? 'assigned' : ''}`} 
-                                            title={t.title}
-                                        ></div>
-                                    ))}
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-                
-                <div className="date-details-sidebar">
-                    <div className="sidebar-header">
-                        <h3>Tasks for {selectedDate}</h3>
-                        <button className="btn-add-mini" onClick={() => {
-                            setNewTask({...newTask, date: selectedDate});
-                            setIsAddingTask(true);
-                        }}>
-                            <IconPlus />
-                        </button>
-                    </div>
-                    <div className="sidebar-tasks">
-                        {tasks.filter(t => t.date === selectedDate).length > 0 ? (
-                            tasks.filter(t => t.date === selectedDate).map(t => (
-                                <div key={t.id} className="mini-task-card">
-                                    <div className={`mini-status-indicator ${t.status.toLowerCase().replace(' ', '-')}`}></div>
-                                    <div className="mini-task-info">
-                                        <span className="mini-title">
-                                            {t.title}
-                                            {t.assignedTo !== 'Self' && <span className="assigned-badge-mini">#Team</span>}
-                                        </span>
-                                        <span className="mini-meta">{t.time} • {t.lead || 'Personal'}</span>
+            <div className="grid grid-cols-[1fr_320px] gap-8 xl:grid-cols-1">
+                <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm">
+                    <div className="grid grid-cols-7 gap-2">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                            <div key={d} className="text-center text-[10px] font-black text-[#cbd5e0] tracking-widest pb-4 uppercase">{d}</div>
+                        ))}
+                        {daysInMonth.map(day => {
+                            const dateStr = `2026-03-${day.toString().padStart(2, '0')}`;
+                            const dayTasks = tasks.filter(t => t.date === dateStr);
+                            const isSelected = selectedDate === dateStr;
+                            return (
+                                <div 
+                                    key={day} 
+                                    className={`aspect-square rounded-2xl border flex flex-col items-center justify-center relative cursor-pointer transition-all duration-300 group hover:border-[#2447d7] hover:shadow-md ${dayTasks.length > 0 ? 'bg-[#f8faff]' : 'bg-white'} ${isSelected ? 'border-[#2447d7] ring-4 ring-[#2447d7]/5 z-10' : 'border-[#edf2f7]'}`}
+                                    onClick={() => setSelectedDate(dateStr)}
+                                >
+                                    <span className={`text-[13px] font-bold ${isSelected ? 'text-[#2447d7]' : 'text-[#718096]'} group-hover:text-[#2447d7]`}>{day}</span>
+                                    <div className="flex gap-1 mt-1.5 flex-wrap justify-center px-1">
+                                        {dayTasks.slice(0, 3).map(t => (
+                                            <div 
+                                                key={t.id} 
+                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' ? 'animate-pulse' : ''}`} 
+                                                title={t.title}
+                                            ></div>
+                                        ))}
+                                        {dayTasks.length > 3 && <div className="w-1 h-1 bg-[#cbd5e0] rounded-full"></div>}
                                     </div>
                                 </div>
-                            ))
-                        ) : (
-                            <p className="no-tasks-msg">No tasks scheduled for this day.</p>
-                        )}
+                            );
+                        })}
+                    </div>
+                </div>
+                
+                <div className="flex flex-col gap-6">
+                    <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm flex flex-col gap-5">
+                        <div className="flex justify-between items-center pb-4 border-b border-[#f7fafc]">
+                            <h3 className="text-[15px] font-bold text-[#1a202c]">Tasks for {selectedDate}</h3>
+                            <button className="w-8 h-8 bg-[#2447d7] text-white rounded-lg flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-[#2447d7]/20" onClick={() => {
+                                setNewTask({...newTask, date: selectedDate});
+                                setIsAddingTask(true);
+                            }}>
+                                <IconPlus />
+                            </button>
+                        </div>
+                        <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                            {tasks.filter(t => t.date === selectedDate).length > 0 ? (
+                                tasks.filter(t => t.date === selectedDate).map(t => (
+                                    <div key={t.id} className="p-4 bg-[#f8faff] rounded-xl border border-[#edf2f7] group hover:border-[#2447d7]/20 transition-all duration-300">
+                                        <div className="flex items-start gap-3">
+                                            <div className={`w-2 h-10 rounded-full shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'}`}></div>
+                                            <div className="flex flex-col gap-1 flex-1">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <span className="text-[13px] font-bold text-[#1a202c] leading-tight">
+                                                        {t.title}
+                                                    </span>
+                                                    {t.assignedTo !== 'Self' && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Team</span>}
+                                                </div>
+                                                <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-12 flex flex-col items-center gap-3 text-center grayscale opacity-60">
+                                    <IconCalendar size={32} />
+                                    <p className="text-[13px] font-bold text-[#718096]">No tasks scheduled</p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -147,39 +152,39 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
     };
 
     return (
-        <div className="tasks-container tl-calendar-page">
-            <div className="tasks-header">
-                <div className="header-info">
-                    <h1>Team & Personal Calendar</h1>
-                    <p>Manage your tasks, follow-ups, and assign work to your team members.</p>
+        <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
+            <header className="flex justify-between items-center mb-10 sm:flex-col sm:items-start sm:gap-6">
+                <div className="flex flex-col gap-1">
+                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Team & Personal Calendar</h1>
+                    <p className="text-[0.95rem] text-[#718096] font-medium">Manage your tasks, follow-ups, and assign work to your team members.</p>
                 </div>
-                <div className="header-actions">
-                    <div className="view-toggle">
-                        <button className={viewMode === 'list' ? 'active' : ''} onClick={() => setViewMode('list')}><IconList size={16} /> List</button>
-                        <button className={viewMode === 'calendar' ? 'active' : ''} onClick={() => setViewMode('calendar')}><IconCalendar size={16} /> Calendar</button>
+                <div className="flex items-center gap-4">
+                    <div className="flex p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0]">
+                        <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><div className="flex items-center gap-2"><IconList size={14} /> List</div></button>
+                        <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><div className="flex items-center gap-2"><IconCalendar size={14} /> Calendar</div></button>
                     </div>
-                    <button className="btn-add-task" style={{ background: '#2447D7' }} onClick={() => setIsAddingTask(true)}>
+                    <button className="bg-[#2447d7] text-white p-[10px_20px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center gap-2" onClick={() => setIsAddingTask(true)}>
                         <IconPlus /> <span>New Task</span>
                     </button>
                 </div>
-            </div>
+            </header>
 
             {isAddingTask && (
-                <div className="modal-overlay">
-                    <div className="task-modal">
-                        <div className="modal-header">
-                            <h2>Create New Task</h2>
-                            <button className="close-btn" onClick={() => setIsAddingTask(false)}>&times;</button>
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-6 animate-fadeIn" role="dialog" aria-modal="true">
+                    <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
+                        <div className="p-6 px-8 border-b border-[#f1f5f9] flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-[#1a202c]">Create New Task</h2>
+                            <button className="w-10 h-10 border border-[#f1f5f9] text-[#a0aec0] hover:text-[#e53e3e] hover:bg-[#fff5f5] rounded-xl flex items-center justify-center transition-all text-2xl font-light" onClick={() => setIsAddingTask(false)}>&times;</button>
                         </div>
-                        <form onSubmit={handleAddTask}>
-                            <div className="form-grid">
-                                <div className="form-group full-width">
-                                    <label>Task Title</label>
-                                    <input required type="text" value={newTask.title} onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. Portfolio Review..." />
+                        <form onSubmit={handleAddTask} className="p-8 md:p-6 overflow-y-auto max-h-[80vh] custom-scrollbar">
+                            <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
+                                <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
+                                    <label className="text-[13px] font-bold text-[#4a5568]">Task Title</label>
+                                    <input required type="text" value={newTask.title} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. Portfolio Review..." />
                                 </div>
-                                <div className="form-group">
-                                    <label>Assign To</label>
-                                    <select value={newTask.assignedTo} onChange={e => setNewTask({...newTask, assignedTo: e.target.value})}>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[13px] font-bold text-[#4a5568]">Assign To</label>
+                                    <select value={newTask.assignedTo} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, assignedTo: e.target.value})}>
                                         <option value="Self">Myself (Team Leader)</option>
                                         <optgroup label="Team Members">
                                             {AGENTS.map(agent => (
@@ -188,9 +193,9 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                         </optgroup>
                                     </select>
                                 </div>
-                                <div className="form-group">
-                                    <label>Task Type</label>
-                                    <select value={newTask.type} onChange={e => setNewTask({...newTask, type: e.target.value})}>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[13px] font-bold text-[#4a5568]">Task Type</label>
+                                    <select value={newTask.type} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, type: e.target.value})}>
                                         <option>Call</option>
                                         <option>Document</option>
                                         <option>Review</option>
@@ -198,70 +203,73 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                         <option>Email</option>
                                     </select>
                                 </div>
-                                <div className="form-group">
-                                    <label>Related Lead (Optional)</label>
-                                    <input type="text" value={newTask.lead} onChange={e => setNewTask({...newTask, lead: e.target.value})} placeholder="Lead Name" />
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[13px] font-bold text-[#4a5568]">Related Lead (Optional)</label>
+                                    <input type="text" value={newTask.lead} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, lead: e.target.value})} placeholder="Lead Name" />
                                 </div>
-                                <div className="form-group">
-                                    <label>Date</label>
-                                    <input required type="date" value={newTask.date} onChange={e => setNewTask({...newTask, date: e.target.value})} />
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[13px] font-bold text-[#4a5568]">Date</label>
+                                    <input required type="date" value={newTask.date} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, date: e.target.value})} />
                                 </div>
-                                <div className="form-group">
-                                    <label>Time</label>
-                                    <input required type="time" value={newTask.time} onChange={e => setNewTask({...newTask, time: e.target.value})} />
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[13px] font-bold text-[#4a5568]">Time</label>
+                                    <input required type="time" value={newTask.time} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, time: e.target.value})} />
                                 </div>
-                                <div className="form-group">
-                                    <label>Set Reminder</label>
-                                    <select value={newTask.reminder} onChange={e => setNewTask({...newTask, reminder: e.target.value})}>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[13px] font-bold text-[#4a5568]">Set Reminder</label>
+                                    <select value={newTask.reminder} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, reminder: e.target.value})}>
                                         <option value="none">No Reminder</option>
                                         <option value="15m">15 Minutes Before</option>
                                         <option value="1h">1 Hour Before</option>
                                         <option value="1d">1 Day Before</option>
                                     </select>
                                 </div>
-                                <div className="form-group full-width">
-                                    <label>Reminder Message / Notes</label>
-                                    <textarea value={newTask.message} onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional details for the reminder..." rows="3" />
+                                <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
+                                    <label className="text-[13px] font-bold text-[#4a5568]">Reminder Message / Notes</label>
+                                    <textarea value={newTask.message} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full min-h-[100px] resize-none" onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional details for the reminder..." rows="3" />
                                 </div>
                             </div>
 
-                            <div className="modal-footer">
-                                <button type="button" className="btn-cancel" onClick={() => setIsAddingTask(false)}>Cancel</button>
-                                <button type="submit" className="btn-save" style={{ background: '#2447D7' }}>Create Task</button>
+                            <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-[#f1f5f9]">
+                                <button type="button" className="p-[10px_24px] rounded-xl text-sm font-bold text-[#718096] hover:bg-[#f8fafc] transition-all" onClick={() => setIsAddingTask(false)}>Cancel</button>
+                                <button type="submit" className="bg-[#2447d7] text-white p-[10px_24px] rounded-xl text-sm font-bold shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:translate-y-[-1px] transition-all">Create Task</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
 
-            <div className="tasks-controls">
-                <div className="controls-left">
-                    <div className="search-box">
-                        <IconSearch size={16} />
+            <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 mb-8 shadow-sm flex justify-between items-center lg:flex-col lg:items-stretch lg:gap-6">
+                <div className="flex items-center gap-6 lg:flex-col lg:items-stretch">
+                    <div className="relative group min-w-[300px] lg:min-w-0">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors">
+                            <IconSearch size={16} />
+                        </div>
                         <input
                             type="text"
+                            className="bg-[#f8fafc] border border-[#e2e8f0] p-[10px_16px_10px_40px] rounded-xl text-sm font-medium w-full focus:bg-white focus:border-[#2447d7] outline-none transition-all"
                             placeholder="Search tasks..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="filter-tabs">
+                    <div className="flex gap-2 p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0]">
                         {['All', 'Personal', 'Team'].map(f => (
                             <button
                                 key={f}
-                                className={`filter-tab ${assignmentFilter === f ? 'active' : ''}`}
+                                className={`p-[6px_14px] rounded-lg text-xs font-bold transition-all ${assignmentFilter === f ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
                                 onClick={() => setAssignmentFilter(f)}
                             >
-                                {f} View
+                                {f}
                             </button>
                         ))}
                     </div>
                 </div>
-                <div className="filter-tabs status-filters">
+                <div className="flex gap-2 p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0]">
                     {['All', 'Pending', 'In Progress', 'Completed'].map(status => (
                         <button
                             key={status}
-                            className={`filter-tab ${filter === status ? 'active' : ''}`}
+                            className={`p-[6px_14px] rounded-lg text-xs font-bold transition-all ${filter === status ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
                             onClick={() => setFilter(status)}
                         >
                             {status}
@@ -271,64 +279,72 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
             </div>
 
             {viewMode === 'calendar' ? (
-                <div className="calendar-view-container tele-card">
+                <div className="animate-fadeIn">
                     {renderCalendar()}
                 </div>
             ) : (
-                <div className="tasks-list">
+                <div className="grid grid-cols-1 gap-4 animate-fadeIn">
                     {filteredTasks.length > 0 ? (
                         filteredTasks.map(task => (
-                            <div className="task-card" key={task.id}>
-                                <div className="task-main">
-                                    <div className={`task-type-icon ${task.type.toLowerCase()}`}>
+                            <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex justify-between items-center group hover:border-[#2447d7]/30 transition-all duration-300 md:flex-col md:items-stretch md:gap-5" key={task.id}>
+                                <div className="flex items-center gap-6 flex-1">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-sm ${
+                                        task.type === 'Call' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' :
+                                        task.type === 'Document' ? 'bg-[#f0f9ff] text-[#0ea5e9] border-[#e0f2fe]' :
+                                        task.type === 'Review' ? 'bg-[#fefce8] text-[#ca8a04] border-[#fef9c3]' :
+                                        task.type === 'Email' ? 'bg-[#fdf2f8] text-[#db2777] border-[#fce7f3]' :
+                                        'bg-[#f5f3ff] text-[#7c3aed] border-[#ede9fe]'
+                                    }`}>
                                         {task.type === 'Call' && <IconPhone />}
                                         {task.type === 'Document' && <IconDoc />}
                                         {task.type === 'Review' && <IconReview />}
                                         {task.type === 'Email' && <IconMail />}
                                         {task.type === 'Meeting' && <IconMeeting />}
                                     </div>
-                                    <div className="task-details">
-                                        <div className="task-title-row">
-                                            <h3>{task.title}</h3>
+                                    <div className="flex flex-col gap-1 flex-1">
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="text-[15px] font-bold text-[#1a202c] leading-tight group-hover:text-[#2447d7] transition-colors">{task.title}</h3>
                                             {task.assignedTo === 'Self' ? (
-                                                <span className="assignment-badge personal">Personal</span>
+                                                <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
                                             ) : (
-                                                <span className="assignment-badge team">
-                                                    Assigned to {AGENTS.find(a => a.id.toString() === task.assignedTo.toString())?.name || 'Agent'}
+                                                <span className="text-[9px] font-black text-[#2447d7] bg-[#ebf0ff] px-2 py-0.5 rounded border border-[#d9e3ff] uppercase tracking-wider whitespace-nowrap">
+                                                    Agent: {AGENTS.find(a => a.id.toString() === task.assignedTo.toString())?.name || 'Assigned'}
                                                 </span>
                                             )}
                                         </div>
-                                        <div className="task-meta">
-                                            <span className="lead-name">
+                                        <div className="flex items-center gap-4 flex-wrap">
+                                            <span className="text-[12px] font-bold text-[#718096] flex items-center gap-1.5 whitespace-nowrap">
                                                 <IconUser size={12} />
-                                                {task.lead || 'No Lead'}
+                                                {task.lead || 'General Task'}
                                             </span>
-                                            <span className="due-date">
+                                            <span className="text-[11px] font-bold text-[#cbd5e0] uppercase tracking-widest whitespace-nowrap">
                                                 {task.date} • {task.time}
                                             </span>
-                                            {task.message && <p className="task-card-message">{task.message}</p>}
                                         </div>
-
+                                        {task.message && <p className="text-[12px] text-[#94a3b8] font-medium leading-relaxed mt-1 line-clamp-1 italic">{task.message}</p>}
                                     </div>
                                 </div>
-                                <div className="task-actions">
-                                    <div className="status-dropdown">
-                                        <select 
-                                            className={`status-select-prominent ${task.status.toLowerCase().replace(' ', '-')}`}
-                                            value={task.status}
-                                            onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                        >
-                                            <option>Pending</option>
-                                            <option>In Progress</option>
-                                            <option>Completed</option>
-                                        </select>
-                                    </div>
+                                <div className="shrink-0 flex items-center">
+                                    <select 
+                                        className={`p-[8px_20px] rounded-xl text-xs font-black uppercase tracking-widest border-2 outline-none transition-all cursor-pointer shadow-sm active:scale-95 ${
+                                            task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#d1fae5]' :
+                                            task.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff] hover:bg-[#d9ebff]' :
+                                            'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5] hover:bg-[#ffedd5]'
+                                        }`}
+                                        value={task.status}
+                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                    >
+                                        <option>Pending</option>
+                                        <option>In Progress</option>
+                                        <option>Completed</option>
+                                    </select>
                                 </div>
                             </div>
                         ))
                     ) : (
-                        <div className="empty-tasks">
-                            <p>No tasks found matching your criteria.</p>
+                        <div className="bg-white rounded-2xl border-2 border-dashed border-[#edf2f7] py-20 flex flex-col items-center gap-4 grayscale opacity-60">
+                            <IconList size={40} />
+                            <p className="text-sm font-bold text-[#718096]">No tasks found matching your criteria</p>
                         </div>
                     )}
                 </div>
@@ -339,52 +355,52 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
 
 /* ── ICONS ── */
 const IconPhone = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
     </svg>
 );
 const IconDoc = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
     </svg>
 );
 const IconReview = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
         <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
 );
 const IconMail = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
     </svg>
 );
 const IconMeeting = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
     </svg>
 );
 const IconList = ({ size = 18 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={size} height={size}>
         <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
     </svg>
 );
 const IconCalendar = ({ size = 18 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={size} height={size}>
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
     </svg>
 );
 const IconPlus = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="16" height="16">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" width="14" height="14">
         <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
     </svg>
 );
 const IconSearch = ({ size = 18 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={size} height={size}>
         <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
 );
 const IconUser = ({ size = 18 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={size} height={size}>
         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
     </svg>
 );

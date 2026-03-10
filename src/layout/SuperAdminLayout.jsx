@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './SuperAdminLayout.css';
 import { UsersProvider } from '../context/UsersContext';
 import SuperAdminSidebar from '../components/super_admin_siderbar/superAdminSidebar';
 import UserManagement from '../pages/super_admin/user_management/UserManagement';
@@ -11,10 +10,10 @@ import TeamLeaders from '../pages/super_admin/team_leaders/TeamLeaders';
 
 /* ─── PLACEHOLDER PAGES ───────────────────────── */
 const PlaceholderPage = ({ title, icon }) => (
-    <div className="placeholder-page">
-        <div className="placeholder-icon">{icon}</div>
-        <h2>{title}</h2>
-        <p>This page is coming soon.</p>
+    <div className="flex-1 flex flex-col items-center justify-center gap-4 bg-[#f4f6fb] min-h-screen text-[#64748b] text-center p-10">
+        <div className="w-20 h-20 bg-[#eef2ff] rounded-[20px] flex items-center justify-center mb-2">{icon}</div>
+        <h2 className="text-2xl font-bold text-[#1a1f36]">{title}</h2>
+        <p className="text-[0.9rem] text-[#94a3b8]">This page is coming soon.</p>
     </div>
 );
 
@@ -95,10 +94,10 @@ const AppLayout = ({ onLogout }) => {
     };
 
     return (
-        <div className="app-layout">
+        <div className="flex min-h-screen w-full md:flex-col">
             {/* ── Mobile top bar ── */}
-            <header className="mobile-topbar">
-                <button className="mobile-hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
+            <header className="hidden md:flex items-center gap-3 fixed top-0 left-0 right-0 h-14 bg-white border-b border-[#e8edf5] px-4 z-[900] shadow-[0_2px_8px_rgba(36,71,215,0.06)]">
+                <button className="bg-none border-none text-[#4a5568] cursor-pointer p-1.5 rounded-lg flex items-center shrink-0 transition-all duration-150 hover:bg-[#eef2ff] hover:text-[#2447d7]" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                         strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
                         <line x1="3" y1="6" x2="21" y2="6" />
@@ -106,12 +105,12 @@ const AppLayout = ({ onLogout }) => {
                         <line x1="3" y1="18" x2="21" y2="18" />
                     </svg>
                 </button>
-                <div id="mobile-header-portal" className="mobile-header-content"></div>
+                <div id="mobile-header-portal" className="flex-1"></div>
             </header>
 
             {/* ── Sidebar backdrop ── */}
             {sidebarOpen && (
-                <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+                <div className="fixed inset-0 bg-[#0a1228]/45 z-[1000] animate-fadeIn" onClick={() => setSidebarOpen(false)} />
             )}
 
             <SuperAdminSidebar
@@ -122,7 +121,7 @@ const AppLayout = ({ onLogout }) => {
                 onClose={() => setSidebarOpen(false)}
             />
 
-            <div className="app-main" key={activePage}>
+            <div className="flex-1 flex flex-col min-w-0 md:mt-14 animate-pageSlide" key={activePage}>
                 {renderPage()}
             </div>
         </div>

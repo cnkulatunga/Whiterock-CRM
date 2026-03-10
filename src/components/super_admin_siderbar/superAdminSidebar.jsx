@@ -1,5 +1,4 @@
 import React from 'react';
-import './superAdminSidebar.css';
 
 const NAV_GROUPS = [
     {
@@ -95,10 +94,10 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose }
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     return (
-        <aside className={`sidebar${isOpen ? ' sidebar--open' : ''}`}>
+        <aside className={`w-[240px] min-w-[240px] h-screen bg-white border-r border-[#e8edf5] flex flex-col sticky top-0 font-['Sora',sans-serif] shadow-[2px_0_12px_rgba(36,71,215,0.04)] transition-transform duration-[0.28s] ease-[cubic-bezier(0.22,1,0.36,1)] md:fixed md:left-0 md:z-[1100] md:shadow-none ${isOpen ? 'md:translate-x-0 md:shadow-[4px_0_32px_rgba(36,71,215,0.18)]' : 'md:-translate-x-full'}`}>
             {/* ── Logo ── */}
-            <div className="sidebar-logo">
-                <div className="sidebar-logo-icon">
+            <div className="flex items-center gap-3 p-[40px_20px_24px] border-b border-[#f0f4fb] md:p-[20px_16px]">
+                <div className="w-[38px] h-[38px] bg-gradient-to-br from-[#2447d7] to-[#1a38b8] rounded-lg flex items-center justify-center shrink-0 shadow-[0_3px_10px_rgba(36,71,215,0.3)]">
                     <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2"
                         strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
                         <path d="M12 2L2 7l10 5 10-5-10-5z" />
@@ -106,11 +105,11 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose }
                         <path d="M2 12l10 5 10-5" />
                     </svg>
                 </div>
-                <div className="sidebar-logo-texts">
-                    <span className="sidebar-logo-text">Whiterock CRM</span>
-                    <span className="sidebar-logo-role">SUPER ADMIN</span>
+                <div className="flex flex-col gap-[1px] min-w-0">
+                    <span className="text-[0.95rem] font-bold text-[#1a1f36] tracking-[-0.3px] whitespace-nowrap">Whiterock CRM</span>
+                    <span className="text-[0.62rem] font-bold tracking-[1.1px] text-[#94a3b8] uppercase">SUPER ADMIN</span>
                 </div>
-                <button className="sidebar-close-btn" onClick={onClose} aria-label="Close menu">
+                <button className="hidden md:flex bg-none border-none text-[#94a3b8] cursor-pointer p-1 rounded-md ml-auto items-center justify-center transition-all duration-150 hover:bg-[#fee2e2] hover:text-[#ef4444]" onClick={onClose} aria-label="Close menu">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
                         strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
                         <line x1="18" y1="6" x2="6" y2="18" />
@@ -120,20 +119,20 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose }
             </div>
 
             {/* ── Navigation ── */}
-            <nav className="sidebar-nav">
+            <nav className="flex-1 p-[12px_12px] flex flex-col gap-3 overflow-y-auto overflow-x-hidden">
                 {NAV_GROUPS.map((group) => (
-                    <div className="nav-group" key={group.group}>
-                        <span className="nav-group-label">{group.group}</span>
+                    <div className="flex flex-col gap-[2px]" key={group.group}>
+                        <span className="text-[0.68rem] font-bold tracking-[1.2px] text-[#94a3b8] uppercase px-2.5 pb-1.5">{group.group}</span>
                         {group.items.map((item) => (
                             <button
                                 key={item.id}
-                                className={`nav-item ${activePage === item.id ? 'nav-item--active' : ''}`}
+                                className={`flex items-center gap-[10px] p-[9px_12px] rounded-[9px] border-none group bg-transparent cursor-pointer font-['Sora',sans-serif] text-[0.875rem] font-medium text-left w-full transition-all duration-150 relative hover:bg-[#f0f4fb] hover:text-[#2447d7] ${activePage === item.id ? 'bg-[#eef2ff] text-[#2447d7] font-semibold before:content-[""] before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-[22px] before:bg-[#2447d7] before:rounded-[0_3px_3px_0]' : 'text-[#4a5568]'}`}
                                 onClick={() => onNavigate(item.id)}
                             >
-                                <span className="nav-item-icon">{item.icon}</span>
-                                <span className="nav-item-label">{item.label}</span>
+                                <span className={`flex items-center shrink-0 transition-colors duration-150 group-hover:text-[#2447d7] ${activePage === item.id ? 'text-[#2447d7]' : 'text-[#94a3b8]'}`}>{item.icon}</span>
+                                <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
                                 {item.badge && (
-                                    <span className="nav-item-badge">{item.badge}</span>
+                                    <span className="text-[0.6rem] font-semibold bg-[#f1f5f9] text-[#64748b] rounded-sm px-1.5 py-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[90px] shrink-0">{item.badge}</span>
                                 )}
                             </button>
                         ))}
@@ -142,13 +141,13 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose }
             </nav>
 
             {/* ── User Profile & Logout ── */}
-            <div className="sidebar-footer">
-                <div className="sidebar-user">
-                    <div className="sidebar-user-avatar">{initials}</div>
-                    <div className="sidebar-user-info">
-                        <div className="sidebar-user-name-row">
-                            <span className="sidebar-user-name">{name}</span>
-                            <button className="btn-logout-small" onClick={onLogout} title="Logout">
+            <div className="border-t border-[#f0f4fb]">
+                <div className="flex items-center gap-[10px] p-[14px_18px] bg-[#fafbff]">
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#94a3b8] to-[#64748b] text-white text-[0.75rem] font-bold flex items-center justify-center shrink-0 font-['Sora',sans-serif]">{initials}</div>
+                    <div className="flex flex-col gap-[2px] min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-1.5">
+                            <span className="text-[0.82rem] font-semibold text-[#1a1f36] whitespace-nowrap overflow-hidden text-ellipsis">{name}</span>
+                            <button className="bg-none border-none text-[#94a3b8] cursor-pointer p-1 rounded-[5px] flex items-center shrink-0 transition-all duration-150 hover:bg-[#fee2e2] hover:text-[#ef4444]" onClick={onLogout} title="Logout">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
                                     strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
                                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
@@ -157,7 +156,7 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose }
                                 </svg>
                             </button>
                         </div>
-                        <span className="sidebar-user-role">{email}</span>
+                        <span className="text-[0.7rem] text-[#94a3b8] font-normal whitespace-nowrap overflow-hidden text-ellipsis">{email}</span>
                     </div>
                 </div>
             </div>

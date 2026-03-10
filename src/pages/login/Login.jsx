@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import './Login.css';
 
 /* ─────────────────────────────────────────────
    SVG ICON HELPERS
@@ -97,18 +96,20 @@ const IconCheckSm = () => (
    SHARED NAVBAR
 ───────────────────────────────────────────── */
 const Navbar = ({ showPrivacy = false }) => (
-    <nav className="navbar">
-        <a href="#" className="nav-brand">
-            <div className="brand-icon"><IconLayers /></div>
-            <span className="brand-name">
-                Whiterock <span className="brand-highlight">CRM</span>
+    <nav className="flex justify-between items-center px-10 h-[62px] bg-white border-b border-[#e2e8f0] sticky top-0 z-[100] w-full md:px-6 sm:px-4 sm:h-[58px]">
+        <a href="#" className="flex items-center gap-2.5 no-underline text-[#1a1f36]">
+            <div className="w-9 h-9 bg-[#2447D7] rounded-[10px] flex items-center justify-center shrink-0 sm:w-8 sm:h-8"><IconLayers /></div>
+            <span className="text-[1.1rem] font-bold tracking-[-0.3px] sm:hidden">
+                Whiterock <span className="text-[#2447D7]">CRM</span>
             </span>
         </a>
-        <div className="nav-actions">
-            <a href="#" className="btn-help"><IconHelp /> Help Center</a>
+        <div className="flex items-center gap-3 sm:gap-2 xs:gap-2">
+            <a href="#" className="flex items-center gap-1.5 text-[#4a5568] text-[0.875rem] font-medium no-underline p-[7px_14px] rounded-lg transition-all duration-150 hover:bg-[#EEF2FF] hover:text-[#2447D7] sm:p-[6px_10px] sm:text-[0.8rem]">
+                <span className="sm:hidden"><IconHelp /></span> Help Center
+            </a>
             {showPrivacy
-                ? <a href="#" className="btn-help">Privacy Policy</a>
-                : <a href="#" className="btn-support">Support</a>
+                ? <a href="#" className="flex items-center gap-1.5 text-[#4a5568] text-[0.875rem] font-medium no-underline p-[7px_14px] rounded-lg transition-all duration-150 hover:bg-[#EEF2FF] hover:text-[#2447D7] sm:p-[6px_10px] sm:text-[0.8rem]">Privacy Policy</a>
+                : <a href="#" className="bg-[#2447D7] text-white text-[0.875rem] font-semibold p-[8px_20px] rounded-lg no-underline transition-all duration-150 hover:bg-[#1a38b8] hover:-translate-y-[1px] sm:p-[6px_14px] sm:text-[0.8rem]">Support</a>
             }
         </div>
     </nav>
@@ -118,12 +119,12 @@ const Navbar = ({ showPrivacy = false }) => (
    SHARED FOOTER
 ───────────────────────────────────────────── */
 const Footer = () => (
-    <footer className="site-footer">
+    <footer className="p-[20px_40px] border-t border-[#e2e8f0] bg-white flex justify-center items-center gap-4 text-[0.8rem] text-[#94a3b8] font-['Sora',sans-serif] flex-wrap w-full box-border sm:p-[16px_20px] sm:gap-2 sm:text-[0.75rem]">
         <span>© 2026 Whiterock CRM. All systems operational.</span>
-        <span className="footer-dot" />
-        <a href="#">Privacy Policy</a>
-        <span className="footer-dot" />
-        <a href="#">Terms of Service</a>
+        <span className="w-[3px] h-[3px] bg-[#e2e8f0] rounded-full inline-block shrink-0" />
+        <a href="#" className="text-[#94a3b8] no-underline transition-colors duration-150 hover:text-[#2447D7]">Privacy Policy</a>
+        <span className="w-[3px] h-[3px] bg-[#e2e8f0] rounded-full inline-block shrink-0" />
+        <a href="#" className="text-[#94a3b8] no-underline transition-colors duration-150 hover:text-[#2447D7]">Terms of Service</a>
     </footer>
 );
 
@@ -133,21 +134,21 @@ const Footer = () => (
 const StepIndicator = ({ current }) => {
     const steps = ['Email', 'Verify Code', 'New Password'];
     return (
-        <div className="step-indicator">
+        <div className="flex items-center gap-0 animate-slideUp sm:gap-0">
             {steps.map((label, i) => {
                 const num = i + 1;
                 const isDone = num < current;
                 const isActive = num === current;
                 return (
                     <React.Fragment key={num}>
-                        <div className={`step ${isActive ? 'step--active' : ''} ${isDone ? 'step--done' : ''}`}>
-                            <div className="step-circle">
+                        <div className="flex flex-col items-center gap-1.5">
+                            <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-[0.78rem] font-bold transition-all duration-300 ${isActive ? 'border-[#2447D7] bg-[#2447D7] text-white' : isDone ? 'border-[#22c55e] bg-[#22c55e] text-white' : 'border-[#e2e8f0] bg-white text-[#94a3b8]'}`}>
                                 {isDone ? <IconCheckSm /> : num}
                             </div>
-                            <span className="step-label">{label}</span>
+                            <span className={`text-[0.72rem] font-semibold whitespace-nowrap sm:text-[0.65rem] ${isActive ? 'text-[#2447D7]' : isDone ? 'text-[#22c55e]' : 'text-[#94a3b8]'}`}>{label}</span>
                         </div>
                         {i < steps.length - 1 && (
-                            <div className={`step-line ${isDone ? 'step-line--done' : ''}`} />
+                            <div className={`w-14 h-[2px] mx-1.5 mb-[22px] transition-colors duration-300 shrink-0 sm:w-6 sm:mx-1 sm:mb-5 ${isDone ? 'bg-[#22c55e]' : 'bg-[#e2e8f0]'}`} />
                         )}
                     </React.Fragment>
                 );
@@ -160,8 +161,8 @@ const StepIndicator = ({ current }) => {
    PASSWORD REQUIREMENT ROW
 ───────────────────────────────────────────── */
 const PwReq = ({ met, label }) => (
-    <div className={`pw-req-item ${met ? 'pw-req-item--met' : ''}`}>
-        <div className="req-dot">{met && <IconCheckSm />}</div>
+    <div className={`flex items-center gap-[10px] mb-2 text-[0.85rem] transition-colors duration-200 ${met ? 'text-[#1a1f36]' : 'text-[#4a5568]'}`}>
+        <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors duration-250 ${met ? 'bg-[#22c55e]' : 'bg-[#dde3ef]'}`}>{met && <IconCheckSm />}</div>
         {label}
     </div>
 );
@@ -308,32 +309,33 @@ const Login = ({ onLogin }) => {
        RENDER
     ───────────────────────────────────────── */
     return (
-        <div className="page-wrapper">
+        <div className="font-['Sora',sans-serif] bg-[#f0f2f7] min-h-screen flex flex-col bg-[radial-gradient(ellipse_at_10%_20%,rgba(36,71,215,0.07)_0%,transparent_55%),radial-gradient(ellipse_at_90%_80%,rgba(36,71,215,0.05)_0%,transparent_55%)]">
 
             <Navbar showPrivacy={view !== 'login'} />
 
-            <main className="main-content">
+            <main className="flex-1 flex flex-col items-center justify-center p-[40px_16px] gap-6 sm:p-[30px_16px]">
 
                 {/* ══════════════════════════════
                     VIEW: LOGIN
                 ══════════════════════════════ */}
                 {view === 'login' && (
                     <>
-                        <div className="login-card">
-                            <div className="card-header">
-                                <h2>Welcome Back</h2>
-                                <p>Enter your enterprise credentials to continue</p>
+                        <div className="bg-white border border-[#e2e8f0] rounded-[14px] shadow-[0_2px_24px_rgba(36,71,215,0.07),0_1px_4px_rgba(0,0,0,0.04)] w-full max-w-[460px] p-[44px_44px_36px] animate-slideUp box-border sm:p-[28px_20px_24px] sm:rounded-xl sm:w-[calc(100%-32px)] sm:mx-4">
+                            <div className="text-center mb-8">
+                                <h2 className="text-[1.75rem] font-bold text-[#1a1f36] tracking-[-0.5px] mb-2 sm:text-2xl">Welcome Back</h2>
+                                <p className="text-[0.9rem] text-[#4a5568] leading-[1.6] sm:text-[0.85rem]">Enter your enterprise credentials to continue</p>
                             </div>
 
                             <form onSubmit={handleLogin} noValidate>
 
                                 {/* Email */}
-                                <div className="form-group">
-                                    <label htmlFor="login-email">Email</label>
-                                    <div className="input-wrapper">
-                                        <span className="input-icon"><IconUser /></span>
+                                <div className="mb-5">
+                                    <label htmlFor="login-email" className="block text-[0.85rem] font-semibold text-[#1a1f36] mb-2">Email</label>
+                                    <div className="flex items-center border-[1.5px] border-[#e2e8f0] rounded-[10px] bg-white transition-all duration-180 overflow-hidden relative focus-within:border-[#2447D7] focus-within:shadow-[0_0_0_3px_rgba(36,71,215,0.1)]">
+                                        <span className="flex items-center justify-center shrink-0 w-[44px] text-[#94a3b8] transition-colors duration-200 group-focus-within:text-[#2447D7]"><IconUser /></span>
                                         <input
                                             id="login-email"
+                                            className="flex-1 min-w-0 p-[14px_12px_14px_0] border-none bg-transparent font-inherit text-[0.9rem] text-[#1a1f36] outline-none placeholder:text-[#94a3b8] placeholder:font-normal"
                                             type="email"
                                             placeholder="e.g. alex@whiterock.com"
                                             autoComplete="email"
@@ -344,26 +346,26 @@ const Login = ({ onLogin }) => {
                                 </div>
 
                                 {/* Password */}
-                                <div className="form-group">
-                                    <div className="form-label-row">
-                                        <label htmlFor="login-password">Password</label>
-                                        <button type="button" className="forgot-link"
+                                <div className="mb-5">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <label htmlFor="login-password" className="text-[0.85rem] font-semibold text-[#1a1f36]">Password</label>
+                                        <button type="button" className="text-[0.82rem] font-semibold text-[#2447D7] bg-none border-none cursor-pointer p-0 transition-opacity duration-150 hover:opacity-75"
                                             onClick={openForgotFlow}>
                                             Forgot password?
                                         </button>
                                     </div>
-                                    <div className="input-wrapper">
-                                        <span className="input-icon"><IconLock /></span>
+                                    <div className="flex items-center border-[1.5px] border-[#e2e8f0] rounded-[10px] bg-white transition-all duration-180 overflow-hidden relative focus-within:border-[#2447D7] focus-within:shadow-[0_0_0_3px_rgba(36,71,215,0.1)]">
+                                        <span className="flex items-center justify-center shrink-0 w-[44px] text-[#94a3b8] transition-colors duration-200"><IconLock /></span>
                                         <input
                                             id="login-password"
-                                            className="input-has-toggle"
+                                            className="flex-1 min-w-0 p-[14px_44px_14px_0] border-none bg-transparent font-inherit text-[0.9rem] text-[#1a1f36] outline-none placeholder:text-[#94a3b8] placeholder:font-normal"
                                             type={showLoginPw ? 'text' : 'password'}
                                             placeholder="••••••••"
                                             autoComplete="current-password"
                                             value={loginPassword}
                                             onChange={(e) => setLoginPassword(e.target.value)}
                                         />
-                                        <button type="button" className="toggle-password"
+                                        <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-[#94a3b8] flex items-center p-1 transition-colors duration-150 hover:text-[#2447D7]"
                                             onClick={() => setShowLoginPw(!showLoginPw)}>
                                             {showLoginPw ? <IconEyeOff /> : <IconEye />}
                                         </button>
@@ -371,26 +373,27 @@ const Login = ({ onLogin }) => {
                                 </div>
 
                                 {/* Keep logged in */}
-                                <div className="keep-logged-in">
+                                <div className="flex items-center gap-2.5 mb-6">
                                     <input type="checkbox" id="keep-logged"
+                                        className="w-[17px] h-[17px] rounded-md cursor-pointer accent-[#2447D7] shrink-0"
                                         checked={keepLogged}
                                         onChange={(e) => setKeepLogged(e.target.checked)} />
-                                    <label htmlFor="keep-logged">Keep me logged in</label>
+                                    <label htmlFor="keep-logged" className="text-[0.875rem] font-normal text-[#4a5568] cursor-pointer">Keep me logged in</label>
                                 </div>
 
-                                {loginError && <div className="form-error" role="alert">{loginError}</div>}
+                                {loginError && <div className="bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] text-[0.82rem] font-medium rounded-lg p-[10px_14px] mb-4" role="alert">{loginError}</div>}
 
-                                <button type="submit" className="btn-primary">
-                                    Sign In <IconArrowRight />
+                                <button type="submit" className="w-full p-[13px] bg-[#2447D7] text-white font-semibold text-[0.95rem] border-none rounded-[10px] cursor-pointer flex items-center justify-center gap-2 transition-all duration-150 shadow-[0_4px_14px_rgba(36,71,215,0.3)] hover:bg-[#1a38b8] hover:-translate-y-[1px] hover:shadow-[0_6px_20px_rgba(36,71,215,0.35)] active:translate-y-0 group">
+                                    Sign In <IconArrowRight className="transition-transform duration-200 group-hover:translate-x-[3px]" />
                                 </button>
                             </form>
 
-                            <div className="divider" />
+                            <div className="h-[1px] bg-[#e2e8f0] m-[28px_0_24px]" />
                         </div>
 
-                        <p className="contact-admin">
+                        <p className="text-[0.875rem] text-[#4a5568] text-center">
                             Don't have an account?{' '}
-                            <a href="#">Contact your administrator</a>
+                            <a href="#" className="text-[#2447D7] font-semibold no-underline transition-opacity duration-150 hover:opacity-75">Contact your administrator</a>
                         </p>
                     </>
                 )}
@@ -402,22 +405,23 @@ const Login = ({ onLogin }) => {
                     <>
                         <StepIndicator current={fpStep} />
 
-                        <div className="login-card">
+                        <div className="bg-white border border-[#e2e8f0] rounded-[14px] shadow-[0_2px_24px_rgba(36,71,215,0.07),0_1px_4px_rgba(0,0,0,0.04)] w-full max-w-[460px] p-[44px_44px_36px] animate-slideUp box-border sm:p-[28px_20px_24px] sm:rounded-xl sm:w-[calc(100%-32px)] sm:mx-4">
 
                             {/* ── STEP 1: Enter Email ── */}
                             {view === 'fp-email' && (
                                 <>
-                                    <div className="card-header card-header--left">
-                                        <h2>Reset Password</h2>
-                                        <p>Enter your email to receive a 6-digit verification code.</p>
+                                    <div className="text-left mb-8">
+                                        <h2 className="text-[1.75rem] font-bold text-[#1a1f36] tracking-[-0.5px] mb-2 sm:text-2xl">Reset Password</h2>
+                                        <p className="text-[0.9rem] text-[#4a5568] leading-[1.6] sm:text-[0.85rem]">Enter your email to receive a 6-digit verification code.</p>
                                     </div>
                                     <form onSubmit={handleSendCode} noValidate>
-                                        <div className="form-group">
-                                            <label htmlFor="fp-email">Email Address</label>
-                                            <div className="input-wrapper">
-                                                <span className="input-icon"><IconMail /></span>
+                                        <div className="mb-5">
+                                            <label htmlFor="fp-email" className="block text-[0.85rem] font-semibold text-[#1a1f36] mb-2">Email Address</label>
+                                            <div className="flex items-center border-[1.5px] border-[#e2e8f0] rounded-[10px] bg-white transition-all duration-180 overflow-hidden relative focus-within:border-[#2447D7] focus-within:shadow-[0_0_0_3px_rgba(36,71,215,0.1)]">
+                                                <span className="flex items-center justify-center shrink-0 w-[44px] text-[#94a3b8] transition-colors duration-200"><IconMail /></span>
                                                 <input
                                                     id="fp-email"
+                                                    className="flex-1 min-w-0 p-[14px_12px_14px_0] border-none bg-transparent font-inherit text-[0.9rem] text-[#1a1f36] outline-none placeholder:text-[#94a3b8] placeholder:font-normal"
                                                     type="email"
                                                     placeholder="e.g. alex@whiterock.com"
                                                     autoComplete="email"
@@ -426,16 +430,16 @@ const Login = ({ onLogin }) => {
                                                 />
                                             </div>
                                         </div>
-                                        {fpEmailError && <div className="form-error" role="alert">{fpEmailError}</div>}
-                                        <button type="submit" className="btn-primary">
-                                            Send Reset Code <IconArrowRight />
+                                        {fpEmailError && <div className="bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] text-[0.82rem] font-medium rounded-lg p-[10px_14px] mb-4" role="alert">{fpEmailError}</div>}
+                                        <button type="submit" className="w-full p-[13px] bg-[#2447D7] text-white font-semibold text-[0.95rem] border-none rounded-[10px] cursor-pointer flex items-center justify-center gap-2 transition-all duration-150 shadow-[0_4px_14px_rgba(36,71,215,0.3)] hover:bg-[#1a38b8] hover:-translate-y-[1px] hover:shadow-[0_6px_20px_rgba(36,71,215,0.35)] active:translate-y-0 group">
+                                            Send Reset Code <IconArrowRight className="transition-transform duration-200 group-hover:translate-x-[3px]" />
                                         </button>
                                     </form>
-                                    <button className="btn-back" onClick={() => setView('login')}>
+                                    <button className="flex items-center justify-center gap-1.5 text-[#2447D7] text-[0.875rem] font-semibold bg-none border-none cursor-pointer w-full mt-4 p-1 transition-opacity duration-150 hover:opacity-75" onClick={() => setView('login')}>
                                         <IconArrowLeft /> Back to Login
                                     </button>
-                                    <div className="card-note">
-                                        Lost access to your email? <a href="#">Contact Support</a>
+                                    <div className="border-t border-[#e2e8f0] mt-5 pt-4 text-center text-[0.8rem] text-[#94a3b8] leading-[1.6]">
+                                        Lost access to your email? <a href="#" className="text-[#2447D7] font-semibold no-underline hover:underline">Contact Support</a>
                                     </div>
                                 </>
                             )}
@@ -443,18 +447,18 @@ const Login = ({ onLogin }) => {
                             {/* ── STEP 2: OTP Verification ── */}
                             {view === 'fp-otp' && (
                                 <>
-                                    <div className="card-header card-header--left">
-                                        <h2>Enter Verification Code</h2>
-                                        <p>We sent a 6-digit code to <strong>{fpEmail}</strong>. Enter it below.</p>
+                                    <div className="text-left mb-8">
+                                        <h2 className="text-[1.75rem] font-bold text-[#1a1f36] tracking-[-0.5px] mb-2 sm:text-2xl">Enter Verification Code</h2>
+                                        <p className="text-[0.9rem] text-[#4a5568] leading-[1.6] sm:text-[0.85rem]">We sent a 6-digit code to <strong>{fpEmail}</strong>. Enter it below.</p>
                                     </div>
                                     <form onSubmit={handleVerifyOtp} noValidate>
-                                        <label className="otp-label">Verification Code</label>
-                                        <div className="otp-row">
+                                        <label className="block text-[0.85rem] font-semibold text-[#1a1f36] mb-3 text-center">Verification Code</label>
+                                        <div className="flex gap-2.5 justify-center mb-4 sm:gap-1.5">
                                             {otp.map((digit, i) => (
                                                 <input
                                                     key={i}
                                                     ref={(el) => (otpRefs.current[i] = el)}
-                                                    className="otp-input"
+                                                    className="w-[52px] h-[56px] p-0 text-center text-[1.4rem] font-bold rounded-[10px] border-[1.5px] border-[#e2e8f0] text-[#1a1f36] bg-white outline-none transition-all duration-180 focus:border-[#2447D7] focus:shadow-[0_0_0_3px_rgba(36,71,215,0.1)] sm:w-[42px] sm:h-[48px] sm:text-[1.15rem]"
                                                     type="text"
                                                     inputMode="numeric"
                                                     maxLength={1}
@@ -466,19 +470,19 @@ const Login = ({ onLogin }) => {
                                                 />
                                             ))}
                                         </div>
-                                        <p className="otp-hint">
+                                        <p className="text-center text-[0.82rem] text-[#94a3b8] mb-5">
                                             Didn't receive a code?{' '}
-                                            <button type="button" className="resend-btn"
+                                            <button type="button" className="bg-none border-none text-[#2447D7] font-semibold text-[0.82rem] cursor-pointer p-0 transition-opacity duration-150 hover:opacity-75"
                                                 onClick={() => alert('Code resent! (demo)')}>
                                                 Resend code
                                             </button>
                                         </p>
-                                        {otpError && <div className="form-error" role="alert">{otpError}</div>}
-                                        <button type="submit" className="btn-primary">
-                                            Verify Code <IconArrowRight />
+                                        {otpError && <div className="bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] text-[0.82rem] font-medium rounded-lg p-[10px_14px] mb-4" role="alert">{otpError}</div>}
+                                        <button type="submit" className="w-full p-[13px] bg-[#2447D7] text-white font-semibold text-[0.95rem] border-none rounded-[10px] cursor-pointer flex items-center justify-center gap-2 transition-all duration-150 shadow-[0_4px_14px_rgba(36,71,215,0.3)] hover:bg-[#1a38b8] hover:-translate-y-[1px] hover:shadow-[0_6px_20px_rgba(36,71,215,0.35)] active:translate-y-0 group">
+                                            Verify Code <IconArrowRight className="transition-transform duration-200 group-hover:translate-x-[3px]" />
                                         </button>
                                     </form>
-                                    <button className="btn-back" onClick={() => setView('fp-email')}>
+                                    <button className="flex items-center justify-center gap-1.5 text-[#2447D7] text-[0.875rem] font-semibold bg-none border-none cursor-pointer w-full mt-4 p-1 transition-opacity duration-150 hover:opacity-75" onClick={() => setView('fp-email')}>
                                         <IconArrowLeft /> Back
                                     </button>
                                 </>
@@ -487,25 +491,25 @@ const Login = ({ onLogin }) => {
                             {/* ── STEP 3: Set New Password ── */}
                             {view === 'fp-newpw' && (
                                 <>
-                                    <div className="card-header card-header--left">
-                                        <h2>Set New Password</h2>
-                                        <p>Almost there! Choose a secure password for your account.</p>
+                                    <div className="text-left mb-8">
+                                        <h2 className="text-[1.75rem] font-bold text-[#1a1f36] tracking-[-0.5px] mb-2 sm:text-2xl">Set New Password</h2>
+                                        <p className="text-[0.9rem] text-[#4a5568] leading-[1.6] sm:text-[0.85rem]">Almost there! Choose a secure password for your account.</p>
                                     </div>
                                     <form onSubmit={handleSetPassword} noValidate>
 
                                         {/* New Password */}
-                                        <div className="form-group">
-                                            <label htmlFor="new-password">New Password</label>
-                                            <div className="input-wrapper">
+                                        <div className="mb-5">
+                                            <label htmlFor="new-password" className="block text-[0.85rem] font-semibold text-[#1a1f36] mb-2">New Password</label>
+                                            <div className="flex items-center border-[1.5px] border-[#e2e8f0] rounded-[10px] bg-white transition-all duration-180 overflow-hidden relative focus-within:border-[#2447D7] focus-within:shadow-[0_0_0_3px_rgba(36,71,215,0.1)]">
                                                 <input
                                                     id="new-password"
-                                                    className="input-no-icon input-has-toggle"
+                                                    className="flex-1 min-w-0 p-[14px_44px_14px_14px] border-none bg-transparent font-inherit text-[0.9rem] text-[#1a1f36] outline-none placeholder:text-[#94a3b8] placeholder:font-normal"
                                                     type={showNewPw ? 'text' : 'password'}
                                                     placeholder="••••••••"
                                                     value={newPw}
                                                     onChange={(e) => setNewPw(e.target.value)}
                                                 />
-                                                <button type="button" className="toggle-password"
+                                                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-[#94a3b8] flex items-center p-1 transition-colors duration-150 hover:text-[#2447D7]"
                                                     onClick={() => setShowNewPw(!showNewPw)}>
                                                     {showNewPw ? <IconEyeOff /> : <IconEye />}
                                                 </button>
@@ -513,18 +517,18 @@ const Login = ({ onLogin }) => {
                                         </div>
 
                                         {/* Confirm Password */}
-                                        <div className="form-group">
-                                            <label htmlFor="confirm-password">Confirm Password</label>
-                                            <div className="input-wrapper">
+                                        <div className="mb-5">
+                                            <label htmlFor="confirm-password" className="block text-[0.85rem] font-semibold text-[#1a1f36] mb-2">Confirm Password</label>
+                                            <div className="flex items-center border-[1.5px] border-[#e2e8f0] rounded-[10px] bg-white transition-all duration-180 overflow-hidden relative focus-within:border-[#2447D7] focus-within:shadow-[0_0_0_3px_rgba(36,71,215,0.1)]">
                                                 <input
                                                     id="confirm-password"
-                                                    className="input-no-icon input-has-toggle"
+                                                    className="flex-1 min-w-0 p-[14px_44px_14px_14px] border-none bg-transparent font-inherit text-[0.9rem] text-[#1a1f36] outline-none placeholder:text-[#94a3b8] placeholder:font-normal"
                                                     type={showConfirmPw ? 'text' : 'password'}
                                                     placeholder="••••••••"
                                                     value={confirmPw}
                                                     onChange={(e) => setConfirmPw(e.target.value)}
                                                 />
-                                                <button type="button" className="toggle-password"
+                                                <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-[#94a3b8] flex items-center p-1 transition-colors duration-150 hover:text-[#2447D7]"
                                                     onClick={() => setShowConfirmPw(!showConfirmPw)}>
                                                     {showConfirmPw ? <IconEyeOff /> : <IconEye />}
                                                 </button>
@@ -532,26 +536,26 @@ const Login = ({ onLogin }) => {
                                         </div>
 
                                         {/* Requirements */}
-                                        <div className="pw-requirements">
-                                            <div className="pw-req-title">Password Requirements</div>
+                                        <div className="bg-[#f7f9ff] border border-[#dce4f7] rounded-[10px] p-4 m-[4px_0_20px]">
+                                            <div className="text-[0.72rem] font-bold tracking-widest uppercase text-[#4a5568] mb-3">Password Requirements</div>
                                             <PwReq met={pwReqs.length} label="At least 8 characters long" />
                                             <PwReq met={pwReqs.upper} label="At least one uppercase letter (A–Z)" />
                                             <PwReq met={pwReqs.symbol} label="At least one symbol or special character (!@#)" />
                                         </div>
 
-                                        {newPwError && <div className="form-error" role="alert">{newPwError}</div>}
+                                        {newPwError && <div className="bg-[#fef2f2] border border-[#fecaca] text-[#dc2626] text-[0.82rem] font-medium rounded-lg p-[10px_14px] mb-4" role="alert">{newPwError}</div>}
 
-                                        <button type="submit" className="btn-primary">
-                                            Update Password <IconArrowRight />
+                                        <button type="submit" className="w-full p-[13px] bg-[#2447D7] text-white font-semibold text-[0.95rem] border-none rounded-[10px] cursor-pointer flex items-center justify-center gap-2 transition-all duration-150 shadow-[0_4px_14px_rgba(36,71,215,0.3)] hover:bg-[#1a38b8] hover:-translate-y-[1px] hover:shadow-[0_6px_20px_rgba(36,71,215,0.35)] active:translate-y-0 group">
+                                            Update Password <IconArrowRight className="transition-transform duration-200 group-hover:translate-x-[3px]" />
                                         </button>
                                     </form>
-                                    <button className="btn-back" onClick={() => setView('fp-otp')}>
+                                    <button className="flex items-center justify-center gap-1.5 text-[#2447D7] text-[0.875rem] font-semibold bg-none border-none cursor-pointer w-full mt-4 p-1 transition-opacity duration-150 hover:opacity-75" onClick={() => setView('fp-otp')}>
                                         <IconArrowLeft /> Back
                                     </button>
 
                                     {/* Security strip */}
-                                    <div className="security-strip">
-                                        <div className="sec-badge">
+                                    <div className="flex justify-center gap-6 mt-6 pt-5 border-t border-[#e2e8f0]">
+                                        <div className="flex items-center gap-1.5 text-[0.72rem] font-semibold tracking-widest uppercase text-[#94a3b8]">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
                                                 strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
                                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
@@ -559,7 +563,7 @@ const Login = ({ onLogin }) => {
                                             </svg>
                                             Secure Encryption
                                         </div>
-                                        <div className="sec-badge">
+                                        <div className="flex items-center gap-1.5 text-[0.72rem] font-semibold tracking-widest uppercase text-[#94a3b8]">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
                                                 strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
                                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -577,15 +581,17 @@ const Login = ({ onLogin }) => {
                     VIEW: SUCCESS
                 ══════════════════════════════ */}
                 {view === 'fp-success' && (
-                    <div className="success-card">
-                        <div className="success-icon"><IconCheck /></div>
-                        <h2>Password Updated!</h2>
-                        <p>Your password has been successfully updated. You can now sign in with your new credentials.</p>
-                        <button className="btn-primary" onClick={() => {
+                    <div className="bg-white border border-[#e2e8f0] rounded-[14px] shadow-[0_2px_24px_rgba(36,71,215,0.07),0_1px_4px_rgba(0,0,0,0.04)] w-full max-w-[460px] p-[52px_44px_44px] text-center animate-slideUp sm:p-[28px_20px_24px] sm:rounded-xl sm:w-[calc(100%-32px)] sm:mx-4">
+                        <div className="w-[68px] h-[68px] rounded-full bg-[#dcfce7] flex items-center justify-center mx-auto mb-5">
+                            <IconCheck className="stroke-[#16a34a]" />
+                        </div>
+                        <h2 className="text-[1.6rem] font-bold text-[#1a1f36] tracking-[-0.4px] mb-[10px] sm:text-[1.5rem]">Password Updated!</h2>
+                        <p className="text-[0.88rem] text-[#4a5568] leading-[1.6] mb-7">Your password has been successfully updated. You can now sign in with your new credentials.</p>
+                        <button className="w-full p-[13px] bg-[#2447D7] text-white font-semibold text-[0.95rem] border-none rounded-[10px] cursor-pointer flex items-center justify-center gap-2 transition-all duration-150 shadow-[0_4px_14px_rgba(36,71,215,0.3)] hover:bg-[#1a38b8] hover:-translate-y-[1px] hover:shadow-[0_6px_20px_rgba(36,71,215,0.35)] active:translate-y-0 group" onClick={() => {
                             setView('login');
                             setLoginEmail(''); setLoginPassword('');
                         }}>
-                            Back to Login <IconArrowRight />
+                            Back to Login <IconArrowRight className="transition-transform duration-200 group-hover:translate-x-[3px]" />
                         </button>
                     </div>
                 )}

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './CreateLead.css';
 
 const CreateLead = ({ onBack }) => {
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -36,46 +35,48 @@ const CreateLead = ({ onBack }) => {
     };
 
     return (
-        <div className="create-lead-container">
+        <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
             {/* ── HEADER ── */}
-            <div className="create-lead-header">
-                <h1>Create New Lead</h1>
-                <p>Initialize a new prospect record by providing the mandatory identity and financial details.</p>
+            <div className="my-6 mb-8 md:my-4">
+                <h1 className="text-[1.75rem] font-bold text-[#1a202c] mb-2 sm:text-2xl tracking-tight">Create New Lead</h1>
+                <p className="text-[0.95rem] text-[#718096] max-w-2xl leading-relaxed">Initialize a new prospect record by providing the mandatory identity and financial details.</p>
             </div>
 
             {/* ── FORM CARD ── */}
-            <div className="tele-card form-card">
-                <div className="card-header-row">
-                    <div className="header-title-box">
-                        <span className="icon-wrapper blue"><IconDocs /></span>
-                        <h3>Lead Specification</h3>
+            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
+                <div className="p-6 px-8 border-b border-[#f7fafc] flex justify-between items-center md:px-6">
+                    <div className="flex items-center gap-3">
+                        <span className="w-8 h-8 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center shrink-0"><IconDocs /></span>
+                        <h3 className="text-base font-bold text-[#1a202c]">Lead Specification</h3>
                     </div>
-                    <div className="system-id-badge">
-                        <span className="label">SYSTEM ID:</span>
-                        <span className="value">WR-2026-0001</span>
+                    <div className="flex items-center gap-2 bg-[#f0f4ff] px-3 py-1.5 rounded-lg">
+                        <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider">SYSTEM ID:</span>
+                        <span className="text-[12px] font-bold text-[#2447d7]">WR-2026-0001</span>
                     </div>
                 </div>
 
-                <div className="card-body">
+                <div className="p-8 md:p-6">
                     {/* Personal Identification */}
-                    <div className="form-section">
-                        <h4 className="section-title">PERSONAL IDENTIFICATION</h4>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label>Customer Name</label>
+                    <div className="mb-8">
+                        <h4 className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5">PERSONAL IDENTIFICATION</h4>
+                        <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[13px] font-semibold text-[#4a5568]">Customer Name</label>
                                 <input
                                     type="text"
                                     name="customerName"
+                                    className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full"
                                     placeholder="e.g. Jonathan Doe"
                                     value={formData.customerName}
                                     onChange={handleInputChange}
                                 />
                             </div>
-                            <div className="form-group">
-                                <label>NIC / National ID</label>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[13px] font-semibold text-[#4a5568]">NIC / National ID</label>
                                 <input
                                     type="text"
                                     name="nic"
+                                    className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full"
                                     placeholder="Enter identification number"
                                     value={formData.nic}
                                     onChange={handleInputChange}
@@ -85,29 +86,31 @@ const CreateLead = ({ onBack }) => {
                     </div>
 
                     {/* Contact Channels */}
-                    <div className="form-section">
-                        <h4 className="section-title">CONTACT CHANNELS</h4>
-                        <div className="form-grid">
-                            <div className="form-group has-icon">
-                                <label>Phone Number</label>
-                                <div className="input-with-icon">
-                                    <IconPhone />
+                    <div className="mb-8">
+                        <h4 className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5">CONTACT CHANNELS</h4>
+                        <div className="grid grid-cols-2 gap-6 mb-6 md:grid-cols-1">
+                            <div className="flex flex-col gap-2 relative">
+                                <label className="text-[13px] font-semibold text-[#4a5568]">Phone Number</label>
+                                <div className="relative flex items-center">
+                                    <div className="absolute left-4 text-[#cbd5e0]"><IconPhone /></div>
                                     <input
                                         type="text"
                                         name="phoneNumber"
+                                        className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 pl-11 pr-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full"
                                         placeholder="+1 (555) 000-0000"
                                         value={formData.phoneNumber}
                                         onChange={handleInputChange}
                                     />
                                 </div>
                             </div>
-                            <div className="form-group has-icon">
-                                <label>Email Address</label>
-                                <div className="input-with-icon">
-                                    <IconMail />
+                            <div className="flex flex-col gap-2 relative">
+                                <label className="text-[13px] font-semibold text-[#4a5568]">Email Address</label>
+                                <div className="relative flex items-center">
+                                    <div className="absolute left-4 text-[#cbd5e0]"><IconMail /></div>
                                     <input
                                         type="email"
                                         name="emailAddress"
+                                        className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 pl-11 pr-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full"
                                         placeholder="client@example.com"
                                         value={formData.emailAddress}
                                         onChange={handleInputChange}
@@ -115,11 +118,12 @@ const CreateLead = ({ onBack }) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="form-group full-width">
-                            <label>Residential Address</label>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[13px] font-semibold text-[#4a5568]">Residential Address</label>
                             <input
                                 type="text"
                                 name="residentialAddress"
+                                className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full"
                                 placeholder="Street, Suite, City, Zip Code"
                                 value={formData.residentialAddress}
                                 onChange={handleInputChange}
@@ -128,33 +132,44 @@ const CreateLead = ({ onBack }) => {
                     </div>
 
                     {/* Financial & Logistics */}
-                    <div className="form-section">
-                        <h4 className="section-title">FINANCIAL & LOGISTICS</h4>
-                        <div className="form-grid three-col">
-                            <div className="form-group has-prefix">
-                                <label>Loan Amount (USD)</label>
-                                <div className="input-with-prefix">
-                                    <span className="prefix">$</span>
+                    <div className="mb-8">
+                        <h4 className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5">FINANCIAL & LOGISTICS</h4>
+                        <div className="grid grid-cols-3 gap-6 md:grid-cols-1">
+                            <div className="flex flex-col gap-2 relative">
+                                <label className="text-[13px] font-semibold text-[#4a5568]">Loan Amount (USD)</label>
+                                <div className="relative flex items-center">
+                                    <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">$</span>
                                     <input
                                         type="text"
                                         name="loanAmount"
+                                        className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 pl-8 pr-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full"
                                         placeholder="0.00"
                                         value={formData.loanAmount}
                                         onChange={handleInputChange}
                                     />
                                 </div>
                             </div>
-                            <div className="form-group">
-                                <label>Assigned Agent</label>
-                                <select name="assignedAgent" value={formData.assignedAgent} onChange={handleInputChange}>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[13px] font-semibold text-[#4a5568]">Assigned Agent</label>
+                                <select 
+                                    name="assignedAgent" 
+                                    className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]"
+                                    value={formData.assignedAgent} 
+                                    onChange={handleInputChange}
+                                >
                                     <option value="">Select an agent</option>
                                     <option value="sarah-jenkins">Sarah Jenkins</option>
                                     <option value="michael-chen">Michael Chen</option>
                                 </select>
                             </div>
-                            <div className="form-group">
-                                <label>Lead Source</label>
-                                <select name="leadSource" value={formData.leadSource} onChange={handleInputChange}>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[13px] font-semibold text-[#4a5568]">Lead Source</label>
+                                <select 
+                                    name="leadSource" 
+                                    className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]"
+                                    value={formData.leadSource} 
+                                    onChange={handleInputChange}
+                                >
                                     <option value="">Source channel</option>
                                     <option value="website">Website Form</option>
                                     <option value="referral">Referral</option>
@@ -165,12 +180,13 @@ const CreateLead = ({ onBack }) => {
                     </div>
 
                     {/* Additional Commentary */}
-                    <div className="form-section">
-                        <h4 className="section-title">ADDITIONAL COMMENTARY</h4>
-                        <div className="form-group full-width">
-                            <label>Notes & Context</label>
+                    <div className="mb-8">
+                        <h4 className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5">ADDITIONAL COMMENTARY</h4>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-[13px] font-semibold text-[#4a5568]">Notes & Context</label>
                             <textarea
                                 name="notes"
+                                className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full min-h-[120px] resize-y"
                                 placeholder="Enter relevant history, preferred contact times, or special requirements..."
                                 value={formData.notes}
                                 onChange={handleInputChange}
@@ -179,10 +195,10 @@ const CreateLead = ({ onBack }) => {
                     </div>
 
                     {/* Final Actions */}
-                    <div className="form-actions-footer">
-                        <button className="btn-cancel" onClick={handleCancelClick}>Cancel</button>
-                        <button className="btn-save-send" onClick={handleSaveAndSend}>
-                            <IconKey />
+                    <div className="flex justify-end items-center gap-4 mt-10 pt-8 border-t border-[#f7fafc] md:flex-col-reverse md:items-stretch">
+                        <button className="bg-white border border-[#e2e8f0] text-[#718096] p-[10px_24px] rounded-xl text-sm font-semibold hover:bg-[#f7fafc] hover:text-[#4a5568] transition-all" onClick={handleCancelClick}>Cancel</button>
+                        <button className="flex items-center justify-center gap-2 bg-[#2447d7] text-white p-[10px_24px] rounded-xl text-sm font-semibold shadow-[0_4px_12px_rgba(36,71,215,0.2)] hover:bg-[#1732a3] hover:translate-y-[-1px] hover:shadow-[0_6px_15px_rgba(36,71,215,0.3)] transition-all" onClick={handleSaveAndSend}>
+                            <div className="mr-0.5"><IconKey /></div>
                             Send Credentials & Save
                         </button>
                     </div>
@@ -190,20 +206,20 @@ const CreateLead = ({ onBack }) => {
             </div>
 
             {showCancelConfirm && (
-                <div className="create-lead-modal-overlay" role="dialog" aria-modal="true">
-                    <div className="create-lead-modal-card">
-                        <div className="create-lead-modal-header warning">
+                <div className="fixed inset-0 bg-slate-900/45 backdrop-blur-sm flex items-center justify-center z-[999] p-6 animate-fadeIn" role="dialog" aria-modal="true">
+                    <div className="w-full max-w-[480px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-slideUp">
+                        <div className="flex items-center gap-3 p-[20px_24px] border-b border-[#f1f5f9] bg-[#fff5f5] text-[#c53030]">
                             <IconClose />
-                            <h3>Cancel Lead Creation?</h3>
+                            <h3 className="font-bold text-base">Cancel Lead Creation?</h3>
                         </div>
-                        <div className="create-lead-modal-body">
+                        <div className="p-[20px_24px] text-[#475569] text-sm">
                             <p>Are you sure you want to cancel? Any unsaved changes will be lost.</p>
                         </div>
-                        <div className="create-lead-modal-footer">
-                            <button className="btn-modal-secondary" onClick={() => setShowCancelConfirm(false)}>
+                        <div className="p-[18px_24px_22px] flex justify-end gap-3 border-t border-[#f1f5f9] md:flex-col md:items-stretch">
+                            <button className="bg-[#f8fafc] border border-[#e2e8f0] text-[#475569] p-[10px_18px] rounded-xl font-semibold hover:bg-[#edf2f7] transition-all" onClick={() => setShowCancelConfirm(false)}>
                                 Keep Editing
                             </button>
-                            <button className="btn-modal-danger" onClick={handleConfirmCancel}>
+                            <button className="bg-[#e11d48] text-white border-none p-[10px_18px] rounded-xl font-semibold hover:bg-[#be123c] transition-all" onClick={handleConfirmCancel}>
                                 Yes, Cancel
                             </button>
                         </div>
@@ -212,18 +228,18 @@ const CreateLead = ({ onBack }) => {
             )}
 
             {showSuccess && (
-                <div className="create-lead-modal-overlay" role="dialog" aria-modal="true">
-                    <div className="create-lead-modal-card">
-                        <div className="create-lead-modal-header success">
+                <div className="fixed inset-0 bg-slate-900/45 backdrop-blur-sm flex items-center justify-center z-[999] p-6 animate-fadeIn" role="dialog" aria-modal="true">
+                    <div className="w-full max-w-[480px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-slideUp">
+                        <div className="flex items-center gap-3 p-[20px_24px] border-b border-[#f1f5f9] bg-[#ecfdf3] text-[#067647]">
                             <IconCheck />
-                            <h3>Saved & Shared</h3>
+                            <h3 className="font-bold text-base">Saved & Shared</h3>
                         </div>
-                        <div className="create-lead-modal-body">
+                        <div className="p-[20px_24px] text-[#475569] text-sm">
                             <p>Lead saved successfully and credentials shared with the customer.</p>
                         </div>
-                        <div className="create-lead-modal-footer">
+                        <div className="p-[18px_24px_22px] flex justify-end gap-3 border-t border-[#f1f5f9] md:flex-col md:items-stretch">
                             <button
-                                className="btn-modal-primary"
+                                className="bg-[#2447d7] text-white border-none p-[10px_22px] rounded-xl font-semibold hover:bg-[#1732a3] transition-all"
                                 onClick={() => {
                                     setShowSuccess(false);
                                     onBack();
