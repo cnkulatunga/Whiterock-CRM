@@ -4,13 +4,6 @@ import './LeadDetails.css';
 const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
     return (
         <div className="lead-details-container">
-            {/* ── BREADCRUMBS ── */}
-            <nav className="breadcrumbs">
-                <span className="breadcrumb-link" onClick={onBack}>Leads</span>
-                <span className="breadcrumb-separator">/</span>
-                <span className="breadcrumb-current">{leadId}</span>
-            </nav>
-
             {/* ── HEADER ── */}
             <div className="lead-header-main">
                 <div className="header-left">
@@ -91,7 +84,7 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                                         <span>{leadId}</span>
                                     </div>
                                 </div>
-                                
+
                                 <div className="info-item full-width">
                                     <label>CUSTOMER NAME</label>
                                     <div className="prominent-value">Robert C. Mayfield</div>

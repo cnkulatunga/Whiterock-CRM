@@ -1,27 +1,28 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import './LeadPerformance.css';
 
 /* ─── DATA ─────────────────────────────────────── */
 const FUNNEL_STAGES = [
-    { label: 'Stage 01: Lead In',      pct: 100, count: 1482, color: '#2447d7' },
-    { label: 'Stage 02: Contacted',    pct: 72,  count: 1067, color: '#93c5fd' },
-    { label: 'Stage 03: Qualified',    pct: 48,  count: 711,  color: '#bfdbfe' },
-    { label: 'Stage 04: Proposal Sent',pct: 32,  count: 474,  color: '#cbd5e1' },
-    { label: 'Closed: Won',            pct: 24,  count: 367,  color: '#22c55e' },
+    { label: 'Stage 01: Lead In', pct: 100, count: 1482, color: '#2447d7' },
+    { label: 'Stage 02: Contacted', pct: 72, count: 1067, color: '#93c5fd' },
+    { label: 'Stage 03: Qualified', pct: 48, count: 711, color: '#bfdbfe' },
+    { label: 'Stage 04: Proposal Sent', pct: 32, count: 474, color: '#cbd5e1' },
+    { label: 'Closed: Won', pct: 24, count: 367, color: '#22c55e' },
 ];
 
 const SOURCE_SEGMENTS = [
-    { label: 'Direct Inbound',  pct: 42, color: '#2447d7' },
-    { label: 'Paid Advertising',pct: 28, color: '#38bdf8' },
-    { label: 'Social Media',    pct: 18, color: '#a78bfa' },
-    { label: 'Referrals',       pct: 12, color: '#cbd5e1' },
+    { label: 'Direct Inbound', pct: 42, color: '#2447d7' },
+    { label: 'Paid Advertising', pct: 28, color: '#38bdf8' },
+    { label: 'Social Media', pct: 18, color: '#a78bfa' },
+    { label: 'Referrals', pct: 12, color: '#cbd5e1' },
 ];
 
 const RECENT_LEADS = [
-    { id: '#LD-9482', name: 'Jonathan Doe',  initials: 'JD', stage: 'STAGE 03',  stageClass: 'stage--03', status: 'Active',    statusClass: 'ls--active',    agent: 'Sarah Jenkins', date: 'Oct 24, 2023' },
-    { id: '#LD-9481', name: 'Amanda Smith',  initials: 'AS', stage: 'STAGE 01',  stageClass: 'stage--01', status: 'Active',    statusClass: 'ls--active',    agent: 'Michael Ross',  date: 'Oct 24, 2023' },
-    { id: '#LD-9480', name: 'Robert King',   initials: 'RK', stage: 'CLOSED WON',stageClass: 'stage--won',status: 'Completed', statusClass: 'ls--completed', agent: 'Sarah Jenkins', date: 'Oct 23, 2023' },
-    { id: '#LD-9479', name: 'Emily Lawson',  initials: 'EL', stage: 'STAGE 04',  stageClass: 'stage--04', status: 'Urgent',    statusClass: 'ls--urgent',    agent: 'David Miller',  date: 'Oct 23, 2023' },
+    { id: '#LD-9482', name: 'Jonathan Doe', initials: 'JD', stage: 'STAGE 03', stageClass: 'stage--03', status: 'Active', statusClass: 'ls--active', agent: 'Sarah Jenkins', date: 'Oct 24, 2023' },
+    { id: '#LD-9481', name: 'Amanda Smith', initials: 'AS', stage: 'STAGE 01', stageClass: 'stage--01', status: 'Active', statusClass: 'ls--active', agent: 'Michael Ross', date: 'Oct 24, 2023' },
+    { id: '#LD-9480', name: 'Robert King', initials: 'RK', stage: 'CLOSED WON', stageClass: 'stage--won', status: 'Completed', statusClass: 'ls--completed', agent: 'Sarah Jenkins', date: 'Oct 23, 2023' },
+    { id: '#LD-9479', name: 'Emily Lawson', initials: 'EL', stage: 'STAGE 04', stageClass: 'stage--04', status: 'Urgent', statusClass: 'ls--urgent', agent: 'David Miller', date: 'Oct 23, 2023' },
 ];
 
 /* ─── ICONS ─────────────────────────────────────── */
@@ -138,29 +139,33 @@ const SourceDonut = () => {
    MAIN COMPONENT
 ═══════════════════════════════════════ */
 const LeadPerformance = () => {
-    const [dateRange,   setDateRange]   = useState('Last 30 Days');
-    const [agent,       setAgent]       = useState('All Agents');
-    const [leadStage,   setLeadStage]   = useState('All Stages');
-    const [leadStatus,  setLeadStatus]  = useState('Active');
+    const [dateRange, setDateRange] = useState('Last 30 Days');
+    const [agent, setAgent] = useState('All Agents');
+    const [leadStage, setLeadStage] = useState('All Stages');
+    const [leadStatus, setLeadStatus] = useState('Active');
 
     return (
         <div className="lp-wrapper">
 
-            {/* ── TOPBAR ── */}
+            {/* ── MOBILE HEADER PORTAL ── */}
+            {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
+                <div className="lp-mobile-header-actions">
+                    <div className="lp-search lp-search--mobile">
+                        <IcoSearch />
+                        <input placeholder="Quick search..." />
+                    </div>
+                </div>,
+                document.getElementById('mobile-header-portal')
+            )}
+
+            {/* ── TOPBAR (Desktop only on mobile) ── */}
             <header className="lp-topbar">
-                <nav className="lp-breadcrumb">
-                    <span>Home</span>
-                    <span className="lp-bc-sep">/</span>
-                    <span>Reports</span>
-                    <span className="lp-bc-sep">/</span>
-                    <span className="lp-bc-active">Lead Performance</span>
-                </nav>
+                <div />
                 <div className="lp-topbar-right">
                     <div className="lp-search">
                         <IcoSearch />
                         <input placeholder="Quick search..." />
                     </div>
-                    <button className="lp-icon-btn"><IcoBell /></button>
                 </div>
             </header>
 
@@ -181,10 +186,10 @@ const LeadPerformance = () => {
                 {/* ── FILTERS ── */}
                 <div className="lp-filters-card">
                     {[
-                        { label: 'DATE RANGE',     value: dateRange,  setter: setDateRange,  opts: ['Last 30 Days','Last 90 Days','This Year'] },
-                        { label: 'ASSIGNED AGENT', value: agent,      setter: setAgent,      opts: ['All Agents','Sarah Jenkins','Michael Ross','David Miller'] },
-                        { label: 'LEAD STAGE',     value: leadStage,  setter: setLeadStage,  opts: ['All Stages','Stage 01','Stage 02','Stage 03','Stage 04','Closed Won'] },
-                        { label: 'LEAD STATUS',    value: leadStatus, setter: setLeadStatus, opts: ['Active','Completed','Urgent','All'] },
+                        { label: 'DATE RANGE', value: dateRange, setter: setDateRange, opts: ['Last 30 Days', 'Last 90 Days', 'This Year'] },
+                        { label: 'ASSIGNED AGENT', value: agent, setter: setAgent, opts: ['All Agents', 'Sarah Jenkins', 'Michael Ross', 'David Miller'] },
+                        { label: 'LEAD STAGE', value: leadStage, setter: setLeadStage, opts: ['All Stages', 'Stage 01', 'Stage 02', 'Stage 03', 'Stage 04', 'Closed Won'] },
+                        { label: 'LEAD STATUS', value: leadStatus, setter: setLeadStatus, opts: ['Active', 'Completed', 'Urgent', 'All'] },
                     ].map(f => (
                         <div className="lp-filter-group" key={f.label}>
                             <span className="lp-filter-label">{f.label}</span>
@@ -202,25 +207,25 @@ const LeadPerformance = () => {
                 <div className="lp-kpi-grid">
                     <KpiCard
                         iconBg="#eef2ff"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>}
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>}
                         label="Total Leads" value="1,482"
                         trendIcon={<IcoTrendUp />} trendText="+12.5% vs last month" trendClass="trend--up"
                     />
                     <KpiCard
                         iconBg="#dcfce7"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>}
                         label="Conversion Rate" value="24.8%"
                         trendIcon={<IcoTrendUp />} trendText="+3.2% vs last month" trendClass="trend--up"
                     />
                     <KpiCard
                         iconBg="#fee2e2"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>}
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10" /><line x1="4.93" y1="4.93" x2="19.07" y2="19.07" /></svg>}
                         label="Rejection Rate" value="12.1%"
                         trendIcon={<IcoTrendUp />} trendText="+1.4% vs last month" trendClass="trend--danger"
                     />
                     <KpiCard
                         iconBg="#fef9c3"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#a16207" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#a16207" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>}
                         label="Avg Lead Aging" value="4.2 Days"
                         trendIcon={<IcoTrendDown />} trendText="-0.8 days improvement" trendClass="trend--up"
                     />

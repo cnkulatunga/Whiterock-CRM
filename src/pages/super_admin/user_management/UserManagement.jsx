@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import './UserManagement.css';
 import { useUsers } from '../../../context/UsersContext';
 
@@ -360,7 +361,26 @@ const UserManagement = () => {
     return (
         <div className="um-wrapper">
 
-            {/* ── TOP BAR ── */}
+            {/* ── MOBILE HEADER PORTAL ── */}
+            {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
+                <div className="um-mobile-header-actions">
+                    <div className="um-search-wrap um-search-wrap--mobile">
+                        <IconSearch />
+                        <input
+                            type="text"
+                            placeholder="Search..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <button className="um-create-btn um-create-btn--mobile" onClick={() => setShowModal(true)}>
+                        <IconPlus />
+                    </button>
+                </div>,
+                document.getElementById('mobile-header-portal')
+            )}
+
+            {/* ── TOP BAR (Desktop only on mobile) ── */}
             <header className="um-topbar">
                 <div className="um-search-wrap">
                     <span className="um-search-icon"><IconSearch /></span>
@@ -373,8 +393,6 @@ const UserManagement = () => {
                     />
                 </div>
                 <div className="um-topbar-actions">
-                    <button className="um-icon-btn" aria-label="Notifications"><IconBell /></button>
-                    <button className="um-icon-btn" aria-label="Help"><IconHelp /></button>
                     <button className="um-create-btn" onClick={() => setShowModal(true)}>
                         <IconPlus /> Create New User
                     </button>
@@ -383,13 +401,6 @@ const UserManagement = () => {
 
             {/* ── PAGE CONTENT ── */}
             <div className="um-content">
-
-                {/* Breadcrumb */}
-                <nav className="um-breadcrumb">
-                    <span>Admin Console</span>
-                    <span className="um-breadcrumb-sep">›</span>
-                    <span className="um-breadcrumb-active">User Management</span>
-                </nav>
 
                 {/* Page heading */}
                 <div className="um-heading-row">

@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
 import './TeamLeaders.css';
 import { useUsers } from '../../../context/UsersContext';
 
 /* ─── INITIAL TEAM MEMBERSHIPS (leaderId → members[]) ── */
 const INITIAL_MEMBERSHIPS = {
     2: [ // Marcus Smith's team
-        { id: 3,  name: 'Cody Lane',   email: 'cody.l@whiterock.crm',  phone: '', status: 'Active' },
+        { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', phone: '', status: 'Active' },
     ],
     5: [ // Diana Fernandez's team
-        { id: 6,  name: 'Leo Kumar',   email: 'leo.k@whiterock.crm',   phone: '', status: 'Active' },
-        { id: 7,  name: 'Nina Hassan', email: 'nina.h@whiterock.crm',  phone: '', status: 'Inactive' },
+        { id: 6, name: 'Leo Kumar', email: 'leo.k@whiterock.crm', phone: '', status: 'Active' },
+        { id: 7, name: 'Nina Hassan', email: 'nina.h@whiterock.crm', phone: '', status: 'Inactive' },
     ],
 };
 
@@ -106,7 +107,7 @@ const UserPickerModal = ({ title, subtitle, iconWrapClass, confirmLabel, confirm
     const available = users.filter(u =>
         !excludeIds.includes(u.id) &&
         (u.name.toLowerCase().includes(search.toLowerCase()) ||
-         u.email.toLowerCase().includes(search.toLowerCase()))
+            u.email.toLowerCase().includes(search.toLowerCase()))
     );
 
     const handle = () => {
@@ -403,7 +404,26 @@ const TeamLeaders = ({ onNavigate }) => {
     return (
         <div className="tl-wrapper">
 
-            {/* ── TOP BAR ── */}
+            {/* ── MOBILE HEADER PORTAL ── */}
+            {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
+                <div className="tl-mobile-header-actions">
+                    <div className="tl-search-wrap tl-search-wrap--mobile">
+                        <IconSearch />
+                        <input
+                            type="text"
+                            placeholder="Search team leaders..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+                    <button className="tl-create-btn tl-create-btn--mobile" onClick={() => onNavigate('user-management')}>
+                        <IconPlus />
+                    </button>
+                </div>,
+                document.getElementById('mobile-header-portal')
+            )}
+
+            {/* ── TOP BAR (Desktop only on mobile) ── */}
             <header className="tl-topbar">
                 <div className="tl-search-wrap">
                     <span className="tl-search-icon"><IconSearch /></span>
@@ -422,13 +442,6 @@ const TeamLeaders = ({ onNavigate }) => {
 
             {/* ── PAGE CONTENT ── */}
             <div className="tl-content">
-
-                {/* Breadcrumb */}
-                <nav className="tl-breadcrumb">
-                    <span>Admin Console</span>
-                    <span className="tl-breadcrumb-sep">›</span>
-                    <span className="tl-breadcrumb-active">Team Leaders</span>
-                </nav>
 
                 {/* Page heading */}
                 <div className="tl-heading-row">

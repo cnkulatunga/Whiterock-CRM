@@ -31,13 +31,6 @@ const DocumentVerification = () => {
 
     return (
         <div className="dv-page">
-            {/* Breadcrumbs */}
-            <nav className="dv-breadcrumbs">
-                <a href="#" className="dv-breadcrumb-link">Lead Management</a>
-                <span className="dv-breadcrumb-separator">&gt;</span>
-                <span className="dv-breadcrumb-current">Lead {leadInfo.id}</span>
-            </nav>
-
             {/* Header */}
             <div className="dv-page-header">
                 <h1 className="dv-page-title">Document Verification</h1>
@@ -131,7 +124,7 @@ const DocumentVerification = () => {
                                                     Approve
                                                 </button>
                                                 {doc.status === 'Pending' && (
-                                                    <button 
+                                                    <button
                                                         className="dv-btn-reject"
                                                         onClick={() => setIsRejectionOpen(!isRejectionOpen)}
                                                     >
@@ -149,8 +142,8 @@ const DocumentVerification = () => {
                                                 <div className="dv-rejection-container">
                                                     <span className="dv-rejection-label">Rejection Reason</span>
                                                     <div className="dv-rejection-form">
-                                                        <input 
-                                                            type="text" 
+                                                        <input
+                                                            type="text"
                                                             className="dv-rejection-input"
                                                             placeholder="Please provide specific details for rejection (e.g., 'Image is blurry' or 'Date expired')..."
                                                             value={rejectionReason}
@@ -159,7 +152,7 @@ const DocumentVerification = () => {
                                                         <button className="dv-btn-submit-rejection">
                                                             Submit Rejection
                                                         </button>
-                                                        <button 
+                                                        <button
                                                             className="dv-btn-cancel-rejection"
                                                             onClick={() => setIsRejectionOpen(false)}
                                                         >

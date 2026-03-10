@@ -27,13 +27,6 @@ const CreateLead = ({ onBack }) => {
 
     return (
         <div className="create-lead-container">
-            {/* ── BREADCRUMBS ── */}
-            <nav className="breadcrumbs">
-                <span className="breadcrumb-link" onClick={onBack}>Leads</span>
-                <span className="breadcrumb-separator">/</span>
-                <span className="breadcrumb-current">Create New Lead</span>
-            </nav>
-
             {/* ── HEADER ── */}
             <div className="create-lead-header">
                 <h1>Create New Lead</h1>

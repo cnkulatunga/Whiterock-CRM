@@ -3,9 +3,9 @@ import './LenderSelection.css';
 
 const LENDERS = [
     { id: 'bank_of_whiterock', name: 'Bank of Whiterock', tier: 'Tier 1 • Trusted Partner', match: 98, matchClass: 'match-high' },
-    { id: 'global_finance',    name: 'Global Finance',    tier: 'Tier 1 • International',   match: 92, matchClass: 'match-high' },
-    { id: 'secure_lenders',   name: 'Secure Lenders',    tier: 'Tier 2 • Private Equity',  match: 85, matchClass: 'match-mid' },
-    { id: 'apex_capital',     name: 'Apex Capital Group', tier: 'Tier 1 • High Net Worth', match: 78, matchClass: 'match-low' },
+    { id: 'global_finance', name: 'Global Finance', tier: 'Tier 1 • International', match: 92, matchClass: 'match-high' },
+    { id: 'secure_lenders', name: 'Secure Lenders', tier: 'Tier 2 • Private Equity', match: 85, matchClass: 'match-mid' },
+    { id: 'apex_capital', name: 'Apex Capital Group', tier: 'Tier 1 • High Net Worth', match: 78, matchClass: 'match-low' },
 ];
 
 const LenderSelection = ({ lead }) => {
@@ -35,21 +35,6 @@ const LenderSelection = ({ lead }) => {
 
     return (
         <div className="am-ls-page">
-            {/* Breadcrumb */}
-            <div className="am-ls-breadcrumb">
-                <span>Leads</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2"
-                    strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-                    <polyline points="9 18 15 12 9 6" />
-                </svg>
-                <span>{leadId}</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2"
-                    strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-                    <polyline points="9 18 15 12 9 6" />
-                </svg>
-                <span className="am-ls-breadcrumb-active">Lender Selection</span>
-            </div>
-
             {/* Header */}
             <div className="am-ls-header">
                 <div>
