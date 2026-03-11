@@ -328,17 +328,17 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                         <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full border-collapse">
-                                    <thead>
+                                    <thead className="md:hidden">
                                         <tr className="border-b border-[#f7fafc]">
                                             <th className="p-5 px-6 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider">AGENT NAME</th>
                                             <th className="p-5 px-6 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider">ACTIVE LEADS</th>
                                             <th className="p-5 px-6 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider">CLOSED DEALS</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-[#f7fafc]">
+                                    <tbody className="divide-y divide-[#f7fafc] table-row-group md:flex md:flex-col">
                                         {filteredAgents.length > 0 ? filteredAgents.map((agent, idx) => (
-                                            <tr key={idx} className="hover:bg-[#f8fafc]/50 transition-colors group animate-rowIn" style={{ animationDelay: `${450 + idx * 60}ms`, animationFillMode: 'both' }}>
-                                                <td className="p-5 px-6">
+                                            <tr key={idx} className="hover:bg-[#f8fafc]/50 transition-colors group animate-rowIn table-row md:flex md:flex-col border-b md:border-b-0 border-[#f7fafc]" style={{ animationDelay: `${450 + idx * 60}ms`, animationFillMode: 'both' }}>
+                                                <td className="p-5 px-6 table-cell md:flex md:items-center md:gap-3">
                                                     <div className="flex items-center gap-3">
                                                         <div
                                                             className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-black transition-transform duration-300 group-hover:scale-110 shadow-lg text-white"
@@ -349,11 +349,17 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                         <span className="text-[14px] font-bold text-[#2d3748] tracking-tight">{agent.name}</span>
                                                     </div>
                                                 </td>
-                                                <td className="p-5 px-6 text-[14px] font-bold text-[#4a5568]">{agent.activeLeads}</td>
-                                                <td className="p-5 px-6 text-[14px] font-bold text-[#4a5568]">{agent.closedDeals}</td>
+                                                <td className="p-5 px-6 table-cell md:flex md:items-center md:justify-between md:border-t md:border-t-[#f1f5f9] md:py-3.5">
+                                                    <span className="hidden md:block text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Active Leads</span>
+                                                    <span className="text-[14px] font-bold text-[#4a5568]">{agent.activeLeads}</span>
+                                                </td>
+                                                <td className="p-5 px-6 table-cell md:flex md:items-center md:justify-between md:py-3.5">
+                                                    <span className="hidden md:block text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Closed Deals</span>
+                                                    <span className="text-[14px] font-bold text-[#4a5568]">{agent.closedDeals}</span>
+                                                </td>
                                             </tr>
                                         )) : (
-                                            <tr>
+                                            <tr className="table-row">
                                                 <td colSpan="3" className="p-6 text-center text-sm text-[#a0aec0]">No agents found.</td>
                                             </tr>
                                         )}

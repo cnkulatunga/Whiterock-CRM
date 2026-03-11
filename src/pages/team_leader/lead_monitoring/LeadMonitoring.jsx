@@ -142,40 +142,49 @@ const LeadRow = ({ lead, idx }) => {
 
     return (
         <div
-            className="group grid items-center gap-6 px-8 py-4 hover:bg-[#f8faff] transition-all duration-200 border-b border-[#f7fafc] last:border-0 animate-rowIn"
+            className="group grid md:flex md:flex-col items-center md:items-start gap-5 md:gap-6 px-6 md:px-8 py-5 md:py-4 hover:bg-[#f8faff] transition-all duration-200 border-b border-[#f7fafc] last:border-0 animate-rowIn"
             style={{
-                gridTemplateColumns: '1.8fr 1.4fr 1.2fr 1.4fr',
+                gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(0, 1.4fr)',
                 animationDelay: `${400 + idx * 55}ms`,
                 animationFillMode: 'both',
             }}
         >
-            {/* Customer */}
-            <div className="flex flex-col gap-0.5 min-w-0">
-                <span className="text-[10px] font-black text-[#2447d7] font-mono tracking-widest uppercase">{lead.id}</span>
-                <span className="text-[14px] font-bold text-[#1a202c] tracking-tight truncate mt-0.5">{lead.customer}</span>
+            {/* Customer & ID - Desktop Col 1, Mobile Top Row */}
+            <div className="flex items-start md:justify-between md:items-center w-full min-w-0">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                    <span className="text-[10px] font-black text-[#2447d7] font-mono tracking-widest uppercase">{lead.id}</span>
+                    <span className="text-[14px] font-bold text-[#1a202c] tracking-tight truncate mt-0.5">{lead.customer}</span>
+                </div>
+                {/* Mobile-only Stage Badge */}
+                <div className="hidden md:flex shrink-0">
+                    <StageBadge stage={lead.stage} />
+                </div>
             </div>
 
-            {/* Agent */}
-            <div className="flex items-center gap-3 min-w-0">
+            {/* Agent - Desktop Col 2, Mobile Row 2 */}
+            <div className="flex items-center gap-3 min-w-0 w-full md:w-auto">
                 <div
                     className="w-8 h-8 rounded-xl flex items-center justify-center text-white text-[11px] font-black shrink-0 shadow-md group-hover:scale-110 transition-transform duration-200"
                     style={{ backgroundColor: lead.agent.color, boxShadow: `0 4px 10px ${lead.agent.color}33` }}
                 >
                     {initials}
                 </div>
-                <span className="text-[13px] font-semibold text-[#4a5568] truncate">{lead.agent.name}</span>
+                <div className="flex flex-col">
+                    <span className="hidden md:block text-[10px] font-black text-[#a0aec0] uppercase tracking-widest mb-1">Agent</span>
+                    <span className="text-[13px] font-semibold text-[#4a5568] truncate">{lead.agent.name}</span>
+                </div>
             </div>
 
-            {/* Progress */}
+            {/* Progress - Desktop Col 3, Mobile Row 3 */}
             <div className="w-full pr-2">
+                <span className="hidden md:block text-[10px] font-black text-[#a0aec0] uppercase tracking-widest mb-1.5">Pipeline Progress</span>
                 <StageProgressBar progress={lead.progress} stage={lead.stage} />
             </div>
 
-            {/* Stage Badge */}
-            <div className="flex items-center">
+            {/* Stage - Desktop Col 4, Hidden on mobile (shown above) */}
+            <div className="md:hidden flex items-center">
                 <StageBadge stage={lead.stage} />
             </div>
-
         </div>
     );
 };
@@ -346,7 +355,7 @@ const LeadMonitoring = () => {
             </div>
 
             {/* ── Main Table Card ── */}
-            <div className="bg-white rounded-3xl border border-[#edf2f7] shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden animate-slideUp [animation-delay:350ms] [animation-fill-mode:both]">
+            <div className="bg-white rounded-3xl md:rounded-2xl border border-[#edf2f7] shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden animate-slideUp [animation-delay:350ms] [animation-fill-mode:both]">
 
                 {/* ── Filters ── */}
                 <div className="px-6 py-5 border-b border-[#f7fafc] bg-[#fcfdff] flex flex-wrap items-end gap-4">
@@ -408,7 +417,7 @@ const LeadMonitoring = () => {
                     </div>
 
                     {/* Result count pill */}
-                    <div className="flex items-end pb-0.5">
+                    <div className="flex items-end pb-0.5 md:ml-auto">
                         <span className="text-[11px] font-black text-[#94a3b8] bg-[#f1f5f9] px-3 py-2 rounded-xl border border-[#edf2f7] whitespace-nowrap">
                             {totalFiltered} result{totalFiltered !== 1 ? 's' : ''}
                         </span>
@@ -417,8 +426,8 @@ const LeadMonitoring = () => {
 
                 {/* ── Table Header ── */}
                 <div
-                    className="grid gap-6 px-8 py-3 bg-[#f8fafc] border-b border-[#f1f5f9]"
-                    style={{ gridTemplateColumns: '1.8fr 1.4fr 1.2fr 1.4fr' }}
+                    className="grid md:hidden gap-6 px-8 py-3 bg-[#f8fafc] border-b border-[#f1f5f9]"
+                    style={{ gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(0, 1.4fr)' }}
                 >
                     {['ID & Customer', 'Agent', 'Progress', 'Stage'].map((h, i) => (
                         <div key={i} className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">{h}</div>
