@@ -220,6 +220,9 @@ const FinanceReport = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const totalPages = 3;
 
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role;
+
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
@@ -246,14 +249,16 @@ const FinanceReport = () => {
                         </select>
                         <IcoChevron />
                     </div>
-                    {/* Manager */}
-                    <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
-                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">MANAGER:</span>
-                        <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={manager} onChange={e => setManager(e.target.value)}>
-                            <option>All Managers</option><option>Sarah Miller</option><option>James Chen</option>
-                        </select>
-                        <IcoChevron />
-                    </div>
+                    {/* Manager - Only visible to super_admin or admin */}
+                    {(userRole === 'super_admin' || userRole === 'admin') && (
+                        <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
+                            <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">MANAGER:</span>
+                            <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={manager} onChange={e => setManager(e.target.value)}>
+                                <option>All Managers</option><option>Sarah Miller</option><option>James Chen</option>
+                            </select>
+                            <IcoChevron />
+                        </div>
+                    )}
                 </div>
             </div>
 
