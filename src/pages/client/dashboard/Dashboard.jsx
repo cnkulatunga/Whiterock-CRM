@@ -93,9 +93,9 @@ const Dashboard = () => {
                     {/* Agent Card */}
                     <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-6 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-[#2447d7]/5 rounded-bl-full -mr-10 -mt-10 group-hover:bg-[#2447d7]/10 transition-colors duration-500"></div>
-                        
+
                         <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider block relative z-10">ASSIGNED AGENT</span>
-                        
+
                         <div className="flex items-center gap-4 relative z-10">
                             <div className="w-16 h-16 rounded-2xl border-[3px] border-[#f0f4ff] p-0.5 group-hover:border-[#2447d7]/30 transition-colors duration-300 overflow-hidden shrink-0">
                                 <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=150&h=150&auto=format&fit=crop" alt="Sarah Jenkins" className="w-full h-full object-cover rounded-xl" />

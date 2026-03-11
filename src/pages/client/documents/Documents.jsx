@@ -35,7 +35,7 @@ const Documents = () => {
             <section className="mb-12">
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider">Required Documents</h2>
-                    <span className="bg-[#fff5f5] text-[#e53e3e] text-[10px] font-extrabold px-3 py-1 rounded-lg border border-[#fed7d7] uppercase tracking-wider">1 ACTION REQUIRED</span>
+                    <span className="bg-[#fff5f5] text-[#e53e3e] text-[10px] font-extrabold px-3 py-1 rounded-lg border border-[#fed7d7] uppercase tracking-wider">ACTION REQUIRED</span>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 flex items-center gap-6 md:flex-col md:items-stretch">

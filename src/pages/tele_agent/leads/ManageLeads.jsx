@@ -77,7 +77,6 @@ const ManageLeads = ({ onViewDetails }) => {
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">LEAD NAME</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">EMAIL / PHONE</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">STATUS</th>
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">LAST CONTACT</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">ACTION</th>
                             </tr>
                         </thead>
@@ -110,7 +109,6 @@ const ManageLeads = ({ onViewDetails }) => {
                                             {lead.status}
                                         </span>
                                     </td>
-                                    <td className="p-[16px_24px] text-sm text-[#4a5568] md:p-[12px_16px]">{lead.lastContact}</td>
                                     <td className="p-[16px_24px] md:p-[12px_16px]">
                                         <button 
                                             className="px-3 py-1.5 border border-[#edf2f7] rounded-lg text-[13px] font-semibold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200" 
