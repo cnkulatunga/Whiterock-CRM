@@ -6,7 +6,7 @@ import LenderSelector from '../pages/accounts_manager/lender_selector/LenderSele
 import LenderSelection from '../pages/accounts_manager/lender_selection/LenderSelection';
 import FinanceReport from '../pages/super_admin/finance/FinanceReport';
 import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
-import AuditLogs from '../pages/accounts_manager/audit_logs/AuditLogs';
+import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
 import DraftDashboard from '../pages/accounts_manager/draft_dashboard/DraftDashboard';
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
 
@@ -71,13 +71,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         </svg>
                     </button>
 
-                    <div className="flex-1 max-w-[380px] flex items-center gap-[10px] bg-[#f1f5f9] rounded-lg px-3.5 h-10 sm:max-w-[200px]">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#718096" strokeWidth="2"
-                            strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
-                        <input type="text" placeholder="Search accounts or deals..." className="border-none bg-transparent w-full text-sm text-[#1a202c] outline-none placeholder:text-[#a0aec0]" />
-                    </div>
 
                 </div>
 

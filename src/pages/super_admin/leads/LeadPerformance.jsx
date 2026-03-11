@@ -19,6 +19,7 @@ const IcoTrendUp = () => (
 );
 
 const LeadPerformance = () => {
+    const [search, setSearch]         = useState('');
     const [dateRange, setDateRange]   = useState('Last 30 Days');
     const [agent, setAgent]           = useState('All Agents');
     const [leadStage, setLeadStage]   = useState('All Stages');
@@ -111,7 +112,19 @@ const LeadPerformance = () => {
             <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:400ms] [animation-fill-mode:both]">
                 <div className="px-6 py-4 flex justify-between items-center border-b border-[#f7fafc]">
                     <span className="text-[13px] font-semibold text-[#1a202c]">Recent Leads Activity</span>
-                    <button className="text-[13px] font-medium text-[#2447d7] hover:underline">View All Leads</button>
+                    <div className="flex items-center gap-3">
+                        <div className="relative">
+                            <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0aec0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input
+                                type="text"
+                                className="bg-[#f8fafc] border border-[#edf2f7] rounded-xl pl-9 pr-4 py-2 text-[13px] font-medium text-[#1a202c] outline-none focus:border-[#2447d7] transition-all w-[240px] placeholder:text-[#cbd5e0]"
+                                placeholder="Search leads..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                        </div>
+                        <button className="text-[13px] font-medium text-[#2447d7] hover:underline whitespace-nowrap">View All Leads</button>
+                    </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
@@ -125,7 +138,11 @@ const LeadPerformance = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f7fafc]">
-                            {RECENT_LEADS.map((lead, i) => (
+                            {RECENT_LEADS.filter(l =>
+                                l.name.toLowerCase().includes(search.toLowerCase()) ||
+                                l.id.toLowerCase().includes(search.toLowerCase()) ||
+                                l.agent.toLowerCase().includes(search.toLowerCase())
+                            ).map((lead, i) => (
                                 <tr key={lead.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${450 + i * 60}ms`, animationFillMode: 'both' }}>
                                     <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{lead.id}</span></td>
                                     <td className="px-6 py-4">
