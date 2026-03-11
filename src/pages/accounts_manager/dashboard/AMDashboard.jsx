@@ -63,7 +63,7 @@ const AMDashboard = ({ onNavigate }) => {
             </div>
 
             {/* Bottom grid */}
-            <div className="grid grid-cols-[1fr_340px] gap-5 xl:grid-cols-1">
+            <div className="grid grid-cols-[1fr_400px] gap-5 xl:grid-cols-1">
 
                 {/* Recent Lead List */}
                 <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:380ms] [animation-fill-mode:both]">
@@ -120,52 +120,52 @@ const AMDashboard = ({ onNavigate }) => {
                             <span className="text-[13px] font-semibold text-[#1a202c]">Recently Added Lenders</span>
                         </div>
                         <span className="text-[10px] font-black text-[#94a3b8] bg-[#f1f5f9] px-2.5 py-1 rounded-lg border border-[#edf2f7]">
-                            {RECENT_LENDERS.length} lenders
+                            {RECENT_LENDERS.slice(0, 3).length} lenders
                         </span>
                     </div>
 
                     {/* Lender Cards */}
-                    <div className="p-4 flex flex-col gap-2.5 flex-1">
-                        {RECENT_LENDERS.map((lender, i) => {
+                    <div className="p-4 flex flex-col gap-4 flex-1">
+                        {RECENT_LENDERS.slice(0, 3).map((lender, i) => {
                             const tc = TYPE_COLORS[lender.type] || TYPE_COLORS['Major Bank'];
                             return (
                                 <div
                                     key={lender.id}
-                                    className="bg-[#f8fafc] border border-[#edf2f7] rounded-xl p-3.5 hover:bg-white hover:border-[#2447d7]/20 hover:shadow-md transition-all cursor-pointer animate-rowIn"
+                                    className="bg-[#f8fafc] border border-[#edf2f7] rounded-xl p-5 hover:bg-white hover:border-[#2447d7]/20 hover:shadow-md transition-all cursor-pointer animate-rowIn"
                                     style={{ animationDelay: `${540 + i * 70}ms`, animationFillMode: 'both' }}
                                     onClick={() => onNavigate && onNavigate('lenders')}
                                 >
                                     <div className="flex items-start justify-between gap-2 mb-2">
                                         <div className="flex items-center gap-2.5 min-w-0">
-                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: tc.bg, color: tc.color }}>
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14">
+                                            <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: tc.bg, color: tc.color }}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
                                                     <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                                                 </svg>
                                             </div>
-                                            <span className="text-[13px] font-bold text-[#1a202c] truncate">{lender.name}</span>
+                                            <span className="text-[15px] font-bold text-[#1a202c] truncate">{lender.name}</span>
                                         </div>
                                         <span
-                                            className="inline-flex text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0"
+                                            className="inline-flex text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider shrink-0"
                                             style={{ backgroundColor: tc.bg, color: tc.color, border: `1px solid ${tc.border}` }}
                                         >
                                             {lender.type}
                                         </span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-[11px] text-[#718096]">
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-[13px] text-[#718096]">
                                                 Rate: <span className="font-bold text-[#1a202c]">{lender.interestRate}</span>
                                             </span>
-                                            <span className="text-[11px] text-[#718096]">
+                                            <span className="text-[13px] text-[#718096]">
                                                 Max: <span className="font-bold text-[#1a202c]">{lender.maxLoan}</span>
                                             </span>
                                         </div>
-                                        <span className={`inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border ${
+                                        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest border ${
                                             lender.status === 'Active'
                                                 ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]'
                                                 : 'bg-[#f1f5f9] text-[#94a3b8] border-[#e2e8f0]'
                                         }`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full inline-block ${lender.status === 'Active' ? 'bg-[#059669]' : 'bg-[#94a3b8]'}`} />
+                                            <span className={`w-2 h-2 rounded-full inline-block ${lender.status === 'Active' ? 'bg-[#059669]' : 'bg-[#94a3b8]'}`} />
                                             {lender.status}
                                         </span>
                                     </div>
