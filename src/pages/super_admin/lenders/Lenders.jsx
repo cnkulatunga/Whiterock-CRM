@@ -224,21 +224,21 @@ const Lenders = ({ readOnly = false }) => {
                             >
                                 {/* Name */}
                                 <div className="flex flex-col gap-0.5 min-w-0">
-                                    <span className="text-[14px] font-bold text-[#1a202c] truncate">{lender.name}</span>
-                                    <span className="text-[11px] text-[#94a3b8] font-medium truncate">{lender.contact}</span>
+                                    <span className="text-[13px] font-medium text-[#1a202c] truncate">{lender.name}</span>
+                                    <span className="text-[12px] text-[#4a5568] truncate">{lender.contact}</span>
                                 </div>
 
                                 {/* Type */}
                                 <div><TypeBadge type={lender.type} /></div>
 
                                 {/* Interest Rate */}
-                                <span className="text-[13px] font-bold text-[#1a202c]">{lender.interestRate}</span>
+                                <span className="text-[13px] font-medium text-[#1a202c]">{lender.interestRate}</span>
 
                                 {/* Max Loan */}
-                                <span className="text-[13px] font-semibold text-[#4a5568]">{lender.maxLoan}</span>
+                                <span className="text-[13px] font-medium text-[#1a202c]">{lender.maxLoan}</span>
 
                                 {/* Min Deposit */}
-                                <span className="text-[13px] font-semibold text-[#4a5568]">{lender.minDeposit}</span>
+                                <span className="text-[13px] font-medium text-[#1a202c]">{lender.minDeposit}</span>
 
                                 {/* Status */}
                                 <div><StatusBadge status={lender.status} /></div>

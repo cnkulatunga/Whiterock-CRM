@@ -142,7 +142,7 @@ const AMDashboard = ({ onNavigate }) => {
                                                     <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
                                                 </svg>
                                             </div>
-                                            <span className="text-[15px] font-bold text-[#1a202c] truncate">{lender.name}</span>
+                                            <span className="text-[15px] font-medium text-[#1a202c] truncate">{lender.name}</span>
                                         </div>
                                         <span
                                             className="inline-flex text-[10px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider shrink-0"
@@ -154,10 +154,10 @@ const AMDashboard = ({ onNavigate }) => {
                                     <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <span className="text-[13px] text-[#718096]">
-                                                Rate: <span className="font-bold text-[#1a202c]">{lender.interestRate}</span>
+                                                Rate: <span className="font-medium text-[#4a5568]">{lender.interestRate}</span>
                                             </span>
                                             <span className="text-[13px] text-[#718096]">
-                                                Max: <span className="font-bold text-[#1a202c]">{lender.maxLoan}</span>
+                                                Max: <span className="font-medium text-[#4a5568]">{lender.maxLoan}</span>
                                             </span>
                                         </div>
                                         <span className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest border ${
