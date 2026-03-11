@@ -41,12 +41,12 @@ const Documents = () => {
                                 <h1 className="text-[1.75rem] font-bold text-[#1a202c] sm:text-2xl tracking-tight">Document Center</h1>
                                 <span className="bg-[#e8edff] text-[#2447d7] text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-[1.4px]">Secure Portal</span>
                             </div>
-                            <p className="text-[0.95rem] text-[#5a6b85]">Complete your profile by uploading the required verification files.</p>
+                            {/*<p className="text-[0.95rem] text-[#5a6b85]">Complete your profile by uploading the required verification files.</p>
                             <div className="mt-3 flex items-center gap-2 flex-wrap">
                                 <span className="text-[11px] font-bold uppercase tracking-[1.4px] text-[#94a3b8] bg-white px-2.5 py-1 rounded-full border border-[#e6ebf5]">PDF, JPG, PNG</span>
                                 <span className="text-[11px] font-bold uppercase tracking-[1.4px] text-[#94a3b8] bg-white px-2.5 py-1 rounded-full border border-[#e6ebf5]">Max 10MB</span>
                                 <span className="text-[11px] font-bold uppercase tracking-[1.4px] text-[#94a3b8] bg-white px-2.5 py-1 rounded-full border border-[#e6ebf5]">Encrypted Uploads</span>
-                            </div>
+                            </div>*/}
                         </div>
                     </div>
                 </div>
@@ -69,8 +69,8 @@ const Documents = () => {
                         <h3 className="text-lg font-bold text-[#1a202c] leading-tight">Bank Statement</h3>
                         <p className="text-[13px] text-[#718096] font-medium leading-relaxed">Most recent 3 months of banking history</p>
                     </div>
-                    <button 
-                        className="bg-[#2447d7] text-white p-[12px_24px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 group" 
+                    <button
+                        className="bg-[#2447d7] text-white p-[12px_24px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center justify-center gap-2 group"
                         onClick={handleBrowse}
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" className="group-hover:translate-y-[-1px] transition-transform">
