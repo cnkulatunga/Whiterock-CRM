@@ -1,4 +1,48 @@
-const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
+import React, { useState } from 'react';
+
+const LeadDetails = ({ leadId = 'WR-2026-0001', onBack, tasks = [], setTasks }) => {
+    const leadName = "Robert C. Mayfield"; // In a real app, this would be dynamic
+    const leadTasks = tasks.filter(t => t.lead === leadName || t.leadId === leadId);
+    
+    const [isAddingTask, setIsAddingTask] = useState(false);
+    const [newTask, setNewTask] = useState({
+        title: '',
+        lead: leadName,
+        date: new Date().toISOString().split('T')[0],
+        time: '12:00',
+        type: 'Call',
+        reminder: 'none',
+        message: ''
+    });
+
+    const handleAddTask = (e) => {
+        e.preventDefault();
+        const taskToAdd = {
+            ...newTask,
+            id: Date.now(),
+            status: 'Pending'
+        };
+        setTasks([taskToAdd, ...tasks]);
+        setIsAddingTask(false);
+        setNewTask({
+            title: '',
+            lead: leadName,
+            date: new Date().toISOString().split('T')[0],
+            time: '12:00',
+            type: 'Call',
+            reminder: 'none',
+            message: ''
+        });
+    };
+
+    const updateTaskStatus = (id, newStatus) => {
+        setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
+    };
+
+    const updateTaskReminder = (id, newReminder) => {
+        setTasks(tasks.map(t => t.id === id ? { ...t, reminder: newReminder } : t));
+    };
+
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
             {/* ── HEADER ── */}
@@ -77,7 +121,7 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
 
                                 <div className="flex flex-col gap-2 col-span-2">
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">CUSTOMER NAME</label>
-                                    <div className="text-2xl font-bold text-[#1a202c] tracking-tight sm:text-lg">Robert C. Mayfield</div>
+                                    <div className="text-2xl font-bold text-[#1a202c] tracking-tight sm:text-lg">{leadName}</div>
                                 </div>
 
                                 <div className="flex flex-col gap-2 md:col-span-2">
@@ -102,6 +146,7 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
 
                 {/* ── RIGHT COLUMN ── */}
                 <div className="flex flex-col gap-6">
+                    {/* Documents section */}
                     <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
                         <div className="flex justify-between items-center p-5 border-b border-[#f7fafc] gap-3 sm:flex-col sm:items-start">
                             <div className="flex items-center gap-3">
@@ -140,8 +185,124 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Tasks & Follow-ups Section */}
+                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
+                        <div className="flex justify-between items-center p-5 border-b border-[#f7fafc] gap-3 sm:flex-col sm:items-start">
+                            <div className="flex items-center gap-3">
+                                <span className="w-8 h-8 bg-[#fff7ed] text-[#ea580c] rounded-lg flex items-center justify-center flex-shrink-0"><IconBell color="#ea580c" /></span>
+                                <h3 className="text-base font-bold text-[#1a202c]">Tasks & Follow-ups</h3>
+                            </div>
+                            <button 
+                                onClick={() => setIsAddingTask(true)}
+                                className="bg-[#2447d7] text-white p-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-[#1a36b1] transition-all"
+                            >
+                                <IconPlus /> Add Task
+                            </button>
+                        </div>
+                        <div className="p-4 flex flex-col gap-3 max-h-[400px] overflow-y-auto scrollbar-thin">
+                            {leadTasks.length > 0 ? (
+                                leadTasks.map(task => (
+                                    <div key={task.id} className="bg-[#f8fafc] border border-[#edf2f7] rounded-xl p-4 flex flex-col gap-3 hover:translate-y-[-2px] transition-all">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex items-center gap-3">
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : 'bg-[#fef3c7] text-[#d97706]'}`}>
+                                                    {task.type === 'Call' ? <IconPhone size={14} /> : <IconDocs size={14} />}
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[13px] font-bold text-[#1a202c]">{task.title}</span>
+                                                    <span className="text-[11px] text-[#a0aec0] font-medium">{task.date} at {task.time}</span>
+                                                </div>
+                                            </div>
+                                            <select 
+                                                className={`appearance-none px-3 py-1 rounded-lg text-[10px] font-bold border outline-none cursor-pointer ${task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#10b981] border-[#10b981]/20' : 'bg-[#fff7ed] text-[#ea580c] border-[#ea580c]/20'}`}
+                                                value={task.status}
+                                                onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                            >
+                                                <option>Pending</option>
+                                                <option>In Progress</option>
+                                                <option>Completed</option>
+                                            </select>
+                                        </div>
+                                        {task.message && <p className="text-[11px] text-[#718096] italic bg-white p-2 rounded-lg border border-[#f1f5f9]">"{task.message}"</p>}
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Reminder:</span>
+                                            <select 
+                                                className="bg-transparent border-none text-[10px] font-bold text-[#2447d7] outline-none cursor-pointer"
+                                                value={task.reminder}
+                                                onChange={(e) => updateTaskReminder(task.id, e.target.value)}
+                                            >
+                                                <option value="none">Off</option>
+                                                <option value="15m">15m</option>
+                                                <option value="1h">1h</option>
+                                                <option value="1d">1d</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="py-8 text-center text-[#a0aec0] text-sm italic">No tasks assigned to this lead.</div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {/* ── ADD TASK MODAL ── */}
+            {isAddingTask && (
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-[4px] flex items-center justify-center z-[2000] animate-fadeIn p-4">
+                    <div className="bg-white w-full max-w-[450px] rounded-2xl p-8 shadow-2xl relative animate-slideUp">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-xl font-bold text-[#1a202c]">Add Lead Task</h2>
+                            <button className="text-2xl text-[#a0aec0] hover:text-[#4a5568]" onClick={() => setIsAddingTask(false)}>&times;</button>
+                        </div>
+                        <form onSubmit={handleAddTask} className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-bold text-[#4a5568]">Task Title</label>
+                                <input required type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" value={newTask.title} onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. Call to verify documents" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-[#4a5568]">Date</label>
+                                    <input required type="date" className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" value={newTask.date} onChange={e => setNewTask({...newTask, date: e.target.value})} />
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-[#4a5568]">Time</label>
+                                    <input required type="time" className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" value={newTask.time} onChange={e => setNewTask({...newTask, time: e.target.value})} />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-[#4a5568]">Type</label>
+                                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none" value={newTask.type} onChange={e => setNewTask({...newTask, type: e.target.value})}>
+                                        <option>Call</option>
+                                        <option>Document</option>
+                                        <option>Review</option>
+                                        <option>Email</option>
+                                    </select>
+                                </div>
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-xs font-bold text-[#4a5568]">Reminder</label>
+                                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none" value={newTask.reminder} onChange={e => setNewTask({...newTask, reminder: e.target.value})}>
+                                        <option value="none">None</option>
+                                        <option value="15m">15m Before</option>
+                                        <option value="1h">1h Before</option>
+                                        <option value="1d">1d Before</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-xs font-bold text-[#4a5568]">Notes</label>
+                                <textarea className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all min-h-[80px]" value={newTask.message} onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional notes..." rows="3" />
+                            </div>
+                            <div className="flex justify-end gap-3 mt-2">
+                                <button type="button" className="px-5 py-2.5 bg-[#f7fafc] border border-[#edf2f7] rounded-xl font-bold text-[#4a5568] hover:bg-[#edf2f7]" onClick={() => setIsAddingTask(false)}>Cancel</button>
+                                <button type="submit" className="px-6 py-2.5 bg-[#2447d7] text-white rounded-xl font-bold hover:bg-[#1a36b1] shadow-lg">Create Task</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -165,6 +326,17 @@ const IconEmail = () => (
 const IconPhone = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+);
+
+const IconPlus = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="14" height="14">
+        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+);
+const IconBell = ({ color = "currentColor" }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" width="18" height="18">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </svg>
 );
 

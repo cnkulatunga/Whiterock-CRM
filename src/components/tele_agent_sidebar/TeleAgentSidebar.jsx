@@ -6,7 +6,14 @@ const NAV_GROUPS = [
         items: [
             { id: 'dashboard',   path: '/tele-agent/dashboard',   label: 'Dashboard',         icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
             { id: 'leads',       path: '/tele-agent/leads',       label: 'Leads',             icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M22 7l-3 3 2 2"/></svg> },
-            { id: 'follow-ups',  path: '/tele-agent/follow-ups',  label: 'Tasks & Follow-ups', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+            { id: 'follow-ups',  path: '/tele-agent/follow-ups',  label: 'Tasks and Followups', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
+        ],
+    },
+    {
+        group: 'INTELLIGENCE',
+        items: [
+            { id: 'ai-assist',   path: '/tele-agent/ai-assist',   label: 'AI Assist',         icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M3 5h4"/><path d="M19 17v4"/><path d="M17 19h4"/></svg>, comingSoon: true },
+            { id: 'knowledge',   path: '/tele-agent/knowledge',   label: 'Knowledge Based',    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>, comingSoon: true },
         ],
     },
 ];
@@ -59,15 +66,27 @@ const TeleAgentSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCollapse
                         {isCollapsed && <div className="h-[1px] bg-[#f0f4fb] mx-1 my-1" />}
                         {group.items.map((item) => {
                             const isActive = activePage.startsWith(item.path) || (item.id === 'leads' && (activePage.includes('lead-details') || activePage.includes('create-lead')));
+                            const isComingSoon = item.comingSoon;
+                            
                             return (
                                 <button
                                     key={item.id}
-                                    title={isCollapsed ? item.label : undefined}
-                                    className={`flex items-center gap-[10px] rounded-[9px] border-none group bg-transparent cursor-pointer font-['Sora',sans-serif] text-[0.875rem] font-medium text-left w-full transition-all duration-150 relative hover:bg-[#f0f4fb] hover:text-[#2447d7] ${isCollapsed ? 'justify-center p-[9px_0]' : 'p-[9px_12px]'} ${isActive ? 'bg-[#eef2ff] text-[#2447d7] font-semibold' + (!isCollapsed ? ' before:content-[""] before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-[22px] before:bg-[#2447d7] before:rounded-[0_3px_3px_0]' : '') : 'text-[#4a5568]'}`}
-                                    onClick={() => onNavigate(item.id)}
+                                    title={isCollapsed ? (isComingSoon ? `${item.label} (Coming Soon)` : item.label) : undefined}
+                                    className={`flex items-center gap-[10px] rounded-[9px] border-none group bg-transparent cursor-pointer font-['Sora',sans-serif] text-[0.875rem] font-medium text-left w-full transition-all duration-150 relative hover:bg-[#f0f4fb] hover:text-[#2447d7] ${isCollapsed ? 'justify-center p-[9px_0]' : 'p-[9px_12px]'} ${isActive ? 'bg-[#eef2ff] text-[#2447d7] font-semibold' + (!isCollapsed ? ' before:content-[""] before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-[22px] before:bg-[#2447d7] before:rounded-[0_3px_3px_0]' : '') : 'text-[#4a5568]'} ${isComingSoon ? 'opacity-70 cursor-not-allowed grayscale-[0.5]' : ''}`}
+                                    onClick={() => !isComingSoon && onNavigate(item.id)}
                                 >
                                     <span className={`flex items-center shrink-0 transition-colors duration-150 group-hover:text-[#2447d7] ${isActive ? 'text-[#2447d7]' : 'text-[#94a3b8]'}`}>{item.icon}</span>
-                                    {!isCollapsed && <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>}
+                                    {!isCollapsed && (
+                                        <div className="flex-1 flex items-center justify-between min-w-0">
+                                            <span className="whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
+                                            {isComingSoon && (
+                                                <span className="text-[0.55rem] font-bold bg-[#edf2f7] text-[#718096] px-1.5 py-0.5 rounded-full uppercase tracking-wider ml-2">Soon</span>
+                                            )}
+                                        </div>
+                                    )}
+                                    {isCollapsed && isComingSoon && (
+                                        <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-[#2447d7] rounded-full"></div>
+                                    )}
                                 </button>
                             );
                         })}

@@ -15,7 +15,7 @@ const TYPE_COLORS = {
 const STAT_CARDS = [
     { label: 'Verified Clients', value: '1,284', change: '+12%', changeLabel: 'vs last month', iconBg: '#ebf0ff', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
     { label: 'Pending Loans', value: '42', change: '+8%', changeLabel: 'vs last week', iconBg: '#fff7ed', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg> },
-    { label: 'Commission Rate', value: '2.4%', change: '+0.2%', changeLabel: 'avg growth', iconBg: '#f5f3ff', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg> },
+
     { label: 'Approved vs Rejected', value: '85% / 15%', change: '+3%', changeLabel: 'approval rate', iconBg: '#f0fdf4', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg> },
 ];
 
@@ -43,7 +43,7 @@ const AMDashboard = ({ onNavigate }) => {
             </header>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 sm:grid-cols-1">
+            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1">
                 {STAT_CARDS.map((card, i) => (
                     <div key={i} className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
                         <div className="flex justify-between items-start mb-4">
