@@ -52,7 +52,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
 
     return (
         <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden relative">
-            <div className={`fixed inset-0 bg-black/40 z-[100] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setIsSidebarOpen(false)}></div>
+            <div className={`fixed inset-0 bg-black/40 z-[100] backdrop-blur-[2px] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setIsSidebarOpen(false)}></div>
             <TeamLeaderSidebar
                 activePage={location.pathname}
                 onNavigate={handleNavigate}

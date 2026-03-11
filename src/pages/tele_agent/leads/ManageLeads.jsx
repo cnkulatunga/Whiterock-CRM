@@ -29,10 +29,10 @@ const ManageLeads = ({ onViewDetails }) => {
 
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
-            <div className="mb-8">
+            <div className="mb-8 animate-headerDrop">
                 <div className="flex flex-col">
-                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] mb-2 sm:text-2xl">Manage Leads</h1>
-                    <p className="text-[0.95rem] text-[#718096]">Track, organize and manage your customer leads efficiently.</p>
+                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Manage Leads</h1>
+                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Track, organize and manage your customer leads efficiently.</p>
                 </div>
             </div>
 
@@ -42,14 +42,14 @@ const ManageLeads = ({ onViewDetails }) => {
                     { label: 'New Today', value: '12' },
                     { label: 'Response Rate', value: '94%' }
                 ].map((stat, i) => (
-                    <div key={i} className="bg-white p-[16px_24px] rounded-xl border border-[#edf2f7] flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[calc(33.33%-14px)] md:min-w-[calc(50%-10px)] sm:min-w-full">
+                    <div key={i} className="bg-white p-[16px_24px] rounded-xl border border-[#edf2f7] flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[calc(33.33%-14px)] md:min-w-[calc(50%-10px)] sm:min-w-full hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop" style={{ animationDelay: `${200 + i * 80}ms`, animationFillMode: 'both' }}>
                         <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{stat.label}</span>
                         <span className="text-[1.25rem] font-bold text-[#1a202c]">{stat.value}</span>
                     </div>
                 ))}
             </div>
 
-            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
+            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden animate-slideUp [animation-delay:450ms] [animation-fill-mode:both]">
                 <div className="p-6 flex justify-between items-center border-b border-[#f7fafc] flex-wrap gap-4 md:p-4">
                     <h2 className="text-lg font-bold text-[#1a202c]">Lead Directory</h2>
                     <div className="flex items-center gap-2.5 bg-[#f7fafc] px-4 py-2 border border-[#edf2f7] rounded-[10px] w-[300px] md:w-full">
@@ -81,8 +81,8 @@ const ManageLeads = ({ onViewDetails }) => {
                             </tr>
                         </thead>
                         <tbody>
-                            {displayedLeads.map((lead) => (
-                                <tr key={lead.id} className="hover:bg-[#fcfdfe] transition-colors border-b border-[#f7fafc] last:border-0">
+                            {displayedLeads.map((lead, idx) => (
+                                <tr key={lead.id} className="hover:bg-[#fcfdfe] transition-colors border-b border-[#f7fafc] last:border-0 animate-rowIn" style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}>
                                     <td className="p-[16px_24px] md:p-[12px_16px]">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 bg-[#f0f4ff] text-[#2447d7] rounded-lg flex items-center justify-center text-[11px] font-bold">

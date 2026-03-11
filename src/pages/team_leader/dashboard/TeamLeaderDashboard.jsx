@@ -110,10 +110,10 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
 
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
-            <header className="flex justify-between items-center mb-8 sm:flex-col sm:items-start sm:gap-4">
+            <header className="flex justify-between items-center mb-8 sm:flex-col sm:items-start sm:gap-4 animate-headerDrop">
                 <div className="flex flex-col">
-                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] mb-2 sm:text-2xl tracking-tight">Dashboard</h1>
-                    <p className="text-[0.95rem] text-[#a0aec0] font-medium">Monitoring agent performance and real-time lead flow</p>
+                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1 tracking-tight">Team Lead Dashboard</h1>
+                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Monitoring agent performance and real-time lead flow</p>
                 </div>
                 <div className="relative">
                     <button className={`w-11 h-11 bg-white border border-[#edf2f7] rounded-xl text-[#718096] flex items-center justify-center hover:bg-[#f7fafc] hover:text-[#2447d7] transition-all duration-200 relative ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
@@ -150,7 +150,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
 
             <div className="grid grid-cols-2 gap-6 mb-10 sm:grid-cols-1">
                 {stats.map((stat, idx) => (
-                    <div key={idx} className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 hover:shadow-lg transition-all duration-300">
+                    <div key={idx} className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-kpiPop" style={{ animationDelay: `${200 + idx * 80}ms`, animationFillMode: 'both' }}>
                         <div className="flex flex-col gap-1.5">
                             <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{stat.label}</span>
                             <div className="flex items-center gap-3">
@@ -170,7 +170,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
             <div className="grid grid-cols-[1fr_360px] gap-8 xl:grid-cols-1">
                 {/* Main Content Areas */}
                 <div className="flex flex-col gap-8">
-                    <section className="flex flex-col gap-5">
+                    <section className="flex flex-col gap-5 animate-slideUp [animation-delay:400ms] [animation-fill-mode:both]">
                         <div className="flex justify-between items-center bg-[#f7fafc] rounded-xl px-4 py-3 border border-[#edf2f7] mb-4 gap-4 sm:flex-col sm:items-start">
                             <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider whitespace-nowrap">Agent Performance</h2>
                             <div className="flex-1 max-w-[480px] w-full">
@@ -201,12 +201,12 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                     </thead>
                                     <tbody className="divide-y divide-[#f7fafc]">
                                         {filteredAgents.length > 0 ? filteredAgents.map((agent, idx) => (
-                                            <tr key={idx} className="hover:bg-[#f8fafc]/50 transition-colors group">
+                                            <tr key={idx} className="hover:bg-[#f8fafc]/50 transition-colors group animate-rowIn" style={{ animationDelay: `${450 + idx * 60}ms`, animationFillMode: 'both' }}>
                                                 <td className="p-5 px-6">
                                                     <div className="flex items-center gap-3">
                                                         <div
-                                                            className="w-9 h-9 rounded-xl flex items-center justify-center text-[13px] font-black transition-transform duration-300 group-hover:scale-110 shadow-sm"
-                                                            style={{ backgroundColor: `${agent.color}15`, color: agent.color }}
+                                                            className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-black transition-transform duration-300 group-hover:scale-110 shadow-lg text-white"
+                                                            style={{ backgroundColor: agent.color, shadowColor: `${agent.color}33` }}
                                                         >
                                                             <span>{agent.initials}</span>
                                                         </div>
@@ -227,7 +227,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                         </div>
                     </section>
 
-                    <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] flex flex-col gap-6">
+                    <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] flex flex-col gap-6 animate-slideUp [animation-delay:550ms] [animation-fill-mode:both]">
                         <div className="flex justify-between items-center gap-4 flex-wrap">
                             <h2 className="text-lg font-bold text-[#1a202c]">Calendar & Events</h2>
 
@@ -401,7 +401,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
 
                 {/* Right Column (Secondary metrics) */}
                 <div className="flex flex-col gap-8">
-                    <section className="flex flex-col gap-5">
+                    <section className="flex flex-col gap-5 animate-slideUp [animation-delay:650ms] [animation-fill-mode:both]">
                         <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider">Document Collection</h2>
                         <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6">
                             <div className="flex flex-col gap-6">
@@ -424,7 +424,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                         </div>
                     </section>
 
-                    <section className="flex flex-col gap-5">
+                    <section className="flex flex-col gap-5 animate-slideUp [animation-delay:750ms] [animation-fill-mode:both]">
                         <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider">Document Status</h2>
                         <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-8 flex flex-col items-center gap-8">
                             <div className="relative w-44 h-44 group">
@@ -437,14 +437,20 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                     <span className="text-3xl font-black text-[#1a202c] tracking-tight">120</span>
                                 </div>
                             </div>
-                            <div className="w-full flex flex-col gap-4">
+                            <div className="w-full flex flex-col gap-3">
                                 {pipelineData.map((item, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-3 rounded-xl hover:bg-[#f8fafc] transition-colors group">
+                                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-[#f8faff] transition-all group border border-transparent hover:border-[#ebf0ff]">
                                         <div className="flex items-center gap-3">
-                                            <span className="w-2.5 h-2.5 rounded-full ring-4 ring-offset-2 transition-all group-hover:scale-125" style={{ backgroundColor: item.color, ringColor: `${item.color}20` }}></span>
-                                            <span className="text-[12px] font-bold text-[#4a5568]">{item.label}</span>
+                                            <div className="w-5 h-5 rounded-full border-[3px] border-black flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110">
+                                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
+                                            </div>
+                                            <span className="text-[14px] font-bold text-[#4a5568] tracking-tight">{item.label}</span>
                                         </div>
-                                        <span className="text-[13px] font-black text-[#1a202c] bg-[#f1f5f9] px-2 py-0.5 rounded-md min-w-[40px] text-center">{item.value}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[13px] font-black text-[#1a202c] bg-[#f1f5f9] px-3 py-1 rounded-xl min-w-[50px] text-center group-hover:bg-[#2447d7] group-hover:text-white transition-colors">
+                                                {item.value}%
+                                            </span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>

@@ -90,16 +90,16 @@ const DocumentVerification = () => {
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
             {/* Header */}
-            <header className="mb-10">
-                <h1 className="text-[1.75rem] font-bold text-[#1a202c] mb-2 sm:text-2xl tracking-tight">Document Verification</h1>
-                <p className="text-[0.95rem] text-[#718096] font-medium leading-relaxed">
+            <header className="mb-10 animate-headerDrop">
+                <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1 tracking-tight">Document Verification</h1>
+                <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">
                     Review and verify documents submitted across all active leads.
                 </p>
             </header>
 
             {/* Stats Cards */}
             <div className="grid grid-cols-3 gap-6 mb-10 md:grid-cols-1">
-                <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 flex justify-between items-center group hover:shadow-lg transition-all duration-300">
+                <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 flex justify-between items-center group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-kpiPop [animation-delay:200ms] [animation-fill-mode:both]">
                     <div className="flex flex-col gap-1">
                         <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">Total Documents</span>
                         <span className="text-2xl font-extrabold text-[#1a202c]">{stats.totalDocs.toString().padStart(2, '0')}</span>
@@ -111,7 +111,7 @@ const DocumentVerification = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 flex justify-between items-center group hover:shadow-lg transition-all duration-300">
+                <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 flex justify-between items-center group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-kpiPop [animation-delay:280ms] [animation-fill-mode:both]">
                     <div className="flex flex-col gap-1">
                         <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">Pending Review</span>
                         <span className={`text-2xl font-extrabold ${stats.pendingReview > 0 ? 'text-[#f59e0b] animate-pulse' : 'text-[#cbd5e0]'}`}>{stats.pendingReview.toString().padStart(2, '0')}</span>
@@ -127,7 +127,7 @@ const DocumentVerification = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 flex justify-between items-center group hover:shadow-lg transition-all duration-300">
+                <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-6 flex justify-between items-center group hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-kpiPop [animation-delay:360ms] [animation-fill-mode:both]">
                     <div className="flex flex-col gap-1">
                         <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">Verified</span>
                         <span className="text-2xl font-extrabold text-[#10b981]">{stats.verified.toString().padStart(2, '0')}</span>
@@ -142,7 +142,7 @@ const DocumentVerification = () => {
             </div>
 
             {/* Documents Table */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
+            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden animate-slideUp [animation-delay:450ms] [animation-fill-mode:both]">
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
@@ -157,9 +157,9 @@ const DocumentVerification = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f7fafc]">
-                            {documents.map((doc) => (
+                            {documents.map((doc, idx) => (
                                 <React.Fragment key={doc.id}>
-                                    <tr className={`transition-colors ${doc.status === 'Pending' && isRejectionOpen ? 'bg-[#fcfdff]' : 'hover:bg-[#f8fafc]/50'}`}>
+                                    <tr className={`transition-colors animate-rowIn ${doc.status === 'Pending' && isRejectionOpen ? 'bg-[#fcfdff]' : 'hover:bg-[#f8fafc]/50'}`} style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}>
                                         <td className="p-5 px-8 text-[13px] font-black text-[#2447d7] font-mono leading-none">{doc.leadId}</td>
                                         <td className="p-5 px-8 text-[14px] font-bold text-[#1a202c] tracking-tight">{doc.clientName}</td>
                                         <td className="p-5 px-8">

@@ -75,7 +75,7 @@ const TeleAgentLayout = ({ onLogout }) => {
 
     return (
         <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden">
-            <div className={`fixed inset-0 bg-black/40 z-[100] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0 lg:hidden'}`} onClick={() => setIsSidebarOpen(false)}></div>
+            <div className={`fixed inset-0 bg-black/40 z-[100] backdrop-blur-[2px] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0 lg:hidden'}`} onClick={() => setIsSidebarOpen(false)}></div>
             <TeleAgentSidebar
                 activePage={location.pathname}
                 onNavigate={handleNavigate}

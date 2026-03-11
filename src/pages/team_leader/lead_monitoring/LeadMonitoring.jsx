@@ -89,7 +89,7 @@ const StageProgressBar = ({ progress, stage }) => {
     const isRejected = stage === 'Rejected';
 
     return (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2.5">
             <div className="flex gap-1.5 h-1.5 w-[140px]">
                 {Array.from({ length: segments }, (_, i) => (
                     <div
@@ -102,7 +102,7 @@ const StageProgressBar = ({ progress, stage }) => {
                     />
                 ))}
             </div>
-            <span className={`text-[10px] font-black uppercase tracking-widest ${isRejected ? 'text-[#ef4444]' : 'text-[#a0aec0]'}`}>
+            <span className={`text-[10px] font-black uppercase tracking-[0.1em] ${isRejected ? 'text-[#ef4444]' : 'text-[#cbd5e0]'}`}>
                 {isRejected ? 'REJECTED' : `${progress}% COMPLETE`}
             </span>
         </div>
@@ -112,27 +112,28 @@ const StageProgressBar = ({ progress, stage }) => {
 // --- Lead Row Component ---
 const LeadRow = ({ lead }) => {
     const stageColor = STAGE_COLORS[lead.stage] || '#2447d7';
+    const initials = lead.agent.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     return (
-        <div className="p-4 px-8 grid grid-cols-[1fr_240px_180px_200px] items-center hover:bg-[#f8fafc]/50 transition-all group lg:grid-cols-1 lg:gap-6 lg:p-6 lg:border-b last:border-0 border-[#f7fafc]">
+        <div className="p-4 px-8 grid grid-cols-[1fr_240px_180px_200px] items-center hover:bg-[#f8faff] transition-all group lg:grid-cols-1 lg:gap-6 lg:p-6 lg:border-b last:border-0 border-[#f7fafc]">
             <div className="flex flex-col gap-0.5">
-                <span className="text-[12px] font-black text-[#2447d7] font-mono leading-none">{lead.id}</span>
-                <span className="text-[15px] font-bold text-[#1a202c] tracking-tight">{lead.customer}</span>
+                <span className="text-[12px] font-black text-[#2447d7] font-mono leading-none mb-1">{lead.id}</span>
+                <span className="text-[16px] font-bold text-[#1a202c] tracking-tight">{lead.customer}</span>
             </div>
             <div className="flex items-center gap-3">
-                <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(lead.agent.name)}&background=2447d7&color=fff&size=36`}
-                    alt={lead.agent.name}
-                    className="w-10 h-10 rounded-xl shadow-sm border border-[#fff] group-hover:scale-110 transition-transform duration-300"
-                />
-                <span className="text-[14px] font-bold text-[#556987]">{lead.agent.name}</span>
+                <div className="w-10 h-10 bg-[#2447d7] rounded-xl flex items-center justify-center text-white text-[13px] font-black shadow-lg shadow-[#2447d7]/20 group-hover:scale-110 transition-transform duration-300">
+                    {initials}
+                </div>
+                <span className="text-[14px] font-bold text-[#556987] tracking-tight">{lead.agent.name}</span>
             </div>
             <div className="flex items-center">
                 <StageProgressBar progress={lead.progress} stage={lead.stage} />
             </div>
-            <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-2.5 rounded-full ring-4" style={{ background: stageColor, ringColor: `${stageColor}20` }} />
-                <span className="text-[13px] font-extrabold text-[#1a202c] tracking-tight">{lead.stage}</span>
+            <div className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full border-[3px] border-black flex items-center justify-center shadow-sm">
+                    <div className="w-2.5 h-2.5 rounded-full" style={{ background: stageColor }} />
+                </div>
+                <span className="text-[14px] font-black text-[#1a202c] tracking-tight">{lead.stage}</span>
             </div>
         </div>
     );
@@ -182,7 +183,7 @@ const LeadMonitoring = () => {
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
             {/* Page Header */}
-            <header className="flex justify-between items-center mb-10 sm:flex-col sm:items-start sm:gap-6">
+            <header className="flex justify-between items-center mb-10 sm:flex-col sm:items-start sm:gap-6 animate-headerDrop">
                 <div className="flex flex-col gap-1">
                     <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Active Pipeline</h1>
                     <p className="text-[0.95rem] text-[#718096] font-medium leading-relaxed">
@@ -207,7 +208,7 @@ const LeadMonitoring = () => {
             </header>
 
             {/* Main Table Card */}
-            <div className="bg-white rounded-[2rem] border border-[#edf2f7] shadow-[0_8px_30px_rgba(0,0,0,0.03)] overflow-hidden">
+            <div className="bg-white rounded-[2rem] border border-[#edf2f7] shadow-[0_8px_30px_rgba(0,0,0,0.03)] overflow-hidden animate-slideUp [animation-delay:400ms] [animation-fill-mode:both]">
                 {/* Filters Row */}
                 <div className="p-8 grid grid-cols-3 gap-8 border-b border-[#f7fafc] bg-[#fcfdff] md:grid-cols-1 md:p-6">
                     <div className="flex flex-col gap-2.5">
@@ -291,7 +292,9 @@ const LeadMonitoring = () => {
                             </div>
                         ) : (
                             pagedLeads.map((lead, idx) => (
-                                <LeadRow key={lead.id} lead={lead} />
+                                <div key={lead.id} className="animate-rowIn" style={{ animationDelay: `${500 + idx * 60}ms`, animationFillMode: 'both' }}>
+                                    <LeadRow lead={lead} />
+                                </div>
                             ))
                         )}
                     </div>
@@ -300,9 +303,9 @@ const LeadMonitoring = () => {
 
                 {/* Table Footer / Pagination */}
                 <div className="p-6 px-10 border-t border-[#f7fafc] flex justify-between items-center sm:flex-col sm:gap-6">
-                    <span className="text-[13px] font-black text-[#cbd5e0] uppercase tracking-widest">
-                        Showing <span className="text-[#2447d7]">{showingStart} to {showingEnd}</span> of <span className="text-[#1a202c]">{totalFiltered} leads</span>
-                    </span>
+                <span className="text-[12px] font-black text-[#cbd5e0] uppercase tracking-widest flex items-center gap-1.5">
+                    SHOWING <span className="text-[#2447d7]">{showingStart} TO {showingEnd}</span> OF <span className="text-[#2447d7]">{totalFiltered} LEADS</span>
+                </span>
                     <div className="flex items-center gap-2">
                         <button
                             className="w-10 h-10 bg-white border border-[#edf2f7] rounded-xl flex items-center justify-center text-[#a0aec0] hover:text-[#2447d7] hover:border-[#2447d7] hover:bg-[#f0f4ff] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
@@ -343,7 +346,7 @@ const LeadMonitoring = () => {
 
             {/* Summary Stats Row */}
             <div className="grid grid-cols-3 gap-8 mt-10 md:grid-cols-1">
-                <div className="bg-white rounded-[2rem] border border-[#edf2f7] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col gap-5 hover:shadow-xl transition-all duration-500 group">
+                <div className="bg-white rounded-[2rem] border border-[#edf2f7] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col gap-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group animate-kpiPop [animation-delay:650ms] [animation-fill-mode:both]">
                     <span className="text-[11px] font-black text-[#a0aec0] uppercase tracking-[0.2em] leading-none">TOTAL LEADS</span>
                     <h2 className="text-[2.5rem] font-extrabold text-[#1a202c] tracking-tighter leading-none group-hover:text-[#2447d7] transition-colors">1,284</h2>
                     <div className="flex items-center gap-2 text-[#10b981] font-black text-[11px] uppercase tracking-widest bg-[#f0fdf4] p-2.5 rounded-xl border border-[#dcfce7] w-fit">
@@ -355,7 +358,7 @@ const LeadMonitoring = () => {
                     </div>
                 </div>
 
-                <div className="bg-white rounded-[2rem] border border-[#edf2f7] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col gap-5 hover:shadow-xl transition-all duration-500 group">
+                <div className="bg-white rounded-[2rem] border border-[#edf2f7] p-8 shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col gap-5 hover:shadow-xl hover:-translate-y-1 transition-all duration-500 group animate-kpiPop [animation-delay:750ms] [animation-fill-mode:both]">
                     <span className="text-[11px] font-black text-[#a0aec0] uppercase tracking-[0.2em] leading-none">AVG. LEAD TIME</span>
                     <h2 className="text-[2.5rem] font-extrabold text-[#1a202c] tracking-tighter leading-none">4.2 <span className="text-[1.5rem] text-[#cbd5e0]">days</span></h2>
                     <div className="flex items-center gap-2 text-[#718096] font-black text-[11px] uppercase tracking-widest bg-[#f8fafc] p-2.5 rounded-xl border border-[#edf2f7] w-fit">
@@ -367,7 +370,7 @@ const LeadMonitoring = () => {
                     </div>
                 </div>
 
-                <div className="bg-[#fef2f2] rounded-[2rem] border-2 border-[#fee2e2] p-8 shadow-[0_4px_20px_rgba(239,68,68,0.05)] flex flex-col gap-5 hover:bg-white hover:border-[#e53e3e]/30 transition-all duration-500 group">
+                <div className="bg-[#fef2f2] rounded-[2rem] border-2 border-[#fee2e2] p-8 shadow-[0_4px_20px_rgba(239,68,68,0.05)] flex flex-col gap-5 hover:bg-white hover:border-[#e53e3e]/30 hover:-translate-y-1 transition-all duration-500 group animate-kpiPop [animation-delay:850ms] [animation-fill-mode:both]">
                     <span className="text-[11px] font-black text-[#94a3b8] uppercase tracking-[0.2em] leading-none">REJECTED LEADS</span>
                     <h2 className="text-[2.5rem] font-extrabold text-[#e53e3e] tracking-tighter leading-none">14</h2>
                     <div className="flex items-center gap-2 text-[#991b1b] font-black text-[11px] uppercase tracking-widest bg-white p-2.5 rounded-xl border border-[#fee2e2] w-fit shadow-sm">
