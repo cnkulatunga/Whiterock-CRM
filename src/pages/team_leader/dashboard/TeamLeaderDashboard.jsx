@@ -1,64 +1,136 @@
 import React, { useState, useEffect } from 'react';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 
-const DONUT_GAP_PX = 7;
+const DONUT_GAP_DEG = 3;
 
 const DonutChart = ({ data, total }) => {
     const [hovered, setHovered] = useState(null);
     const [drawn, setDrawn] = useState(false);
 
     useEffect(() => {
-        const t = setTimeout(() => setDrawn(true), 150);
+        const t = setTimeout(() => setDrawn(true), 200);
         return () => clearTimeout(t);
     }, []);
 
-    const r = 68, cx = 90, cy = 90;
-    const circ = 2 * Math.PI * r;
-    let cumPct = 0;
+    const size = 220;
+    const cx = size / 2, cy = size / 2;
+    const outerR = 88, innerR = 58;
     const hovSeg = hovered !== null ? data[hovered] : null;
 
+    const polarToCartesian = (angle, r) => ({
+        x: cx + r * Math.cos((angle - 90) * Math.PI / 180),
+        y: cy + r * Math.sin((angle - 90) * Math.PI / 180),
+    });
+
+    const describeArc = (startAngle, endAngle, r1, r2) => {
+        const s1 = polarToCartesian(startAngle, r1);
+        const e1 = polarToCartesian(endAngle, r1);
+        const s2 = polarToCartesian(endAngle, r2);
+        const e2 = polarToCartesian(startAngle, r2);
+        const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+        return [
+            `M ${s1.x} ${s1.y}`,
+            `A ${r1} ${r1} 0 ${largeArc} 1 ${e1.x} ${e1.y}`,
+            `L ${s2.x} ${s2.y}`,
+            `A ${r2} ${r2} 0 ${largeArc} 0 ${e2.x} ${e2.y}`,
+            'Z'
+        ].join(' ');
+    };
+
+    let cumAngle = 0;
+    const segments = data.map((item, i) => {
+        const val = typeof item.value === 'string' ? parseFloat(item.value) : item.value;
+        const angleDeg = (val / 100) * 360;
+        const startAngle = cumAngle + DONUT_GAP_DEG / 2;
+        const endAngle = cumAngle + angleDeg - DONUT_GAP_DEG / 2;
+        cumAngle += angleDeg;
+        return { ...item, startAngle, endAngle, val, index: i };
+    });
+
+    const gradientDefs = [
+        { id: 'grad0', from: '#f59e0b', to: '#fbbf24' },
+        { id: 'grad1', from: '#10b981', to: '#34d399' },
+        { id: 'grad2', from: '#ef4444', to: '#f87171' },
+    ];
+
     return (
-        <div className="relative w-[180px] h-[180px] mx-auto">
-            <svg viewBox="0 0 180 180" className="w-full h-full">
-                <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f1f5f9" strokeWidth="20" />
-                {data.map(({ value: pct, color, label }, i) => {
-                    const val = typeof pct === 'string' ? parseFloat(pct) : pct;
-                    const startPct = cumPct;
-                    cumPct += val;
-                    const rotDeg = -90 + (startPct / 100) * 360;
-                    const dash = Math.max(0, (val / 100) * circ - DONUT_GAP_PX);
-                    const isHov = hovered === i;
-                    return (
-                        <circle
-                            key={label}
-                            cx={cx} cy={cy} r={r}
-                            fill="none"
-                            stroke={color}
-                            strokeWidth={isHov ? 27 : 20}
-                            strokeDasharray={drawn ? `${dash} ${circ}` : `0 ${circ}`}
-                            strokeDashoffset="0"
-                            transform={`rotate(${rotDeg} ${cx} ${cy})`}
-                            style={{
-                                transition: `stroke-dasharray 0.8s cubic-bezier(0.22, 1, 0.36, 1) ${300 + i * 150}ms, stroke-width 0.25s ease, opacity 0.25s ease, filter 0.25s ease`,
-                                opacity: hovered !== null && !isHov ? 0.25 : 1,
-                                filter: isHov ? `drop-shadow(0 0 8px ${color}cc)` : 'none',
-                                cursor: 'pointer',
-                            }}
-                            onMouseEnter={() => setHovered(i)}
-                            onMouseLeave={() => setHovered(null)}
-                        />
-                    );
-                })}
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <div
-                    className="text-[25px] font-black leading-none transition-all duration-200"
-                    style={{ color: hovSeg ? hovSeg.color : '#1a202c' }}
-                >
-                    {hovSeg ? (typeof hovSeg.value === 'string' ? hovSeg.value : `${hovSeg.value}%`) : total}
-                </div>
-                <div className="text-[10px] font-black text-[#cbd3e0] uppercase tracking-[0.2em] mt-2 transition-all duration-200">
-                    {hovSeg ? hovSeg.label.split(' ')[0] : 'TOTAL'}
+        <div className="relative flex flex-col items-center w-full">
+            {/* Chart */}
+            <div className="relative" style={{ width: size, height: size }}>
+                <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} style={{ overflow: 'visible' }}>
+                    <defs>
+                        {gradientDefs.map(g => (
+                            <radialGradient key={g.id} id={g.id} cx="50%" cy="50%" r="50%">
+                                <stop offset="0%" stopColor={g.from} stopOpacity="1" />
+                                <stop offset="100%" stopColor={g.to} stopOpacity="0.85" />
+                            </radialGradient>
+                        ))}
+                        <filter id="segShadow" x="-20%" y="-20%" width="140%" height="140%">
+                            <feDropShadow dx="0" dy="4" stdDeviation="6" floodOpacity="0.18" />
+                        </filter>
+                        <filter id="segGlow" x="-30%" y="-30%" width="160%" height="160%">
+                            <feDropShadow dx="0" dy="0" stdDeviation="10" floodOpacity="0.55" />
+                        </filter>
+                    </defs>
+
+                    {/* Background ring */}
+                    <circle cx={cx} cy={cy} r={(outerR + innerR) / 2} fill="none"
+                        stroke="#f1f5f9" strokeWidth={outerR - innerR} />
+
+                    {/* Segments */}
+                    {segments.map((seg, i) => {
+                        const isHov = hovered === i;
+                        const scaleVal = isHov ? 1.06 : 1;
+                        return (
+                            <g key={seg.label}
+                                style={{
+                                    transformOrigin: `${cx}px ${cy}px`,
+                                    transform: `scale(${drawn ? scaleVal : 0.6})`,
+                                    transition: `transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.6s ease ${200 + i * 130}ms`,
+                                    opacity: drawn ? (hovered !== null && !isHov ? 0.3 : 1) : 0,
+                                    cursor: 'pointer',
+                                    filter: isHov ? `url(#segGlow)` : `url(#segShadow)`,
+                                }}
+                                onMouseEnter={() => setHovered(i)}
+                                onMouseLeave={() => setHovered(null)}
+                            >
+                                <path
+                                    d={describeArc(seg.startAngle, seg.endAngle, outerR + (isHov ? 6 : 0), innerR - (isHov ? 3 : 0))}
+                                    fill={`url(#grad${i})`}
+                                    stroke="white"
+                                    strokeWidth="2"
+                                />
+                            </g>
+                        );
+                    })}
+
+                    {/* Center circle */}
+                    <circle cx={cx} cy={cy} r={innerR - 6} fill="white"
+                        style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }} />
+                </svg>
+
+                {/* Center text */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                    <div
+                        className="font-black leading-none transition-all duration-300"
+                        style={{
+                            fontSize: hovSeg ? '28px' : '32px',
+                            color: hovSeg ? hovSeg.color : '#1a202c',
+                        }}
+                    >
+                        {hovSeg ? `${hovSeg.value}%` : total}
+                    </div>
+                    <div
+                        className="text-[10px] font-extrabold uppercase tracking-[0.18em] mt-1.5 transition-all duration-300"
+                        style={{ color: hovSeg ? hovSeg.color : '#94a3b8' }}
+                    >
+                        {hovSeg ? hovSeg.label.split(' ')[0] : 'TOTAL'}
+                    </div>
+                    {hovSeg && (
+                        <div className="text-[9px] font-bold text-[#cbd5e0] uppercase tracking-wider mt-0.5">
+                            Documents
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
@@ -489,25 +561,89 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                     </section>
 
                     <section className="flex flex-col gap-5 animate-slideUp [animation-delay:750ms] [animation-fill-mode:both]">
-                        <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider">Document Status</h2>
-                        <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-8 flex flex-col items-center gap-8">
-                            <DonutChart data={pipelineData} total={120} />
-                            <div className="w-full flex flex-col gap-3">
-                                {pipelineData.map((item, idx) => (
-                                    <div key={idx} className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-[#f8faff] transition-all group border border-transparent hover:border-[#ebf0ff]">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-5 h-5 rounded-full border-[3px] border-black flex items-center justify-center shrink-0 shadow-sm transition-transform group-hover:scale-110">
-                                                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
+                        {/* Section header */}
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider">Document Status</h2>
+                            <span className="text-[10px] font-black text-[#94a3b8] bg-[#f8fafc] border border-[#edf2f7] px-2.5 py-1 rounded-full uppercase tracking-widest">Live</span>
+                        </div>
+
+                        {/* Card */}
+                        <div className="relative bg-white rounded-3xl border border-[#edf2f7] shadow-[0_8px_32px_-4px_rgba(36,71,215,0.07),0_2px_8px_-2px_rgba(0,0,0,0.04)] overflow-hidden">
+
+                            {/* Subtle top gradient accent */}
+                            <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
+                                style={{ background: 'linear-gradient(90deg, #f59e0b 35%, #10b981 35% 90%, #ef4444 90%)' }} />
+
+                            <div className="p-6 pt-7 flex flex-col items-center gap-6">
+
+                                {/* Donut Chart */}
+                                <DonutChart data={pipelineData} total={120} />
+
+                                {/* Divider */}
+                                <div className="w-full h-px bg-gradient-to-r from-transparent via-[#edf2f7] to-transparent" />
+
+                                {/* Legend Cards */}
+                                <div className="w-full flex flex-col gap-2.5">
+                                    {pipelineData.map((item, idx) => {
+                                        const icons = [
+                                            // Pending - clock
+                                            <svg key="pending" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+                                            // Approved - check
+                                            <svg key="approved" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>,
+                                            // Rejected - x
+                                            <svg key="rejected" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+                                        ];
+                                        const bgColors = ['rgba(245,158,11,0.08)', 'rgba(16,185,129,0.08)', 'rgba(239,68,68,0.08)'];
+                                        const borderColors = ['rgba(245,158,11,0.2)', 'rgba(16,185,129,0.2)', 'rgba(239,68,68,0.2)'];
+                                        const barWidths = [item.value, item.value, item.value];
+
+                                        return (
+                                            <div
+                                                key={idx}
+                                                className="group flex flex-col gap-2 p-3.5 rounded-2xl border transition-all duration-300 cursor-default"
+                                                style={{
+                                                    backgroundColor: bgColors[idx],
+                                                    borderColor: borderColors[idx],
+                                                }}
+                                            >
+                                                {/* Top row */}
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2.5">
+                                                        {/* Icon badge */}
+                                                        <div
+                                                            className="w-7 h-7 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+                                                            style={{ backgroundColor: item.color, color: 'white' }}
+                                                        >
+                                                            {icons[idx]}
+                                                        </div>
+                                                        <span className="text-[13px] font-bold text-[#2d3748] tracking-tight leading-tight">{item.label}</span>
+                                                    </div>
+                                                    {/* Value pill */}
+                                                    <div className="flex items-baseline gap-0.5">
+                                                        <span className="text-[18px] font-black leading-none" style={{ color: item.color }}>{item.value}</span>
+                                                        <span className="text-[11px] font-bold text-[#94a3b8]">%</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Mini progress bar */}
+                                                <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(0,0,0,0.06)' }}>
+                                                    <div
+                                                        className="h-full rounded-full transition-all duration-[1200ms] ease-out"
+                                                        style={{
+                                                            width: `${item.value}%`,
+                                                            background: `linear-gradient(90deg, ${item.color}cc, ${item.color})`,
+                                                        }}
+                                                    />
+                                                </div>
                                             </div>
-                                            <span className="text-[14px] font-bold text-[#4a5568] tracking-tight">{item.label}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[13px] font-black text-[#1a202c] bg-[#f1f5f9] px-3 py-1 rounded-xl min-w-[50px] text-center group-hover:bg-[#2447d7] group-hover:text-white transition-colors">
-                                                {item.value}%
-                                            </span>
-                                        </div>
-                                    </div>
-                                ))}
+                                        );
+                                    })}
+                                </div>
+
+                                {/* Footer note */}
+                                <p className="text-[10px] text-[#94a3b8] font-semibold text-center leading-relaxed">
+                                    Based on <span className="font-black text-[#64748b]">120</span> total documents across all active loan applications
+                                </p>
                             </div>
                         </div>
                     </section>
