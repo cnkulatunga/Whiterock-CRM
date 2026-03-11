@@ -34,16 +34,7 @@ const LenderSelector = ({ onNavigate }) => {
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Lender Selector</h1>
                     <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Review tele-agent submitted leads and assign them to financial lenders.</p>
                 </div>
-                <button 
-                    className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl text-[13.5px] font-semibold hover:bg-[#1732a3] transition-all shadow-md hover:shadow-lg active:scale-95"
-                    onClick={() => onNavigate && onNavigate('lender_selection')}
-                >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-                        <rect x="2" y="7" width="20" height="14" rx="2" />
-                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-                    </svg>
-                    Select Lender
-                </button>
+
             </header>
 
             {/* Stats */}
