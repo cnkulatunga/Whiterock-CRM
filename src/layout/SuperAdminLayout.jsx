@@ -8,6 +8,7 @@ import FinanceReport from '../pages/super_admin/finance/FinanceReport';
 import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
 import TeamLeaders from '../pages/super_admin/team_leaders/TeamLeaders';
+import Lenders from '../pages/super_admin/lenders/Lenders';
 
 /* ─── PLACEHOLDER PAGES ───────────────────────── */
 const PlaceholderPage = ({ title, icon }) => (
@@ -83,6 +84,7 @@ const AppLayout = ({ onLogout }) => {
         if (path.includes('/super-admin/reports')) return 'reports';
         if (path.includes('/super-admin/settings')) return 'settings';
         if (path.includes('/super-admin/team-leaders')) return 'team-leaders';
+        if (path.includes('/super-admin/lenders')) return 'lenders';
         return 'dashboard';
     };
 
@@ -100,6 +102,7 @@ const AppLayout = ({ onLogout }) => {
             case 'reports': navigate('/super-admin/reports'); break;
             case 'settings': navigate('/super-admin/settings'); break;
             case 'team-leaders': navigate('/super-admin/team-leaders'); break;
+            case 'lenders': navigate('/super-admin/lenders'); break;
             default: navigate('/super-admin/dashboard');
         }
     };
@@ -137,6 +140,7 @@ const AppLayout = ({ onLogout }) => {
                         <Route path="reports" element={<AuditLogs />} />
                         <Route path="settings" element={<SettingsPage />} />
                         <Route path="team-leaders" element={<TeamLeaders onNavigate={handleNavigate} />} />
+                        <Route path="lenders" element={<Lenders readOnly={false} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>

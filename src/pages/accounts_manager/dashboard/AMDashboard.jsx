@@ -1,5 +1,17 @@
 import React from 'react';
 
+const RECENT_LENDERS = [
+    { id: 1, name: 'ANZ Bank',          type: 'Major Bank', interestRate: '5.89%', maxLoan: '$2,000,000', status: 'Active' },
+    { id: 2, name: 'Commonwealth Bank', type: 'Major Bank', interestRate: '5.74%', maxLoan: '$3,000,000', status: 'Active' },
+    { id: 3, name: 'Macquarie Bank',    type: 'Non-Bank',   interestRate: '5.59%', maxLoan: '$5,000,000', status: 'Active' },
+    { id: 4, name: 'Liberty Financial', type: 'Non-Bank',   interestRate: '6.49%', maxLoan: '$1,500,000', status: 'Inactive' },
+];
+
+const TYPE_COLORS = {
+    'Major Bank': { bg: 'rgba(36,71,215,0.08)', color: '#2447d7', border: 'rgba(36,71,215,0.18)' },
+    'Non-Bank':   { bg: 'rgba(139,92,246,0.08)', color: '#8b5cf6', border: 'rgba(139,92,246,0.2)' },
+};
+
 const STAT_CARDS = [
     { label: 'Verified Clients', value: '1,284', change: '+12%', changeLabel: 'vs last month', iconBg: '#ebf0ff', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
     { label: 'Pending Loans', value: '42', change: '+8%', changeLabel: 'vs last week', iconBg: '#fff7ed', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg> },
@@ -12,12 +24,6 @@ const LEADS = [
     { id: '#LD-98912', client: 'TechStream Solutions', amount: '$1,200,000.00',  stage: 'LENDER SELECTION',    stageCls: 'bg-[#fff7ed] text-[#f97316] border-[#ffedd5]',   date: 'Oct 23, 2023' },
     { id: '#LD-98845', client: 'Marcus Aurelius',      amount: '$75,000.00',     stage: 'COMPLETE',            stageCls: 'bg-[#ecfdf5] text-[#16a34a] border-[#dcfce7]',   date: 'Oct 22, 2023' },
     { id: '#LD-98712', client: 'Peak Dynamics',        amount: '$540,000.00',    stage: 'REJECTED',            stageCls: 'bg-[#fef2f2] text-[#dc2626] border-[#fee2e2]',   date: 'Oct 21, 2023' },
-];
-
-const PENDING_APPROVALS = [
-    { deal: 'DEAL-4492', priority: 'PRIORITY', priorityCls: 'bg-[#ebf0ff] text-[#2447d7]',  company: 'Quantum Capital Fund',  type: 'Institutional Mortgage Loan',    avatars: ['QC', 'RP'] },
-    { deal: 'DEAL-4488', priority: 'STANDARD', priorityCls: 'bg-[#f1f5f9] text-[#64748b]',  company: 'Global Trade Bank',     type: 'Cross-border Financing Proof',   avatars: ['3'], isCount: true },
-    { deal: 'DEAL-4475', priority: 'URGENT',   priorityCls: 'bg-[#fff1f2] text-[#e11d48]',  company: 'Prime Wealth Trust',    type: 'Asset Allocation Verification',  avatars: ['GT', 'PW'], extra: '+1' },
 ];
 
 const AMDashboard = ({ onNavigate }) => {
@@ -101,40 +107,83 @@ const AMDashboard = ({ onNavigate }) => {
                     </div>
                 </section>
 
-                {/* Pending Lender Approvals */}
+                {/* Recently Added Lenders */}
                 <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:480ms] [animation-fill-mode:both] flex flex-col">
-                    <div className="px-6 py-4 border-b border-[#f7fafc] flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-[#ecfdf5] flex items-center justify-center">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        </div>
-                        <span className="text-[13px] font-semibold text-[#1a202c]">Pending Lender Approvals</span>
-                    </div>
-                    <div className="p-4 flex flex-col gap-3 flex-1">
-                        {PENDING_APPROVALS.map((item, i) => (
-                            <div key={item.deal} className="bg-[#f8fafc] border border-[#edf2f7] rounded-xl p-4 hover:bg-white hover:border-[#2447d7]/20 hover:shadow-md transition-all cursor-pointer animate-rowIn" style={{ animationDelay: `${540 + i * 80}ms`, animationFillMode: 'both' }}>
-                                <div className="flex justify-between items-start mb-2">
-                                    <span className="text-[12px] font-semibold text-[#2447d7]">{item.deal}</span>
-                                    <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-md uppercase tracking-wider ${item.priorityCls}`}>{item.priority}</span>
-                                </div>
-                                <div className="text-[13px] font-semibold text-[#1a202c] mb-0.5">{item.company}</div>
-                                <div className="text-[11px] text-[#718096] mb-3">{item.type}</div>
-                                <div className="flex items-center -space-x-2">
-                                    {item.isCount ? (
-                                        <div className="w-8 h-8 rounded-full bg-[#ebf0ff] border-2 border-white text-[#2447d7] flex items-center justify-center text-[11px] font-bold">{item.avatars[0]}</div>
-                                    ) : (
-                                        item.avatars.map((av, j) => (
-                                            <div key={j} className="w-8 h-8 rounded-full bg-[#f1f5f9] border-2 border-white text-[#64748b] flex items-center justify-center text-[10px] font-bold">{av}</div>
-                                        ))
-                                    )}
-                                    {item.extra && <div className="w-8 h-8 rounded-full bg-[#1a202c] border-2 border-white text-white flex items-center justify-center text-[10px] font-bold">{item.extra}</div>}
-                                </div>
+                    {/* Section Header */}
+                    <div className="px-6 py-4 border-b border-[#f7fafc] flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-[#eef2ff] flex items-center justify-center">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+                                    <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                </svg>
                             </div>
-                        ))}
+                            <span className="text-[13px] font-semibold text-[#1a202c]">Recently Added Lenders</span>
+                        </div>
+                        <span className="text-[10px] font-black text-[#94a3b8] bg-[#f1f5f9] px-2.5 py-1 rounded-lg border border-[#edf2f7]">
+                            {RECENT_LENDERS.length} lenders
+                        </span>
                     </div>
+
+                    {/* Lender Cards */}
+                    <div className="p-4 flex flex-col gap-2.5 flex-1">
+                        {RECENT_LENDERS.map((lender, i) => {
+                            const tc = TYPE_COLORS[lender.type] || TYPE_COLORS['Major Bank'];
+                            return (
+                                <div
+                                    key={lender.id}
+                                    className="bg-[#f8fafc] border border-[#edf2f7] rounded-xl p-3.5 hover:bg-white hover:border-[#2447d7]/20 hover:shadow-md transition-all cursor-pointer animate-rowIn"
+                                    style={{ animationDelay: `${540 + i * 70}ms`, animationFillMode: 'both' }}
+                                    onClick={() => onNavigate && onNavigate('lenders')}
+                                >
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                        <div className="flex items-center gap-2.5 min-w-0">
+                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: tc.bg, color: tc.color }}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14">
+                                                    <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                                </svg>
+                                            </div>
+                                            <span className="text-[13px] font-bold text-[#1a202c] truncate">{lender.name}</span>
+                                        </div>
+                                        <span
+                                            className="inline-flex text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0"
+                                            style={{ backgroundColor: tc.bg, color: tc.color, border: `1px solid ${tc.border}` }}
+                                        >
+                                            {lender.type}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-[11px] text-[#718096]">
+                                                Rate: <span className="font-bold text-[#1a202c]">{lender.interestRate}</span>
+                                            </span>
+                                            <span className="text-[11px] text-[#718096]">
+                                                Max: <span className="font-bold text-[#1a202c]">{lender.maxLoan}</span>
+                                            </span>
+                                        </div>
+                                        <span className={`inline-flex items-center gap-1 text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest border ${
+                                            lender.status === 'Active'
+                                                ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]'
+                                                : 'bg-[#f1f5f9] text-[#94a3b8] border-[#e2e8f0]'
+                                        }`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full inline-block ${lender.status === 'Active' ? 'bg-[#059669]' : 'bg-[#94a3b8]'}`} />
+                                            {lender.status}
+                                        </span>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+
+                    {/* Footer CTA */}
                     <div className="px-4 pb-4">
-                        <button className="w-full py-2.5 bg-[#2447d7] text-white rounded-xl text-[13px] font-medium hover:bg-[#1732a3] transition-colors shadow-sm flex items-center justify-center gap-2" onClick={() => onNavigate && onNavigate('lender_selection')}>
-                            Go to Lender Workflow
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        <button
+                            className="w-full py-2.5 bg-[#2447d7] text-white rounded-xl text-[13px] font-medium hover:bg-[#1732a3] transition-colors shadow-sm flex items-center justify-center gap-2"
+                            onClick={() => onNavigate && onNavigate('lenders')}
+                        >
+                            View All Lenders
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
+                                <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                            </svg>
                         </button>
                     </div>
                 </section>
