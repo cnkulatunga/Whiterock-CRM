@@ -371,7 +371,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
 
                     <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] flex flex-col gap-6 animate-slideUp [animation-delay:550ms] [animation-fill-mode:both]">
                         <div className="flex justify-between items-center gap-4 flex-wrap">
-                            <h2 className="text-lg font-bold text-[#1a202c]">Calendar & Events</h2>
+                            <h2 className="text-lg font-bold text-[#1a202c]">Tasks and Followups</h2>
 
                             <div className="flex bg-[#f7fafc] p-1 rounded-xl gap-1">
                                 <button

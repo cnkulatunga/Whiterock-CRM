@@ -31,7 +31,7 @@ const LenderSelection = ({ lead, onNavigate }) => {
                         className="flex items-center gap-1.5 text-[12px] font-semibold text-[#64748b] hover:text-[#2447d7] transition-colors w-fit group"
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" className="transition-transform group-hover:-translate-x-0.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-                        Back to Selector
+                        Back to Loan Pipeline
                     </button>
                     <div>
                         <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Lead {leadId} – Lender Selection</h1>
@@ -39,7 +39,7 @@ const LenderSelection = ({ lead, onNavigate }) => {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <button className="bg-white border border-[#edf2f7] text-[#4a5568] px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#f8fafc] transition-colors">Save Draft</button>
+
                     <button className="flex items-center gap-2 bg-[#2447d7] text-white px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#1732a3] transition-colors shadow-sm">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         Submit for Approval

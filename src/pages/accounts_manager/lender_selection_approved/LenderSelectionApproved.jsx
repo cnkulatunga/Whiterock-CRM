@@ -49,7 +49,7 @@ const LenderSelectionApproved = () => {
             {/* Header */}
             <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
                 <div>
-                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Lender Selection Approved</h1>
+                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Lender Approved Loans</h1>
                     <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Accounts manager can assign lender and approve or reject each lead.</p>
                 </div>
                 <button className="flex items-center gap-2 bg-white border border-[#edf2f7] text-[#4a5568] px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#f8fafc] transition-colors">
@@ -96,7 +96,7 @@ const LenderSelectionApproved = () => {
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD ID</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">CLIENT NAME</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">AMOUNT</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LENDER SELECTOR</th>
+                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LENDER SELECTION</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">INTEREST RATE</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">TENURE</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">APPROVED DATE</th>

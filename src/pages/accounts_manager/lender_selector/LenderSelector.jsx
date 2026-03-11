@@ -31,7 +31,7 @@ const LenderSelector = ({ onNavigate }) => {
             {/* Header */}
             <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
                 <div>
-                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Lender Selector</h1>
+                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Loan Pipeline</h1>
                     <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Review tele-agent submitted leads and assign them to financial lenders.</p>
                 </div>
 

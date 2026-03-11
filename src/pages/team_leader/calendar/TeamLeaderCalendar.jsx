@@ -168,7 +168,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
             <header className="flex justify-between items-center mb-10 sm:flex-col sm:items-start sm:gap-6">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Team & Personal Calendar</h1>
+                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Team & Personal Tasks and Followups</h1>
                     <p className="text-[0.95rem] text-[#718096] font-medium">Manage your tasks, follow-ups, and assign work to your team members.</p>
                 </div>
                 <div className="flex items-center gap-4 sm:flex-wrap">
