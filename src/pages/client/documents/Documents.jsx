@@ -28,8 +28,28 @@ const Documents = () => {
             />
 
             <header className="mb-10">
-                <h1 className="text-[1.75rem] font-bold text-[#1a202c] mb-2 sm:text-2xl tracking-tight">Document Center</h1>
-                <p className="text-[0.95rem] text-[#718096]">Complete your profile by uploading the required verification files.</p>
+                <div className="bg-gradient-to-br from-[#f8fafc] via-white to-[#eef2ff] border border-[#e6ebf5] rounded-2xl p-6 shadow-[0_10px_30px_-20px_rgba(36,71,215,0.35)]">
+                    <div className="flex items-start gap-4 sm:flex-col">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#2447d7] to-[#1a38b8] text-white flex items-center justify-center shadow-[0_10px_20px_-10px_rgba(36,71,215,0.6)] shrink-0">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                            </svg>
+                        </div>
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2 flex-wrap mb-2">
+                                <h1 className="text-[1.75rem] font-bold text-[#1a202c] sm:text-2xl tracking-tight">Document Center</h1>
+                                <span className="bg-[#e8edff] text-[#2447d7] text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-[1.4px]">Secure Portal</span>
+                            </div>
+                            <p className="text-[0.95rem] text-[#5a6b85]">Complete your profile by uploading the required verification files.</p>
+                            <div className="mt-3 flex items-center gap-2 flex-wrap">
+                                <span className="text-[11px] font-bold uppercase tracking-[1.4px] text-[#94a3b8] bg-white px-2.5 py-1 rounded-full border border-[#e6ebf5]">PDF, JPG, PNG</span>
+                                <span className="text-[11px] font-bold uppercase tracking-[1.4px] text-[#94a3b8] bg-white px-2.5 py-1 rounded-full border border-[#e6ebf5]">Max 10MB</span>
+                                <span className="text-[11px] font-bold uppercase tracking-[1.4px] text-[#94a3b8] bg-white px-2.5 py-1 rounded-full border border-[#e6ebf5]">Encrypted Uploads</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </header>
 
             <section className="mb-12">
@@ -62,53 +82,72 @@ const Documents = () => {
             </section>
 
             <section className="mb-12">
-                <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider mb-6">Upload History</h2>
+                <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+                    <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider">Upload History</h2>
+                    <span className="text-[11px] font-bold uppercase tracking-[1.4px] text-[#94a3b8] bg-white px-2.5 py-1 rounded-full border border-[#e6ebf5]">Last 3 uploads</span>
+                </div>
                 <div className="grid grid-cols-3 gap-6 lg:grid-cols-2 md:grid-cols-1">
                     {/* Item 1 */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden hover:border-[#2447d7]/20 hover:shadow-lg transition-all duration-300 group">
-                        <div className="h-28 bg-[#ecfdf5] flex items-center justify-center text-[#10b981] group-hover:bg-[#10b981] group-hover:text-white transition-colors duration-500">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="36" height="36">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                        </div>
-                        <div className="p-5 flex flex-col gap-3">
-                            <div className="flex items-center justify-between gap-3">
-                                <span className="text-[13px] font-bold text-[#2d3748] truncate">Bank_Statement_Jan.pdf</span>
-                                <span className="bg-[#ecfdf5] text-[#067647] text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 border border-[#bbf7d0]">APPROVED</span>
+                    <div className="bg-white rounded-2xl border border-[#e6ebf5] p-5 shadow-[0_10px_24px_-18px_rgba(36,71,215,0.45)] hover:shadow-[0_20px_32px_-20px_rgba(36,71,215,0.55)] hover:-translate-y-1 transition-all duration-300">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-11 h-11 rounded-xl bg-[#ecfdf5] text-[#10b981] flex items-center justify-center shrink-0">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                </div>
+                                <div className="min-w-0">
+                                    <span className="block text-[13px] font-bold text-[#2d3748] truncate">Bank_Statement_Jan.pdf</span>
+                                    <span className="block text-[12px] font-medium text-[#94a3b8]">Uploaded on Jan 15, 2024</span>
+                                </div>
                             </div>
-                            <span className="text-[12px] font-medium text-[#94a3b8]">Uploaded on Jan 15, 2024</span>
+                            <span className="bg-[#ecfdf5] text-[#067647] text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 border border-[#bbf7d0]">APPROVED</span>
+                        </div>
+                        <div className="mt-4 h-1.5 rounded-full bg-[#f1f5f9] overflow-hidden">
+                            <div className="h-full w-[100%] bg-gradient-to-r from-[#10b981] to-[#34d399]" />
                         </div>
                     </div>
 
                     {/* Item 2 */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden hover:border-[#2447d7]/20 hover:shadow-lg transition-all duration-300 group">
-                        <div className="h-28 bg-[#ecfdf5] flex items-center justify-center text-[#10b981] group-hover:bg-[#10b981] group-hover:text-white transition-colors duration-500">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="36" height="36">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                        </div>
-                        <div className="p-5 flex flex-col gap-3">
-                            <div className="flex items-center justify-between gap-3">
-                                <span className="text-[13px] font-bold text-[#2d3748] truncate">Bank_Statement_Dec.pdf</span>
-                                <span className="bg-[#ecfdf5] text-[#067647] text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 border border-[#bbf7d0]">APPROVED</span>
+                    <div className="bg-white rounded-2xl border border-[#e6ebf5] p-5 shadow-[0_10px_24px_-18px_rgba(36,71,215,0.45)] hover:shadow-[0_20px_32px_-20px_rgba(36,71,215,0.55)] hover:-translate-y-1 transition-all duration-300">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-11 h-11 rounded-xl bg-[#ecfdf5] text-[#10b981] flex items-center justify-center shrink-0">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                </div>
+                                <div className="min-w-0">
+                                    <span className="block text-[13px] font-bold text-[#2d3748] truncate">Bank_Statement_Dec.pdf</span>
+                                    <span className="block text-[12px] font-medium text-[#94a3b8]">Uploaded on Dec 12, 2023</span>
+                                </div>
                             </div>
-                            <span className="text-[12px] font-medium text-[#94a3b8]">Uploaded on Dec 12, 2023</span>
+                            <span className="bg-[#ecfdf5] text-[#067647] text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 border border-[#bbf7d0]">APPROVED</span>
+                        </div>
+                        <div className="mt-4 h-1.5 rounded-full bg-[#f1f5f9] overflow-hidden">
+                            <div className="h-full w-[100%] bg-gradient-to-r from-[#10b981] to-[#34d399]" />
                         </div>
                     </div>
 
                     {/* Item 3 */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden hover:border-[#2447d7]/20 hover:shadow-lg transition-all duration-300 group">
-                        <div className="h-28 bg-[#f8fafc] flex items-center justify-center text-[#94a3b8] group-hover:bg-[#2447d7] group-hover:text-white transition-colors duration-500">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="36" height="36">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-                            </svg>
-                        </div>
-                        <div className="p-5 flex flex-col gap-3">
-                            <div className="flex items-center justify-between gap-3">
-                                <span className="text-[13px] font-bold text-[#2d3748] truncate">Bank_Statement_Feb.pdf</span>
-                                <span className="bg-[#fef3c7] text-[#92400e] text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0 border border-[#fde68a]">PENDING</span>
+                    <div className="bg-white rounded-2xl border border-[#e6ebf5] p-5 shadow-[0_10px_24px_-18px_rgba(36,71,215,0.45)] hover:shadow-[0_20px_32px_-20px_rgba(36,71,215,0.55)] hover:-translate-y-1 transition-all duration-300">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-11 h-11 rounded-xl bg-[#fef3c7] text-[#b45309] flex items-center justify-center shrink-0">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                        <polyline points="14 2 14 8 20 8" />
+                                    </svg>
+                                </div>
+                                <div className="min-w-0">
+                                    <span className="block text-[13px] font-bold text-[#2d3748] truncate">Bank_Statement_Feb.pdf</span>
+                                    <span className="block text-[12px] font-medium text-[#94a3b8]">Uploaded on Feb 24, 2024</span>
+                                </div>
                             </div>
-                            <span className="text-[12px] font-medium text-[#94a3b8]">Uploaded on Feb 24, 2024</span>
+                            <span className="bg-[#fef3c7] text-[#92400e] text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider shrink-0 border border-[#fde68a]">PENDING</span>
+                        </div>
+                        <div className="mt-4 h-1.5 rounded-full bg-[#f1f5f9] overflow-hidden">
+                            <div className="h-full w-[60%] bg-gradient-to-r from-[#f59e0b] to-[#fbbf24]" />
                         </div>
                     </div>
                 </div>

@@ -5,7 +5,6 @@ import AMDashboard from '../pages/accounts_manager/dashboard/AMDashboard';
 import LenderSelector from '../pages/accounts_manager/lender_selector/LenderSelector';
 import LenderSelection from '../pages/accounts_manager/lender_selection/LenderSelection';
 import FinanceReport from '../pages/super_admin/finance/FinanceReport';
-import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
 import DraftDashboard from '../pages/accounts_manager/draft_dashboard/DraftDashboard';
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
@@ -24,7 +23,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
         if (path.includes('/accounts-manager/lender-selector')) return 'lender_selector';
         if (path.includes('/accounts-manager/lender-selection')) return 'lender_selection';
         if (path.includes('/accounts-manager/financial-payment-report')) return 'financial_payment_report';
-        if (path.includes('/accounts-manager/lead-performance-report')) return 'lead_performance_report';
         if (path.includes('/accounts-manager/audit-logs')) return 'audit_logs';
         if (path.includes('/accounts-manager/draft-dashboard')) return 'draft_dashboard';
         if (path.includes('/accounts-manager/lender-selection-approved')) return 'lender_selection_approved';
@@ -43,7 +41,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
             case 'lender_selector': navigate('/accounts-manager/lender-selector'); break;
             case 'lender_selection': navigate('/accounts-manager/lender-selection'); break;
             case 'financial_payment_report': navigate('/accounts-manager/financial-payment-report'); break;
-            case 'lead_performance_report': navigate('/accounts-manager/lead-performance-report'); break;
             case 'audit_logs': navigate('/accounts-manager/audit-logs'); break;
             case 'draft_dashboard': navigate('/accounts-manager/draft-dashboard'); break;
             case 'lender_selection_approved': navigate('/accounts-manager/lender-selection-approved'); break;
@@ -82,7 +79,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="lender-selector" element={<LenderSelector onNavigate={handleNavigate} />} />
                         <Route path="lender-selection" element={<LenderSelection lead={selectedLead} onNavigate={handleNavigate} />} />
                         <Route path="financial-payment-report" element={<FinanceReport />} />
-                        <Route path="lead-performance-report" element={<LeadPerformance />} />
                         <Route path="audit-logs" element={<AuditLogs />} />
                         <Route path="draft-dashboard" element={<DraftDashboard onNavigate={handleNavigate} />} />
                         <Route path="lender-selection-approved" element={<LenderSelectionApproved />} />
