@@ -11,9 +11,14 @@ const CreateLead = ({ onBack }) => {
         residentialAddress: '',
         loanAmount: '',
         assignedAgent: '',
-        leadSource: '',
         notes: ''
     });
+
+    React.useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const agentName = user.role === 'tele_agent' ? 'Sarah Jenkins' : `${user.first_name || 'Tele'} ${user.last_name || 'Agent'}`.trim();
+        setFormData(prev => ({ ...prev, assignedAgent: agentName }));
+    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -134,7 +139,7 @@ const CreateLead = ({ onBack }) => {
                     {/* Financial & Logistics */}
                     <div className="mb-8">
                         <h4 className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5">FINANCIAL & LOGISTICS</h4>
-                        <div className="grid grid-cols-3 gap-6 md:grid-cols-1">
+                        <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
                             <div className="flex flex-col gap-2 relative">
                                 <label className="text-[13px] font-semibold text-[#4a5568]">Loan Amount (USD)</label>
                                 <div className="relative flex items-center">
@@ -151,30 +156,13 @@ const CreateLead = ({ onBack }) => {
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-[13px] font-semibold text-[#4a5568]">Assigned Agent</label>
-                                <select 
+                                <input 
+                                    type="text"
                                     name="assignedAgent" 
-                                    className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]"
+                                    className="bg-[#f0f4ff] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none text-[#2447d7] font-bold w-full cursor-not-allowed"
                                     value={formData.assignedAgent} 
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="">Select an agent</option>
-                                    <option value="sarah-jenkins">Sarah Jenkins</option>
-                                    <option value="michael-chen">Michael Chen</option>
-                                </select>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[13px] font-semibold text-[#4a5568]">Lead Source</label>
-                                <select 
-                                    name="leadSource" 
-                                    className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]"
-                                    value={formData.leadSource} 
-                                    onChange={handleInputChange}
-                                >
-                                    <option value="">Source channel</option>
-                                    <option value="website">Website Form</option>
-                                    <option value="referral">Referral</option>
-                                    <option value="linkedin">LinkedIn</option>
-                                </select>
+                                    readOnly
+                                />
                             </div>
                         </div>
                     </div>

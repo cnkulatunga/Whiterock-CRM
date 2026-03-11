@@ -21,7 +21,7 @@ const LEADS_DATA = [
         customer: 'Robert Taylor',
         agent: { name: 'Elena Rodriguez', avatar: 'Elena Rodriguez' },
         progress: 40,
-        stage: 'Document Verification',
+        stage: 'Document Verification Done',
     },
     {
         id: 'WR-2024-8722',
@@ -63,16 +63,16 @@ const LEADS_DATA = [
         customer: 'Carlos Rivera',
         agent: { name: 'Michael Smith', avatar: 'Michael Smith' },
         progress: 40,
-        stage: 'Document Verification',
+        stage: 'Document Verification Done',
     },
 ];
 
 const AGENTS_LIST = ['All Agents', 'Sarah Johnson', 'Michael Smith', 'Elena Rodriguez'];
-const STAGES_LIST = ['All Stages', 'Document Collection', 'Document Verification', 'Lender Selection', 'Final Review', 'Completed', 'Rejected'];
+const STAGES_LIST = ['All Stages', 'Document Collection', 'Document Verification Done', 'Lender Selection', 'Final Review', 'Completed', 'Rejected'];
 
 const STAGE_COLORS = {
     'Document Collection': '#2447d7',
-    'Document Verification': '#f59e0b',
+    'Document Verification Done': '#f59e0b',
     'Lender Selection': '#8b5cf6',
     'Final Review': '#06b6d4',
     'Completed': '#10b981',

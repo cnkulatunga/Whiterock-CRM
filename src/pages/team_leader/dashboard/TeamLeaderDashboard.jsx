@@ -153,9 +153,8 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                             <div className="flex items-center gap-3">
                                 <h2 className="text-2xl font-extrabold text-[#1a202c] tracking-tight">{stat.value}</h2>
                                 {stat.trend && (
-                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border uppercase tracking-wider ${
-                                        stat.trendType === 'positive' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : 'bg-[#f1f5f9] text-[#718096] border-[#e2e8f0]'
-                                    }`}>
+                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border uppercase tracking-wider ${stat.trendType === 'positive' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : 'bg-[#f1f5f9] text-[#718096] border-[#e2e8f0]'
+                                        }`}>
                                         {stat.trend}
                                     </span>
                                 )}
@@ -177,9 +176,9 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                         <circle cx="11" cy="11" r="8"></circle>
                                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                                     </svg>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Search agents..." 
+                                    <input
+                                        type="text"
+                                        placeholder="Search agents..."
                                         className="w-full h-9 bg-transparent border-none outline-none text-[13px] text-[#1a202c] font-medium placeholder:text-[#a0aec0]"
                                         value={agentSearch}
                                         onChange={(e) => setAgentSearch(e.target.value)}
@@ -204,7 +203,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                             <tr key={idx} className="hover:bg-[#f8fafc]/50 transition-colors group">
                                                 <td className="p-5 px-6">
                                                     <div className="flex items-center gap-3">
-                                                        <div 
+                                                        <div
                                                             className="w-9 h-9 rounded-xl flex items-center justify-center text-[13px] font-black transition-transform duration-300 group-hover:scale-110 shadow-sm"
                                                             style={{ backgroundColor: `${agent.color}15`, color: agent.color }}
                                                         >
@@ -319,13 +318,12 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                         const isSelected = selectedDate === dateStr;
                                         const itoday = isToday(day);
                                         return (
-                                            <div 
-                                                key={day} 
-                                                className={`aspect-square flex items-center justify-center text-[13px] font-bold rounded-xl cursor-pointer relative transition-all duration-200 border border-transparent ${
-                                                    itoday ? 'bg-[#ebf0ff] text-[#2447d7] border-[#2447d7]/20 cursor-pointer pointer-events-auto' : 
-                                                    isSelected ? 'bg-[#2447d7] text-white shadow-[0_4px_12px_rgba(36,71,215,0.25)]' : 
-                                                    'text-[#4a5568] hover:bg-[#f8fafc] hover:border-[#edf2f7] hover:text-[#2447d7]'
-                                                }`}
+                                            <div
+                                                key={day}
+                                                className={`aspect-square flex items-center justify-center text-[13px] font-bold rounded-xl cursor-pointer relative transition-all duration-200 border border-transparent ${itoday ? 'bg-[#ebf0ff] text-[#2447d7] border-[#2447d7]/20 cursor-pointer pointer-events-auto' :
+                                                        isSelected ? 'bg-[#2447d7] text-white shadow-[0_4px_12px_rgba(36,71,215,0.25)]' :
+                                                            'text-[#4a5568] hover:bg-[#f8fafc] hover:border-[#edf2f7] hover:text-[#2447d7]'
+                                                    }`}
                                                 onClick={() => setSelectedDate(dateStr)}
                                             >
                                                 {day}
@@ -336,7 +334,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                         );
                                     })}
                                 </div>
-                                
+
                                 <div className="bg-[#f8fafc] rounded-xl p-4 flex flex-col gap-4 border border-[#f1f5f9]">
                                     <div className="flex justify-between items-center">
                                         <h4 className="text-[11px] font-bold text-[#1a202c] uppercase tracking-wider">{new Date(selectedDate).toLocaleDateString([], { month: 'short', day: 'numeric', timeZone: 'UTC' })}</h4>
@@ -351,11 +349,10 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                             tasks.filter(t => t.date === selectedDate).map(t => (
                                                 <div key={t.id} className="flex flex-col gap-3 group bg-white rounded-xl border border-[#edf2f7] p-3 shadow-sm hover:shadow-md transition-all">
                                                     <div className="flex items-start gap-2.5">
-                                                        <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                                                            t.status === 'Completed' ? 'bg-[#10b981]' : 
-                                                            t.status === 'In Progress' ? 'bg-[#f59e0b]' : 
-                                                            'bg-[#cbd5e0]'
-                                                        }`}></span>
+                                                        <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' :
+                                                                t.status === 'In Progress' ? 'bg-[#f59e0b]' :
+                                                                    'bg-[#cbd5e0]'
+                                                            }`}></span>
                                                         <div className="flex flex-col min-w-0">
                                                             <span className="text-[12px] font-bold text-[#1a202c] truncate leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
                                                             <span className="text-[10px] text-[#a0aec0] font-medium mt-0.5">{t.time}</span>
@@ -363,7 +360,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                     </div>
                                                     <div className="flex items-center gap-2 pl-4">
                                                         <div className="flex items-center border border-[#edf2f7] rounded-lg bg-[#f7fafc]">
-                                                            <select 
+                                                            <select
                                                                 className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
                                                                 value={t.reminder || 'none'}
                                                                 onChange={(e) => updateTaskReminder(t.id, e.target.value)}
@@ -376,12 +373,11 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                             </select>
                                                         </div>
                                                         <div className="flex items-center flex-1">
-                                                            <select 
-                                                                className={`w-full py-1 text-[10px] pr-6 font-black uppercase tracking-widest border border-[#edf2f7] outline-none transition-all cursor-pointer shadow-sm rounded-lg ${
-                                                                    t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669]' :
-                                                                    t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7]' :
-                                                                    'bg-[#fff7ed] text-[#ea580c]'
-                                                                }`}
+                                                            <select
+                                                                className={`w-full py-1 text-[10px] pr-6 font-black uppercase tracking-widest border border-[#edf2f7] outline-none transition-all cursor-pointer shadow-sm rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669]' :
+                                                                        t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7]' :
+                                                                            'bg-[#fff7ed] text-[#ea580c]'
+                                                                    }`}
                                                                 value={t.status}
                                                                 onChange={(e) => updateTaskStatus(t.id, e.target.value)}
                                                             >
@@ -416,8 +412,8 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                             <span className="text-lg font-black text-[#2447d7]">{doc.progress}%</span>
                                         </div>
                                         <div className="h-2.5 bg-[#f1f5f9] rounded-full overflow-hidden shadow-inner">
-                                            <div 
-                                                className="h-full bg-gradient-to-r from-[#2447d7] to-[#4c6ef5] rounded-full transition-all duration-[1500ms] shadow-sm" 
+                                            <div
+                                                className="h-full bg-gradient-to-r from-[#2447d7] to-[#4c6ef5] rounded-full transition-all duration-[1500ms] shadow-sm"
                                                 style={{ width: `${doc.progress}%` }}
                                             ></div>
                                         </div>
@@ -432,8 +428,8 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                         <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider">Document Status</h2>
                         <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-8 flex flex-col items-center gap-8">
                             <div className="relative w-44 h-44 group">
-                                <div 
-                                    className="absolute inset-0 rounded-full shadow-[inset_0_4px_12px_rgba(0,0,0,0.05)] transition-transform duration-700 group-hover:rotate-12" 
+                                <div
+                                    className="absolute inset-0 rounded-full shadow-[inset_0_4px_12px_rgba(0,0,0,0.05)] transition-transform duration-700 group-hover:rotate-12"
                                     style={{ background: 'conic-gradient(#f59e0b 0% 35%, #10b981 35% 90%, #e53e3e 90% 100%)' }}
                                 ></div>
                                 <div className="absolute inset-4 bg-white rounded-full flex flex-col items-center justify-center shadow-lg border border-[#edf2f7]">

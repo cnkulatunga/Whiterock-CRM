@@ -156,19 +156,18 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                             <tr key={item.id} className="border-b border-[#f7fafc] last:border-0 hover:bg-[#f8fafc] transition-colors duration-150">
                                                 <td className="py-4 pr-3 flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-[#ebf0ff] flex items-center justify-center font-bold text-[13px] shrink-0">
-                                                        <span className="text-[#2447d7]">{item.lead.split(' ').map(n=>n[0]).join('')}</span>
+                                                        <span className="text-[#2447d7]">{item.lead.split(' ').map(n => n[0]).join('')}</span>
                                                     </div>
                                                     <div className="flex flex-col min-w-0">
                                                         <div className="text-sm font-bold text-[#1a202c] truncate">{item.lead}</div>
                                                     </div>
                                                 </td>
                                                 <td className="py-4 pr-3 md:hidden">
-                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${
-                                                        item.type === 'Call' ? 'bg-blue-100 text-blue-700' : 
-                                                        item.type === 'Document' ? 'bg-purple-100 text-purple-700' : 
-                                                        item.type === 'Email' ? 'bg-amber-100 text-amber-700' : 
-                                                        'bg-gray-100 text-gray-700'
-                                                    }`}>{item.type}</span>
+                                                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${item.type === 'Call' ? 'bg-blue-100 text-blue-700' :
+                                                            item.type === 'Document' ? 'bg-purple-100 text-purple-700' :
+                                                                item.type === 'Email' ? 'bg-amber-100 text-amber-700' :
+                                                                    'bg-gray-100 text-gray-700'
+                                                        }`}>{item.type}</span>
                                                 </td>
                                                 <td className="py-4 pr-3">
                                                     <div className="text-sm font-medium text-[#1a202c]">{item.time}</div>
@@ -176,11 +175,10 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                                 </td>
                                                 <td className="py-4">
                                                     <div className="flex items-center gap-2 text-[13px] font-medium text-[#4a5568]">
-                                                        <span className={`w-1.5 h-1.5 rounded-full ${
-                                                            item.status === 'Completed' ? 'bg-[#10b981]' : 
-                                                            item.status === 'In Progress' ? 'bg-[#f59e0b]' : 
-                                                            'bg-[#cbd5e0]'
-                                                        }`}></span>
+                                                        <span className={`w-1.5 h-1.5 rounded-full ${item.status === 'Completed' ? 'bg-[#10b981]' :
+                                                                item.status === 'In Progress' ? 'bg-[#f59e0b]' :
+                                                                    'bg-[#cbd5e0]'
+                                                            }`}></span>
                                                         {item.status}
                                                     </div>
                                                 </td>
@@ -287,13 +285,12 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                         const isSelected = selectedDate === dateStr;
                                         const itoday = isToday(day);
                                         return (
-                                            <div 
-                                                key={day} 
-                                                className={`aspect-square flex items-center justify-center text-[13px] font-bold rounded-xl cursor-pointer relative transition-all duration-200 ${
-                                                    itoday ? 'bg-[#ebf0ff] text-[#2447d7]' : 
-                                                    isSelected ? 'bg-[#2447d7] text-white shadow-[0_4px_12px_rgba(36,71,215,0.25)]' : 
-                                                    'text-[#4a5568] hover:bg-[#f8fafc] hover:text-[#2447d7]'
-                                                }`}
+                                            <div
+                                                key={day}
+                                                className={`aspect-square flex items-center justify-center text-[13px] font-bold rounded-xl cursor-pointer relative transition-all duration-200 ${itoday ? 'bg-[#ebf0ff] text-[#2447d7]' :
+                                                        isSelected ? 'bg-[#2447d7] text-white shadow-[0_4px_12px_rgba(36,71,215,0.25)]' :
+                                                            'text-[#4a5568] hover:bg-[#f8fafc] hover:text-[#2447d7]'
+                                                    }`}
                                                 onClick={() => setSelectedDate(dateStr)}
                                             >
                                                 {day}
@@ -304,7 +301,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                         );
                                     })}
                                 </div>
-                                
+
                                 <div className="bg-[#f8fafc] rounded-xl p-4 flex flex-col gap-4 border border-[#f1f5f9]">
                                     <div className="flex justify-between items-center">
                                         <h4 className="text-[11px] font-bold text-[#1a202c] uppercase tracking-wider">{new Date(selectedDate).toLocaleDateString([], { month: 'short', day: 'numeric' })}</h4>
@@ -318,11 +315,10 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                         {tasks.filter(t => t.date === selectedDate).length > 0 ? (
                                             tasks.filter(t => t.date === selectedDate).map(t => (
                                                 <div key={t.id} className="flex items-start gap-2.5 group">
-                                                    <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${
-                                                        t.status === 'Completed' ? 'bg-[#10b981]' : 
-                                                        t.status === 'In Progress' ? 'bg-[#f59e0b]' : 
-                                                        'bg-[#cbd5e0]'
-                                                    }`}></span>
+                                                    <span className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' :
+                                                            t.status === 'In Progress' ? 'bg-[#f59e0b]' :
+                                                                'bg-[#cbd5e0]'
+                                                        }`}></span>
                                                     <div className="flex flex-col min-w-0">
                                                         <span className="text-[11px] font-bold text-[#1a202c] truncate leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
                                                         <span className="text-[10px] text-[#a0aec0] font-medium mt-0.5">{t.time}</span>

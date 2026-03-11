@@ -9,7 +9,6 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20" className="text-gray-600"><polyline points="15 18 9 12 15 6" /></svg>
                         </button>
                         <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-xl">Lead: {leadId}</h1>
-                        <span className="bg-[#ebf0ff] text-[#2447d7] text-[11px] font-bold px-2 py-0.5 rounded-md">ACTIVE</span>
                     </div>
                     <p className="flex items-center gap-1.5 text-sm text-[#718096] flex-wrap">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
@@ -20,14 +19,6 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                         </svg>
                         Created on Oct 24, 2023 • Assigned to <strong className="text-[#1a202c]">Sarah Jenkins</strong>
                     </p>
-                </div>
-                <div className="flex gap-3">
-                    <button className="flex items-center gap-2 bg-white border border-[#edf2f7] text-[#4a5568] px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#f7fafc] transition-all">
-                        <IconEmail /> <span>Send Email</span>
-                    </button>
-                    <button className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-[0_4px_12px_rgba(36,71,215,0.2)] hover:bg-[#1732a3] hover:-translate-y-px transition-all">
-                        <IconPhone /> <span>Call Now</span>
-                    </button>
                 </div>
             </div>
 
@@ -45,7 +36,7 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack }) => {
                     <div className="flex-1 h-0.5 bg-[#10b981] mt-[15px] min-w-[20px]"></div>
                     <div className="flex flex-col items-center gap-3 flex-1">
                         <div className="w-8 h-8 bg-[#2447d7] rounded-full border-[4px] border-[#ebf0ff]"></div>
-                        <span className="text-[11px] font-bold text-[#2447d7] text-center uppercase tracking-tight max-w-[100px]">Document Verifications</span>
+                        <span className="text-[11px] font-bold text-[#2447d7] text-center uppercase tracking-tight max-w-[100px]">Document Verification Done</span>
                     </div>
                     <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[20px]"></div>
                     <div className="flex flex-col items-center gap-3 flex-1">
