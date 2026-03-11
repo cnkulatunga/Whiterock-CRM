@@ -216,6 +216,10 @@ const StatusBadge = ({ status }) => (
 const FinanceReport = () => {
     const [dateRange, setDateRange] = useState('Last 30 Days');
     const [status, setStatus]       = useState('All');
+    const [manager, setManager]     = useState('All Managers');
+    const [currentPage, setCurrentPage] = useState(1);
+    const totalPages = 3;
+
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const userRole = user.role;
     const userName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
