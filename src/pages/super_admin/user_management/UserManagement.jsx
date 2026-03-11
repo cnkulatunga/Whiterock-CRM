@@ -240,10 +240,10 @@ const UserManagement = () => {
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* ── HEADER ── */}
-            <header className="flex justify-between items-start gap-4 flex-wrap">
+            <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
                 <div>
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">User Management</h1>
-                    <p className="text-sm text-[#718096]">Manage and audit team members, roles, and access permissions.</p>
+                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Manage and audit team members, roles, and access permissions.</p>
                 </div>
                 <div className="flex items-center gap-2 md:hidden">
                     <button
@@ -262,7 +262,7 @@ const UserManagement = () => {
             </header>
 
             {/* ── FILTERS ── */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] px-5 py-4 shadow-sm flex items-center justify-between gap-4 flex-wrap">
+            <div className="bg-white rounded-2xl border border-[#edf2f7] px-5 py-4 shadow-sm flex items-center justify-between gap-4 flex-wrap animate-slideDown [animation-delay:100ms] [animation-fill-mode:both]">
                 <div className="flex items-center gap-3 flex-wrap">
                     <span className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest whitespace-nowrap">Filter By:</span>
                     <div className="relative">
@@ -290,7 +290,7 @@ const UserManagement = () => {
 
             {/* ── TABLE (List View) ── */}
             {viewMode === 'list' && (
-                <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden">
+                <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:200ms] [animation-fill-mode:both]">
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">
                             <thead>
@@ -307,8 +307,8 @@ const UserManagement = () => {
                                         <td colSpan={4} className="py-16 text-center text-[13px] text-[#a0aec0] font-medium">No users match the current filters.</td>
                                     </tr>
                                 ) : (
-                                    filtered.map((user) => (
-                                        <tr key={user.id} className={`hover:bg-[#f8faff] transition-colors ${user.status === 'Inactive' ? 'opacity-60' : ''}`}>
+                                    filtered.map((user, i) => (
+                                        <tr key={user.id} className={`hover:bg-[#f8faff] transition-colors animate-rowIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`} style={{ animationDelay: `${250 + i * 50}ms`, animationFillMode: 'both' }}>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: user.color, color: user.textColor }}>{user.initials}</div>
@@ -378,9 +378,9 @@ const UserManagement = () => {
                     {filtered.length === 0 ? (
                         <div className="col-span-full py-16 text-center bg-white rounded-2xl border border-[#edf2f7] text-[#a0aec0] text-[13px] font-medium">No users match the current filters.</div>
                     ) : (
-                        filtered.map((user) => (
-                            <div key={user.id} className={`bg-white rounded-2xl border border-[#edf2f7] p-6 flex flex-col items-center gap-4 shadow-sm hover:shadow-md transition-all animate-popIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`}>
-                                <div className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-xl" style={{ background: user.color, color: user.textColor }}>{user.initials}</div>
+                        filtered.map((user, i) => (
+                            <div key={user.id} className={`bg-white rounded-2xl border border-[#edf2f7] p-6 flex flex-col items-center gap-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all animate-popIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`} style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'both' }}>
+                                <div className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-xl transition-transform duration-300 hover:scale-110 hover:rotate-3 animate-avatarPop" style={{ background: user.color, color: user.textColor, animationDelay: `${i * 60 + 80}ms`, animationFillMode: 'both' }}>{user.initials}</div>
                                 <div className="flex flex-col items-center gap-1 text-center">
                                     <div className="text-[14px] font-semibold text-[#1a202c]">{user.name}</div>
                                     <div className="text-[12px] text-[#a0aec0]">{user.email}</div>

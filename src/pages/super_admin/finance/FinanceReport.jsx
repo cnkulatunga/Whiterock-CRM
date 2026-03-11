@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const TRANSACTIONS = [
     { id: '#TRX-82910', lead: 'LD-4421', name: 'Alice Simpson',   initials: 'AS', bg: '#ebf0ff', tc: '#2447d7', amount: '$4,250.00',  date: 'Oct 24, 2023', status: 'Approved' },
@@ -9,12 +9,12 @@ const TRANSACTIONS = [
 ];
 
 const BAR_DATA = [
-    { label: 'Jan', a: 45, b: 30 },
-    { label: 'Feb', a: 58, b: 40 },
-    { label: 'Mar', a: 62, b: 52 },
-    { label: 'Apr', a: 75, b: 68 },
-    { label: 'May', a: 88, b: 80 },
-    { label: 'Jun', a: 95, b: 100 },
+    { label: 'Jan', revenue: 120, target: 100 },
+    { label: 'Feb', revenue: 148, target: 130 },
+    { label: 'Mar', revenue: 162, target: 150 },
+    { label: 'Apr', revenue: 195, target: 175 },
+    { label: 'May', revenue: 228, target: 200 },
+    { label: 'Jun', revenue: 256, target: 240 },
 ];
 
 const DONUT_SEGMENTS = [
@@ -59,45 +59,148 @@ const KpiCard = ({ icon, iconBg, label, value, trend, trendLabel }) => (
 );
 
 const BarChart = () => {
-    const max = Math.max(...BAR_DATA.map(d => Math.max(d.a, d.b)));
+    const [hovered, setHovered] = useState(null);
+    const max = Math.max(...BAR_DATA.map(d => Math.max(d.revenue, d.target)));
+    const yTicks = [0, 25, 50, 75, 100];
+    const fmt = v => `$${v}k`;
+
     return (
-        <div className="flex items-end justify-between h-[180px] gap-3 pt-2">
-            {BAR_DATA.map(d => (
-                <div key={d.label} className="flex flex-col items-center gap-2 flex-1 h-full group">
-                    <div className="flex-1 w-full flex items-end justify-center gap-1">
-                        <div className="w-full max-w-[14px] bg-[#2447d7] rounded-t-sm opacity-90 group-hover:opacity-100 transition-opacity" style={{ height: `${(d.a / max) * 100}%` }} />
-                        <div className="w-full max-w-[14px] bg-[#a5b4fc] rounded-t-sm opacity-70 group-hover:opacity-90 transition-opacity" style={{ height: `${(d.b / max) * 100}%` }} />
+        <div className="relative select-none">
+            {/* Y-axis grid */}
+            <div className="absolute left-0 right-0 top-0 flex flex-col justify-between pointer-events-none" style={{ bottom: '32px' }}>
+                {[...yTicks].reverse().map(t => (
+                    <div key={t} className="flex items-center gap-3">
+                        <span className="text-[10px] text-[#cbd5e1] font-medium w-5 text-right shrink-0">{t}%</span>
+                        <div className="flex-1 border-t border-dashed border-[#f1f5f9]" />
                     </div>
-                    <span className="text-[10px] font-medium text-[#a0aec0] uppercase">{d.label}</span>
-                </div>
-            ))}
+                ))}
+            </div>
+
+            {/* Bars */}
+            <div className="flex items-end gap-3 pl-10" style={{ height: '220px', paddingBottom: '32px', paddingTop: '8px' }}>
+                {BAR_DATA.map((d, i) => {
+                    const revH = (d.revenue / max) * 100;
+                    const tarH = (d.target / max) * 100;
+                    const isHov = hovered === i;
+                    return (
+                        <div
+                            key={d.label}
+                            className="relative flex flex-col items-center justify-end flex-1 h-full cursor-pointer"
+                            onMouseEnter={() => setHovered(i)}
+                            onMouseLeave={() => setHovered(null)}
+                        >
+                            {/* Tooltip */}
+                            {isHov && (
+                                <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-[#1a202c] text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl whitespace-nowrap z-20 animate-fadeIn shadow-lg">
+                                    {fmt(d.revenue)}
+                                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#1a202c]" />
+                                </div>
+                            )}
+
+                            {/* Bar group */}
+                            <div className="flex items-end gap-1.5 w-full justify-center" style={{ height: '100%' }}>
+                                {/* Target bar */}
+                                <div
+                                    className="rounded-t-xl transition-all duration-300"
+                                    style={{
+                                        width: '14px',
+                                        height: `${tarH}%`,
+                                        background: isHov
+                                            ? 'linear-gradient(180deg,#c7d2fe,#a5b4fc)'
+                                            : 'linear-gradient(180deg,#e0e7ff,#c7d2fe)',
+                                        animation: `barGrow 0.7s cubic-bezier(0.22,1,0.36,1) ${i * 75}ms both`,
+                                    }}
+                                />
+                                {/* Revenue bar */}
+                                <div
+                                    className="rounded-t-xl transition-all duration-300"
+                                    style={{
+                                        width: '14px',
+                                        height: `${revH}%`,
+                                        background: isHov
+                                            ? 'linear-gradient(180deg,#6680f5,#2447d7)'
+                                            : 'linear-gradient(180deg,#3b5ee8,#1a38b8)',
+                                        boxShadow: isHov ? '0 4px 16px rgba(36,71,215,0.4)' : '0 2px 6px rgba(36,71,215,0.2)',
+                                        animation: `barGrow 0.65s cubic-bezier(0.22,1,0.36,1) ${i * 75 + 50}ms both`,
+                                    }}
+                                />
+                            </div>
+
+                            {/* Month label */}
+                            <span
+                                className="absolute text-[10px] font-bold uppercase tracking-wide transition-colors duration-200"
+                                style={{ bottom: '-24px', color: isHov ? '#2447d7' : '#94a3b8' }}
+                            >
+                                {d.label}
+                            </span>
+                        </div>
+                    );
+                })}
+            </div>
         </div>
     );
 };
 
 const DonutChart = () => {
-    const r = 52, cx = 70, cy = 70, circ = 2 * Math.PI * r;
+    const [hovered, setHovered] = useState(null);
+    const [drawn, setDrawn] = useState(false);
+
+    useEffect(() => {
+        const t = setTimeout(() => setDrawn(true), 150);
+        return () => clearTimeout(t);
+    }, []);
+
+    const r = 68, cx = 90, cy = 90;
+    const circ = 2 * Math.PI * r;
+    const GAP_PX = 7;
     let cumPct = 0;
+    const hovSeg = hovered !== null ? DONUT_SEGMENTS[hovered] : null;
+
     return (
-        <div className="relative w-[140px] h-[140px] mx-auto">
-            <svg viewBox="0 0 140 140" className="w-full h-full">
-                <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f1f5f9" strokeWidth="15" />
-                {DONUT_SEGMENTS.map(({ pct, color }) => {
-                    const dash = (pct / 100) * circ;
-                    const rotDeg = -90 + (cumPct / 100) * 360;
+        <div className="relative w-[180px] h-[180px] mx-auto">
+            <svg viewBox="0 0 180 180" className="w-full h-full">
+                {/* Track ring */}
+                <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f1f5f9" strokeWidth="20" />
+                {DONUT_SEGMENTS.map(({ pct, color, label }, i) => {
+                    const startPct = cumPct;
                     cumPct += pct;
+                    const rotDeg = -90 + (startPct / 100) * 360;
+                    const dash = Math.max(0, (pct / 100) * circ - GAP_PX);
+                    const isHov = hovered === i;
                     return (
-                        <circle key={color} cx={cx} cy={cy} r={r}
-                            fill="none" stroke={color} strokeWidth="15"
-                            strokeDasharray={`${dash} ${circ}`} strokeDashoffset="0"
+                        <circle
+                            key={label}
+                            cx={cx} cy={cy} r={r}
+                            fill="none"
+                            stroke={color}
+                            strokeWidth={isHov ? 27 : 20}
+                            strokeDasharray={drawn ? `${dash} ${circ}` : `0 ${circ}`}
+                            strokeDashoffset="0"
                             transform={`rotate(${rotDeg} ${cx} ${cy})`}
-                            strokeLinecap="round"
+                            style={{
+                                transition: `stroke-dasharray 0.8s cubic-bezier(0.22, 1, 0.36, 1) ${300 + i * 200}ms, stroke-width 0.25s ease, opacity 0.25s ease, filter 0.25s ease`,
+                                opacity: hovered !== null && !isHov ? 0.25 : 1,
+                                filter: isHov ? `drop-shadow(0 0 8px ${color}cc)` : 'none',
+                                cursor: 'pointer',
+                            }}
+                            onMouseEnter={() => setHovered(i)}
+                            onMouseLeave={() => setHovered(null)}
                         />
                     );
                 })}
-                <text x={cx} y={cy - 4} textAnchor="middle" fontSize="20" fontWeight="700" fill="#1a202c" fontFamily="Sora,sans-serif">94%</text>
-                <text x={cx} y={cy + 12} textAnchor="middle" fontSize="7.5" fontWeight="600" fill="#a0aec0" fontFamily="Sora,sans-serif" letterSpacing="0.8">SUCCESS RATE</text>
             </svg>
+            {/* Center text overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div
+                    className="text-[22px] font-bold leading-none transition-all duration-200"
+                    style={{ color: hovSeg ? hovSeg.color : '#1a202c' }}
+                >
+                    {hovSeg ? `${hovSeg.pct}%` : '94%'}
+                </div>
+                <div className="text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest mt-1.5 transition-all duration-200">
+                    {hovSeg ? hovSeg.label : 'SUCCESS RATE'}
+                </div>
+            </div>
         </div>
     );
 };
@@ -121,10 +224,10 @@ const FinanceReport = () => {
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* ── HEADER ── */}
-            <div className="flex justify-between items-start gap-4 flex-wrap">
+            <div className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
                 <div>
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Financial Report</h1>
-                    <p className="text-sm text-[#718096]">Real-time financial tracking and payment analysis</p>
+                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Real-time financial tracking and payment analysis</p>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
                     {/* Date Range */}
@@ -156,38 +259,78 @@ const FinanceReport = () => {
 
             {/* ── KPI CARDS ── */}
             <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 sm:grid-cols-1">
-                <KpiCard iconBg="#dcfce7" icon={<svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>} label="Total Loans" value="$428,540.00" trend="up" trendLabel="+12%" />
-                <KpiCard iconBg="#fef3c7" icon={<svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>} label="Pending Loans" value="$42,180.50" trend="flat" trendLabel="-0%" />
-                <KpiCard iconBg="#fef2f2" icon={<svg viewBox="0 0 24 24" fill="none" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>} label="Rejected Loans" value="$8,240.00" trend="down" trendLabel="-4%" />
-                <KpiCard iconBg="#eef2ff" icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>} label="Monthly Revenue" value="$156,200.00" trend="up" trendLabel="+8%" />
+                {[
+                    { iconBg: '#dcfce7', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>, label: 'Total Loans', value: '$428,540.00', trend: 'up', trendLabel: '+12%' },
+                    { iconBg: '#fef3c7', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: 'Pending Loans', value: '$42,180.50', trend: 'flat', trendLabel: '-0%' },
+                    { iconBg: '#fef2f2', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, label: 'Rejected Loans', value: '$8,240.00', trend: 'down', trendLabel: '-4%' },
+                    { iconBg: '#eef2ff', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, label: 'Monthly Revenue', value: '$156,200.00', trend: 'up', trendLabel: '+8%' },
+                ].map((kpi, i) => (
+                    <div key={i} className="animate-kpiPop" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
+                        <KpiCard {...kpi} />
+                    </div>
+                ))}
             </div>
 
             {/* ── CHARTS ── */}
-            <div className="grid grid-cols-[1fr_320px] gap-5 xl:grid-cols-1">
+            <div className="grid grid-cols-[1fr_320px] gap-5 xl:grid-cols-1 animate-slideUp [animation-delay:400ms] [animation-fill-mode:both]">
                 {/* Bar Chart */}
-                <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm">
-                    <div className="flex justify-between items-center mb-5">
-                        <span className="text-[13px] font-semibold text-[#1a202c]">Monthly Revenue Trend</span>
-                        <div className="flex items-center gap-2 bg-[#f8fafc] border border-[#f1f5f9] px-3 py-1.5 rounded-lg">
-                            <span className="w-2 h-2 rounded-full bg-[#2447d7]" />
-                            <span className="text-[11px] font-medium text-[#718096]">Revenue</span>
+                <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm overflow-hidden">
+                    <div className="flex justify-between items-start mb-6">
+                        <div>
+                            <span className="text-[14px] font-bold text-[#1a202c]">Monthly Revenue Trend</span>
+                            <p className="text-[12px] text-[#94a3b8] mt-0.5 font-medium">Jan – Jun 2023 · Hover bars for details</p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1.5">
+                                <span className="w-3 h-3 rounded-sm" style={{ background: 'linear-gradient(180deg,#3b5ee8,#1a38b8)' }} />
+                                <span className="text-[11px] font-semibold text-[#4a5568]">Revenue</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <span className="w-3 h-3 rounded-sm" style={{ background: 'linear-gradient(180deg,#e0e7ff,#c7d2fe)' }} />
+                                <span className="text-[11px] font-semibold text-[#94a3b8]">Target</span>
+                            </div>
                         </div>
                     </div>
                     <BarChart />
+                    {/* X-axis total */}
+                    <div className="mt-6 pt-4 border-t border-[#f1f5f9] flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider">6-Month Total</span>
+                        <span className="text-[15px] font-bold text-[#1a202c]">$1,109k <span className="text-[11px] font-semibold text-[#059669] bg-[#ecfdf5] px-2 py-0.5 rounded-full ml-1">↑ 18.2%</span></span>
+                    </div>
                 </section>
 
                 {/* Donut */}
-                <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm flex flex-col gap-5">
-                    <span className="text-[13px] font-semibold text-[#1a202c]">Payment Status Distribution</span>
+                <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm flex flex-col gap-4">
+                    <div>
+                        <span className="text-[13px] font-bold text-[#1a202c]">Payment Status Distribution</span>
+                        <p className="text-[11px] text-[#94a3b8] mt-0.5 font-medium">Hover segments for details</p>
+                    </div>
                     <DonutChart />
-                    <div className="flex flex-col gap-2">
-                        {DONUT_SEGMENTS.map(({ label, pct, color }) => (
-                            <div key={label} className="flex justify-between items-center">
-                                <div className="flex items-center gap-2">
-                                    <span className="w-2 h-2 rounded-full" style={{ background: color }} />
-                                    <span className="text-[12px] text-[#718096]">{label}</span>
+                    <div className="flex flex-col gap-3 pt-1">
+                        {DONUT_SEGMENTS.map(({ label, pct, color }, i) => (
+                            <div key={label} className="flex flex-col gap-1.5">
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full shrink-0" style={{ background: color }} />
+                                        <span className="text-[12px] font-medium text-[#4a5568]">{label}</span>
+                                    </div>
+                                    <span
+                                        className="text-[11px] font-bold px-2 py-0.5 rounded-lg"
+                                        style={{ color, background: `${color}1a` }}
+                                    >{pct}%</span>
                                 </div>
-                                <span className="text-[13px] font-semibold text-[#1a202c]">{pct}%</span>
+                                <div className="h-1.5 bg-[#f1f5f9] rounded-full overflow-hidden ml-4">
+                                    <div
+                                        className="h-full rounded-full animate-progressFill"
+                                        style={{
+                                            width: `${pct}%`,
+                                            background: color,
+                                            transformOrigin: 'left',
+                                            animationDelay: `${600 + i * 200}ms`,
+                                            animationFillMode: 'both',
+                                        }}
+                                    />
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -195,7 +338,7 @@ const FinanceReport = () => {
             </div>
 
             {/* ── TRANSACTION TABLE ── */}
-            <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden">
+            <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:500ms] [animation-fill-mode:both]">
                 <div className="px-6 py-4 flex justify-between items-center border-b border-[#f7fafc]">
                     <span className="text-[13px] font-semibold text-[#1a202c]">Transaction History</span>
                     <div className="flex items-center gap-2">
@@ -222,8 +365,8 @@ const FinanceReport = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f7fafc]">
-                            {TRANSACTIONS.map(t => (
-                                <tr key={t.id} className="hover:bg-[#f8faff] transition-colors">
+                            {TRANSACTIONS.map((t, i) => (
+                                <tr key={t.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${550 + i * 55}ms`, animationFillMode: 'both' }}>
                                     <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{t.id}</span></td>
                                     <td className="px-6 py-4"><span className="text-[12px] font-medium text-[#1a202c] bg-[#f1f5f9] px-2 py-0.5 rounded-md">{t.lead}</span></td>
                                     <td className="px-6 py-4">

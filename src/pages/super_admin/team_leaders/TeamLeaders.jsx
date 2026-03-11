@@ -1,5 +1,53 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
+
+/* ─── GLOBAL KEYFRAMES ────────────────────────── */
+const KEYFRAMES = `
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(28px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.93) } to { opacity: 1; transform: scale(1) } }
+@keyframes expandIn { from { opacity: 0; max-height: 0; transform: translateY(-8px) } to { opacity: 1; max-height: 1000px; transform: translateY(0) } }
+@keyframes memberSlide { from { opacity: 0; transform: translateX(-16px) } to { opacity: 1; transform: translateX(0) } }
+@keyframes pulse { 0%,100% { opacity: 1; transform: scale(1) } 50% { opacity: 0.6; transform: scale(1.35) } }
+@keyframes shimmer { 0% { background-position: -200% 0 } 100% { background-position: 200% 0 } }
+@keyframes avatarPop { 0% { transform: scale(0.7) rotate(-10deg); opacity: 0 } 60% { transform: scale(1.12) rotate(3deg) } 100% { transform: scale(1) rotate(0deg); opacity: 1 } }
+@keyframes headerDrop { from { opacity: 0; transform: translateY(-20px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes kpiPop { 0% { opacity: 0; transform: scale(0.8) translateY(14px) } 70% { transform: scale(1.04) translateY(-2px) } 100% { opacity: 1; transform: scale(1) translateY(0) } }
+@keyframes tabSlide { from { opacity: 0; transform: translateX(-10px) } to { opacity: 1; transform: translateX(0) } }
+@keyframes ringPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4) } 50% { box-shadow: 0 0 0 8px rgba(99,102,241,0) } }
+@keyframes countUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes spinOnce { from { transform: rotate(-90deg) scale(0.8); opacity: 0 } to { transform: rotate(0deg) scale(1); opacity: 1 } }
+`;
+
+if (typeof document !== 'undefined' && !document.getElementById('tl-keyframes')) {
+    const s = document.createElement('style');
+    s.id = 'tl-keyframes';
+    s.textContent = KEYFRAMES;
+    document.head.appendChild(s);
+}
+
+/* ─── ANIMATED NUMBER ─────────────────────────── */
+const AnimatedNumber = ({ value }) => {
+    const [display, setDisplay] = useState(0);
+    const prev = useRef(0);
+    useEffect(() => {
+        const start = prev.current;
+        const end = value;
+        if (start === end) return;
+        const duration = 600;
+        const startTime = performance.now();
+        const tick = (now) => {
+            const t = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - t, 3);
+            setDisplay(Math.round(start + (end - start) * eased));
+            if (t < 1) requestAnimationFrame(tick);
+            else prev.current = end;
+        };
+        requestAnimationFrame(tick);
+    }, [value]);
+    return <>{display}</>;
+};
 import { useUsers } from '../../../context/UsersContext';
 
 /* ─── INITIAL TEAM MEMBERSHIPS ────────────────── */
@@ -261,7 +309,10 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                 {/* Main content */}
                 <div style={{ padding: '24px 28px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
                     {/* Avatar */}
-                    <div style={{ width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '20px', color: av.text, background: av.bg, flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.2)' }}>
+                    <div style={{ width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '20px', color: av.text, background: av.bg, flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.2)', animation: 'avatarPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both', transition: 'box-shadow 0.25s' }}
+                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99,102,241,0.25), 0 4px 16px rgba(99,102,241,0.3)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.2)'; }}
+                    >
                         {getInitials(leader.name)}
                     </div>
 
@@ -338,7 +389,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
 
                 {/* ── Expanded Members ── */}
                 {expanded && (
-                    <div style={{ borderTop: '1px solid #f1f5f9', background: '#fafbff' }}>
+                    <div style={{ borderTop: '1px solid #f1f5f9', background: '#fafbff', animation: 'expandIn 0.35s cubic-bezier(0.22,1,0.36,1) both', overflow: 'hidden' }}>
                         {/* Section label */}
                         <div style={{ padding: '18px 28px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -360,7 +411,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                             </div>
                         ) : (
                             <div style={{ padding: '0 28px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                {leader.members.map(member => {
+                                {leader.members.map((member, mi) => {
                                     const mav = getAvatarColor(member.id);
                                     const mActive = member.status === 'Active';
                                     return (
@@ -368,7 +419,8 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                             display: 'flex', alignItems: 'center', gap: '14px',
                                             padding: '14px 18px', background: '#fff', borderRadius: '14px',
                                             border: '1px solid #e8edf5', opacity: mActive ? 1 : 0.65,
-                                            transition: 'box-shadow 0.2s',
+                                            transition: 'box-shadow 0.2s, opacity 0.2s',
+                                            animation: `memberSlide 0.3s ease ${mi * 0.06}s both`,
                                         }}
                                         onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.1)'; }}
                                         onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}
@@ -493,7 +545,7 @@ const TeamLeaders = ({ onNavigate }) => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', fontFamily: "'Sora', sans-serif", animation: 'fadeIn 0.3s ease' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '28px', fontFamily: "'Sora', sans-serif", animation: 'fadeIn 0.25s ease' }}>
 
             {/* ── MOBILE HEADER PORTAL ── */}
             {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
@@ -518,10 +570,10 @@ const TeamLeaders = ({ onNavigate }) => {
             )}
 
             {/* ── PAGE HEADER ── */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', animation: 'headerDrop 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
                 <div>
                     <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>Team Leaders</h1>
-                    <p style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, margin: '5px 0 0' }}>Manage team leaders and their tele agent members.</p>
+                    <p style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, margin: '5px 0 0', animation: 'fadeIn 0.6s 0.15s both' }}>Manage team leaders and their tele agent members.</p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {/* Search bar */}
@@ -558,17 +610,28 @@ const TeamLeaders = ({ onNavigate }) => {
                     <div key={i} style={{
                         background: '#fff', borderRadius: '18px', border: '1px solid #e8edf5',
                         padding: '24px', display: 'flex', alignItems: 'center', gap: '18px',
-                        boxShadow: '0 2px 10px rgba(15,23,42,0.05)', transition: 'all 0.25s',
-                        cursor: 'default'
+                        boxShadow: '0 2px 10px rgba(15,23,42,0.05)', transition: 'box-shadow 0.25s, transform 0.25s',
+                        cursor: 'default',
+                        animation: `kpiPop 0.5s cubic-bezier(0.22,1,0.36,1) ${0.1 + i * 0.1}s both`,
                     }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,0.12)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 10px rgba(15,23,42,0.05)'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    onMouseEnter={e => {
+                        e.currentTarget.style.boxShadow = '0 8px 28px rgba(99,102,241,0.14)';
+                        e.currentTarget.style.transform = 'translateY(-3px) scale(1.01)';
+                        e.currentTarget.querySelector('.kpi-icon').style.transform = 'scale(1.12) rotate(-6deg)';
+                    }}
+                    onMouseLeave={e => {
+                        e.currentTarget.style.boxShadow = '0 2px 10px rgba(15,23,42,0.05)';
+                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                        e.currentTarget.querySelector('.kpi-icon').style.transform = 'scale(1) rotate(0deg)';
+                    }}
                     >
-                        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: kpi.light, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1px solid ${kpi.soft}`, color: kpi.grad.includes('6366f1') ? '#6366f1' : kpi.grad.includes('10b981') ? '#059669' : '#7c3aed', transition: 'all 0.2s' }}>
+                        <div className="kpi-icon" style={{ width: '56px', height: '56px', borderRadius: '16px', background: kpi.light, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1px solid ${kpi.soft}`, color: kpi.grad.includes('6366f1') ? '#6366f1' : kpi.grad.includes('10b981') ? '#059669' : '#7c3aed', transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1)' }}>
                             {kpi.icon}
                         </div>
                         <div>
-                            <div style={{ fontSize: '30px', fontWeight: 900, color: '#0f172a', letterSpacing: '-1px', lineHeight: 1 }}>{kpi.value}</div>
+                            <div style={{ fontSize: '30px', fontWeight: 900, color: '#0f172a', letterSpacing: '-1px', lineHeight: 1, animation: 'countUp 0.4s ease both', animationDelay: `${0.2 + i * 0.1}s` }}>
+                                <AnimatedNumber value={kpi.value} />
+                            </div>
                             <div style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginTop: '4px', letterSpacing: '0.02em' }}>{kpi.label}</div>
                         </div>
                     </div>
@@ -576,7 +639,7 @@ const TeamLeaders = ({ onNavigate }) => {
             </div>
 
             {/* ── FILTER TABS ── */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #e8edf5', paddingBottom: '0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #e8edf5', paddingBottom: '0', animation: 'tabSlide 0.4s 0.3s both' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '6px', color: '#94a3b8' }}><IconFilter /></div>
                 {TABS.map(tab => (
                     <button
@@ -614,15 +677,16 @@ const TeamLeaders = ({ onNavigate }) => {
                         )}
                     </div>
                 ) : (
-                    filtered.map(leader => (
-                        <LeaderCard
-                            key={leader.id}
-                            leader={leader}
-                            onAddAgent={handleAddAgent}
-                            onToggleLeader={handleToggleLeader}
-                            onToggleAgent={handleToggleAgent}
-                            onRemoveAgent={handleRemoveAgent}
-                        />
+                    filtered.map((leader, i) => (
+                        <div key={leader.id} style={{ animation: `slideUp 0.45s cubic-bezier(0.22,1,0.36,1) ${i * 0.07}s both` }}>
+                            <LeaderCard
+                                leader={leader}
+                                onAddAgent={handleAddAgent}
+                                onToggleLeader={handleToggleLeader}
+                                onToggleAgent={handleToggleAgent}
+                                onRemoveAgent={handleRemoveAgent}
+                            />
+                        </div>
                     ))
                 )}
             </div>

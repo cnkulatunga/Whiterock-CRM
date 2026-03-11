@@ -48,10 +48,10 @@ const AuditLogs = () => {
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* ── HEADER ── */}
-            <header className="flex justify-between items-start gap-4 flex-wrap">
+            <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
                 <div>
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">System Audit Logs</h1>
-                    <p className="text-sm text-[#718096]">Review comprehensive history of all administrative and system-level actions.</p>
+                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Review comprehensive history of all administrative and system-level actions.</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <button className="flex items-center gap-2 bg-white border border-[#edf2f7] text-[#4a5568] px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#f8fafc] transition-colors">
@@ -66,7 +66,7 @@ const AuditLogs = () => {
             </header>
 
             {/* ── FILTERS ── */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm">
+            <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm animate-slideDown [animation-delay:100ms] [animation-fill-mode:both]">
                 <div className="grid grid-cols-[1fr_auto_160px_auto_160px_auto_160px_auto] items-end gap-3 lg:grid-cols-1">
                     {/* Search */}
                     <div className="flex flex-col gap-1.5">
@@ -133,7 +133,7 @@ const AuditLogs = () => {
             </div>
 
             {/* ── LOG TABLE ── */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden">
+            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:200ms] [animation-fill-mode:both]">
                 {/* Headers */}
                 <div className="grid grid-cols-[180px_220px_1fr] px-6 py-3 bg-[#f8fafc] border-b border-[#f1f5f9] lg:hidden">
                     <span className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">TIMESTAMP</span>
@@ -142,8 +142,11 @@ const AuditLogs = () => {
                 </div>
 
                 <div className="divide-y divide-[#f7fafc]">
-                    {filtered.map(entry => (
-                        <div key={entry.id} className="grid grid-cols-[180px_220px_1fr] px-6 py-4 items-center hover:bg-[#f8faff] transition-colors lg:grid-cols-1 lg:gap-3">
+                    {filtered.map((entry, i) => (
+                        <div key={entry.id}
+                            className="grid grid-cols-[180px_220px_1fr] px-6 py-4 items-center hover:bg-[#f8faff] transition-colors lg:grid-cols-1 lg:gap-3 animate-rowIn"
+                            style={{ animationDelay: `${250 + i * 60}ms` }}
+                        >
                             {/* Timestamp */}
                             <div>
                                 <div className="text-[13px] font-medium text-[#1a202c]">{entry.date}</div>
