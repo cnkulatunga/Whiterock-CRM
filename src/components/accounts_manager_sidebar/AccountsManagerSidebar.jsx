@@ -68,6 +68,18 @@ const NAV_GROUPS = [
                     </svg>
                 ),
             },
+            {
+                id: 'client_lender_selection',
+                path: '/accounts-manager/client-lender-selection',
+                label: 'Client Lender Send',
+                icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+                        <path d="M22 2L11 13"/>
+                        <path d="M22 2L15 22l-4-9-9-4 20-7z"/>
+                    </svg>
+                ),
+            },
         ],
     },
     {
