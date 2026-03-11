@@ -27,6 +27,46 @@ if (typeof document !== 'undefined' && !document.getElementById('tl-keyframes'))
     document.head.appendChild(s);
 }
 
+/* ─── RESPONSIVE STYLES ───────────────────────── */
+const RESPONSIVE = `
+.tl-page-header { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:16px; }
+.tl-kpi-grid    { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.tl-tabs        { display:flex; align-items:center; gap:8px; border-bottom:1px solid #e8edf5; }
+.tl-card-body   { padding:24px 28px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.tl-card-stats  { display:flex; gap:8px; align-items:center; flex-shrink:0; }
+.tl-card-actions{ display:flex; align-items:center; gap:8px; flex-shrink:0; }
+@media (max-width:900px) {
+  .tl-kpi-grid { grid-template-columns:1fr 1fr !important; }
+}
+@media (max-width:640px) {
+  .tl-page-header { flex-direction:column; }
+  .tl-kpi-grid { grid-template-columns:1fr !important; }
+  .tl-tabs { overflow-x:auto; padding-bottom:0; -webkit-overflow-scrolling:touch; }
+  .tl-card-body { padding:16px !important; gap:12px !important; }
+  .tl-card-stats { order:3; width:100%; border-top:1px solid #f1f5f9; padding-top:12px; }
+  .tl-card-actions { order:4; width:100% !important; flex-wrap:wrap; }
+  .tl-btn-deactivate { flex:1 1 calc(50% - 4px) !important; justify-content:center !important; }
+  .tl-btn-add { flex:1 1 calc(50% - 4px) !important; justify-content:center !important; }
+  .tl-btn-view { flex:1 1 100% !important; justify-content:center !important; }
+  .tl-section-hdr { padding:14px 16px 10px !important; }
+  .tl-members-list { padding:0 16px 16px !important; }
+  .tl-member-row { padding:12px 12px !important; }
+  .tl-empty-team { padding:28px 16px !important; }
+}
+@media (max-width:420px) {
+  .tl-card-body { padding:14px !important; }
+  .tl-stat-pill { padding:8px 10px !important; min-width:64px !important; }
+  .tl-stat-val  { font-size:18px !important; }
+  .tl-leader-name { font-size:14px !important; }
+}
+`;
+if (typeof document !== 'undefined' && !document.getElementById('tl-responsive')) {
+    const s = document.createElement('style');
+    s.id = 'tl-responsive';
+    s.textContent = RESPONSIVE;
+    document.head.appendChild(s);
+}
+
 /* ─── ANIMATED NUMBER ─────────────────────────── */
 const AnimatedNumber = ({ value }) => {
     const [display, setDisplay] = useState(0);
@@ -335,8 +375,8 @@ const AddAgentModal = ({ leaderName, existingMemberIds, onClose, onAdd }) => (
 
 /* ─── STAT PILL ───────────────────────────────── */
 const StatPill = ({ label, value, accent }) => (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '10px 20px', background: '#f8fafc', borderRadius: '12px', minWidth: '80px' }}>
-        <span style={{ fontSize: '22px', fontWeight: 900, color: accent || '#0f172a', letterSpacing: '-0.5px', lineHeight: 1.1 }}>{value}</span>
+    <div className="tl-stat-pill" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '10px 20px', background: '#f8fafc', borderRadius: '12px', minWidth: '80px' }}>
+        <span className="tl-stat-val" style={{ fontSize: '22px', fontWeight: 900, color: accent || '#0f172a', letterSpacing: '-0.5px', lineHeight: 1.1 }}>{value}</span>
         <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{label}</span>
     </div>
 );
@@ -367,7 +407,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
             onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(15,23,42,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
                 {/* Main content */}
-                <div style={{ padding: '24px 28px', display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+                <div className="tl-card-body">
                     {/* Avatar */}
                     <div style={{ width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '20px', color: av.text, background: av.bg, flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.2)', animation: 'avatarPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both', transition: 'box-shadow 0.25s' }}
                     onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99,102,241,0.25), 0 4px 16px rgba(99,102,241,0.3)'; }}
@@ -379,7 +419,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                            <span style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>{leader.name}</span>
+                            <span className="tl-leader-name" style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>{leader.name}</span>
                             <span style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '5px',
                                 fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px',
@@ -398,15 +438,16 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                     </div>
 
                     {/* Stats */}
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexShrink: 0 }}>
+                    <div className="tl-card-stats">
                         <StatPill label="Total Agents" value={totalMembers} />
                         <div style={{ width: '1px', height: '40px', background: '#e8edf5' }} />
                         <StatPill label="Active" value={activeMembers} accent="#10b981" />
                     </div>
 
                     {/* Actions */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+                    <div className="tl-card-actions">
                         <button
+                            className="tl-btn-deactivate"
                             onClick={() => onToggleLeader(leader.id)}
                             style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '6px',
@@ -419,6 +460,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                             {isActive ? <><IconBan /> Deactivate</> : <><IconActivate /> Activate</>}
                         </button>
                         <button
+                            className="tl-btn-add"
                             onClick={() => setShowAddAgent(true)}
                             style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '6px',
@@ -430,6 +472,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                             <IconPlus /> Add Agent
                         </button>
                         <button
+                            className="tl-btn-view"
                             onClick={() => setExpanded(e => !e)}
                             style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '6px',
@@ -451,7 +494,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                 {expanded && (
                     <div style={{ borderTop: '1px solid #f1f5f9', background: '#fafbff', animation: 'expandIn 0.35s cubic-bezier(0.22,1,0.36,1) both', overflow: 'hidden' }}>
                         {/* Section label */}
-                        <div style={{ padding: '18px 28px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div className="tl-section-hdr" style={{ padding: '18px 28px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <div style={{ width: '3px', height: '18px', background: 'linear-gradient(180deg,#6366f1,#8b5cf6)', borderRadius: '999px' }} />
                                 <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
@@ -462,7 +505,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                         </div>
 
                         {leader.members.length === 0 ? (
-                            <div style={{ padding: '40px 28px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                            <div className="tl-empty-team" style={{ padding: '40px 28px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                                 <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#cbd5e1' }}><IconUsers /></div>
                                 <span style={{ fontSize: '14px', fontWeight: 600, color: '#94a3b8' }}>No agents assigned yet.</span>
                                 <button style={{ fontSize: '13px', fontWeight: 700, color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setShowAddAgent(true)}>
@@ -470,12 +513,12 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                 </button>
                             </div>
                         ) : (
-                            <div style={{ padding: '0 28px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div className="tl-members-list" style={{ padding: '0 28px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {leader.members.map((member, mi) => {
                                     const mav = getAvatarColor(member.id);
                                     const mActive = member.status === 'Active';
                                     return (
-                                        <div key={member.id} style={{
+                                        <div key={member.id} className="tl-member-row" style={{
                                             display: 'flex', alignItems: 'center', gap: '14px',
                                             padding: '14px 18px', background: '#fff', borderRadius: '14px',
                                             border: '1px solid #e8edf5', opacity: mActive ? 1 : 0.65,
@@ -634,7 +677,7 @@ const TeamLeaders = ({ onNavigate }) => {
             )}
 
             {/* ── PAGE HEADER ── */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', animation: 'headerDrop 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
+            <div className="tl-page-header" style={{ animation: 'headerDrop 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
                 <div>
                     <h1 style={{ fontSize: '26px', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>Team Leaders</h1>
                     <p style={{ fontSize: '14px', color: '#64748b', fontWeight: 500, margin: '5px 0 0', animation: 'fadeIn 0.6s 0.15s both' }}>Manage team leaders and their tele agent members.</p>
@@ -665,7 +708,7 @@ const TeamLeaders = ({ onNavigate }) => {
             </div>
 
             {/* ── KPI CARDS ── */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }} className="lg:grid-cols-1">
+            <div className="tl-kpi-grid">
                 {[
                     { icon: <IconUsers />, value: totalLeaders, label: 'Total Leaders', grad: 'linear-gradient(135deg,#6366f1,#4f46e5)', light: '#eef2ff', soft: '#c7d2fe' },
                     { icon: <IconUserSingle />, value: totalAgents, label: 'Total Tele Agents', grad: 'linear-gradient(135deg,#10b981,#059669)', light: '#ecfdf5', soft: '#a7f3d0' },
@@ -703,7 +746,7 @@ const TeamLeaders = ({ onNavigate }) => {
             </div>
 
             {/* ── FILTER TABS ── */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid #e8edf5', paddingBottom: '0', animation: 'tabSlide 0.4s 0.3s both' }}>
+            <div className="tl-tabs" style={{ animation: 'tabSlide 0.4s 0.3s both' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '6px', color: '#94a3b8' }}><IconFilter /></div>
                 {TABS.map(tab => (
                     <button
