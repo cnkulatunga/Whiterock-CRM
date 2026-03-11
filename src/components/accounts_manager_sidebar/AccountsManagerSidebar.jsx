@@ -118,7 +118,7 @@ const AccountsManagerSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCo
     };
 
     return (
-        <aside className={`${isCollapsed ? 'w-[60px]' : 'w-[240px]'} h-screen bg-white border-r border-[#e8edf5] flex flex-col fixed left-0 top-0 z-[101] font-['Sora',sans-serif] shadow-[2px_0_12px_rgba(36,71,215,0.04)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-hidden ${isOpen ? 'translate-x-0' : 'lg:-translate-x-full'}`}>
+        <aside className={`${isCollapsed ? 'w-[60px]' : 'w-[280px]'} h-screen bg-white border-r border-[#e8edf5] flex flex-col fixed left-0 top-0 z-[101] font-['Sora',sans-serif] shadow-[2px_0_12px_rgba(36,71,215,0.04)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-hidden ${isOpen ? 'translate-x-0' : 'lg:-translate-x-full'}`}>
 
             {/* Logo */}
             <div className={`flex items-center border-b border-[#f0f4fb] ${isCollapsed ? 'justify-center p-4 py-[34px]' : 'gap-3 p-[36px_16px_20px]'}`}>
