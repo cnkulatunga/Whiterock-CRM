@@ -8,6 +8,7 @@ import FinanceReport from '../pages/super_admin/finance/FinanceReport';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
 import DraftDashboard from '../pages/accounts_manager/draft_dashboard/DraftDashboard';
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
+import Lenders from '../pages/super_admin/lenders/Lenders';
 
 const AccountsManagerLayout = ({ onLogout }) => {
     const location = useLocation();
@@ -26,6 +27,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
         if (path.includes('/accounts-manager/audit-logs')) return 'audit_logs';
         if (path.includes('/accounts-manager/draft-dashboard')) return 'draft_dashboard';
         if (path.includes('/accounts-manager/lender-selection-approved')) return 'lender_selection_approved';
+        if (path.includes('/accounts-manager/lenders')) return 'lenders';
         return 'accounts_manager_dashboard';
     };
 
@@ -44,6 +46,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
             case 'audit_logs': navigate('/accounts-manager/audit-logs'); break;
             case 'draft_dashboard': navigate('/accounts-manager/draft-dashboard'); break;
             case 'lender_selection_approved': navigate('/accounts-manager/lender-selection-approved'); break;
+            case 'lenders': navigate('/accounts-manager/lenders'); break;
             default: navigate('/accounts-manager/dashboard');
         }
     };
@@ -82,6 +85,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="audit-logs" element={<AuditLogs />} />
                         <Route path="draft-dashboard" element={<DraftDashboard onNavigate={handleNavigate} />} />
                         <Route path="lender-selection-approved" element={<LenderSelectionApproved />} />
+                        <Route path="lenders" element={<Lenders readOnly={true} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
