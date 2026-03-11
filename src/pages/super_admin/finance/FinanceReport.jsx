@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 
 const TRANSACTIONS = [
-    { id: '#TRX-82910', lead: 'LD-4421', name: 'Alice Simpson',   initials: 'AS', bg: '#ebf0ff', tc: '#2447d7', amount: '$4,250.00',  date: 'Oct 24, 2023', status: 'Approved' },
-    { id: '#TRX-82911', lead: 'LD-4422', name: 'Brian Miller',    initials: 'BM', bg: '#ecfdf5', tc: '#059669', amount: '$1,800.00',  date: 'Oct 24, 2023', status: 'Pending' },
-    { id: '#TRX-82912', lead: 'LD-4423', name: 'Catherine West',  initials: 'CW', bg: '#fff7ed', tc: '#ea580c', amount: '$12,400.00', date: 'Oct 23, 2023', status: 'Approved' },
-    { id: '#TRX-82913', lead: 'LD-4424', name: 'David King',      initials: 'DK', bg: '#f3e8ff', tc: '#7c3aed', amount: '$750.00',    date: 'Oct 23, 2023', status: 'Rejected' },
-    { id: '#TRX-82914', lead: 'LD-4425', name: 'Emma Lee',        initials: 'EL', bg: '#e0f2fe', tc: '#0ea5e9', amount: '$3,120.00',  date: 'Oct 22, 2023', status: 'Approved' },
+    { id: '#TRX-82910', lead: 'LD-4421', name: 'Alice Simpson',   initials: 'AS', bg: '#ebf0ff', tc: '#2447d7', amount: '$4,250.00',  date: 'Oct 24, 2023', status: 'Approved', manager: 'Alex Thompson' },
+    { id: '#TRX-82911', lead: 'LD-4422', name: 'Brian Miller',    initials: 'BM', bg: '#ecfdf5', tc: '#059669', amount: '$1,800.00',  date: 'Oct 24, 2023', status: 'Pending', manager: 'Sarah Miller' },
+    { id: '#TRX-82912', lead: 'LD-4423', name: 'Catherine West',  initials: 'CW', bg: '#fff7ed', tc: '#ea580c', amount: '$12,400.00', date: 'Oct 23, 2023', status: 'Approved', manager: 'Alex Thompson' },
+    { id: '#TRX-82913', lead: 'LD-4424', name: 'David King',      initials: 'DK', bg: '#f3e8ff', tc: '#7c3aed', amount: '$750.00',    date: 'Oct 23, 2023', status: 'Rejected', manager: 'James Chen' },
+    { id: '#TRX-82914', lead: 'LD-4425', name: 'Emma Lee',        initials: 'EL', bg: '#e0f2fe', tc: '#0ea5e9', amount: '$3,120.00',  date: 'Oct 22, 2023', status: 'Approved', manager: 'Alex Thompson' },
 ];
 
 const BAR_DATA = [
@@ -216,9 +216,19 @@ const StatusBadge = ({ status }) => (
 const FinanceReport = () => {
     const [dateRange, setDateRange] = useState('Last 30 Days');
     const [status, setStatus]       = useState('All');
-    const [manager, setManager]     = useState('All Managers');
-    const [currentPage, setCurrentPage] = useState(1);
-    const totalPages = 3;
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userRole = user.role;
+    const userName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+
+    const filteredTransactions = TRANSACTIONS.filter(t => {
+        if (userRole === 'accounts_manager') {
+            return t.manager === userName;
+        }
+        if ((userRole === 'super_admin' || userRole === 'admin') && manager !== 'All Managers') {
+            return t.manager === manager;
+        }
+        return true;
+    });
 
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
@@ -246,14 +256,19 @@ const FinanceReport = () => {
                         </select>
                         <IcoChevron />
                     </div>
-                    {/* Manager */}
-                    <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
-                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">MANAGER:</span>
-                        <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={manager} onChange={e => setManager(e.target.value)}>
-                            <option>All Managers</option><option>Sarah Miller</option><option>James Chen</option>
-                        </select>
-                        <IcoChevron />
-                    </div>
+                    {/* Manager - Only visible to super_admin or admin */}
+                    {(userRole === 'super_admin' || userRole === 'admin') && (
+                        <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
+                            <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">MANAGER:</span>
+                            <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={manager} onChange={e => setManager(e.target.value)}>
+                                <option>All Managers</option>
+                                <option>Sarah Miller</option>
+                                <option>James Chen</option>
+                                <option>Alex Thompson</option>
+                            </select>
+                            <IcoChevron />
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -365,7 +380,7 @@ const FinanceReport = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f7fafc]">
-                            {TRANSACTIONS.map((t, i) => (
+                            {filteredTransactions.map((t, i) => (
                                 <tr key={t.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${550 + i * 55}ms`, animationFillMode: 'both' }}>
                                     <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{t.id}</span></td>
                                     <td className="px-6 py-4"><span className="text-[12px] font-medium text-[#1a202c] bg-[#f1f5f9] px-2 py-0.5 rounded-md">{t.lead}</span></td>
