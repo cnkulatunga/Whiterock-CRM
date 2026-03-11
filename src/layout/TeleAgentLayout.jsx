@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import TeleAgentSidebar from '../components/tele_agent_sidebar/TeleAgentSidebar';
 
 import TeleDashboard from '../pages/tele_agent/dashboard/TeleDashboard';
@@ -28,50 +29,54 @@ const PlaceholderPage = ({ title, icon }) => (
 
 /* ─── TELE AGENT LAYOUT ──────────────────────────────── */
 const TeleAgentLayout = ({ onLogout }) => {
-    const [activePage, setActivePage] = useState('dashboard');
+    const location = useLocation();
+    const navigate = useNavigate();
     const [selectedLeadId, setSelectedLeadId] = useState(null);
     const [tasks, setTasks] = useState(INITIAL_TASKS);
     const [pendingTaskDate, setPendingTaskDate] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    // Derive activePage from location
+    const getActivePage = () => {
+        const path = location.pathname;
+        if (path.includes('/tele-agent/dashboard')) return 'dashboard';
+        if (path.includes('/tele-agent/leads')) return 'leads';
+        if (path.includes('/tele-agent/lead-details')) return 'lead-details';
+        if (path.includes('/tele-agent/create-lead')) return 'create-lead';
+        if (path.includes('/tele-agent/follow-ups')) return 'follow-ups';
+        return 'dashboard';
+    };
+
+    const activePage = getActivePage();
+
     const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const handleNavigate = (page, date = null) => {
-        setActivePage(page);
-        setSelectedLeadId(null);
         setIsSidebarOpen(false);
         if (date) setPendingTaskDate(date);
+        
+        switch (page) {
+            case 'dashboard': navigate('/tele-agent/dashboard'); break;
+            case 'leads': navigate('/tele-agent/leads'); break;
+            case 'lead-details': navigate('/tele-agent/lead-details'); break;
+            case 'create-lead': navigate('/tele-agent/create-lead'); break;
+            case 'follow-ups': navigate('/tele-agent/follow-ups'); break;
+            default: navigate('/tele-agent/dashboard');
+        }
     };
 
     const handleViewLeadDetails = (leadId) => {
         setSelectedLeadId(leadId);
-        setActivePage('lead-details');
+        navigate('/tele-agent/lead-details');
     };
 
-    const renderContent = () => {
-        switch (activePage) {
-            case 'dashboard':
-                return <TeleDashboard onNavigate={handleNavigate} tasks={tasks} />;
-            case 'leads':
-                return <ManageLeads onViewDetails={handleViewLeadDetails} />;
-            case 'lead-details':
-                return <LeadDetails leadId={selectedLeadId} onBack={() => setActivePage('leads')} />;
-            case 'create-lead':
-                return <CreateLead onBack={() => setActivePage('leads')} />;
-            case 'follow-ups':
-                return <TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} notifyReminderSet={notifyReminderSet} />;
-
-            default:
-                return <TeleDashboard />;
-        }
-    };
 
     return (
         <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden">
             <div className={`fixed inset-0 bg-black/40 z-[100] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0 lg:hidden'}`} onClick={() => setIsSidebarOpen(false)}></div>
             <TeleAgentSidebar
-                activePage={activePage === 'lead-details' || activePage === 'create-lead' ? 'leads' : activePage}
+                activePage={location.pathname}
                 onNavigate={handleNavigate}
                 onLogout={onLogout}
                 isOpen={isSidebarOpen}
@@ -87,7 +92,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                     </button>
                     <div className="flex-1"></div>
                     <div className="flex items-center gap-3 md:gap-2">
-                        <button className="bg-[#2447d7] text-white border-none h-11 px-5 rounded-[10px] text-sm font-bold flex items-center gap-2 cursor-pointer shadow-[0_4px_12px_rgba(36,71,215,0.2)] transition-all duration-200 ml-2.5 hover:bg-[#1732a3] hover:-translate-y-px hover:shadow-[0_6px_16px_rgba(36,71,215,0.3)] md:px-0 md:ml-1 md:h-10 md:w-10 md:justify-center" onClick={() => setActivePage('create-lead')}>
+                        <button className="bg-[#2447d7] text-white border-none h-11 px-5 rounded-[10px] text-sm font-bold flex items-center gap-2 cursor-pointer shadow-[0_4px_12px_rgba(36,71,215,0.25)] transition-all duration-200 ml-2.5 hover:bg-[#1732a3] hover:-translate-y-px hover:shadow-[0_6px_16px_rgba(36,71,215,0.3)] md:px-0 md:ml-1 md:h-10 md:w-10 md:justify-center" onClick={() => navigate('/tele-agent/create-lead')}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -96,8 +101,16 @@ const TeleAgentLayout = ({ onLogout }) => {
                         </button>
                     </div>
                 </div>
-                <div className="p-8 flex-1 mt-[72px] md:p-[16px_12px]" key={activePage}>
-                    {renderContent()}
+                <div className="p-8 flex-1 mt-[72px] md:p-[16px_12px]">
+                    <Routes>
+                        <Route path="dashboard" element={<TeleDashboard onNavigate={handleNavigate} tasks={tasks} />} />
+                        <Route path="leads" element={<ManageLeads onViewDetails={handleViewLeadDetails} />} />
+                        <Route path="lead-details" element={<LeadDetails leadId={selectedLeadId} onBack={() => navigate('/tele-agent/leads')} />} />
+                        <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} />} />
+                        <Route path="follow-ups" element={<TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="/" element={<Navigate to="dashboard" replace />} />
+                        <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
                 </div>
                 <NotificationTray notifications={notifications} onRemove={removeNotification} />
                 {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}

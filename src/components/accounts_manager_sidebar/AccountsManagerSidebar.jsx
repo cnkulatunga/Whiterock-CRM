@@ -6,6 +6,7 @@ const NAV_ITEMS = [
         items: [
             {
                 id: 'accounts_manager_dashboard',
+                path: '/accounts-manager/dashboard',
                 label: 'Dashboard',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
             },
             {
                 id: 'lender_selector',
+                path: '/accounts-manager/lender-selector',
                 label: 'Lender Selector',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -32,6 +34,7 @@ const NAV_ITEMS = [
             },
             {
                 id: 'lender_selection',
+                path: '/accounts-manager/lender-selection',
                 label: 'Lender Selection',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -43,6 +46,7 @@ const NAV_ITEMS = [
             },
             {
                 id: 'financial_payment_report',
+                path: '/accounts-manager/financial-payment-report',
                 label: 'Finance & Payments',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -54,6 +58,7 @@ const NAV_ITEMS = [
             },
             {
                 id: 'lead_performance_report',
+                path: '/accounts-manager/lead-performance-report',
                 label: 'Lead Performance',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -66,6 +71,7 @@ const NAV_ITEMS = [
             },
             {
                 id: 'audit_logs',
+                path: '/accounts-manager/audit-logs',
                 label: 'Audit Logs',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -80,6 +86,7 @@ const NAV_ITEMS = [
             },
             {
                 id: 'draft_dashboard',
+                path: '/accounts-manager/draft-dashboard',
                 label: 'Draft Dashboard',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -91,6 +98,7 @@ const NAV_ITEMS = [
             },
             {
                 id: 'lender_selection_approved',
+                path: '/accounts-manager/lender-selection-approved',
                 label: 'Lender Selection Approved',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -134,7 +142,7 @@ const AccountsManagerSidebar = ({ activePage, onNavigate, onLogout, isOpen }) =>
                         {group.items.map((item) => (
                             <button
                                 key={item.id}
-                                className={`w-full h-11 px-3 mb-0.5 flex items-center gap-2.5 bg-transparent border-none rounded-[10px] text-[#4a5568] cursor-pointer transition-all duration-200 text-sm font-semibold text-left hover:bg-[#f8fafc] hover:text-[#2447d7] ${activePage === item.id ? 'bg-[#ebf0ff] text-[#2447d7]' : ''}`}
+                                className={`w-full h-11 px-3 mb-0.5 flex items-center gap-2.5 bg-transparent border-none rounded-[10px] text-[#4a5568] cursor-pointer transition-all duration-200 text-sm font-semibold text-left hover:bg-[#f8fafc] hover:text-[#2447d7] ${activePage.startsWith(item.path) ? 'bg-[#ebf0ff] text-[#2447d7]' : ''}`}
                                 onClick={() => onNavigate(item.id)}
                             >
                                 <span className="flex items-center justify-center shrink-0 color-inherit">{item.icon}</span>

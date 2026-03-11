@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import ClientSidebar from '../components/client_sidebar/ClientSidebar';
 import Dashboard from '../pages/client/dashboard/Dashboard';
 import Documents from '../pages/client/documents/Documents';
@@ -17,23 +18,44 @@ const PAGE_MAP = {
 
 /* ─── CLIENT LAYOUT ──────────────────────────────── */
 const ClientLayout = ({ onLogout }) => {
-    const [activePage, setActivePage] = useState('dashboard');
+    const location = useLocation();
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const name = `${user.first_name || 'Client'} ${user.last_name || ''}`.trim();
 
+    // Derive activePage from location
+    const getActivePage = () => {
+        const path = location.pathname;
+        if (path.includes('/client/dashboard')) return 'dashboard';
+        if (path.includes('/client/documents')) return 'documents';
+        if (path.includes('/client/loan-status')) return 'loan-status';
+        if (path.includes('/client/loan-history')) return 'loan-history';
+        if (path.includes('/client/support')) return 'support';
+        return 'dashboard';
+    };
+
+    const activePage = getActivePage();
+
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const handleNavigate = (page) => {
-        setActivePage(page);
         setIsSidebarOpen(false);
+        switch (page) {
+            case 'dashboard': navigate('/client/dashboard'); break;
+            case 'documents': navigate('/client/documents'); break;
+            case 'loan-status': navigate('/client/loan-status'); break;
+            case 'loan-history': navigate('/client/loan-history'); break;
+            case 'support': navigate('/client/support'); break;
+            default: navigate('/client/dashboard');
+        }
     };
 
     return (
         <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden relative">
             <div className={`fixed inset-0 bg-black/40 z-[99] backdrop-blur-[2px] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setIsSidebarOpen(false)}></div>
             <ClientSidebar
-                activePage={activePage}
+                activePage={location.pathname}
                 onNavigate={handleNavigate}
                 onLogout={onLogout}
                 isOpen={isSidebarOpen}
@@ -49,8 +71,16 @@ const ClientLayout = ({ onLogout }) => {
                     </button>
                     <div className="flex-1"></div>
                 </div>
-                <div className="p-10 flex-1 overflow-y-auto w-full box-border mt-[70px] lg:p-[24px_16px]" key={activePage}>
-                    {PAGE_MAP[activePage] ?? <Dashboard />}
+                <div className="p-10 flex-1 overflow-y-auto w-full box-border mt-[70px] lg:p-[24px_16px]">
+                    <Routes>
+                        <Route path="dashboard" element={<Dashboard />} />
+                        <Route path="documents" element={<Documents />} />
+                        <Route path="loan-status" element={<LoanStatus />} />
+                        <Route path="loan-history" element={<LoanHistory />} />
+                        <Route path="support" element={<Support />} />
+                        <Route path="/" element={<Navigate to="dashboard" replace />} />
+                        <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
                 </div>
             </div>
         </div>

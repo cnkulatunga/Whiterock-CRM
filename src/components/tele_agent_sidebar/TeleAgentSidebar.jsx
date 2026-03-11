@@ -6,6 +6,7 @@ const NAV_GROUPS = [
         items: [
             {
                 id: 'dashboard',
+                path: '/tele-agent/dashboard',
                 label: 'Dashboard',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -19,6 +20,7 @@ const NAV_GROUPS = [
             },
             {
                 id: 'leads',
+                path: '/tele-agent/leads',
                 label: 'Leads',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -31,6 +33,7 @@ const NAV_GROUPS = [
             },
             {
                 id: 'follow-ups',
+                path: '/tele-agent/follow-ups',
                 label: 'Tasks & Follow-ups',
                 icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
@@ -73,7 +76,7 @@ const TeleAgentSidebar = ({ activePage, onNavigate, onLogout, isOpen }) => {
                         {group.items.map((item) => (
                             <button
                                 key={item.id}
-                                className={`w-full h-12 px-4 mb-1 flex items-center gap-3 bg-transparent border-none rounded-[10px] text-[#4a5568] cursor-pointer transition-all duration-200 text-sm font-semibold text-left hover:bg-[#f8fafc] hover:text-[#2447d7] ${activePage === item.id ? 'bg-[#ebf0ff] text-[#2447d7]' : ''}`}
+                                className={`w-full h-12 px-4 mb-1 flex items-center gap-3 bg-transparent border-none rounded-[10px] text-[#4a5568] cursor-pointer transition-all duration-200 text-sm font-semibold text-left hover:bg-[#f8fafc] hover:text-[#2447d7] ${activePage.startsWith(item.path) || (item.id === 'leads' && (activePage.includes('lead-details') || activePage.includes('create-lead'))) ? 'bg-[#ebf0ff] text-[#2447d7]' : ''}`}
                                 onClick={() => onNavigate(item.id)}
                             >
                                 <span className="flex items-center justify-center color-inherit">{item.icon}</span>
