@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import TeamLeaderSidebar from '../components/team_leader_sidebar/TeamLeaderSidebar';
 import TeamLeaderDashboard from '../pages/team_leader/dashboard/TeamLeaderDashboard';
 import LeadMonitoring from '../pages/team_leader/lead_monitoring/LeadMonitoring';
@@ -16,46 +17,43 @@ const INITIAL_TASKS = [
 ];
 
 const TeamLeaderLayout = ({ onLogout }) => {
-    const [activePage, setActivePage] = useState('dashboard');
+    const location = useLocation();
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [tasks, setTasks] = useState(INITIAL_TASKS);
     
+    // Derive activePage from location
+    const getActivePage = () => {
+        const path = location.pathname;
+        if (path.includes('/team-leader/dashboard')) return 'dashboard';
+        if (path.includes('/team-leader/lead-monitoring')) return 'lead-monitoring';
+        if (path.includes('/team-leader/document-verification')) return 'document-verification';
+        if (path.includes('/team-leader/calendar')) return 'calendar';
+        return 'dashboard';
+    };
+
+    const activePage = getActivePage();
+
     const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
     const handleNavigate = (page) => {
-        setActivePage(page);
         setIsSidebarOpen(false);
-    };
-
-    const renderContent = () => {
-        switch (activePage) {
-            case 'dashboard':
-                return <TeamLeaderDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />;
-            case 'lead-monitoring':
-                return <LeadMonitoring />;
-            case 'document-verification':
-                return <DocumentVerification />;
-            case 'calendar':
-                return <TeamLeaderCalendar tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />;
-
-            default:
-                return (
-                    <div className="p-10">
-                        <h1 className="text-[2rem] font-extrabold">{activePage.replace('-', ' ').toUpperCase()}</h1>
-                        <div className="mt-5 p-10 border border-[#e2e8f0] rounded-2xl bg-white">
-                            <p className="text-[#718096]">This section is currently under development.</p>
-                        </div>
-                    </div>
-                );
+        switch (page) {
+            case 'dashboard': navigate('/team-leader/dashboard'); break;
+            case 'lead-monitoring': navigate('/team-leader/lead-monitoring'); break;
+            case 'document-verification': navigate('/team-leader/document-verification'); break;
+            case 'calendar': navigate('/team-leader/calendar'); break;
+            default: navigate('/team-leader/dashboard');
         }
     };
+
 
     return (
         <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden relative">
             <div className={`fixed inset-0 bg-black/40 z-[100] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setIsSidebarOpen(false)}></div>
             <TeamLeaderSidebar 
-                activePage={activePage} 
+                activePage={location.pathname} 
                 onNavigate={handleNavigate} 
                 onLogout={onLogout} 
                 isOpen={isSidebarOpen}
@@ -75,8 +73,15 @@ const TeamLeaderLayout = ({ onLogout }) => {
 
                 </div>
 
-                <div className="p-8 flex-1 mt-[72px] lg:p-[16px_12px]" key={activePage}>
-                    {renderContent()}
+                <div className="p-8 flex-1 mt-[72px] lg:p-[16px_12px]">
+                    <Routes>
+                        <Route path="dashboard" element={<TeamLeaderDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="lead-monitoring" element={<LeadMonitoring />} />
+                        <Route path="document-verification" element={<DocumentVerification />} />
+                        <Route path="calendar" element={<TeamLeaderCalendar tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="/" element={<Navigate to="dashboard" replace />} />
+                        <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
                 </div>
                 <NotificationTray notifications={notifications} onRemove={removeNotification} />
                 {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}

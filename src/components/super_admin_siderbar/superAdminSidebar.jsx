@@ -6,6 +6,7 @@ const NAV_GROUPS = [
         items: [
             {
                 id: 'dashboard',
+                path: '/super-admin/dashboard',
                 label: 'Executive Overview',
                 badge: null,
                 icon: (
@@ -20,6 +21,7 @@ const NAV_GROUPS = [
             },
             {
                 id: 'leads',
+                path: '/super-admin/leads',
                 label: 'Leads Management',
                 badge: null,
                 icon: (
@@ -34,6 +36,7 @@ const NAV_GROUPS = [
             },
             {
                 id: 'finance',
+                path: '/super-admin/finance',
                 label: 'Finance & Payments',
                 badge: null,
                 icon: (
@@ -46,6 +49,7 @@ const NAV_GROUPS = [
             },
             {
                 id: 'user-management',
+                path: '/super-admin/user-management',
                 label: 'User Management',
                 badge: null,
                 icon: (
@@ -58,6 +62,7 @@ const NAV_GROUPS = [
             },
             {
                 id: 'team-leaders',
+                path: '/super-admin/team-leaders',
                 label: 'Team Leaders',
                 badge: null,
                 icon: (
@@ -72,6 +77,7 @@ const NAV_GROUPS = [
             },
             {
                 id: 'reports',
+                path: '/super-admin/reports',
                 label: 'Audit Logs',
                 badge: null,
                 icon: (
@@ -126,10 +132,10 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose }
                         {group.items.map((item) => (
                             <button
                                 key={item.id}
-                                className={`flex items-center gap-[10px] p-[9px_12px] rounded-[9px] border-none group bg-transparent cursor-pointer font-['Sora',sans-serif] text-[0.875rem] font-medium text-left w-full transition-all duration-150 relative hover:bg-[#f0f4fb] hover:text-[#2447d7] ${activePage === item.id ? 'bg-[#eef2ff] text-[#2447d7] font-semibold before:content-[""] before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-[22px] before:bg-[#2447d7] before:rounded-[0_3px_3px_0]' : 'text-[#4a5568]'}`}
+                                className={`flex items-center gap-[10px] p-[9px_12px] rounded-[9px] border-none group bg-transparent cursor-pointer font-['Sora',sans-serif] text-[0.875rem] font-medium text-left w-full transition-all duration-150 relative hover:bg-[#f0f4fb] hover:text-[#2447d7] ${activePage.startsWith(item.path) ? 'bg-[#eef2ff] text-[#2447d7] font-semibold before:content-[""] before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-[22px] before:bg-[#2447d7] before:rounded-[0_3px_3px_0]' : 'text-[#4a5568]'}`}
                                 onClick={() => onNavigate(item.id)}
                             >
-                                <span className={`flex items-center shrink-0 transition-colors duration-150 group-hover:text-[#2447d7] ${activePage === item.id ? 'text-[#2447d7]' : 'text-[#94a3b8]'}`}>{item.icon}</span>
+                                <span className={`flex items-center shrink-0 transition-colors duration-150 group-hover:text-[#2447d7] ${activePage.startsWith(item.path) ? 'text-[#2447d7]' : 'text-[#94a3b8]'}`}>{item.icon}</span>
                                 <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>
                                 {item.badge && (
                                     <span className="text-[0.6rem] font-semibold bg-[#f1f5f9] text-[#64748b] rounded-sm px-1.5 py-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[90px] shrink-0">{item.badge}</span>

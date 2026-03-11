@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { UsersProvider } from '../context/UsersContext';
 import SuperAdminSidebar from '../components/super_admin_siderbar/superAdminSidebar';
 import UserManagement from '../pages/super_admin/user_management/UserManagement';
@@ -89,19 +90,43 @@ const SEARCH_PLACEHOLDERS = {
 
 /* ─── APP LAYOUT ──────────────────────────────── */
 const AppLayout = ({ onLogout }) => {
-    const [activePage, setActivePage] = useState('dashboard');
+    const location = useLocation();
+    const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    const handleNavigate = (page) => {
-        setActivePage(page);
-        setSidebarOpen(false);
+    // Derive activePage from location
+    const getActivePage = () => {
+        const path = location.pathname;
+        if (path.includes('/super-admin/dashboard')) return 'dashboard';
+        if (path.includes('/super-admin/user-management')) return 'user-management';
+        if (path.includes('/super-admin/leads')) return 'leads';
+        if (path.includes('/super-admin/deals')) return 'deals';
+        if (path.includes('/super-admin/finance')) return 'finance';
+        if (path.includes('/super-admin/accounts')) return 'accounts';
+        if (path.includes('/super-admin/reports')) return 'reports';
+        if (path.includes('/super-admin/settings')) return 'settings';
+        if (path.includes('/super-admin/team-leaders')) return 'team-leaders';
+        return 'dashboard';
     };
 
-    const renderPage = () => {
-        if (activePage === 'team-leaders') return <TeamLeadersPage onNavigate={handleNavigate} />;
-        const PageComponent = PAGE_MAP[activePage];
-        return PageComponent ? React.cloneElement(PageComponent, { onNavigate: handleNavigate }) : <DashboardPage onNavigate={handleNavigate} />;
+    const activePage = getActivePage();
+
+    const handleNavigate = (page) => {
+        setSidebarOpen(false);
+        switch (page) {
+            case 'dashboard': navigate('/super-admin/dashboard'); break;
+            case 'user-management': navigate('/super-admin/user-management'); break;
+            case 'leads': navigate('/super-admin/leads'); break;
+            case 'deals': navigate('/super-admin/deals'); break;
+            case 'finance': navigate('/super-admin/finance'); break;
+            case 'accounts': navigate('/super-admin/accounts'); break;
+            case 'reports': navigate('/super-admin/reports'); break;
+            case 'settings': navigate('/super-admin/settings'); break;
+            case 'team-leaders': navigate('/super-admin/team-leaders'); break;
+            default: navigate('/super-admin/dashboard');
+        }
     };
+
 
     const searchPlaceholder = SEARCH_PLACEHOLDERS[activePage] || 'Global search...';
 
@@ -126,7 +151,7 @@ const AppLayout = ({ onLogout }) => {
             )}
 
             <SuperAdminSidebar
-                activePage={activePage}
+                activePage={location.pathname}
                 onNavigate={handleNavigate}
                 onLogout={onLogout}
                 isOpen={sidebarOpen}
@@ -152,7 +177,19 @@ const AppLayout = ({ onLogout }) => {
                 </div>
 
                 <div className="flex-1 p-10 lg:p-6 sm:p-4 animate-pageSlide">
-                    {renderPage()}
+                    <Routes>
+                        <Route path="dashboard" element={<SuperAdminDashboard onNavigate={handleNavigate} />} />
+                        <Route path="user-management" element={<UserManagement />} />
+                        <Route path="leads" element={<LeadPerformance />} />
+                        <Route path="deals" element={<DealsPage />} />
+                        <Route path="finance" element={<FinanceReport />} />
+                        <Route path="accounts" element={<AccountsPage />} />
+                        <Route path="reports" element={<AuditLogs />} />
+                        <Route path="settings" element={<SettingsPage />} />
+                        <Route path="team-leaders" element={<TeamLeaders onNavigate={handleNavigate} />} />
+                        <Route path="/" element={<Navigate to="dashboard" replace />} />
+                        <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
                 </div>
             </div>
         </div>
