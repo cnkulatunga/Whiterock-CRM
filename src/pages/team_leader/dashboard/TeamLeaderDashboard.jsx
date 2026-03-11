@@ -1,6 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 
+const DONUT_GAP_PX = 7;
+
+const DonutChart = ({ data, total }) => {
+    const [hovered, setHovered] = useState(null);
+    const [drawn, setDrawn] = useState(false);
+
+    useEffect(() => {
+        const t = setTimeout(() => setDrawn(true), 150);
+        return () => clearTimeout(t);
+    }, []);
+
+    const r = 68, cx = 90, cy = 90;
+    const circ = 2 * Math.PI * r;
+    let cumPct = 0;
+    const hovSeg = hovered !== null ? data[hovered] : null;
+
+    return (
+        <div className="relative w-[180px] h-[180px] mx-auto">
+            <svg viewBox="0 0 180 180" className="w-full h-full">
+                <circle cx={cx} cy={cy} r={r} fill="none" stroke="#f1f5f9" strokeWidth="20" />
+                {data.map(({ value: pct, color, label }, i) => {
+                    const val = typeof pct === 'string' ? parseFloat(pct) : pct;
+                    const startPct = cumPct;
+                    cumPct += val;
+                    const rotDeg = -90 + (startPct / 100) * 360;
+                    const dash = Math.max(0, (val / 100) * circ - DONUT_GAP_PX);
+                    const isHov = hovered === i;
+                    return (
+                        <circle
+                            key={label}
+                            cx={cx} cy={cy} r={r}
+                            fill="none"
+                            stroke={color}
+                            strokeWidth={isHov ? 27 : 20}
+                            strokeDasharray={drawn ? `${dash} ${circ}` : `0 ${circ}`}
+                            strokeDashoffset="0"
+                            transform={`rotate(${rotDeg} ${cx} ${cy})`}
+                            style={{
+                                transition: `stroke-dasharray 0.8s cubic-bezier(0.22, 1, 0.36, 1) ${300 + i * 150}ms, stroke-width 0.25s ease, opacity 0.25s ease, filter 0.25s ease`,
+                                opacity: hovered !== null && !isHov ? 0.25 : 1,
+                                filter: isHov ? `drop-shadow(0 0 8px ${color}cc)` : 'none',
+                                cursor: 'pointer',
+                            }}
+                            onMouseEnter={() => setHovered(i)}
+                            onMouseLeave={() => setHovered(null)}
+                        />
+                    );
+                })}
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div
+                    className="text-[25px] font-black leading-none transition-all duration-200"
+                    style={{ color: hovSeg ? hovSeg.color : '#1a202c' }}
+                >
+                    {hovSeg ? (typeof hovSeg.value === 'string' ? hovSeg.value : `${hovSeg.value}%`) : total}
+                </div>
+                <div className="text-[10px] font-black text-[#cbd3e0] uppercase tracking-[0.2em] mt-2 transition-all duration-200">
+                    {hovSeg ? hovSeg.label.split(' ')[0] : 'TOTAL'}
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) => {
     // Shared Stats & Mock Data
     const stats = [
@@ -22,9 +86,9 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
     ];
 
     const pipelineData = [
-        { label: 'Pending Documents', value: '35%', color: '#f59e0b' },
-        { label: 'Approved Documents', value: '55%', color: '#10b981' },
-        { label: 'Rejected Documents', value: '10%', color: '#e53e3e' },
+        { label: 'Pending Documents', value: 35, color: '#f59e0b' },
+        { label: 'Approved Documents', value: 55, color: '#10b981' },
+        { label: 'Rejected Documents', value: 10, color: '#e53e3e' },
     ];
 
     // Calendar & Interaction State
@@ -427,16 +491,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                     <section className="flex flex-col gap-5 animate-slideUp [animation-delay:750ms] [animation-fill-mode:both]">
                         <h2 className="text-sm font-bold text-[#a0aec0] uppercase tracking-wider">Document Status</h2>
                         <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] p-8 flex flex-col items-center gap-8">
-                            <div className="relative w-44 h-44 group">
-                                <div
-                                    className="absolute inset-0 rounded-full shadow-[inset_0_4px_12px_rgba(0,0,0,0.05)] transition-transform duration-700 group-hover:rotate-12"
-                                    style={{ background: 'conic-gradient(#f59e0b 0% 35%, #10b981 35% 90%, #e53e3e 90% 100%)' }}
-                                ></div>
-                                <div className="absolute inset-4 bg-white rounded-full flex flex-col items-center justify-center shadow-lg border border-[#edf2f7]">
-                                    <span className="text-[10px] font-black text-[#cbd5e0] tracking-widest mb-1">TOTAL</span>
-                                    <span className="text-3xl font-black text-[#1a202c] tracking-tight">120</span>
-                                </div>
-                            </div>
+                            <DonutChart data={pipelineData} total={120} />
                             <div className="w-full flex flex-col gap-3">
                                 {pipelineData.map((item, idx) => (
                                     <div key={idx} className="flex items-center justify-between p-2.5 rounded-2xl hover:bg-[#f8faff] transition-all group border border-transparent hover:border-[#ebf0ff]">
