@@ -122,27 +122,95 @@ const UserFormFields = ({ form, setForm, error }) => (
 );
 
 const EditUserModal = ({ user, onClose, onEdit }) => {
-    const [form, setForm] = useState({ name: user.name, email: user.email, role: user.role, status: user.status });
+    const [form, setForm] = useState({ name: user.name, email: user.email, role: user.role, status: user.status, password: '', confirmPassword: '' });
     const [error, setError] = useState('');
+    const [showPw, setShowPw] = useState(false);
+    const [showConfirmPw, setShowConfirmPw] = useState(false);
     const handle = (e) => {
         e.preventDefault();
         if (!form.name.trim()) { setError('Name is required.'); return; }
         if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setError('Enter a valid email address.'); return; }
+        if (form.password && form.password.length < 8) { setError('Password must be at least 8 characters.'); return; }
+        if (form.password && form.password !== form.confirmPassword) { setError('Passwords do not match.'); return; }
         onEdit(user.id, form); onClose();
     };
-    return <UserModal title={`Edit User: ${user.name}`} onClose={onClose} onSubmit={handle} submitLabel="Update User" submitClass="bg-[#2447d7] hover:bg-[#1732a3]"><UserFormFields form={form} setForm={setForm} error={error} /></UserModal>;
+    return (
+        <UserModal title={`Edit User: ${user.name}`} onClose={onClose} onSubmit={handle} submitLabel="Update User" submitClass="bg-[#2447d7] hover:bg-[#1732a3]">
+            <UserFormFields form={form} setForm={setForm} error={error} />
+            <div className="border-t border-[#f1f5f9] pt-4 flex flex-col gap-3">
+                <p className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Reset Password <span className="normal-case font-normal text-[#c4cdd8]">(leave blank to keep current)</span></p>
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">New Password</label>
+                    <div className="relative">
+                        <input type={showPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-10 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Min. 8 characters" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                        <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#4a5568] transition-colors" onClick={() => setShowPw(v => !v)}>
+                            {showPw
+                                ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            }
+                        </button>
+                    </div>
+                </div>
+                <div className="flex flex-col gap-1.5">
+                    <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Confirm New Password</label>
+                    <div className="relative">
+                        <input type={showConfirmPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-10 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Re-enter new password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
+                        <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#4a5568] transition-colors" onClick={() => setShowConfirmPw(v => !v)}>
+                            {showConfirmPw
+                                ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </UserModal>
+    );
 };
 
 const CreateUserModal = ({ onClose, onCreate }) => {
-    const [form, setForm] = useState({ name: '', email: '', role: 'Tele Agent', status: 'Active' });
+    const [form, setForm] = useState({ name: '', email: '', role: 'Tele Agent', status: 'Active', password: '', confirmPassword: '' });
     const [error, setError] = useState('');
+    const [showPw, setShowPw] = useState(false);
+    const [showConfirmPw, setShowConfirmPw] = useState(false);
     const handle = (e) => {
         e.preventDefault();
         if (!form.name.trim()) { setError('Name is required.'); return; }
         if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) { setError('Enter a valid email address.'); return; }
+        if (!form.password) { setError('Password is required.'); return; }
+        if (form.password.length < 8) { setError('Password must be at least 8 characters.'); return; }
+        if (form.password !== form.confirmPassword) { setError('Passwords do not match.'); return; }
         onCreate(form); onClose();
     };
-    return <UserModal title="Create New User" onClose={onClose} onSubmit={handle} submitLabel="Create User" submitClass="bg-[#2447d7] hover:bg-[#1732a3]"><UserFormFields form={form} setForm={setForm} error={error} /></UserModal>;
+    return (
+        <UserModal title="Create New User" onClose={onClose} onSubmit={handle} submitLabel="Create User" submitClass="bg-[#2447d7] hover:bg-[#1732a3]">
+            <UserFormFields form={form} setForm={setForm} error={error} />
+            <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Password</label>
+                <div className="relative">
+                    <input type={showPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-10 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Min. 8 characters" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                    <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#4a5568] transition-colors" onClick={() => setShowPw(v => !v)}>
+                        {showPw
+                            ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        }
+                    </button>
+                </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Confirm Password</label>
+                <div className="relative">
+                    <input type={showConfirmPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-10 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Re-enter password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
+                    <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#4a5568] transition-colors" onClick={() => setShowConfirmPw(v => !v)}>
+                        {showConfirmPw
+                            ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        }
+                    </button>
+                </div>
+            </div>
+        </UserModal>
+    );
 };
 
 /* ─── MAIN COMPONENT ──────────────────────────── */
@@ -223,7 +291,7 @@ const UserManagement = () => {
         const tempId = Date.now();
         setUsers(prev => [...prev, buildLocalUser(tempId, form)]);
         try {
-            const res = await fetch('http://localhost:8000/api/users/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email: form.email, first_name: form.name.split(' ')[0], last_name: form.name.split(' ').slice(1).join(' '), is_active: form.status === 'Active', is_staff: form.role === 'Super Admin' }) });
+            const res = await fetch('http://localhost:8000/api/users/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email: form.email, first_name: form.name.split(' ')[0], last_name: form.name.split(' ').slice(1).join(' '), password: form.password, is_active: form.status === 'Active', is_staff: form.role === 'Super Admin' }) });
             if (res.ok) fetchUsers();
         } catch { /* kept as temp */ }
     };
@@ -231,7 +299,9 @@ const UserManagement = () => {
     const handleEdit = async (id, form) => {
         setUsers(prev => prev.map(u => u.id === id ? buildLocalUser(id, form) : u));
         try {
-            const res = await fetch(`http://localhost:8000/api/users/${id}/`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email: form.email, first_name: form.name.split(' ')[0], last_name: form.name.split(' ').slice(1).join(' '), is_active: form.status === 'Active', is_staff: form.role === 'Super Admin' }) });
+            const payload = { email: form.email, first_name: form.name.split(' ')[0], last_name: form.name.split(' ').slice(1).join(' '), is_active: form.status === 'Active', is_staff: form.role === 'Super Admin' };
+            if (form.password) payload.password = form.password;
+            const res = await fetch(`http://localhost:8000/api/users/${id}/`, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) });
             if (res.ok) fetchUsers();
         } catch { /* ignored */ }
     };
