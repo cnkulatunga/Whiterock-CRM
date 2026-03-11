@@ -383,15 +383,15 @@ const ClientLenderSelection = ({ onNavigate }) => {
                                                             {client.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                                         </div>
                                                         <div>
-                                                            <div className="text-[13px] font-bold text-[#1a202c]">{client.name}</div>
-                                                            <div className="text-[11px] text-[#94a3b8]">{client.email}</div>
+                                                            <div className="text-[13px] font-medium text-[#1a202c]">{client.name}</div>
+                                                            <div className="text-[12px] text-[#4a5568]">{client.email}</div>
                                                         </div>
                                                     </div>
                                                 </td>
 
                                                 {/* Loan amount */}
                                                 <td className="px-4 py-4">
-                                                    <span className="text-[13px] font-bold text-[#1a202c]">{client.loanAmount}</span>
+                                                    <span className="text-[13px] font-medium text-[#1a202c]">{client.loanAmount}</span>
                                                 </td>
 
                                                 {/* Purpose */}
@@ -443,7 +443,7 @@ const ClientLenderSelection = ({ onNavigate }) => {
                         {/* Footer */}
                         <div className="px-6 py-3 border-t border-[#f7fafc] bg-[#fcfdff] flex items-center justify-between">
                             <span className="text-[12px] text-[#a0aec0]">
-                                <span className="font-bold text-[#1a202c]">{selectedClients.length}</span> of <span className="font-bold text-[#1a202c]">{filteredClients.length}</span> clients selected
+                                <span className="font-medium text-[#1a202c]">{selectedClients.length}</span> of <span className="font-medium text-[#1a202c]">{filteredClients.length}</span> clients selected
                             </span>
                             <div className="flex items-center gap-2 text-[11px] text-[#94a3b8]">
                                 <span className="w-2 h-2 rounded-full bg-[#10b981] inline-block" />
@@ -488,8 +488,8 @@ const ClientLenderSelection = ({ onNavigate }) => {
                                                 </svg>
                                             </div>
                                             <div className="flex-1">
-                                                <div className="text-[13px] font-bold text-[#1a202c]">Email to {client.name}</div>
-                                                <div className="text-[11px] text-[#94a3b8]">{client.email}</div>
+                                                <div className="text-[13px] font-medium text-[#1a202c]">Email to {client.name}</div>
+                                                <div className="text-[12px] text-[#4a5568]">{client.email}</div>
                                             </div>
                                             <span className="text-[10px] font-black text-[#2447d7] bg-[#eef2ff] px-2.5 py-1 rounded-lg border border-[rgba(36,71,215,0.18)]">
                                                 {lenders.length} lender{lenders.length !== 1 ? 's' : ''}
@@ -505,15 +505,15 @@ const ClientLenderSelection = ({ onNavigate }) => {
                                                     return (
                                                         <div key={lender.id} className="flex items-center justify-between border border-[#edf2f7] rounded-xl px-4 py-2.5 bg-[#f8fafc]">
                                                             <div className="flex items-center gap-2">
-                                                                <span className="text-[12px] font-bold text-[#1a202c]">{i + 1}. {lender.name}</span>
-                                                                <span className="text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider"
+                                                                <span className="text-[12px] font-medium text-[#1a202c]">{i + 1}. {lender.name}</span>
+                                                                <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-md uppercase tracking-wider"
                                                                     style={{ backgroundColor: tc.bg, color: tc.color, border: `1px solid ${tc.border}` }}>
                                                                     {lender.type}
                                                                 </span>
                                                             </div>
                                                             <div className="flex items-center gap-4 text-[11px] text-[#718096]">
-                                                                <span>Rate: <span className="font-black text-[#2447d7]">{lender.interestRate}</span></span>
-                                                                <span>Max: <span className="font-bold text-[#1a202c]">{lender.maxLoan}</span></span>
+                                                                <span>Rate: <span className="font-semibold text-[#2447d7]">{lender.interestRate}</span></span>
+                                                                <span>Max: <span className="font-medium text-[#1a202c]">{lender.maxLoan}</span></span>
                                                             </div>
                                                         </div>
                                                     );
@@ -551,8 +551,8 @@ const ClientLenderSelection = ({ onNavigate }) => {
                                                         {client.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}
                                                     </div>
                                                     <div className="min-w-0">
-                                                        <div className="text-[12px] font-bold text-[#1a202c] truncate">{client.name}</div>
-                                                        <div className="text-[10px] text-[#94a3b8] truncate">{client.email}</div>
+                                                        <div className="text-[12px] font-medium text-[#1a202c] truncate">{client.name}</div>
+                                                        <div className="text-[11px] text-[#4a5568] truncate">{client.email}</div>
                                                     </div>
                                                 </div>
                                                 <span className="text-[10px] font-black text-[#2447d7] bg-[#eef2ff] px-2 py-0.5 rounded-md border border-[rgba(36,71,215,0.18)] shrink-0">
