@@ -7,7 +7,7 @@ const LENDERS = [
     { id: 'apex_capital',      name: 'Apex Capital Group', tier: 'Tier 1 • High Net Worth',    match: 78, color: '#ea580c', bg: '#fff7ed' },
 ];
 
-const LenderSelection = ({ lead }) => {
+const LenderSelection = ({ lead, onNavigate }) => {
     const clientName = lead?.name || 'Jonathan Doe';
     const initials   = clientName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     const leadId     = lead?.id || 'WR-2026-0001';
@@ -25,9 +25,18 @@ const LenderSelection = ({ lead }) => {
 
             {/* Header */}
             <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
-                <div>
-                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Lead {leadId} – Lender Selection</h1>
-                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Configure the final loan terms and distribute the lead to preferred financial institutions.</p>
+                <div className="flex flex-col gap-2">
+                    <button 
+                        onClick={() => onNavigate && onNavigate('lender_selector')}
+                        className="flex items-center gap-1.5 text-[12px] font-semibold text-[#64748b] hover:text-[#2447d7] transition-colors w-fit group"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" className="transition-transform group-hover:-translate-x-0.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                        Back to Selector
+                    </button>
+                    <div>
+                        <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Lead {leadId} – Lender Selection</h1>
+                        <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Configure the final loan terms and distribute the lead to preferred financial institutions.</p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <button className="bg-white border border-[#edf2f7] text-[#4a5568] px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#f8fafc] transition-colors">Save Draft</button>

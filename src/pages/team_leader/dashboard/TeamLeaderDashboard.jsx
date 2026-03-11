@@ -9,9 +9,12 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
     ];
 
     const agentPerformance = [
-        { name: 'John Smith', initials: 'JS', activeLeads: 142, closedDeals: 18, responseTime: '12m 4s', color: '#2447d7' },
-        { name: 'Alice Wong', initials: 'AW', activeLeads: 98, closedDeals: 22, responseTime: '8m 30s', color: '#7c3aed' },
-        { name: 'Robert King', initials: 'RK', activeLeads: 115, closedDeals: 12, responseTime: '25m 12s', color: '#f59e0b' },
+        { name: 'Sarah Johnson', initials: 'SJ', activeLeads: 156, closedDeals: 24, color: '#2447d7' },
+        { name: 'Michael Smith', initials: 'MS', activeLeads: 132, closedDeals: 19, color: '#10b981' },
+        { name: 'Elena Rodriguez', initials: 'ER', activeLeads: 145, closedDeals: 21, color: '#8b5cf6' },
+        { name: 'John Smith', initials: 'JS', activeLeads: 142, closedDeals: 18, color: '#f59e0b' },
+        { name: 'Alice Wong', initials: 'AW', activeLeads: 98, closedDeals: 22, color: '#7c3aed' },
+        { name: 'Robert King', initials: 'RK', activeLeads: 115, closedDeals: 12, color: '#06b6d4' },
     ];
 
     const documentCollection = [
@@ -185,7 +188,6 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                     />
                                 </div>
                             </div>
-                            <button className="text-[12px] font-bold text-[#2447d7] hover:underline underline-offset-4 decoration-2 transition-all whitespace-nowrap" onClick={() => onNavigate && onNavigate('calendar')}>View Full Report</button>
                         </div>
                         <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
                             <div className="overflow-x-auto">
@@ -195,7 +197,6 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                             <th className="p-5 px-6 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider">AGENT NAME</th>
                                             <th className="p-5 px-6 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider">ACTIVE LEADS</th>
                                             <th className="p-5 px-6 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider">CLOSED DEALS</th>
-                                            <th className="p-5 px-6 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider">RESPONSE TIME</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-[#f7fafc]">
@@ -214,11 +215,10 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                 </td>
                                                 <td className="p-5 px-6 text-[14px] font-bold text-[#4a5568]">{agent.activeLeads}</td>
                                                 <td className="p-5 px-6 text-[14px] font-bold text-[#4a5568]">{agent.closedDeals}</td>
-                                                <td className="p-5 px-6 text-[14px] font-bold text-[#4a5568] font-mono">{agent.responseTime}</td>
                                             </tr>
                                         )) : (
                                             <tr>
-                                                <td colSpan="4" className="p-6 text-center text-sm text-[#a0aec0]">No agents found.</td>
+                                                <td colSpan="3" className="p-6 text-center text-sm text-[#a0aec0]">No agents found.</td>
                                             </tr>
                                         )}
                                     </tbody>

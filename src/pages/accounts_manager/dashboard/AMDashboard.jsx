@@ -68,7 +68,7 @@ const AMDashboard = ({ onNavigate }) => {
                             </div>
                             <span className="text-[13px] font-semibold text-[#1a202c]">Recent Lead List</span>
                         </div>
-                        <button className="text-[13px] font-medium text-[#2447d7] hover:underline" onClick={() => onNavigate && onNavigate('lender_selection')}>View All</button>
+                        <button className="text-[13px] font-medium text-[#2447d7] hover:underline" onClick={() => onNavigate && onNavigate('lender_selector')}>View All</button>
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full border-collapse">

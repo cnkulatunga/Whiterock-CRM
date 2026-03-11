@@ -80,7 +80,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                     <Routes>
                         <Route path="dashboard" element={<AMDashboard onNavigate={handleNavigate} />} />
                         <Route path="lender-selector" element={<LenderSelector onNavigate={handleNavigate} />} />
-                        <Route path="lender-selection" element={<LenderSelection lead={selectedLead} />} />
+                        <Route path="lender-selection" element={<LenderSelection lead={selectedLead} onNavigate={handleNavigate} />} />
                         <Route path="financial-payment-report" element={<FinanceReport />} />
                         <Route path="lead-performance-report" element={<LeadPerformance />} />
                         <Route path="audit-logs" element={<AuditLogs />} />
