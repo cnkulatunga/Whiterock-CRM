@@ -20,6 +20,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [tasks, setTasks] = useState(INITIAL_TASKS);
     
     // Derive activePage from location
@@ -52,28 +53,28 @@ const TeamLeaderLayout = ({ onLogout }) => {
     return (
         <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden relative">
             <div className={`fixed inset-0 bg-black/40 z-[100] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setIsSidebarOpen(false)}></div>
-            <TeamLeaderSidebar 
-                activePage={location.pathname} 
-                onNavigate={handleNavigate} 
-                onLogout={onLogout} 
+            <TeamLeaderSidebar
+                activePage={location.pathname}
+                onNavigate={handleNavigate}
+                onLogout={onLogout}
                 isOpen={isSidebarOpen}
+                onCollapseChange={setIsSidebarCollapsed}
             />
-            <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : 'ml-[260px] lg:ml-0'}`}>
-                <div className={`h-[72px] bg-white/95 backdrop-blur-sm border-b border-[#edf2f7] flex items-center justify-between px-10 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:left-0 lg:px-5 md:h-[60px] md:px-3 md:gap-1 ${isSidebarOpen ? 'left-0' : 'left-[260px] lg:left-0'}`}>
-                    <button className="hidden lg:block bg-none border-none text-[#4a5568] cursor-pointer p-2 rounded-lg hover:bg-[#f7fafc]" onClick={toggleSidebar}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="24" height="24">
+            <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[240px] lg:ml-0'}`}>
+                <div className={`h-[68px] bg-white/97 border-b border-[#edf2f7] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[240px] lg:left-0'}`}>
+                    <button className="hidden lg:flex bg-none border-none text-[#4a5568] cursor-pointer p-1.5" onClick={toggleSidebar}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </button>
 
-                    <div className="flex-1 max-w-[480px] ml-5 md:ml-1 md:max-w-none">
-                    </div>
+                    <div className="flex-1 max-w-[480px]"></div>
 
                 </div>
 
-                <div className="p-8 flex-1 mt-[72px] lg:p-[16px_12px]">
+                <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
                     <Routes>
                         <Route path="dashboard" element={<TeamLeaderDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="lead-monitoring" element={<LeadMonitoring />} />

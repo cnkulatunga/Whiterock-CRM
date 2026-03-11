@@ -64,35 +64,12 @@ const DealsPage = () => (
 
 const FinancePage = () => <FinanceReport />;
 
-const TeamLeadersPage = ({ onNavigate }) => <TeamLeaders onNavigate={onNavigate} />;
-
-/* ─── PAGE MAP ────────────────────────────────── */
-const PAGE_MAP = {
-    'dashboard': <DashboardPage />,
-    'user-management': <UserManagement />,
-    'leads': <LeadsPage />,
-    'deals': <DealsPage />,
-    'finance': <FinancePage />,
-    'accounts': <AccountsPage />,
-    'reports': <ReportsPage />,
-    'settings': <SettingsPage />,
-};
-
-/* ─── SEARCH PLACEHOLDER MAP ──────────────────── */
-const SEARCH_PLACEHOLDERS = {
-    'dashboard':       'Global search...',
-    'leads':           'Quick search...',
-    'finance':         'Search reports...',
-    'user-management': 'Search users, roles, or emails...',
-    'team-leaders':    'Search team leaders...',
-    'reports':         'Global search...',
-};
-
 /* ─── APP LAYOUT ──────────────────────────────── */
 const AppLayout = ({ onLogout }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     // Derive activePage from location
     const getActivePage = () => {
@@ -127,56 +104,29 @@ const AppLayout = ({ onLogout }) => {
         }
     };
 
-
-    const searchPlaceholder = SEARCH_PLACEHOLDERS[activePage] || 'Global search...';
-
     return (
-        <div className="flex min-h-screen w-full md:flex-col">
-            {/* ── Mobile top bar ── */}
-            <header className="hidden md:flex items-center gap-3 fixed top-0 left-0 right-0 h-14 bg-white border-b border-[#e8edf5] px-4 z-[900] shadow-[0_2px_8px_rgba(36,71,215,0.06)]">
-                <button className="bg-none border-none text-[#4a5568] cursor-pointer p-1.5 rounded-lg flex items-center shrink-0 transition-all duration-150 hover:bg-[#eef2ff] hover:text-[#2447d7]" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
-                        <line x1="3" y1="6" x2="21" y2="6" />
-                        <line x1="3" y1="12" x2="21" y2="12" />
-                        <line x1="3" y1="18" x2="21" y2="18" />
-                    </svg>
-                </button>
-                <div id="mobile-header-portal" className="flex-1"></div>
-            </header>
-
-            {/* ── Sidebar backdrop ── */}
-            {sidebarOpen && (
-                <div className="fixed inset-0 bg-[#0a1228]/45 z-[1000] animate-fadeIn" onClick={() => setSidebarOpen(false)} />
-            )}
-
+        <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden relative">
+            <div className={`fixed inset-0 bg-black/40 z-[99] backdrop-blur-[2px] transition-opacity duration-300 ${sidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setSidebarOpen(false)} />
             <SuperAdminSidebar
                 activePage={location.pathname}
                 onNavigate={handleNavigate}
                 onLogout={onLogout}
                 isOpen={sidebarOpen}
-                onClose={() => setSidebarOpen(false)}
+                onCollapseChange={setIsSidebarCollapsed}
             />
-
-            <div className="flex-1 flex flex-col min-w-0 md:mt-14 bg-[#f4f6fb]" key={activePage}>
-                {/* ── Desktop top search bar ── */}
-                <div className="md:hidden sticky top-0 z-50 bg-white border-b border-[#e8edf5] px-10 h-[60px] flex items-center justify-end shadow-[0_2px_8px_rgba(36,71,215,0.04)] lg:px-6">
-                    <div className="relative group w-[260px] xl:w-[200px]">
-                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors pointer-events-none">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
-                                strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-                                <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                            </svg>
-                        </div>
-                        <input
-                            className="w-full bg-[#f1f5f9] border border-transparent rounded-xl py-2 pl-9 pr-4 text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/20 focus:shadow-sm transition-all placeholder:text-[#a0aec0]"
-                            placeholder={searchPlaceholder}
-                            readOnly
-                        />
-                    </div>
+            <div className={`flex-1 flex flex-col min-w-0 transition-[margin] duration-300 ease-in-out ${sidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[240px] lg:ml-0'}`}>
+                <div className={`h-[68px] bg-white/97 border-b border-[#edf2f7] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out lg:px-5 ${sidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[240px] lg:left-0'}`}>
+                    <button className="hidden lg:flex bg-none border-none text-[#4a5568] cursor-pointer p-1.5" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
+                        </svg>
+                    </button>
+                    <div className="flex-1 max-w-[480px]"></div>
                 </div>
 
-                <div className="flex-1 p-10 lg:p-6 sm:p-4 animate-pageSlide">
+                <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
                     <Routes>
                         <Route path="dashboard" element={<SuperAdminDashboard onNavigate={handleNavigate} />} />
                         <Route path="user-management" element={<UserManagement />} />

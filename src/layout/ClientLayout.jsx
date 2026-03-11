@@ -21,6 +21,7 @@ const ClientLayout = ({ onLogout }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const name = `${user.first_name || 'Client'} ${user.last_name || ''}`.trim();
@@ -59,11 +60,12 @@ const ClientLayout = ({ onLogout }) => {
                 onNavigate={handleNavigate}
                 onLogout={onLogout}
                 isOpen={isSidebarOpen}
+                onCollapseChange={setIsSidebarCollapsed}
             />
-            <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : 'ml-[260px] lg:ml-0'}`}>
-                <div className={`h-[70px] bg-white/95 backdrop-blur-sm border-b border-[#edf2f7] flex items-center justify-between px-10 fixed top-0 right-0 z-[90] transition-[left] duration-300 ease-in-out lg:h-16 lg:px-5 ${isSidebarOpen ? 'left-0' : 'left-[260px] lg:left-0'}`}>
-                    <button className="hidden lg:block bg-none border-none text-[#4a5568] cursor-pointer p-2 mr-3" onClick={toggleSidebar}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="24" height="24">
+            <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[240px] lg:ml-0'}`}>
+                <div className={`h-[68px] bg-white/97 border-b border-[#edf2f7] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[240px] lg:left-0'}`}>
+                    <button className="hidden lg:flex bg-none border-none text-[#4a5568] cursor-pointer p-1.5" onClick={toggleSidebar}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -71,7 +73,7 @@ const ClientLayout = ({ onLogout }) => {
                     </button>
                     <div className="flex-1"></div>
                 </div>
-                <div className="p-10 flex-1 overflow-y-auto w-full box-border mt-[70px] lg:p-[24px_16px]">
+                <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
                     <Routes>
                         <Route path="dashboard" element={<Dashboard />} />
                         <Route path="documents" element={<Documents />} />

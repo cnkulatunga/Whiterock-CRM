@@ -35,6 +35,7 @@ const TeleAgentLayout = ({ onLogout }) => {
     const [tasks, setTasks] = useState(INITIAL_TASKS);
     const [pendingTaskDate, setPendingTaskDate] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
     // Derive activePage from location
     const getActivePage = () => {
@@ -80,19 +81,20 @@ const TeleAgentLayout = ({ onLogout }) => {
                 onNavigate={handleNavigate}
                 onLogout={onLogout}
                 isOpen={isSidebarOpen}
+                onCollapseChange={setIsSidebarCollapsed}
             />
-            <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-[margin] duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : 'ml-[260px] lg:ml-0'}`}>
-                <div className={`h-[72px] bg-white/95 backdrop-blur-sm border-b border-[#edf2f7] flex items-center justify-between px-10 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out md:h-[60px] md:px-3 md:gap-1 ${isSidebarOpen ? 'left-0' : 'left-[260px] lg:left-0 lg:px-5'}`}>
-                    <button className="hidden lg:block bg-none border-none text-[#4a5568] cursor-pointer p-2 rounded-lg hover:bg-[#f7fafc]" onClick={toggleSidebar}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="24" height="24">
+            <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-[margin] duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[240px] lg:ml-0'}`}>
+                <div className={`h-[68px] bg-white/97 border-b border-[#edf2f7] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[240px] lg:left-0'}`}>
+                    <button className="hidden lg:flex bg-none border-none text-[#4a5568] cursor-pointer p-1.5" onClick={toggleSidebar}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
                             <line x1="3" y1="12" x2="21" y2="12"></line>
                             <line x1="3" y1="6" x2="21" y2="6"></line>
                             <line x1="3" y1="18" x2="21" y2="18"></line>
                         </svg>
                     </button>
                     <div className="flex-1"></div>
-                    <div className="flex items-center gap-3 md:gap-2">
-                        <button className="bg-[#2447d7] text-white border-none h-11 px-5 rounded-[10px] text-sm font-bold flex items-center gap-2 cursor-pointer shadow-[0_4px_12px_rgba(36,71,215,0.25)] transition-all duration-200 ml-2.5 hover:bg-[#1732a3] hover:-translate-y-px hover:shadow-[0_6px_16px_rgba(36,71,215,0.3)] md:px-0 md:ml-1 md:h-10 md:w-10 md:justify-center" onClick={() => navigate('/tele-agent/create-lead')}>
+                    <div className="flex items-center gap-3">
+                        <button className="bg-[#2447d7] text-white border-none h-11 px-5 rounded-[10px] text-sm font-bold flex items-center gap-2 cursor-pointer shadow-[0_4px_12px_rgba(36,71,215,0.25)] transition-all duration-200 hover:bg-[#1732a3] hover:-translate-y-px hover:shadow-[0_6px_16px_rgba(36,71,215,0.3)]" onClick={() => navigate('/tele-agent/create-lead')}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -101,7 +103,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                         </button>
                     </div>
                 </div>
-                <div className="p-8 flex-1 mt-[72px] md:p-[16px_12px]">
+                <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
                     <Routes>
                         <Route path="dashboard" element={<TeleDashboard onNavigate={handleNavigate} tasks={tasks} />} />
                         <Route path="leads" element={<ManageLeads onViewDetails={handleViewLeadDetails} />} />

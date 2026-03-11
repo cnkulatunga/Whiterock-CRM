@@ -1,112 +1,103 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 const NAV_GROUPS = [
     {
         group: 'MAIN MENU',
         items: [
-            {
-                id: 'dashboard',
-                path: '/tele-agent/dashboard',
-                label: 'Dashboard',
-                icon: (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                        <rect x="3" y="3" width="7" height="7" rx="1" />
-                        <rect x="14" y="3" width="7" height="7" rx="1" />
-                        <rect x="3" y="14" width="7" height="7" rx="1" />
-                        <rect x="14" y="14" width="7" height="7" rx="1" />
-                    </svg>
-                ),
-            },
-            {
-                id: 'leads',
-                path: '/tele-agent/leads',
-                label: 'Leads',
-                icon: (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                        <circle cx="8.5" cy="7" r="4" />
-                        <path d="M22 7l-3 3 2 2" />
-                    </svg>
-                ),
-            },
-            {
-                id: 'follow-ups',
-                path: '/tele-agent/follow-ups',
-                label: 'Tasks & Follow-ups',
-                icon: (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                ),
-            },
+            { id: 'dashboard',   path: '/tele-agent/dashboard',   label: 'Dashboard',         icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> },
+            { id: 'leads',       path: '/tele-agent/leads',       label: 'Leads',             icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M22 7l-3 3 2 2"/></svg> },
+            { id: 'follow-ups',  path: '/tele-agent/follow-ups',  label: 'Tasks & Follow-ups', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> },
         ],
     },
 ];
 
-const TeleAgentSidebar = ({ activePage, onNavigate, onLogout, isOpen }) => {
+const TeleAgentSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCollapseChange }) => {
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const name = user.role === 'tele_agent' ? 'Sarah Jenkins' : `${user.first_name || 'Tele'} ${user.last_name || 'Agent'}`.trim();
-    const role = user.role === 'tele_agent' ? 'SENIOR AGENT' : 'TELE AGENT';
+    const email = user.email || 'agent@whiterock.com';
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
+    const toggle = () => {
+        const next = !isCollapsed;
+        setIsCollapsed(next);
+        onCollapseChange && onCollapseChange(next);
+    };
+
     return (
-        <aside className={`w-[260px] h-screen bg-white border-r border-[#edf2f7] flex flex-col py-6 shadow-[2px_0_10px_rgba(0,0,0,0.02)] fixed left-0 top-0 z-[101] transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${isOpen ? 'translate-x-0' : 'lg:-translate-x-full'}`}>
-            <div className="px-6 mb-8 flex items-center gap-3">
-                <div className="w-[34px] h-[34px] bg-gradient-to-br from-[#2447d7] to-[#1732a3] rounded-lg flex items-center justify-center shadow-[0_4px_10px_rgba(36,71,215,0.25)]">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"
-                        strokeLinecap="round" strokeLinejoin="round" width="20" height="20">
-                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                        <path d="M2 17l10 5 10-5" />
-                        <path d="M2 12l10 5 10-5" />
-                    </svg>
+        <aside className={`${isCollapsed ? 'w-[60px]' : 'w-[240px]'} h-screen bg-white border-r border-[#e8edf5] flex flex-col fixed left-0 top-0 z-[101] font-['Sora',sans-serif] shadow-[2px_0_12px_rgba(36,71,215,0.04)] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-hidden ${isOpen ? 'translate-x-0' : 'lg:-translate-x-full'}`}>
+
+            {/* Logo */}
+            <div className={`flex items-center border-b border-[#f0f4fb] ${isCollapsed ? 'justify-center p-4 py-[34px]' : 'gap-3 p-[36px_16px_20px]'}`}>
+                <div className="w-[38px] h-[38px] bg-gradient-to-br from-[#2447d7] to-[#1a38b8] rounded-lg flex items-center justify-center shrink-0 shadow-[0_3px_10px_rgba(36,71,215,0.3)]">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                 </div>
-                <div className="flex flex-col">
-                    <span className="text-base font-extrabold text-[#1a202c] tracking-tight leading-tight">Whiterock CRM</span>
-                    <span className="text-[10px] font-semibold text-[#718096] tracking-wide">Tele Agent Portal</span>
-                </div>
+                {!isCollapsed && (
+                    <>
+                        <div className="flex flex-col gap-[1px] min-w-0 flex-1">
+                            <span className="text-[0.95rem] font-bold text-[#1a1f36] tracking-[-0.3px] whitespace-nowrap">Whiterock CRM</span>
+                            <span className="text-[0.62rem] font-bold tracking-[1.1px] text-[#94a3b8] uppercase">Tele Agent</span>
+                        </div>
+                        <button onClick={toggle} className="shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-[#94a3b8] hover:bg-[#f0f4fb] hover:text-[#2447d7] transition-colors" title="Collapse sidebar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                    </>
+                )}
             </div>
 
-            <nav className="flex-1 px-4 overflow-y-auto">
+            {isCollapsed && (
+                <button onClick={toggle} className="mx-auto mt-2 w-8 h-8 rounded-md flex items-center justify-center text-[#94a3b8] hover:bg-[#f0f4fb] hover:text-[#2447d7] transition-colors" title="Expand sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+            )}
+
+            {/* Navigation */}
+            <nav className="flex-1 p-3 flex flex-col gap-3 overflow-y-auto overflow-x-hidden">
                 {NAV_GROUPS.map((group) => (
-                    <div className="mb-6" key={group.group}>
-                        {group.items.map((item) => (
-                            <button
-                                key={item.id}
-                                className={`w-full h-12 px-4 mb-1 flex items-center gap-3 bg-transparent border-none rounded-[10px] text-[#4a5568] cursor-pointer transition-all duration-200 text-sm font-semibold text-left hover:bg-[#f8fafc] hover:text-[#2447d7] ${activePage.startsWith(item.path) || (item.id === 'leads' && (activePage.includes('lead-details') || activePage.includes('create-lead'))) ? 'bg-[#ebf0ff] text-[#2447d7]' : ''}`}
-                                onClick={() => onNavigate(item.id)}
-                            >
-                                <span className="flex items-center justify-center color-inherit">{item.icon}</span>
-                                <span className="nav-item-label">{item.label}</span>
-                            </button>
-                        ))}
+                    <div className="flex flex-col gap-[2px]" key={group.group}>
+                        {!isCollapsed && <span className="text-[0.68rem] font-bold tracking-[1.2px] text-[#94a3b8] uppercase px-2.5 pb-1.5">{group.group}</span>}
+                        {isCollapsed && <div className="h-[1px] bg-[#f0f4fb] mx-1 my-1" />}
+                        {group.items.map((item) => {
+                            const isActive = activePage.startsWith(item.path) || (item.id === 'leads' && (activePage.includes('lead-details') || activePage.includes('create-lead')));
+                            return (
+                                <button
+                                    key={item.id}
+                                    title={isCollapsed ? item.label : undefined}
+                                    className={`flex items-center gap-[10px] rounded-[9px] border-none group bg-transparent cursor-pointer font-['Sora',sans-serif] text-[0.875rem] font-medium text-left w-full transition-all duration-150 relative hover:bg-[#f0f4fb] hover:text-[#2447d7] ${isCollapsed ? 'justify-center p-[9px_0]' : 'p-[9px_12px]'} ${isActive ? 'bg-[#eef2ff] text-[#2447d7] font-semibold' + (!isCollapsed ? ' before:content-[""] before:absolute before:left-[-12px] before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-[22px] before:bg-[#2447d7] before:rounded-[0_3px_3px_0]' : '') : 'text-[#4a5568]'}`}
+                                    onClick={() => onNavigate(item.id)}
+                                >
+                                    <span className={`flex items-center shrink-0 transition-colors duration-150 group-hover:text-[#2447d7] ${isActive ? 'text-[#2447d7]' : 'text-[#94a3b8]'}`}>{item.icon}</span>
+                                    {!isCollapsed && <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item.label}</span>}
+                                </button>
+                            );
+                        })}
                     </div>
                 ))}
             </nav>
 
-            <div className="px-5 py-4 mt-auto border-t border-[#f7fafc]">
-                <div className="flex items-center gap-3">
-                    <div className="w-[34px] h-[34px] bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center font-bold text-xs shrink-0 overflow-hidden">
-                        {user.role === 'tele_agent' ? (
-                            <img src="https://ui-avatars.com/api/?name=Sarah+Jenkins&background=2447d7&color=fff" alt="Sarah" className="w-full h-full object-cover" />
-                        ) : initials}
+            {/* User Profile */}
+            <div className="border-t border-[#f0f4fb]">
+                {isCollapsed ? (
+                    <div className="flex flex-col items-center gap-2 py-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#94a3b8] to-[#64748b] text-white text-[0.7rem] font-bold flex items-center justify-center">{initials}</div>
+                        <button className="text-[#94a3b8] p-1 rounded hover:text-[#ef4444] hover:bg-[#fee2e2] transition-colors" onClick={onLogout} title="Logout">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                        </button>
                     </div>
-                    <div className="flex-1 flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-[#1a202c] whitespace-nowrap overflow-hidden text-ellipsis mb-[1px]">{name}</span>
-                        <span className="text-[9px] font-bold text-[#a0aec0] tracking-wide">{role}</span>
+                ) : (
+                    <div className="flex items-center gap-[10px] p-[14px_18px] bg-[#fafbff]">
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#94a3b8] to-[#64748b] text-white text-[0.75rem] font-bold flex items-center justify-center shrink-0">{initials}</div>
+                        <div className="flex flex-col gap-[2px] min-w-0 flex-1">
+                            <div className="flex items-center justify-between gap-1.5">
+                                <span className="text-[0.82rem] font-semibold text-[#1a1f36] whitespace-nowrap overflow-hidden text-ellipsis">{name}</span>
+                                <button className="bg-none border-none text-[#94a3b8] cursor-pointer p-1 rounded-[5px] flex items-center shrink-0 transition-all hover:bg-[#fee2e2] hover:text-[#ef4444]" onClick={onLogout} title="Logout">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                                </button>
+                            </div>
+                            <span className="text-[0.7rem] text-[#94a3b8] whitespace-nowrap overflow-hidden text-ellipsis">{email}</span>
+                        </div>
                     </div>
-                    <button className="bg-transparent border border-[#edf2f7] w-8 h-8 rounded-lg text-[#a0aec0] flex items-center justify-center cursor-pointer transition-all duration-200 ml-2 shrink-0 hover:text-[#e53e3e] hover:border-[#fed7d7] hover:bg-[#fff5f5]" onClick={onLogout} title="Sign Out">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                            strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                            <polyline points="16 17 21 12 16 7" />
-                            <line x1="21" y1="12" x2="9" y2="12" />
-                        </svg>
-                    </button>
-                </div>
+                )}
             </div>
         </aside>
     );
