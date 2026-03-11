@@ -53,12 +53,22 @@ import { useUsers } from '../../../context/UsersContext';
 /* ─── INITIAL TEAM MEMBERSHIPS ────────────────── */
 const INITIAL_MEMBERSHIPS = {
     2: [
-        { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', phone: '', status: 'Active' },
+        { id: 3,  name: 'Cody Lane',     email: 'cody.l@whiterock.crm',      phone: '', status: 'Active' },
+        { id: 11, name: 'Priya Sharma',  email: 'p.sharma@whiterock.crm',    phone: '', status: 'Active' },
     ],
     5: [
-        { id: 6, name: 'Leo Kumar', email: 'leo.k@whiterock.crm', phone: '', status: 'Active' },
-        { id: 7, name: 'Nina Hassan', email: 'nina.h@whiterock.crm', phone: '', status: 'Inactive' },
+        { id: 6,  name: 'Leo Kumar',     email: 'leo.k@whiterock.crm',       phone: '', status: 'Active' },
+        { id: 7,  name: 'Nina Hassan',   email: 'nina.h@whiterock.crm',      phone: '', status: 'Inactive' },
+        { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@whiterock.crm',   phone: '', status: 'Active' },
     ],
+    8: [
+        { id: 12, name: 'Jake Morrison', email: 'j.morrison@whiterock.crm',  phone: '', status: 'Active' },
+        { id: 15, name: 'Sophie Tan',    email: 's.tan@whiterock.crm',       phone: '', status: 'Active' },
+    ],
+    9: [
+        { id: 14, name: 'Omar Khalil',   email: 'o.khalil@whiterock.crm',    phone: '', status: 'Inactive' },
+    ],
+    10: [],
 };
 
 /* ─── AVATAR COLORS ───────────────────────────── */
@@ -161,7 +171,7 @@ const IconFilter = () => (
 const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirmBtnStyle, excludeIds, onClose, onSelect }) => {
     const { users } = useUsers();
     const [search, setSearch] = useState('');
-    const [selected, setSelected] = useState(null);
+    const [selected, setSelected] = useState([]);
     const [error, setError] = useState('');
 
     const available = users.filter(u =>
@@ -170,13 +180,32 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
             u.email.toLowerCase().includes(search.toLowerCase()))
     );
 
+    const toggle = (u) => {
+        setError('');
+        setSelected(prev =>
+            prev.find(s => s.id === u.id) ? prev.filter(s => s.id !== u.id) : [...prev, u]
+        );
+    };
+
+    const allVisibleSelected = available.length > 0 && available.every(u => selected.find(s => s.id === u.id));
+
+    const toggleAll = () => {
+        if (allVisibleSelected) {
+            setSelected(prev => prev.filter(s => !available.find(u => u.id === s.id)));
+        } else {
+            const toAdd = available.filter(u => !selected.find(s => s.id === u.id));
+            setSelected(prev => [...prev, ...toAdd]);
+        }
+        setError('');
+    };
+
     const handle = () => {
-        if (!selected) { setError('Please select a user.'); return; }
+        if (selected.length === 0) { setError('Please select at least one user.'); return; }
         onSelect(selected);
         onClose();
     };
 
-    return (
+    return ReactDOM.createPortal(
         <div
             style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(6px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', animation: 'fadeIn 0.2s ease' }}
             onClick={onClose}
@@ -193,7 +222,9 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                         </div>
                         <div>
                             <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>{title}</h3>
-                            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0', fontWeight: 500 }}>{subtitle}</p>
+                            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0', fontWeight: 500 }}>
+                                {selected.length > 0 ? `${selected.length} user${selected.length > 1 ? 's' : ''} selected` : subtitle}
+                            </p>
                         </div>
                     </div>
                     <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '4px', borderRadius: '8px', display: 'flex' }} onClick={onClose}>
@@ -202,47 +233,75 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                 </div>
 
                 <div style={{ padding: '20px 28px' }}>
-                    {/* Search */}
-                    <div style={{ position: 'relative', marginBottom: '16px' }}>
-                        <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
-                        <input
-                            style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 14px 12px 40px', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
-                            type="text"
-                            placeholder="Search by name or email..."
-                            value={search}
-                            onChange={e => { setSearch(e.target.value); setError(''); }}
-                            autoFocus
-                            onFocus={e => e.target.style.borderColor = '#6366f1'}
-                            onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                        />
+                    {/* Search + Select All row */}
+                    <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: 'center' }}>
+                        <div style={{ position: 'relative', flex: 1 }}>
+                            <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
+                            <input
+                                style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 14px 12px 40px', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
+                                type="text"
+                                placeholder="Search by name or email..."
+                                value={search}
+                                onChange={e => { setSearch(e.target.value); setError(''); }}
+                                autoFocus
+                                onFocus={e => e.target.style.borderColor = '#6366f1'}
+                                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                            />
+                        </div>
+                        {available.length > 0 && (
+                            <button
+                                onClick={toggleAll}
+                                style={{ flexShrink: 0, padding: '10px 14px', borderRadius: '12px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', border: `1.5px solid ${allVisibleSelected ? '#6366f1' : '#e2e8f0'}`, background: allVisibleSelected ? '#eef2ff' : '#f8fafc', color: allVisibleSelected ? '#4f46e5' : '#64748b', transition: 'all 0.15s', whiteSpace: 'nowrap' }}
+                            >
+                                {allVisibleSelected ? 'Deselect All' : 'Select All'}
+                            </button>
+                        )}
                     </div>
 
                     {/* List */}
-                    <div style={{ maxHeight: '300px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ maxHeight: '280px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {available.length === 0 ? (
                             <div style={{ padding: '40px 0', textAlign: 'center', color: '#94a3b8' }}>
                                 <div style={{ fontSize: '13px', fontWeight: 600 }}>{search ? 'No users match your search.' : 'No users available.'}</div>
                             </div>
                         ) : available.map(u => {
                             const av = getAvatarColor(u.id);
-                            const isSel = selected?.id === u.id;
+                            const isSel = !!selected.find(s => s.id === u.id);
                             return (
                                 <div
                                     key={u.id}
-                                    onClick={() => { setSelected(u); setError(''); }}
+                                    onClick={() => toggle(u)}
                                     style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '12px', border: `1.5px solid ${isSel ? '#6366f1' : '#f1f5f9'}`, background: isSel ? '#eef2ff' : '#fafafa', cursor: 'pointer', transition: 'all 0.15s' }}
                                 >
+                                    {/* Checkbox */}
+                                    <div style={{ width: '20px', height: '20px', borderRadius: '6px', border: `2px solid ${isSel ? '#6366f1' : '#cbd5e1'}`, background: isSel ? '#6366f1' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                                        {isSel && <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>}
+                                    </div>
                                     <div style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', background: av.bg, color: av.text, flexShrink: 0 }}>{getInitials(u.name)}</div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ fontSize: '14px', fontWeight: 700, color: isSel ? '#4f46e5' : '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
                                         <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>{u.email}</div>
                                     </div>
                                     <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px', background: u.status === 'Active' ? '#dcfce7' : '#f1f5f9', color: u.status === 'Active' ? '#16a34a' : '#64748b' }}>{u.status}</span>
-                                    {isSel && <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg></div>}
                                 </div>
                             );
                         })}
                     </div>
+
+                    {/* Selected chips */}
+                    {selected.length > 0 && (
+                        <div style={{ marginTop: '14px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {selected.map(u => (
+                                <div key={u.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px 4px 8px', background: '#eef2ff', border: '1.5px solid #c7d2fe', borderRadius: '999px', fontSize: '12px', fontWeight: 700, color: '#4f46e5' }}>
+                                    <div style={{ width: '18px', height: '18px', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '9px', background: getAvatarColor(u.id).bg, color: '#fff', flexShrink: 0 }}>{getInitials(u.name)}</div>
+                                    {u.name}
+                                    <button onClick={e => { e.stopPropagation(); toggle(u); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6366f1', padding: 0, display: 'flex', lineHeight: 1 }}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
                     {error && <div style={{ marginTop: '12px', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', fontSize: '12px', fontWeight: 700, borderRadius: '10px', textAlign: 'center' }}>{error}</div>}
                 </div>
@@ -250,12 +309,13 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                 {/* Footer */}
                 <div style={{ padding: '16px 28px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '12px' }}>
                     <button style={{ flex: 1, padding: '12px', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#64748b', cursor: 'pointer', transition: 'all 0.15s' }} onClick={onClose}>Cancel</button>
-                    <button style={{ flex: 1, padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#fff', border: 'none', cursor: selected ? 'pointer' : 'not-allowed', opacity: selected ? 1 : 0.5, transition: 'all 0.15s', ...confirmBtnStyle }} onClick={handle} disabled={!selected}>
-                        {confirmLabel}
+                    <button style={{ flex: 1, padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#fff', border: 'none', cursor: selected.length > 0 ? 'pointer' : 'not-allowed', opacity: selected.length > 0 ? 1 : 0.5, transition: 'all 0.15s', ...confirmBtnStyle }} onClick={handle} disabled={selected.length === 0}>
+                        {selected.length > 1 ? `${confirmLabel} (${selected.length})` : confirmLabel}
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 
@@ -474,7 +534,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                     leaderName={leader.name}
                     existingMemberIds={leader.members.map(m => m.id)}
                     onClose={() => setShowAddAgent(false)}
-                    onAdd={user => onAddAgent(leader.id, user)}
+                    onAdd={users => onAddAgent(leader.id, users)}
                 />
             )}
         </>
@@ -506,10 +566,14 @@ const TeamLeaders = ({ onNavigate }) => {
         return matchSearch && matchTab;
     });
 
-    const handleAddAgent = (leaderId, user) => {
+    const handleAddAgent = (leaderId, users) => {
+        const arr = Array.isArray(users) ? users : [users];
         setMemberships(prev => ({
             ...prev,
-            [leaderId]: [...(prev[leaderId] || []), { id: user.id, name: user.name, email: user.email, phone: user.phone || '', status: user.status }],
+            [leaderId]: [
+                ...(prev[leaderId] || []),
+                ...arr.map(u => ({ id: u.id, name: u.name, email: u.email, phone: u.phone || '', status: u.status })),
+            ],
         }));
     };
 
