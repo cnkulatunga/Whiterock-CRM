@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
+import { useTheme } from '../../../context/ThemeContext';
 
 // Removed INITIAL_TASKS mock data, using props from layout.
 
 const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, notifyReminderSet }) => {
+
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
@@ -80,36 +84,80 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
 
     const renderCalendar = () => {
         const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        const cardBg = isDark ? '#1e2347' : '#ffffff';
+        const cardBgHover = isDark ? '#242b58' : '#f7fafc';
+        const cardBgSelected = isDark ? '#1e2347' : '#f0f4ff';
+        const cardBorder = isDark ? '#2c3568' : '#edf2f7';
+        const cardBorderSelected = '#2447d7';
+        const cardBorderToday = isDark ? 'rgba(36,71,215,0.5)' : 'rgba(36,71,215,0.3)';
+        const headerBg = isDark ? '#181c2e' : '#f8fafc';
+        const headerText = isDark ? '#546298' : '#a0aec0';
+        const dayText = isDark ? '#8ea0d4' : '#4a5568';
+        const sidePanelBg = isDark ? '#1a1e38' : '#f8fafc';
+        const sidePanelBorder = isDark ? '#2c3568' : '#edf2f7';
+        const taskCardBg = isDark ? '#242b50' : '#ffffff';
+        const taskCardBorder = isDark ? '#2c3568' : '#edf2f7';
+        const titleColor = isDark ? '#e4ecff' : '#1a202c';
+        const mutedColor = isDark ? '#546298' : '#a0aec0';
+        const taskTitleColor = isDark ? '#c8d8ff' : '#2d3748';
+
         return (
             <div className="grid grid-cols-[1fr_300px] gap-6 lg:grid-cols-1">
-                <div className="grid grid-cols-7 gap-px bg-[#edf2f7] border border-[#edf2f7] rounded-xl overflow-hidden shrink-0">
-                    {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                        <div key={d} className="bg-[#f8fafc] p-3 text-center text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{d}</div>
-                    ))}
-                    {daysInMonth.map(day => {
-                        const dateStr = `2026-03-${day.toString().padStart(2, '0')}`;
-                        const dayTasks = tasks.filter(t => t.date === dateStr);
-                        const isSelected = selectedDate === dateStr;
-                        return (
-                            <div 
-                                key={day} 
-                                className={`bg-white min-h-[100px] p-2.5 flex flex-col gap-1.5 cursor-pointer transition-all duration-200 border-2 border-transparent relative z-10 hover:bg-[#f7fafc] ${isSelected ? 'bg-[#f0f4ff] border-[#2447d7] z-20 shadow-sm' : ''}`}
-                                onClick={() => setSelectedDate(dateStr)}
-                            >
-                                <span className={`text-[13px] font-bold ${isSelected ? 'text-[#2447d7]' : 'text-[#4a5568]'}`}>{day}</span>
-                                <div className="flex flex-wrap gap-1 mt-auto">
-                                    {dayTasks.map(t => (
-                                        <div key={t.id} className={`w-1.5 h-1.5 rounded-full ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#cbd5e0]'}`} title={t.title}></div>
-                                    ))}
+                {/* Calendar grid */}
+                <div className="rounded-2xl overflow-hidden" style={{ background: isDark ? '#141829' : '#f1f5fb', padding: '16px', gap: '8px', display: 'flex', flexDirection: 'column' }}>
+                    {/* Day headers */}
+                    <div className="grid grid-cols-7 gap-2 mb-1">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
+                            <div key={d} className="text-center text-[10px] font-black uppercase tracking-widest py-2" style={{ color: headerText, background: headerBg, borderRadius: '8px' }}>{d}</div>
+                        ))}
+                    </div>
+                    {/* Day cells */}
+                    <div className="grid grid-cols-7 gap-2">
+                        {daysInMonth.map(day => {
+                            const dateStr = `2026-03-${day.toString().padStart(2, '0')}`;
+                            const dayTasks = tasks.filter(t => t.date === dateStr);
+                            const isSelected = selectedDate === dateStr;
+                            const isToday = dateStr === todayStr;
+                            return (
+                                <div
+                                    key={day}
+                                    onClick={() => setSelectedDate(dateStr)}
+                                    className="aspect-square rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 relative"
+                                    style={{
+                                        background: isSelected ? cardBgSelected : cardBg,
+                                        border: `1.5px solid ${isSelected ? cardBorderSelected : isToday ? cardBorderToday : cardBorder}`,
+                                        boxShadow: isSelected ? `0 0 0 3px rgba(36,71,215,0.15)` : 'none',
+                                    }}
+                                    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = cardBgHover; }}
+                                    onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = cardBg; }}
+                                >
+                                    <span
+                                        className="text-[13px] font-bold w-7 h-7 flex items-center justify-center rounded-full transition-all"
+                                        style={{
+                                            background: isToday ? '#2447d7' : 'transparent',
+                                            color: isToday ? '#ffffff' : isSelected ? '#2447d7' : dayText,
+                                        }}
+                                    >{day}</span>
+                                    {dayTasks.length > 0 && (
+                                        <div className="flex gap-1 mt-1 flex-wrap justify-center px-1">
+                                            {dayTasks.slice(0, 3).map(t => (
+                                                <div key={t.id} className={`w-1.5 h-1.5 rounded-full ring-1 ring-white/20 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#6480c4]'}`} title={t.title} />
+                                            ))}
+                                            {dayTasks.length > 3 && <div className="w-1 h-1 rounded-full" style={{ background: mutedColor }} />}
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
-                
-                <div className="bg-[#f8fafc] rounded-2xl p-5 flex flex-col gap-4 border border-[#edf2f7]">
-                    <div className="flex justify-between items-center pb-3 border-b border-[#edf2f7]">
-                        <h3 className="text-sm font-bold text-[#1a202c]">Tasks for {selectedDate}</h3>
+
+                {/* Side panel */}
+                <div className="rounded-2xl p-5 flex flex-col gap-4" style={{ background: sidePanelBg, border: `1px solid ${sidePanelBorder}` }}>
+                    <div className="flex justify-between items-center pb-3" style={{ borderBottom: `1px solid ${sidePanelBorder}` }}>
+                        <h3 className="text-sm font-bold" style={{ color: titleColor }}>Tasks for {selectedDate}</h3>
                         <button className="w-7 h-7 bg-[#2447d7] text-white rounded-lg flex items-center justify-center hover:scale-105 transition-transform" onClick={() => {
                             setNewTask({...newTask, date: selectedDate});
                             setIsAddingTask(true);
@@ -120,16 +168,16 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                     <div className="flex-1 flex flex-col gap-3 overflow-y-auto max-h-[500px] pr-1 scrollbar-thin">
                         {tasks.filter(t => t.date === selectedDate).length > 0 ? (
                             tasks.filter(t => t.date === selectedDate).map(t => (
-                                <div key={t.id} className="bg-white p-3 rounded-xl border border-[#edf2f7] flex items-center gap-3 shadow-sm hover:translate-y-[-2px] transition-all">
+                                <div key={t.id} className="p-3 rounded-xl flex items-center gap-3 shadow-sm hover:translate-y-[-2px] transition-all" style={{ background: taskCardBg, border: `1px solid ${taskCardBorder}` }}>
                                     <div className={`w-1 h-8 rounded-full shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#cbd5e0]'}`}></div>
                                     <div className="flex flex-col min-w-0">
-                                        <span className="text-[13px] font-bold text-[#2d3748] truncate leading-tight">{t.title}</span>
-                                        <span className="text-[11px] text-[#a0aec0] font-medium">{t.time} • {t.lead}</span>
+                                        <span className="text-[13px] font-bold truncate leading-tight" style={{ color: taskTitleColor }}>{t.title}</span>
+                                        <span className="text-[11px] font-medium" style={{ color: mutedColor }}>{t.time} • {t.lead}</span>
                                     </div>
                                 </div>
                             ))
                         ) : (
-                            <p className="text-[12px] text-[#a0aec0] text-center mt-4 italic">No tasks scheduled for this day.</p>
+                            <p className="text-[12px] text-center mt-4 italic" style={{ color: mutedColor }}>No tasks scheduled for this day.</p>
                         )}
                     </div>
                 </div>
@@ -267,7 +315,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
             </div>
 
             {viewMode === 'calendar' ? (
-                <div className="bg-white p-6 rounded-2xl border border-[#edf2f7] shadow-sm animate-fadeIn">
+                <div className="animate-fadeIn">
                     {renderCalendar()}
                 </div>
             ) : (

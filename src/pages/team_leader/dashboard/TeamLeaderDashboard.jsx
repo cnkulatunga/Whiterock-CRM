@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
+import { useTheme } from '../../../context/ThemeContext';
 
 const DONUT_GAP_DEG = 3;
 
 const DonutChart = ({ data, total }) => {
     const [hovered, setHovered] = useState(null);
     const [drawn, setDrawn] = useState(false);
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     useEffect(() => {
         const t = setTimeout(() => setDrawn(true), 200);
@@ -97,7 +100,7 @@ const DonutChart = ({ data, total }) => {
                                 <path
                                     d={describeArc(seg.startAngle, seg.endAngle, outerR + (isHov ? 6 : 0), innerR - (isHov ? 3 : 0))}
                                     fill={`url(#grad${i})`}
-                                    stroke="white"
+                                    stroke={isDark ? '#1e2347' : 'white'}
                                     strokeWidth="2"
                                 />
                             </g>
@@ -105,8 +108,8 @@ const DonutChart = ({ data, total }) => {
                     })}
 
                     {/* Center circle */}
-                    <circle cx={cx} cy={cy} r={innerR - 6} fill="white"
-                        style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }} />
+                    <circle cx={cx} cy={cy} r={innerR - 6} fill={isDark ? '#1e2347' : 'white'}
+                        style={{ filter: isDark ? 'none' : 'drop-shadow(0 2px 8px rgba(0,0,0,0.06))' }} />
                 </svg>
 
                 {/* Center text */}
@@ -115,7 +118,7 @@ const DonutChart = ({ data, total }) => {
                         className="font-black leading-none transition-all duration-300"
                         style={{
                             fontSize: hovSeg ? '28px' : '32px',
-                            color: hovSeg ? hovSeg.color : '#1a202c',
+                            color: hovSeg ? hovSeg.color : (isDark ? '#e4ecff' : '#1a202c'),
                         }}
                     >
                         {hovSeg ? `${hovSeg.value}%` : total}
@@ -138,6 +141,9 @@ const DonutChart = ({ data, total }) => {
 };
 
 const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
     // Shared Stats & Mock Data
     const stats = [
         { label: 'Total Active Leads', value: '1,284', trend: '+5.2%', trendType: 'positive' },
@@ -257,30 +263,59 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
                     </button>
-                    {showNotifications && (
-                        <div className="absolute top-14 right-0 w-[300px] bg-white rounded-2xl shadow-xl border border-[#edf2f7] z-[100] overflow-hidden animate-fadeIn">
-                            <div className="p-4 bg-[#f8fafc] border-b border-[#edf2f7] text-sm font-bold text-[#1a202c]">Reminders & Alerts</div>
-                            <div className="max-h-[300px] overflow-y-auto">
-                                {tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').length > 0 ? (
-                                    tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').map(t => (
-                                        <div key={t.id} className="p-3 px-4 flex items-center gap-3 border-b border-[#f7fafc] hover:bg-[#f8fafc] transition-colors">
-                                            <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-                                                    <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3L2 6" /><path d="M22 6l-3-3" /><path d="M6.38 18.7l-.44 1.1a1 1 0 0 1-1.32.5l-2.2-.9a1 1 0 0 1-.5-1.32l.44-1.1" /><path d="M17.62 18.7l.44 1.1a1 1 0 0 1 1.32.5l2.2-.9a1 1 0 0 1 .5-1.32l-.44-1.1" />
+                    {showNotifications && (() => {
+                        const popupBg = isDark ? '#1e2347' : '#ffffff';
+                        const popupBorder = isDark ? '#2c3568' : '#edf2f7';
+                        const headerBg = isDark ? '#141829' : '#f8fafc';
+                        const headerColor = isDark ? '#e4ecff' : '#1a202c';
+                        const rowBorder = isDark ? '#2c3568' : '#f1f5f9';
+                        const rowHover = isDark ? '#242b58' : '#f8fafc';
+                        const iconBg = isDark ? 'rgba(239,68,68,0.2)' : '#fef2f2';
+                        const titleColor = isDark ? '#e4ecff' : '#2d3748';
+                        const metaColor = isDark ? '#8ea0d4' : '#94a3b8';
+                        const badgeBg = isDark ? '#2c3568' : '#f1f5f9';
+                        const badgeColor = isDark ? '#8ea0d4' : '#94a3b8';
+                        const emptyColor = isDark ? '#8ea0d4' : '#94a3b8';
+                        const reminderTasks = tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed');
+                        return (
+                            <div style={{
+                                position: 'absolute', top: '56px', right: 0, width: '300px', zIndex: 100,
+                                background: popupBg, border: `1px solid ${popupBorder}`,
+                                borderRadius: '16px', overflow: 'hidden',
+                                boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(0,0,0,0.12)',
+                            }}>
+                                <div style={{ padding: '14px 16px', background: headerBg, borderBottom: `1px solid ${popupBorder}`, fontSize: '13px', fontWeight: 700, color: headerColor }}>
+                                    Reminders & Alerts
+                                </div>
+                                <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                                    {reminderTasks.length > 0 ? reminderTasks.map(t => (
+                                        <div key={t.id}
+                                            style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: '12px', background: popupBg, borderBottom: `1px solid ${rowBorder}`, cursor: 'default' }}
+                                            onMouseEnter={e => e.currentTarget.style.background = rowHover}
+                                            onMouseLeave={e => e.currentTarget.style.background = popupBg}
+                                        >
+                                            <div style={{ width: 32, height: 32, borderRadius: '10px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: iconBg, color: '#ef4444' }}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                                                    <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3L2 6" /><path d="M22 6l-3-3" />
                                                 </svg>
                                             </div>
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="text-[13px] font-bold text-[#2d3748] leading-tight flex items-center gap-1.5">{t.title} {t.assignedTo === 'Self' ? <span className="bg-[#f8fafc] text-[#a0aec0] text-[9px] px-1 rounded uppercase tracking-wider border border-[#edf2f7]">Self</span> : ''}</span>
-                                                <span className="text-[11px] text-[#a0aec0] font-medium">{t.date} at {t.time}</span>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0, flex: 1 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                                    <span style={{ fontSize: '13px', fontWeight: 700, color: titleColor, lineHeight: 1.3 }}>{t.title}</span>
+                                                    {t.assignedTo === 'Self' && (
+                                                        <span style={{ fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.06em', background: badgeBg, color: badgeColor }}>Self</span>
+                                                    )}
+                                                </div>
+                                                <span style={{ fontSize: '11px', fontWeight: 500, color: metaColor }}>{t.date} at {t.time}</span>
                                             </div>
                                         </div>
-                                    ))
-                                ) : (
-                                    <div className="p-6 text-center text-[#a0aec0] text-[13px] italic">No active reminders</div>
-                                )}
+                                    )) : (
+                                        <div style={{ padding: '24px 16px', textAlign: 'center', fontSize: '13px', fontStyle: 'italic', color: emptyColor }}>No active reminders</div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        );
+                    })()}
                 </div>
             </header>
 
@@ -346,7 +381,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                         >
                                                             <span>{agent.initials}</span>
                                                         </div>
-                                                        <span className="text-[14px] font-bold text-[#2d3748] tracking-tight">{agent.name}</span>
+                                                        <span className="text-[14px] font-bold tracking-tight" style={{ color: isDark ? agent.color : '#2d3748' }}>{agent.name}</span>
                                                     </div>
                                                 </td>
                                                 <td className="p-5 px-6 table-cell md:flex md:items-center md:justify-between md:border-t md:border-t-[#f1f5f9] md:py-3.5">
@@ -462,13 +497,14 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                         return (
                                             <div
                                                 key={day}
-                                                className={`aspect-square flex items-center justify-center text-[13px] font-bold rounded-xl cursor-pointer relative transition-all duration-200 border border-transparent ${itoday ? 'bg-[#ebf0ff] text-[#2447d7] border-[#2447d7]/20 cursor-pointer pointer-events-auto' :
-                                                        isSelected ? 'bg-[#2447d7] text-white shadow-[0_4px_12px_rgba(36,71,215,0.25)]' :
-                                                            'text-[#4a5568] hover:bg-[#f8fafc] hover:border-[#edf2f7] hover:text-[#2447d7]'
-                                                    }`}
+                                                className={`aspect-square flex items-center justify-center rounded-xl cursor-pointer relative transition-all duration-200 border border-transparent
+                                                    ${itoday && !isSelected ? 'bg-[#eef2ff] border-[#2447d7]/20' : isSelected ? 'bg-[#2447d7] shadow-[0_4px_12px_rgba(36,71,215,0.25)]' : 'hover:bg-[#f8fafc] hover:border-[#edf2f7]'}
+                                                `}
                                                 onClick={() => setSelectedDate(dateStr)}
                                             >
-                                                {day}
+                                                <span className={`text-[13px] font-bold w-6 h-6 flex items-center justify-center rounded-full
+                                                    ${itoday ? 'bg-[#2447d7] text-white' : isSelected ? 'text-white' : 'text-[#4a5568] hover:text-[#2447d7]'}
+                                                `}>{day}</span>
                                                 {dayTasks.length > 0 && !isSelected && (
                                                     <span className="absolute bottom-1.5 w-1 h-1 bg-[#2447d7] rounded-full"></span>
                                                 )}
@@ -622,7 +658,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                         >
                                                             {icons[idx]}
                                                         </div>
-                                                        <span className="text-[13px] font-bold text-[#2d3748] tracking-tight leading-tight">{item.label}</span>
+                                                        <span className="text-[13px] font-bold tracking-tight leading-tight" style={{ color: isDark ? '#c8d8ff' : '#2d3748' }}>{item.label}</span>
                                                     </div>
                                                     {/* Value pill */}
                                                     <div className="flex items-baseline gap-0.5">
@@ -632,7 +668,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                 </div>
 
                                                 {/* Mini progress bar */}
-                                                <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: 'rgba(0,0,0,0.06)' }}>
+                                                <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)' }}>
                                                     <div
                                                         className="h-full rounded-full transition-all duration-[1200ms] ease-out"
                                                         style={{

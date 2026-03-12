@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import TeamLeaderSidebar from '../components/team_leader_sidebar/TeamLeaderSidebar';
 import TeamLeaderDashboard from '../pages/team_leader/dashboard/TeamLeaderDashboard';
@@ -8,10 +8,11 @@ import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar
 import { useReminders } from '../hooks/useReminders';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
+import { useTheme } from '../context/ThemeContext';
 
 const INITIAL_TASKS = [
     { id: 101, title: 'Weekly Team Sync', lead: null, status: 'Pending', date: '2026-03-09', time: '09:00', type: 'Meeting', reminder: '15m', assignedTo: 'Self' },
-    { id: 102, title: 'Review John\'s high-value leads', lead: 'Portfolio Review', status: 'In Progress', date: '2026-03-09', time: '11:00', type: 'Review', reminder: 'none', assignedTo: '1' },
+    { id: 102, title: "Review John's high-value leads", lead: 'Portfolio Review', status: 'In Progress', date: '2026-03-09', time: '11:00', type: 'Review', reminder: 'none', assignedTo: '1' },
     { id: 103, title: 'Monthly goal setting', lead: null, status: 'Completed', date: '2026-03-02', time: '10:00', type: 'Review', reminder: 'none', assignedTo: 'Self' },
     { id: 104, title: 'Check document backlog', lead: 'Backlog', status: 'Pending', date: '2026-03-10', time: '14:00', type: 'Document', reminder: '1h', assignedTo: '3' },
 ];
@@ -22,18 +23,8 @@ const TeamLeaderLayout = ({ onLogout }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [tasks, setTasks] = useState(INITIAL_TASKS);
-    
-    // Derive activePage from location
-    const getActivePage = () => {
-        const path = location.pathname;
-        if (path.includes('/team-leader/dashboard')) return 'dashboard';
-        if (path.includes('/team-leader/lead-monitoring')) return 'lead-monitoring';
-        if (path.includes('/team-leader/document-verification')) return 'document-verification';
-        if (path.includes('/team-leader/calendar')) return 'calendar';
-        return 'dashboard';
-    };
-
-    const activePage = getActivePage();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
 
@@ -49,10 +40,12 @@ const TeamLeaderLayout = ({ onLogout }) => {
         }
     };
 
-
     return (
-        <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden relative">
-            <div className={`fixed inset-0 bg-black/40 z-[100] backdrop-blur-[2px] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setIsSidebarOpen(false)}></div>
+        <div
+            className="flex min-h-screen w-full overflow-x-hidden relative"
+            style={{ background: isDark ? '#181c2e' : '#edf0fb' }}
+        >
+            <div className={`fixed inset-0 bg-black/40 z-[100] backdrop-blur-[2px] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setIsSidebarOpen(false)} />
             <TeamLeaderSidebar
                 activePage={location.pathname}
                 onNavigate={handleNavigate}
@@ -61,17 +54,26 @@ const TeamLeaderLayout = ({ onLogout }) => {
                 onCollapseChange={setIsSidebarCollapsed}
             />
             <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[280px] lg:ml-0'}`}>
-                <div className={`h-[68px] bg-white/97 border-b border-[#edf2f7] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}>
-                    <button className="hidden lg:flex bg-none border-none text-[#4a5568] cursor-pointer p-1.5" onClick={toggleSidebar}>
+                <div
+                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
+                    style={{
+                        background: isDark ? 'rgba(22,26,48,0.97)' : 'rgba(255,255,255,0.98)',
+                        borderBottom: `1px solid ${isDark ? '#36407a' : '#e6ebf5'}`,
+                        boxShadow: isDark ? '0 1px 12px rgba(0,0,0,0.25)' : '0 1px 6px rgba(36,71,215,0.06)',
+                    }}
+                >
+                    <button
+                        className="hidden lg:flex bg-none border-none cursor-pointer p-1.5"
+                        style={{ color: isDark ? '#94abda' : '#4b5681' }}
+                        onClick={toggleSidebar}
+                    >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
-                            <line x1="3" y1="12" x2="21" y2="12"></line>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                            <line x1="3" y1="12" x2="21" y2="12" />
+                            <line x1="3" y1="6" x2="21" y2="6" />
+                            <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
-
-                    <div className="flex-1 max-w-[480px]"></div>
-
+                    <div className="flex-1 max-w-[480px]" />
                 </div>
 
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">

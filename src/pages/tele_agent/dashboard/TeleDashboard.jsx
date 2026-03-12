@@ -293,13 +293,14 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                         return (
                                             <div
                                                 key={day}
-                                                className={`aspect-square flex items-center justify-center text-[13px] font-bold rounded-xl cursor-pointer relative transition-all duration-200 ${itoday ? 'bg-[#ebf0ff] text-[#2447d7]' :
-                                                        isSelected ? 'bg-[#2447d7] text-white shadow-[0_4px_12px_rgba(36,71,215,0.25)]' :
-                                                            'text-[#4a5568] hover:bg-[#f8fafc] hover:text-[#2447d7]'
-                                                    }`}
+                                                className={`aspect-square flex items-center justify-center rounded-xl cursor-pointer relative transition-all duration-200
+                                                    ${itoday && !isSelected ? 'bg-[#eef2ff]' : isSelected ? 'bg-[#2447d7] shadow-[0_4px_12px_rgba(36,71,215,0.25)]' : 'hover:bg-[#f8fafc]'}
+                                                `}
                                                 onClick={() => setSelectedDate(dateStr)}
                                             >
-                                                {day}
+                                                <span className={`text-[13px] font-bold w-6 h-6 flex items-center justify-center rounded-full
+                                                    ${itoday ? 'bg-[#2447d7] text-white' : isSelected ? 'text-white' : 'text-[#4a5568] hover:text-[#2447d7]'}
+                                                `}>{day}</span>
                                                 {dayTasks.length > 0 && !isSelected && (
                                                     <span className="absolute bottom-1.5 w-1 h-1 bg-[#2447d7] rounded-full"></span>
                                                 )}

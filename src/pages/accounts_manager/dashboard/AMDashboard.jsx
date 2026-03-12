@@ -306,13 +306,15 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                                 return (
                                     <div
                                         key={day}
-                                        className={`aspect-square flex items-center justify-center text-[12px] font-bold rounded-lg cursor-pointer relative transition-all duration-200 border border-transparent
-                                            ${itoday && !isSelected ? 'bg-[#ebf0ff] text-[#2447d7] border-[#2447d7]/20' :
-                                              isSelected ? 'bg-[#2447d7] text-white shadow-[0_4px_12px_rgba(36,71,215,0.25)]' :
-                                              'text-[#4a5568] hover:bg-[#f8fafc] hover:text-[#2447d7]'}`}
+                                        className={`aspect-square flex items-center justify-center rounded-lg cursor-pointer relative transition-all duration-200 border border-transparent
+                                            ${itoday && !isSelected ? 'bg-[#eef2ff] border-[#2447d7]/20' :
+                                              isSelected ? 'bg-[#2447d7] shadow-[0_4px_12px_rgba(36,71,215,0.25)]' :
+                                              'hover:bg-[#f8fafc]'}`}
                                         onClick={() => setSelectedDate(dateStr)}
                                     >
-                                        {day}
+                                        <span className={`text-[12px] font-bold w-6 h-6 flex items-center justify-center rounded-full
+                                            ${itoday ? 'bg-[#2447d7] text-white' : isSelected ? 'text-white' : 'text-[#4a5568] hover:text-[#2447d7]'}
+                                        `}>{day}</span>
                                         {dayTasks.length > 0 && !isSelected && (
                                             <span className="absolute bottom-1 w-1 h-1 bg-[#2447d7] rounded-full" />
                                         )}

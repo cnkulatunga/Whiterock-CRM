@@ -88,6 +88,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
 
     const renderCalendar = () => {
         const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
+        const todayStr = new Date().toISOString().split('T')[0];
         return (
             <div className="grid grid-cols-[1fr_320px] gap-8 xl:grid-cols-1">
                 <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm">
@@ -99,13 +100,19 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                             const dateStr = `2026-03-${day.toString().padStart(2, '0')}`;
                             const dayTasks = tasks.filter(t => t.date === dateStr);
                             const isSelected = selectedDate === dateStr;
+                            const isToday = dateStr === todayStr;
                             return (
-                                <div 
-                                    key={day} 
-                                    className={`aspect-square rounded-2xl border flex flex-col items-center justify-center relative cursor-pointer transition-all duration-300 group hover:border-[#2447d7] hover:shadow-md ${dayTasks.length > 0 ? 'bg-[#f8faff]' : 'bg-white'} ${isSelected ? 'border-[#2447d7] ring-4 ring-[#2447d7]/5 z-10' : 'border-[#edf2f7]'}`}
+                                <div
+                                    key={day}
+                                    className={`aspect-square rounded-2xl border flex flex-col items-center justify-center relative cursor-pointer transition-all duration-300 group hover:border-[#2447d7] hover:shadow-md
+                                        ${isToday && !isSelected ? 'bg-[#eef2ff] border-[#2447d7]/30' : dayTasks.length > 0 ? 'bg-[#f8faff]' : 'bg-white'}
+                                        ${isSelected ? 'border-[#2447d7] ring-4 ring-[#2447d7]/5 z-10' : isToday ? '' : 'border-[#edf2f7]'}
+                                    `}
                                     onClick={() => setSelectedDate(dateStr)}
                                 >
-                                    <span className={`text-[13px] font-bold ${isSelected ? 'text-[#2447d7]' : 'text-[#718096]'} group-hover:text-[#2447d7]`}>{day}</span>
+                                    <span className={`text-[13px] font-bold w-6 h-6 flex items-center justify-center rounded-full
+                                        ${isToday ? 'bg-[#2447d7] text-white' : isSelected ? 'text-[#2447d7]' : 'text-[#718096] group-hover:text-[#2447d7]'}
+                                    `}>{day}</span>
                                     <div className="flex gap-1 mt-1.5 flex-wrap justify-center px-1">
                                         {dayTasks.slice(0, 3).map(t => (
                                             <div 

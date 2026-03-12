@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme } from '../../../context/ThemeContext';
 
 const TRANSACTIONS = [
     { id: '#TRX-82910', lead: 'LD-4421', name: 'Alice Simpson',   initials: 'AS', bg: '#ebf0ff', tc: '#2447d7', amount: '$4,250.00',  date: 'Oct 24, 2023', status: 'Approved', manager: 'Alex Thompson' },
@@ -144,6 +145,8 @@ const BarChart = () => {
 const DonutChart = () => {
     const [hovered, setHovered] = useState(null);
     const [drawn, setDrawn] = useState(false);
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     useEffect(() => {
         const t = setTimeout(() => setDrawn(true), 150);
@@ -193,7 +196,7 @@ const DonutChart = () => {
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                 <div
                     className="text-[22px] font-bold leading-none transition-all duration-200"
-                    style={{ color: hovSeg ? hovSeg.color : '#1a202c' }}
+                    style={{ color: hovSeg ? hovSeg.color : (isDark ? '#e4ecff' : '#1a202c') }}
                 >
                     {hovSeg ? `${hovSeg.pct}%` : '94%'}
                 </div>

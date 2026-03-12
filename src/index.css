@@ -3,27 +3,522 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+/* ─── THEME CSS VARIABLES ─────────────────────────────────────────── */
+:root {
+    /* Light Mode — Soft Blue-White */
+    --bg-page:         #edf0fb;
+    --bg-sidebar:      #ffffff;
+    --bg-header:       rgba(255, 255, 255, 0.98);
+    --bg-card:         #ffffff;
+    --bg-hover:        #eaedff;
+    --bg-active:       #e0e7ff;
+    --bg-footer:       #f5f6ff;
+    --bg-input:        #ffffff;
+    --bg-subtle:       #f2f4fb;
+    --border:          #d8e0f4;
+    --border-subtle:   #e4ecf8;
+    --border-medium:   #dde5f5;
+    --border-input:    #c9d4ec;
+    --text-primary:    #090e28;
+    --text-secondary:  #3a4b7c;
+    --text-muted:      #7d8eb6;
+    --text-subtle:     #566294;
+    --accent:          #2855e8;
+    --accent-hover:    #1e44d0;
+    --accent-light:    #eaedff;
+    --bg-section:      #f4f6fc;
+    --shadow-card:     0 2px 10px rgba(36, 71, 215, 0.07);
+}
+
+[data-theme="dark"] {
+    /* Dark Mode — Indigo Night */
+    --bg-page:         #181c2e;
+    --bg-sidebar:      #1f2347;
+    --bg-header:       rgba(22, 26, 48, 0.97);
+    --bg-card:         #242b50;
+    --bg-section:      #2a3258;
+    --bg-hover:        #313a6e;
+    --bg-active:       #1e3278;
+    --bg-footer:       #1c2040;
+    --bg-input:        #242b50;
+    --bg-subtle:       #1e2245;
+    --border:          #36407a;
+    --border-subtle:   #2c3568;
+    --border-medium:   #333e78;
+    --border-input:    #3e4a88;
+    --text-primary:    #e4ecff;
+    --text-secondary:  #94abda;
+    --text-muted:      #546298;
+    --text-subtle:     #7c97c6;
+    --accent:          #6080f8;
+    --accent-hover:    #7a96fa;
+    --accent-light:    #1e3278;
+    --shadow-card:     0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* ─── GLOBAL THEME TRANSITION ──────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    transition: background-color 0.25s ease,
+                border-color 0.25s ease,
+                color 0.25s ease,
+                box-shadow 0.25s ease;
+}
+
+/* ─── BASE ─────────────────────────────────────────────────────────── */
 @layer base {
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
+    *, *::before, *::after { box-sizing: border-box; }
 
-  body {
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
-    width: 100%;
-    font-family: 'Sora', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+    body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        width: 100%;
+        font-family: 'Sora', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: var(--bg-page);
+        color: var(--text-primary);
+    }
 
-  button,
-  input,
-  textarea,
-  select {
-    font-family: 'Sora', sans-serif;
-  }
+    button, input, textarea, select {
+        font-family: 'Sora', sans-serif;
+    }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DARK MODE — COMPREHENSIVE OVERRIDES
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Card / white container backgrounds ──────────────────────────── */
+[data-theme="dark"] .bg-white,
+[data-theme="dark"] .bg-\[\#fdfdfd\],
+[data-theme="dark"] .bg-\[\#fefefe\] {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+}
+
+/* ── Page / section backgrounds ──────────────────────────────────── */
+[data-theme="dark"] .bg-gray-50,
+[data-theme="dark"] .bg-\[\#f0f2f9\],
+[data-theme="dark"] .bg-\[\#f7fafc\],
+[data-theme="dark"] .bg-\[\#f4f6fb\],
+[data-theme="dark"] .bg-\[\#f0f4fb\],
+[data-theme="dark"] .bg-\[\#edf2f7\],
+[data-theme="dark"] .bg-\[\#f0f4ff\],
+[data-theme="dark"] .bg-\[\#edf0fb\],
+[data-theme="dark"] .min-h-screen.bg-gray-50 {
+    background-color: var(--bg-page) !important;
+}
+
+/* ── Inner section / elevated box backgrounds (action cells, inputs) */
+/* Slightly lighter than card so inner boxes visually pop */
+[data-theme="dark"] .bg-\[\#f8fafc\],
+[data-theme="dark"] .bg-\[\#fbfeff\],
+[data-theme="dark"] .bg-\[\#fcfdfe\],
+[data-theme="dark"] .bg-\[\#f8faff\],
+[data-theme="dark"] .bg-\[\#fcfdff\],
+[data-theme="dark"] .bg-\[\#fafbff\],
+[data-theme="dark"] .bg-\[\#fafafa\],
+[data-theme="dark"] .bg-\[\#f7f8ff\],
+[data-theme="dark"] .bg-\[\#f5f6ff\] {
+    background-color: var(--bg-section) !important;
+}
+
+/* ── HOVER VARIANT OVERRIDES (Tailwind hover: prefix classes) ────── */
+/* Without these, hovered rows/cells flash their original light color */
+[data-theme="dark"] .hover\:bg-white:hover,
+[data-theme="dark"] .hover\:bg-\[\#f8faff\]:hover,
+[data-theme="dark"] .hover\:bg-\[\#f8fafc\]:hover,
+[data-theme="dark"] .hover\:bg-\[\#f7fafc\]:hover,
+[data-theme="dark"] .hover\:bg-\[\#fcfdff\]:hover,
+[data-theme="dark"] .hover\:bg-\[\#f8fafc\]:hover,
+[data-theme="dark"] .hover\:bg-gray-50:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] .hover\:border-\[\#edf2f7\]:hover,
+[data-theme="dark"] .hover\:border-\[\#e2e8f0\]:hover {
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .hover\:text-\[\#2447d7\]:hover,
+[data-theme="dark"] .hover\:text-\[\#2855e8\]:hover {
+    color: var(--accent) !important;
+}
+
+[data-theme="dark"] .hover\:bg-\[\#f0f3ff\]:hover,
+[data-theme="dark"] .hover\:bg-\[\#eaedff\]:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+/* ── Status / badge backgrounds — keep subtle color tint ─────────── */
+/* Blue badge */
+[data-theme="dark"] .bg-\[\#ebf0ff\],
+[data-theme="dark"] .bg-\[\#dbeafe\],
+[data-theme="dark"] .bg-\[\#eff6ff\] {
+    background-color: rgba(96, 128, 248, 0.14) !important;
+    border-color: rgba(96, 128, 248, 0.28) !important;
+}
+
+/* Green badge */
+[data-theme="dark"] .bg-\[\#ecfdf5\],
+[data-theme="dark"] .bg-\[\#d1fae5\],
+[data-theme="dark"] .bg-\[\#dcfce7\] {
+    background-color: rgba(16, 185, 129, 0.12) !important;
+    border-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Orange / amber badge */
+[data-theme="dark"] .bg-\[\#fffbef\],
+[data-theme="dark"] .bg-\[\#fff7ed\],
+[data-theme="dark"] .bg-\[\#ffedd5\],
+[data-theme="dark"] .bg-\[\#fef3c7\] {
+    background-color: rgba(245, 158, 11, 0.12) !important;
+    border-color: rgba(245, 158, 11, 0.25) !important;
+}
+
+/* Red badge */
+[data-theme="dark"] .bg-\[\#fff5f5\],
+[data-theme="dark"] .bg-\[\#fef2f2\],
+[data-theme="dark"] .bg-\[\#fee2e2\] {
+    background-color: rgba(229, 62, 62, 0.12) !important;
+    border-color: rgba(229, 62, 62, 0.25) !important;
+}
+
+/* Purple badge */
+[data-theme="dark"] .bg-\[\#f3e8ff\],
+[data-theme="dark"] .bg-\[\#ede9fe\] {
+    background-color: rgba(124, 58, 237, 0.14) !important;
+    border-color: rgba(124, 58, 237, 0.28) !important;
+}
+
+/* Cyan / info badge */
+[data-theme="dark"] .bg-\[\#f0f9ff\],
+[data-theme="dark"] .bg-\[\#e0f2fe\] {
+    background-color: rgba(3, 105, 161, 0.14) !important;
+    border-color: rgba(3, 105, 161, 0.28) !important;
+}
+
+/* Pink badge */
+[data-theme="dark"] .bg-\[\#fdf2f8\],
+[data-theme="dark"] .bg-\[\#fce7f3\] {
+    background-color: rgba(190, 24, 93, 0.12) !important;
+    border-color: rgba(190, 24, 93, 0.25) !important;
+}
+
+/* ── Borders ──────────────────────────────────────────────────────── */
+[data-theme="dark"] .border-\[\#edf2f7\],
+[data-theme="dark"] .border-\[\#e2e8f0\],
+[data-theme="dark"] .border-\[\#e8edf5\],
+[data-theme="dark"] .border-\[\#f0f4fb\],
+[data-theme="dark"] .border-\[\#f1f5f9\],
+[data-theme="dark"] .border-\[\#d9e8ff\],
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200 {
+    border-color: var(--border) !important;
+}
+
+/* ── Dividers ─────────────────────────────────────────────────────── */
+[data-theme="dark"] hr {
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .divide-\[\#edf2f7\] > * + *,
+[data-theme="dark"] .divide-\[\#f7fafc\] > * + * {
+    border-color: var(--border-subtle) !important;
+}
+
+/* Tailwind divide-y: only override if not a table (tables handled separately) */
+[data-theme="dark"] .divide-y > * + * {
+    border-top-color: var(--border-subtle) !important;
+}
+
+/* ── Text colors ──────────────────────────────────────────────────── */
+[data-theme="dark"] .text-\[\#1a202c\],
+[data-theme="dark"] .text-\[\#1a1f36\],
+[data-theme="dark"] .text-\[\#1e293b\],
+[data-theme="dark"] .text-\[\#0d1236\],
+[data-theme="dark"] .text-\[\#090e28\] {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-\[\#4a5568\],
+[data-theme="dark"] .text-\[\#334155\],
+[data-theme="dark"] .text-\[\#4b5568\],
+[data-theme="dark"] .text-\[\#4b5563\],
+[data-theme="dark"] .text-\[\#3a4b7c\] {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-\[\#718096\],
+[data-theme="dark"] .text-\[\#64748b\],
+[data-theme="dark"] .text-\[\#4b5681\] {
+    color: var(--text-subtle) !important;
+}
+
+[data-theme="dark"] .text-\[\#a0aec0\],
+[data-theme="dark"] .text-\[\#94a3b8\],
+[data-theme="dark"] .text-\[\#8b97ba\] {
+    color: var(--text-muted) !important;
+}
+
+/* ── Inputs ───────────────────────────────────────────────────────── */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background-color: var(--bg-input) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-input) !important;
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: var(--text-muted) !important;
+    opacity: 1;
+}
+
+/* ── Tables ───────────────────────────────────────────────────────── */
+[data-theme="dark"] table {
+    background-color: var(--bg-card) !important;
+}
+
+[data-theme="dark"] thead tr,
+[data-theme="dark"] th {
+    background-color: var(--bg-subtle) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border) !important;
+}
+
+[data-theme="dark"] tbody tr {
+    border-color: var(--border-subtle) !important;
+}
+
+[data-theme="dark"] td {
+    border-color: var(--border-subtle) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] tbody tr:hover td,
+[data-theme="dark"] tbody tr:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+/* ── Progress bars ────────────────────────────────────────────────── */
+[data-theme="dark"] .bg-\[\#f1f5f9\],
+[data-theme="dark"] .bg-\[\#e2e8f0\],
+[data-theme="dark"] .bg-\[\#cbd5e0\] {
+    background-color: var(--bg-hover) !important;
+}
+
+/* ── Avatar / icon container backgrounds ─────────────────────────── */
+[data-theme="dark"] .bg-\[\#f0f4ff\] {
+    background-color: rgba(96, 128, 248, 0.14) !important;
+}
+
+/* ── Neutral / secondary buttons ─────────────────────────────────── */
+[data-theme="dark"] button.bg-\[\#f7fafc\],
+[data-theme="dark"] button.bg-gray-100,
+[data-theme="dark"] button.bg-\[\#edf2f7\] {
+    background-color: var(--bg-hover) !important;
+    color: var(--text-secondary) !important;
+    border-color: var(--border) !important;
+}
+
+/* ── Neutral secondary buttons (Export CSV style) ────────────────── */
+[data-theme="dark"] .bg-white.border {
+    background-color: var(--bg-card) !important;
+    border-color: var(--border) !important;
+    color: var(--text-secondary) !important;
+}
+
+/* ── Hover states for action cells ───────────────────────────────── */
+[data-theme="dark"] .hover\:bg-white:hover {
+    background-color: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] .hover\:border-\[\#edf2f7\]:hover {
+    border-color: var(--border) !important;
+}
+
+/* ── Vertical dividers ────────────────────────────────────────────── */
+[data-theme="dark"] .bg-\[\#f1f5f9\].w-px,
+[data-theme="dark"] .w-px.bg-\[\#f1f5f9\] {
+    background-color: var(--border) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   LIGHT MODE — DEPTH IMPROVEMENTS
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Page background — subtle diagonal pattern for depth */
+body {
+    background-image: radial-gradient(circle at 25% 0%, rgba(40, 85, 232, 0.025) 0%, transparent 50%),
+                      radial-gradient(circle at 75% 100%, rgba(40, 85, 232, 0.02) 0%, transparent 50%);
+}
+
+[data-theme="dark"] body {
+    background-image: radial-gradient(circle at 20% 0%, rgba(96, 128, 248, 0.06) 0%, transparent 45%),
+                      radial-gradient(circle at 80% 100%, rgba(96, 128, 248, 0.04) 0%, transparent 40%);
+}
+
+/* Cards lift off the page */
+.bg-white.rounded-2xl,
+.bg-white.rounded-xl,
+.bg-white.rounded-\[20px\] {
+    box-shadow: 0 1px 3px rgba(36, 71, 215, 0.05), 0 4px 12px rgba(36, 71, 215, 0.06) !important;
+}
+
+/* Dark mode cards get depth too */
+[data-theme="dark"] .bg-white.rounded-2xl,
+[data-theme="dark"] .bg-white.rounded-xl,
+[data-theme="dark"] .bg-white.rounded-\[20px\] {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   SCROLLBAR
+   ══════════════════════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #c4cfe8; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #a0b0d0; }
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: #36407a; border-radius: 4px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: #4d5a9a; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SIDEBAR NAV BUTTONS
+   ══════════════════════════════════════════════════════════════════════ */
+.sidebar-nav-btn {
+    transition: background-color 0.15s ease, color 0.15s ease !important;
+}
+
+.sidebar-nav-btn:hover {
+    background-color: #eaedff !important;
+    color: #2855e8 !important;
+}
+
+.sidebar-nav-btn:hover .nav-icon { color: #2855e8 !important; }
+
+[data-theme="dark"] .sidebar-nav-btn { color: var(--text-secondary) !important; }
+
+[data-theme="dark"] .sidebar-nav-btn:hover {
+    background-color: var(--bg-section) !important;
+    color: var(--accent) !important;
+}
+
+[data-theme="dark"] .sidebar-nav-btn.active {
+    background-color: var(--bg-active) !important;
+    color: var(--accent) !important;
+}
+
+[data-theme="dark"] .sidebar-nav-btn .nav-icon { color: var(--text-muted) !important; }
+
+[data-theme="dark"] .sidebar-nav-btn:hover .nav-icon,
+[data-theme="dark"] .sidebar-nav-btn.active .nav-icon { color: var(--accent) !important; }
+
+[data-theme="dark"] .sidebar-divider { background-color: var(--border-subtle) !important; }
+
+[data-theme="dark"] .sidebar-group-label { color: var(--text-muted) !important; }
+
+/* ── Autofill color override (prevents white flash on browser autocomplete) ── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 60px #f5f7fe inset !important;
+    -webkit-text-fill-color: #090e28 !important;
+    caret-color: #090e28;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+[data-theme="dark"] input:-webkit-autofill,
+[data-theme="dark"] input:-webkit-autofill:hover,
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 60px #242b50 inset !important;
+    -webkit-text-fill-color: #e4ecff !important;
+    caret-color: #e4ecff;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ── Status select dark mode overrides ─────────────────────────────────── */
+/* Pending */
+[data-theme="dark"] .bg-\[\#f7fafc\] { background-color: rgba(148,163,184,0.12) !important; }
+[data-theme="dark"] .text-\[\#4a5568\] { color: #94a3b8 !important; }
+[data-theme="dark"] .border-\[\#e2e8f0\] { border-color: rgba(148,163,184,0.3) !important; }
+
+/* In Progress */
+[data-theme="dark"] .bg-\[\#fffbef\] { background-color: rgba(251,191,36,0.12) !important; }
+[data-theme="dark"] .text-\[\#c05621\] { color: #fbbf24 !important; }
+[data-theme="dark"] .border-\[\#fbd38d\] { border-color: rgba(251,191,36,0.35) !important; }
+
+/* Completed */
+[data-theme="dark"] .bg-\[\#f0fff4\] { background-color: rgba(34,197,94,0.12) !important; }
+[data-theme="dark"] .text-\[\#276749\] { color: #4ade80 !important; }
+[data-theme="dark"] .border-\[\#9ae6b4\] { border-color: rgba(34,197,94,0.35) !important; }
+
+/* LeadDetails status selects */
+[data-theme="dark"] .bg-\[\#fff7ed\] { background-color: rgba(251,146,60,0.12) !important; }
+[data-theme="dark"] .text-\[\#ea580c\] { color: #fb923c !important; }
+[data-theme="dark"] .border-\[\#ea580c\]\/20 { border-color: rgba(251,146,60,0.3) !important; }
+[data-theme="dark"] .bg-\[\#ecfdf5\] { background-color: rgba(34,197,94,0.12) !important; }
+[data-theme="dark"] .text-\[\#10b981\] { color: #4ade80 !important; }
+[data-theme="dark"] .border-\[\#10b981\]\/20 { border-color: rgba(34,197,94,0.3) !important; }
+
+/* ── Near-white border overrides (dark mode) ────────────────────────────── */
+[data-theme="dark"] .border-\[\#f7fafc\],
+[data-theme="dark"] .border-\[\#f8fafc\],
+[data-theme="dark"] .border-\[\#f8f8f8\],
+[data-theme="dark"] .border-\[\#edf2f7\],
+[data-theme="dark"] .border-\[\#e2e8f0\],
+[data-theme="dark"] .border-\[\#e8edf8\],
+[data-theme="dark"] .border-\[\#e6ebf5\],
+[data-theme="dark"] .border-\[\#dde5f5\],
+[data-theme="dark"] .border-\[\#d8e0f4\],
+[data-theme="dark"] .border-\[\#dbe1f5\] { border-color: var(--border) !important; }
+
+/* White card backgrounds that still appear in dark mode */
+[data-theme="dark"] .bg-white { background-color: var(--bg-card) !important; }
+[data-theme="dark"] .border-white { border-color: var(--border) !important; }
+
+/* ── Additional border/divide fixes for table row lines ─────────────────── */
+[data-theme="dark"] .border-\[\#f1f5f9\] { border-color: var(--border) !important; }
+
+/* Tailwind v4 divide selector variant */
+[data-theme="dark"] .divide-\[\#f7fafc\] > :not([hidden]) ~ :not([hidden]),
+[data-theme="dark"] .divide-\[\#edf2f7\] > :not([hidden]) ~ :not([hidden]),
+[data-theme="dark"] .divide-\[\#f1f5f9\] > :not([hidden]) ~ :not([hidden]),
+[data-theme="dark"] .divide-y > :not([hidden]) ~ :not([hidden]) {
+    border-color: var(--border-subtle) !important;
+}
+
+/* ── Table / list row divider white-line fix (dark mode) ─────────────────── */
+/* Tailwind v4 sets --tw-divide-color via the divide-[color] utility and then  */
+/* applies border-top-color: var(--tw-divide-color) on > :not(:last-child).    */
+/* Override the CSS variable itself so every child picks up the dark colour.   */
+
+/* Override the CSS variable at the container level */
+[data-theme="dark"] .divide-\[\#f7fafc\],
+[data-theme="dark"] .divide-\[\#edf2f7\],
+[data-theme="dark"] .divide-\[\#f1f5f9\] {
+    --tw-divide-color: var(--border-subtle) !important;
+}
+
+/* Also override the generated border-color on children — covers both v3 and v4 */
+[data-theme="dark"] .divide-\[\#f7fafc\] > :not(:last-child),
+[data-theme="dark"] .divide-\[\#f7fafc\] > * + *,
+[data-theme="dark"] .divide-\[\#edf2f7\] > :not(:last-child),
+[data-theme="dark"] .divide-\[\#edf2f7\] > * + *,
+[data-theme="dark"] .divide-\[\#f1f5f9\] > :not(:last-child),
+[data-theme="dark"] .divide-\[\#f1f5f9\] > * + * {
+    border-color: var(--border-subtle) !important;
+}
+
+/* Catch-all for any divide-y container in dark mode */
+[data-theme="dark"] .divide-y > :not(:last-child),
+[data-theme="dark"] .divide-y > * + * {
+    border-top-color: var(--border-subtle) !important;
 }

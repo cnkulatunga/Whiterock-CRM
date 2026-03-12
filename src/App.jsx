@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useTheme } from './context/ThemeContext';
 import Login from './pages/login/Login';
 import ClientLayout from './layout/ClientLayout';
 import SuperAdminLayout from './layout/SuperAdminLayout';
@@ -59,6 +60,8 @@ function App() {
     const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('user'));
     const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const navigate = useNavigate();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     const handleLogin = (role = null) => {
         setIsLoggedIn(true);
@@ -143,20 +146,53 @@ function App() {
             </Routes>
             
             {showLogoutConfirm && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999] animate-fadeIn">
-                    <div className="bg-white w-full max-w-[420px] rounded-[20px] p-8 text-center shadow-[0_20px_40px_rgba(0,0,0,0.1)] animate-slideUp max-[520px]:p-6 max-[520px]:mx-4 max-[520px]:rounded-2xl">
-                        <div className="w-16 h-16 bg-[#fff5f5] text-[#e53e3e] rounded-full flex items-center justify-center mx-auto mb-5">
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999] animate-fadeIn">
+                    <div
+                        className="w-full max-w-[420px] rounded-[20px] p-8 text-center animate-slideUp max-[520px]:p-6 max-[520px]:mx-4 max-[520px]:rounded-2xl"
+                        style={{
+                            background: isDark ? '#242b50' : '#ffffff',
+                            boxShadow: isDark
+                                ? '0 20px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(91,123,248,0.12)'
+                                : '0 20px 40px rgba(36,71,215,0.1)',
+                            border: isDark ? '1px solid #2a3055' : 'none',
+                        }}
+                    >
+                        <div
+                            className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5"
+                            style={{
+                                background: isDark ? 'rgba(229,62,62,0.15)' : '#fff5f5',
+                                color: '#e53e3e',
+                            }}
+                        >
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="32" height="32">
                                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
                                 <polyline points="16 17 21 12 16 7" />
                                 <line x1="21" y1="12" x2="9" y2="12" />
                             </svg>
                         </div>
-                        <h3 className="text-xl font-bold text-[#1a202c] mb-3">Confirm Logout</h3>
-                        <p className="text-[15px] text-[#718096] leading-relaxed mb-7">Are you sure you want to log out of Whiterock CRM? Any unsaved changes might be lost.</p>
+                        <h3 className="text-xl font-bold mb-3" style={{ color: isDark ? '#e4ecff' : '#0d1236' }}>Confirm Logout</h3>
+                        <p className="text-[15px] leading-relaxed mb-7" style={{ color: isDark ? '#94abda' : '#4b5681' }}>
+                            Are you sure you want to log out of Whiterock CRM? Any unsaved changes might be lost.
+                        </p>
                         <div className="flex gap-3 max-[520px]:flex-col-reverse max-[520px]:gap-2">
-                            <button className="flex-1 py-3.5 rounded-xl font-semibold text-[15px] cursor-pointer transition-all bg-[#f7fafc] border border-[#edf2f7] text-[#4a5568] hover:bg-[#edf2f7] max-[520px]:w-full max-[520px]:py-3" onClick={cancelLogout}>Stay Logged In</button>
-                            <button className="flex-1 py-3.5 rounded-xl font-semibold text-[15px] cursor-pointer transition-all bg-[#e53e3e] border-none text-white hover:bg-[#c53030] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(229,62,62,0.2)] max-[520px]:w-full max-[520px]:py-3" onClick={confirmLogout}>Yes, Log Out</button>
+                            <button
+                                className="flex-1 py-3.5 rounded-xl font-semibold text-[15px] cursor-pointer transition-all max-[520px]:w-full max-[520px]:py-3"
+                                style={{
+                                    background: isDark ? '#313a6e' : '#f7f8ff',
+                                    border: `1px solid ${isDark ? '#3e4a88' : '#e1e6f5'}`,
+                                    color: isDark ? '#94abda' : '#4b5681',
+                                }}
+                                onClick={cancelLogout}
+                            >
+                                Stay Logged In
+                            </button>
+                            <button
+                                className="flex-1 py-3.5 rounded-xl font-semibold text-[15px] cursor-pointer transition-all text-white hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(229,62,62,0.3)] max-[520px]:w-full max-[520px]:py-3"
+                                style={{ background: '#e53e3e', border: 'none' }}
+                                onClick={confirmLogout}
+                            >
+                                Yes, Log Out
+                            </button>
                         </div>
                     </div>
                 </div>

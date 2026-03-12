@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AccountsManagerSidebar from '../components/accounts_manager_sidebar/AccountsManagerSidebar';
 import AMDashboard from '../pages/accounts_manager/dashboard/AMDashboard';
@@ -10,10 +10,10 @@ import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar
 import { useReminders } from '../hooks/useReminders';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
-
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
 import Lenders from '../pages/super_admin/lenders/Lenders';
 import ClientLenderSelection from '../pages/accounts_manager/client_lender_selection/ClientLenderSelection';
+import { useTheme } from '../context/ThemeContext';
 
 const INITIAL_TASKS = [
     { id: 201, title: 'Review loan applications', lead: 'Pipeline', status: 'Pending', date: '2026-03-11', time: '10:00', type: 'Review', reminder: 'none', assignedTo: 'Self' },
@@ -27,24 +27,8 @@ const AccountsManagerLayout = ({ onLogout }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [tasks, setTasks] = useState(INITIAL_TASKS);
-
-    // Derive activePage from location
-    const getActivePage = () => {
-        const path = location.pathname;
-        if (path.includes('/accounts-manager/dashboard')) return 'accounts_manager_dashboard';
-        if (path.includes('/accounts-manager/lender-selector')) return 'lender_selector';
-        if (path.includes('/accounts-manager/lender-selection')) return 'lender_selection';
-        if (path.includes('/accounts-manager/financial-payment-report')) return 'financial_payment_report';
-        if (path.includes('/accounts-manager/audit-logs')) return 'audit_logs';
-
-        if (path.includes('/accounts-manager/lender-selection-approved')) return 'lender_selection_approved';
-        if (path.includes('/accounts-manager/lenders')) return 'lenders';
-        if (path.includes('/accounts-manager/client-lender-selection')) return 'client_lender_selection';
-        if (path.includes('/accounts-manager/tasks-followups')) return 'tasks_followups';
-        return 'accounts_manager_dashboard';
-    };
-
-    const activePage = getActivePage();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
 
@@ -52,14 +36,12 @@ const AccountsManagerLayout = ({ onLogout }) => {
     const handleNavigate = (page, lead = null) => {
         setIsSidebarOpen(false);
         if (lead) setSelectedLead(lead);
-        
         switch (page) {
             case 'accounts_manager_dashboard': navigate('/accounts-manager/dashboard'); break;
             case 'lender_selector': navigate('/accounts-manager/lender-selector'); break;
             case 'lender_selection': navigate('/accounts-manager/lender-selection'); break;
             case 'financial_payment_report': navigate('/accounts-manager/financial-payment-report'); break;
             case 'audit_logs': navigate('/accounts-manager/audit-logs'); break;
-
             case 'lender_selection_approved': navigate('/accounts-manager/lender-selection-approved'); break;
             case 'lenders': navigate('/accounts-manager/lenders'); break;
             case 'client_lender_selection': navigate('/accounts-manager/client-lender-selection'); break;
@@ -68,9 +50,11 @@ const AccountsManagerLayout = ({ onLogout }) => {
         }
     };
 
-
     return (
-        <div className="flex min-h-screen bg-[#f7fafc] w-full overflow-x-hidden relative">
+        <div
+            className="flex min-h-screen w-full overflow-x-hidden relative"
+            style={{ background: isDark ? '#181c2e' : '#edf0fb' }}
+        >
             <div className={`fixed inset-0 bg-black/40 z-[99] backdrop-blur-[2px] transition-opacity duration-300 ${isSidebarOpen ? 'block opacity-100' : 'hidden opacity-0'}`} onClick={() => setIsSidebarOpen(false)} />
             <AccountsManagerSidebar
                 activePage={location.pathname}
@@ -80,17 +64,25 @@ const AccountsManagerLayout = ({ onLogout }) => {
                 onCollapseChange={setIsSidebarCollapsed}
             />
             <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-[margin] duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[280px] lg:ml-0'}`}>
-                <div className={`h-[68px] bg-white/97 border-b border-[#edf2f7] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}>
-                    <button className="hidden lg:flex bg-none border-none text-[#4a5568] cursor-pointer p-1.5" onClick={toggleSidebar}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                            strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
+                <div
+                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
+                    style={{
+                        background: isDark ? 'rgba(22,26,48,0.97)' : 'rgba(255,255,255,0.98)',
+                        borderBottom: `1px solid ${isDark ? '#36407a' : '#e6ebf5'}`,
+                        boxShadow: isDark ? '0 1px 12px rgba(0,0,0,0.25)' : '0 1px 6px rgba(36,71,215,0.06)',
+                    }}
+                >
+                    <button
+                        className="hidden lg:flex bg-none border-none cursor-pointer p-1.5"
+                        style={{ color: isDark ? '#94abda' : '#4b5681' }}
+                        onClick={toggleSidebar}
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="22" height="22">
                             <line x1="3" y1="12" x2="21" y2="12" />
                             <line x1="3" y1="6" x2="21" y2="6" />
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
-
-
                 </div>
 
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
@@ -100,7 +92,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="lender-selection" element={<LenderSelection lead={selectedLead} onNavigate={handleNavigate} />} />
                         <Route path="financial-payment-report" element={<FinanceReport />} />
                         <Route path="audit-logs" element={<AuditLogs />} />
-
                         <Route path="lender-selection-approved" element={<LenderSelectionApproved />} />
                         <Route path="lenders" element={<Lenders readOnly={true} />} />
                         <Route path="client-lender-selection" element={<ClientLenderSelection onNavigate={handleNavigate} />} />

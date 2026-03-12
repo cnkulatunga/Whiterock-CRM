@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
+import { useTheme } from '../../../context/ThemeContext';
 
 /* ─── GLOBAL KEYFRAMES ────────────────────────── */
 const KEYFRAMES = `
@@ -210,6 +211,18 @@ const IconFilter = () => (
 /* ─── USER PICKER MODAL ───────────────────────── */
 const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirmBtnStyle, excludeIds, onClose, onSelect }) => {
     const { users } = useUsers();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    const modalBg = isDark ? '#1f2347' : '#fff';
+    const borderCol = isDark ? '#2c3568' : '#f1f5f9';
+    const inputBg = isDark ? '#242b50' : '#f8fafc';
+    const inputBorderCol = isDark ? '#36407a' : '#e2e8f0';
+    const textPrimary = isDark ? '#e4ecff' : '#0f172a';
+    const textMuted = isDark ? '#546298' : '#94a3b8';
+    const rowBg = isDark ? '#2a3258' : '#fafafa';
+    const cancelBg = isDark ? '#313a6e' : '#f8fafc';
+    const cancelBorder = isDark ? '#3e4a88' : '#e2e8f0';
+    const cancelColor = isDark ? '#94abda' : '#64748b';
     const [search, setSearch] = useState('');
     const [selected, setSelected] = useState([]);
     const [error, setError] = useState('');
@@ -251,18 +264,18 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
             onClick={onClose}
         >
             <div
-                style={{ background: '#fff', borderRadius: '24px', boxShadow: '0 32px 80px rgba(36,71,215,0.18)', width: '100%', maxWidth: '480px', overflow: 'hidden', animation: 'slideUp 0.25s ease' }}
+                style={{ background: modalBg, borderRadius: '24px', boxShadow: isDark ? '0 32px 80px rgba(0,0,0,0.5)' : '0 32px 80px rgba(36,71,215,0.18)', width: '100%', maxWidth: '480px', overflow: 'hidden', animation: 'slideUp 0.25s ease' }}
                 onClick={e => e.stopPropagation()}
             >
                 {/* Header */}
-                <div style={{ padding: '28px 28px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
+                <div style={{ padding: '28px 28px 20px', borderBottom: `1px solid ${borderCol}`, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '16px' }}>
                     <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                         <div style={{ width: '52px', height: '52px', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, ...iconWrapStyle }}>
                             <IconUsers />
                         </div>
                         <div>
-                            <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>{title}</h3>
-                            <p style={{ fontSize: '13px', color: '#94a3b8', margin: '4px 0 0', fontWeight: 500 }}>
+                            <h3 style={{ fontSize: '17px', fontWeight: 800, color: textPrimary, margin: 0, letterSpacing: '-0.3px' }}>{title}</h3>
+                            <p style={{ fontSize: '13px', color: textMuted, margin: '4px 0 0', fontWeight: 500 }}>
                                 {selected.length > 0 ? `${selected.length} user${selected.length > 1 ? 's' : ''} selected` : subtitle}
                             </p>
                         </div>
@@ -278,14 +291,14 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                         <div style={{ position: 'relative', flex: 1 }}>
                             <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
                             <input
-                                style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 14px 12px 40px', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
+                                style={{ width: '100%', background: inputBg, border: `1.5px solid ${inputBorderCol}`, padding: '12px 14px 12px 40px', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: textPrimary, outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
                                 type="text"
                                 placeholder="Search by name or email..."
                                 value={search}
                                 onChange={e => { setSearch(e.target.value); setError(''); }}
                                 autoFocus
                                 onFocus={e => e.target.style.borderColor = '#6366f1'}
-                                onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                                onBlur={e => e.target.style.borderColor = inputBorderCol}
                             />
                         </div>
                         {available.length > 0 && (
@@ -311,16 +324,16 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                                 <div
                                     key={u.id}
                                     onClick={() => toggle(u)}
-                                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '12px', border: `1.5px solid ${isSel ? '#6366f1' : '#f1f5f9'}`, background: isSel ? '#eef2ff' : '#fafafa', cursor: 'pointer', transition: 'all 0.15s' }}
+                                    style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px', borderRadius: '12px', border: `1.5px solid ${isSel ? '#6366f1' : (isDark ? '#36407a' : '#f1f5f9')}`, background: isSel ? (isDark ? 'rgba(99,102,241,0.15)' : '#eef2ff') : rowBg, cursor: 'pointer', transition: 'all 0.15s' }}
                                 >
                                     {/* Checkbox */}
-                                    <div style={{ width: '20px', height: '20px', borderRadius: '6px', border: `2px solid ${isSel ? '#6366f1' : '#cbd5e1'}`, background: isSel ? '#6366f1' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
+                                    <div style={{ width: '20px', height: '20px', borderRadius: '6px', border: `2px solid ${isSel ? '#6366f1' : (isDark ? '#3e4a88' : '#cbd5e1')}`, background: isSel ? '#6366f1' : (isDark ? '#242b50' : '#fff'), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
                                         {isSel && <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>}
                                     </div>
                                     <div style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', background: av.bg, color: av.text, flexShrink: 0 }}>{getInitials(u.name)}</div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ fontSize: '14px', fontWeight: 700, color: isSel ? '#4f46e5' : '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
-                                        <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 500 }}>{u.email}</div>
+                                        <div style={{ fontSize: '14px', fontWeight: 700, color: isSel ? '#818cf8' : textPrimary, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{u.name}</div>
+                                        <div style={{ fontSize: '11px', color: textMuted, fontWeight: 500 }}>{u.email}</div>
                                     </div>
                                     <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px', background: u.status === 'Active' ? '#dcfce7' : '#f1f5f9', color: u.status === 'Active' ? '#16a34a' : '#64748b' }}>{u.status}</span>
                                 </div>
@@ -347,8 +360,8 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                 </div>
 
                 {/* Footer */}
-                <div style={{ padding: '16px 28px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '12px' }}>
-                    <button style={{ flex: 1, padding: '12px', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#64748b', cursor: 'pointer', transition: 'all 0.15s' }} onClick={onClose}>Cancel</button>
+                <div style={{ padding: '16px 28px 24px', borderTop: `1px solid ${borderCol}`, display: 'flex', gap: '12px' }}>
+                    <button style={{ flex: 1, padding: '12px', background: cancelBg, border: `1.5px solid ${cancelBorder}`, borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: cancelColor, cursor: 'pointer', transition: 'all 0.15s' }} onClick={onClose}>Cancel</button>
                     <button style={{ flex: 1, padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#fff', border: 'none', cursor: selected.length > 0 ? 'pointer' : 'not-allowed', opacity: selected.length > 0 ? 1 : 0.5, transition: 'all 0.15s', ...confirmBtnStyle }} onClick={handle} disabled={selected.length === 0}>
                         {selected.length > 1 ? `${confirmLabel} (${selected.length})` : confirmLabel}
                     </button>
@@ -374,15 +387,15 @@ const AddAgentModal = ({ leaderName, existingMemberIds, onClose, onAdd }) => (
 );
 
 /* ─── STAT PILL ───────────────────────────────── */
-const StatPill = ({ label, value, accent }) => (
-    <div className="tl-stat-pill" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '10px 20px', background: '#f8fafc', borderRadius: '12px', minWidth: '80px' }}>
-        <span className="tl-stat-val" style={{ fontSize: '22px', fontWeight: 900, color: accent || '#0f172a', letterSpacing: '-0.5px', lineHeight: 1.1 }}>{value}</span>
-        <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{label}</span>
+const StatPill = ({ label, value, accent, isDark }) => (
+    <div className="tl-stat-pill" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '10px 20px', background: isDark ? 'rgba(96,128,248,0.08)' : '#f8fafc', borderRadius: '12px', minWidth: '80px' }}>
+        <span className="tl-stat-val" style={{ fontSize: '22px', fontWeight: 900, color: accent || (isDark ? '#e4ecff' : '#0f172a'), letterSpacing: '-0.5px', lineHeight: 1.1 }}>{value}</span>
+        <span style={{ fontSize: '10px', fontWeight: 700, color: isDark ? '#546298' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>{label}</span>
     </div>
 );
 
 /* ─── TEAM LEADER CARD ────────────────────────── */
-const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemoveAgent }) => {
+const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemoveAgent, isDark }) => {
     const [expanded, setExpanded] = useState(false);
     const [showAddAgent, setShowAddAgent] = useState(false);
     const av = getAvatarColor(leader.id);
@@ -394,10 +407,10 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
     return (
         <>
             <div style={{
-                background: '#fff',
+                background: isDark ? '#242b50' : '#fff',
                 borderRadius: '20px',
-                border: '1px solid #e8edf5',
-                boxShadow: '0 2px 12px rgba(15,23,42,0.06)',
+                border: `1px solid ${isDark ? '#36407a' : '#e8edf5'}`,
+                boxShadow: isDark ? '0 2px 12px rgba(0,0,0,0.25)' : '0 2px 12px rgba(15,23,42,0.06)',
                 overflow: 'hidden',
                 transition: 'box-shadow 0.25s, transform 0.25s',
                 opacity: isActive ? 1 : 0.72,
@@ -419,7 +432,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                     {/* Info */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                            <span className="tl-leader-name" style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>{leader.name}</span>
+                            <span className="tl-leader-name" style={{ fontSize: '17px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', letterSpacing: '-0.3px' }}>{leader.name}</span>
                             <span style={{
                                 display: 'inline-flex', alignItems: 'center', gap: '5px',
                                 fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px',
@@ -439,9 +452,9 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
 
                     {/* Stats */}
                     <div className="tl-card-stats">
-                        <StatPill label="Total Agents" value={totalMembers} />
-                        <div style={{ width: '1px', height: '40px', background: '#e8edf5' }} />
-                        <StatPill label="Active" value={activeMembers} accent="#10b981" />
+                        <StatPill label="Total Agents" value={totalMembers} isDark={isDark} />
+                        <div style={{ width: '1px', height: '40px', background: isDark ? '#36407a' : '#e8edf5' }} />
+                        <StatPill label="Active" value={activeMembers} accent="#10b981" isDark={isDark} />
                     </div>
 
                     {/* Actions */}
@@ -492,12 +505,12 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
 
                 {/* ── Expanded Members ── */}
                 {expanded && (
-                    <div style={{ borderTop: '1px solid #f1f5f9', background: '#fafbff', animation: 'expandIn 0.35s cubic-bezier(0.22,1,0.36,1) both', overflow: 'hidden' }}>
+                    <div style={{ borderTop: `1px solid ${isDark ? '#2c3568' : '#f1f5f9'}`, background: isDark ? '#1e2245' : '#fafbff', animation: 'expandIn 0.35s cubic-bezier(0.22,1,0.36,1) both', overflow: 'hidden' }}>
                         {/* Section label */}
                         <div className="tl-section-hdr" style={{ padding: '18px 28px 12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 <div style={{ width: '3px', height: '18px', background: 'linear-gradient(180deg,#6366f1,#8b5cf6)', borderRadius: '999px' }} />
-                                <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+                                <span style={{ fontSize: '11px', fontWeight: 800, color: isDark ? '#94abda' : '#475569', textTransform: 'uppercase', letterSpacing: '0.12em' }}>
                                     Tele Agents — {leader.name}'s Team
                                 </span>
                             </div>
@@ -520,8 +533,8 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                     return (
                                         <div key={member.id} className="tl-member-row" style={{
                                             display: 'flex', alignItems: 'center', gap: '14px',
-                                            padding: '14px 18px', background: '#fff', borderRadius: '14px',
-                                            border: '1px solid #e8edf5', opacity: mActive ? 1 : 0.65,
+                                            padding: '14px 18px', background: isDark ? '#2a3258' : '#fff', borderRadius: '14px',
+                                            border: `1px solid ${isDark ? '#36407a' : '#e8edf5'}`, opacity: mActive ? 1 : 0.65,
                                             transition: 'box-shadow 0.2s, opacity 0.2s',
                                             animation: `memberSlide 0.3s ease ${mi * 0.06}s both`,
                                         }}
@@ -534,8 +547,8 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                             </div>
                                             {/* Info */}
                                             <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{member.name}</div>
-                                                <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}><IconMail />{member.email}</div>
+                                                <div style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{member.name}</div>
+                                                <div style={{ fontSize: '12px', color: isDark ? '#546298' : '#94a3b8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}><IconMail />{member.email}</div>
                                             </div>
                                             {/* Status badge */}
                                             <span style={{
@@ -586,6 +599,8 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
 
 /* ─── MAIN PAGE ───────────────────────────────── */
 const TeamLeaders = ({ onNavigate }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const { users, setUsers } = useUsers();
     const [memberships, setMemberships] = useState(INITIAL_MEMBERSHIPS);
     const [search, setSearch] = useState('');
@@ -715,9 +730,9 @@ const TeamLeaders = ({ onNavigate }) => {
                     { icon: <IconTeams />, value: activeTeams, label: 'Active Teams', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', light: '#f5f3ff', soft: '#ddd6fe' },
                 ].map((kpi, i) => (
                     <div key={i} style={{
-                        background: '#fff', borderRadius: '18px', border: '1px solid #e8edf5',
+                        background: isDark ? '#242b50' : '#fff', borderRadius: '18px', border: `1px solid ${isDark ? '#36407a' : '#e8edf5'}`,
                         padding: '24px', display: 'flex', alignItems: 'center', gap: '18px',
-                        boxShadow: '0 2px 10px rgba(15,23,42,0.05)', transition: 'box-shadow 0.25s, transform 0.25s',
+                        boxShadow: isDark ? '0 2px 10px rgba(0,0,0,0.25)' : '0 2px 10px rgba(15,23,42,0.05)', transition: 'box-shadow 0.25s, transform 0.25s',
                         cursor: 'default',
                         animation: `kpiPop 0.5s cubic-bezier(0.22,1,0.36,1) ${0.1 + i * 0.1}s both`,
                     }}
@@ -736,7 +751,7 @@ const TeamLeaders = ({ onNavigate }) => {
                             {kpi.icon}
                         </div>
                         <div>
-                            <div style={{ fontSize: '30px', fontWeight: 900, color: '#0f172a', letterSpacing: '-1px', lineHeight: 1, animation: 'countUp 0.4s ease both', animationDelay: `${0.2 + i * 0.1}s` }}>
+                            <div style={{ fontSize: '30px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', letterSpacing: '-1px', lineHeight: 1, animation: 'countUp 0.4s ease both', animationDelay: `${0.2 + i * 0.1}s` }}>
                                 <AnimatedNumber value={kpi.value} />
                             </div>
                             <div style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginTop: '4px', letterSpacing: '0.02em' }}>{kpi.label}</div>
@@ -792,6 +807,7 @@ const TeamLeaders = ({ onNavigate }) => {
                                 onToggleLeader={handleToggleLeader}
                                 onToggleAgent={handleToggleAgent}
                                 onRemoveAgent={handleRemoveAgent}
+                                isDark={isDark}
                             />
                         </div>
                     ))

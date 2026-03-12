@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTheme } from '../../../context/ThemeContext';
 
 /* ─── ICONS ─────────────────────────────────── */
 const IcoTrendUp = () => (
@@ -73,6 +74,8 @@ const DONUT_DATA = [
 const DonutChart = () => {
     const [hovered, setHovered] = useState(null);
     const [drawn, setDrawn] = useState(false);
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     useEffect(() => {
         const t = setTimeout(() => setDrawn(true), 150);
@@ -121,7 +124,7 @@ const DonutChart = () => {
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                     <div
                         className="text-[22px] font-bold leading-none transition-all duration-200"
-                        style={{ color: hovSeg ? hovSeg.color : '#1a202c' }}
+                        style={{ color: hovSeg ? hovSeg.color : (isDark ? '#e4ecff' : '#1a202c') }}
                     >
                         {hovSeg ? `${hovSeg.pct}%` : '978'}
                     </div>
