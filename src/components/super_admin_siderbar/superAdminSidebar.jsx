@@ -62,7 +62,7 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose, 
                 </div>
                 {!isCollapsed && (
                     <div className="flex flex-col gap-[1px] min-w-0 flex-1 pr-4">
-                        <span className="text-[0.95rem] font-bold tracking-[-0.3px] whitespace-nowrap" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>Whiterock CRM</span>
+                        <span className="text-[0.95rem] font-bold tracking-[-0.3px] whitespace-nowrap" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>Alpha Funding</span>
                         <span className="text-[0.62rem] font-bold tracking-[1.1px] uppercase" style={{ color: isDark ? '#546298' : '#7d8eb6' }}>Super Admin</span>
                     </div>
                 )}
