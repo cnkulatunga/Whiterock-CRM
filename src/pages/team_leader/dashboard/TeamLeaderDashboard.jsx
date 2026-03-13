@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
 
@@ -249,6 +250,51 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
     };
 
     const [showNotifications, setShowNotifications] = useState(false);
+    const notificationBtnRef = useRef(null);
+    const [notificationPopupPos, setNotificationPopupPos] = useState({ top: 0, right: 0 });
+
+    const computeNotificationPopupPos = () => {
+        const el = notificationBtnRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+
+        const width = 300;
+        const margin = 12;
+        const desiredTop = rect.bottom + 12;
+        const desiredRight = Math.max(margin, window.innerWidth - rect.right);
+        const maxRight = Math.max(margin, window.innerWidth - margin - width);
+        const right = Math.min(desiredRight, maxRight);
+
+        setNotificationPopupPos({
+            top: Math.max(margin, desiredTop),
+            right,
+        });
+    };
+
+    useEffect(() => {
+        if (!showNotifications) return;
+        computeNotificationPopupPos();
+
+        const onWindowChange = () => computeNotificationPopupPos();
+        window.addEventListener('resize', onWindowChange);
+        window.addEventListener('scroll', onWindowChange, true);
+        return () => {
+            window.removeEventListener('resize', onWindowChange);
+            window.removeEventListener('scroll', onWindowChange, true);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [showNotifications]);
+
+    useEffect(() => {
+        if (!showNotifications) return;
+        const onDocMouseDown = (e) => {
+            const btn = notificationBtnRef.current;
+            if (btn && btn.contains(e.target)) return;
+            setShowNotifications(false);
+        };
+        document.addEventListener('mousedown', onDocMouseDown, true);
+        return () => document.removeEventListener('mousedown', onDocMouseDown, true);
+    }, [showNotifications]);
 
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
@@ -259,12 +305,17 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                 </div>
                 <div className="relative">
                     <button
+                        ref={notificationBtnRef}
                         className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative border ${
                             isDark
                                 ? 'bg-[#1e2347] border-[#2c3568] text-[#8ea0d4] hover:bg-[#242b58] hover:text-[#e4ecff]'
                                 : 'bg-white border-[#edf2f7] text-[#718096] hover:bg-[#f7fafc] hover:text-[#2447d7]'
                         } ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`}
-                        onClick={() => setShowNotifications(!showNotifications)}
+                        onClick={() => {
+                            const next = !showNotifications;
+                            setShowNotifications(next);
+                            if (next) computeNotificationPopupPos();
+                        }}
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
@@ -284,13 +335,22 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                         const badgeColor = isDark ? '#8ea0d4' : '#94a3b8';
                         const emptyColor = isDark ? '#8ea0d4' : '#94a3b8';
                         const reminderTasks = tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed');
-                        return (
-                            <div style={{
-                                position: 'absolute', top: '56px', right: 0, width: '300px', zIndex: 1000,
-                                background: popupBg, border: `1px solid ${popupBorder}`,
-                                borderRadius: '16px', overflow: 'hidden',
-                                boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(0,0,0,0.12)',
-                            }}>
+                        return createPortal(
+                            <div
+                                style={{
+                                    position: 'fixed',
+                                    top: `${notificationPopupPos.top}px`,
+                                    right: `${notificationPopupPos.right}px`,
+                                    width: '300px',
+                                    zIndex: 99999,
+                                    background: popupBg,
+                                    border: `1px solid ${popupBorder}`,
+                                    borderRadius: '16px',
+                                    overflow: 'hidden',
+                                    boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(0,0,0,0.12)',
+                                }}
+                                onMouseDown={(e) => e.stopPropagation()}
+                            >
                                 <div style={{ padding: '14px 16px', background: headerBg, borderBottom: `1px solid ${popupBorder}`, fontSize: '13px', fontWeight: 700, color: headerColor }}>
                                     Reminders & Alerts
                                 </div>
@@ -320,7 +380,8 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                         <div style={{ padding: '24px 16px', textAlign: 'center', fontSize: '13px', fontStyle: 'italic', color: emptyColor }}>No active reminders</div>
                                     )}
                                 </div>
-                            </div>
+                            </div>,
+                            document.body
                         );
                     })()}
                 </div>
