@@ -37,12 +37,25 @@ const AuditLogs = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const TOTAL = 1284;
 
-    const filtered = LOG_ENTRIES.filter(e =>
-        !search ||
-        e.name.toLowerCase().includes(search.toLowerCase()) ||
-        e.refId.toLowerCase().includes(search.toLowerCase()) ||
-        e.actionText.toLowerCase().includes(search.toLowerCase())
-    );
+    const filtered = LOG_ENTRIES.filter(e => {
+        if (userRole !== 'Any Role' && e.role !== userRole) return false;
+        
+        if (category !== 'All Categories') {
+            const cat = category.toLowerCase();
+            if (cat === 'payment' && e.actionIcon !== 'payment' && !e.actionText.toLowerCase().includes('payment')) return false;
+            if (cat === 'lead' && e.actionIcon !== 'edit' && !e.actionText.toLowerCase().includes('lead')) return false;
+            if (cat === 'user' && !e.actionText.toLowerCase().includes('user') && e.actionIcon !== 'verify') return false;
+            if (cat === 'system' && e.actionIcon !== 'auto') return false;
+        }
+
+        if (search) {
+            const searchLower = search.toLowerCase();
+            return e.name.toLowerCase().includes(searchLower) ||
+                   e.refId.toLowerCase().includes(searchLower) ||
+                   e.actionText.toLowerCase().includes(searchLower);
+        }
+        return true;
+    });
 
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">

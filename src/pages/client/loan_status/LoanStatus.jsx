@@ -74,14 +74,14 @@ const LoanStatus = () => {
             <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
                 <div className="p-6 px-8 border-b border-[#f7fafc] flex justify-between items-center sm:flex-col sm:items-stretch sm:gap-4 md:px-6">
                     <h2 className="text-base font-bold text-[#1a202c]">Application Milestones</h2>
-                    <div className="relative group max-w-xs sm:max-w-none">
+                    {/*<div className="relative group max-w-xs sm:max-w-none">
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
                                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
                         </div>
                         <input type="text" placeholder="Search milestones..." className="w-full bg-[#f8fafc] border border-[#e2e8f0] p-[10px_16px_10px_40px] rounded-xl text-sm font-medium outline-none focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 transition-all" />
-                    </div>
+                    </div>*/}
                 </div>
 
                 <div className="overflow-x-auto">
@@ -90,7 +90,7 @@ const LoanStatus = () => {
                             <tr className="border-b border-[#f7fafc]">
                                 <th className="p-5 px-8 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider whitespace-nowrap">AMOUNT</th>
                                 <th className="p-5 px-8 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider whitespace-nowrap">DATE</th>
-                                <th className="p-5 px-8 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider whitespace-nowrap">REFERENCE ID</th>
+                                <th className="p-5 px-8 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider whitespace-nowrap">LEAD ID</th>
                                 <th className="p-5 px-8 text-left text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider whitespace-nowrap">STATUS</th>
                                 <th className="p-5 px-8 text-right text-[11px] font-extrabold text-[#a0aec0] uppercase tracking-wider whitespace-nowrap">ACTION / NOTE</th>
                             </tr>
@@ -106,11 +106,10 @@ const LoanStatus = () => {
                                         </span>
                                     </td>
                                     <td className="p-5 px-8">
-                                        <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider border leading-none inline-block ${
-                                            m.status === 'Approved' ? 'bg-[#ecfdf5] text-[#067647] border-[#d1fae5]' :
+                                        <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-wider border leading-none inline-block ${m.status === 'Approved' ? 'bg-[#ecfdf5] text-[#067647] border-[#d1fae5]' :
                                             m.status === 'In Review' ? 'bg-[#f0f9ff] text-[#0369a1] border-[#e0f2fe]' :
-                                            'bg-[#fef2f2] text-[#991b1b] border-[#fee2e2]'
-                                        }`}>
+                                                'bg-[#fef2f2] text-[#991b1b] border-[#fee2e2]'
+                                            }`}>
                                             {m.status}
                                         </span>
                                     </td>
@@ -127,9 +126,8 @@ const LoanStatus = () => {
                                                     <p className="text-[11px] text-[#94a3b8] font-medium leading-tight">{m.note}</p>
                                                 </>
                                             ) : (
-                                                <button className={`text-[12px] font-bold hover:underline transition-all ${
-                                                    m.action === 'APPLICATION CLOSED' ? 'text-[#a0aec0] cursor-not-allowed' : 'text-[#2447d7]'
-                                                }`}>
+                                                <button className={`text-[12px] font-bold hover:underline transition-all ${m.action === 'APPLICATION CLOSED' ? 'text-[#a0aec0] cursor-not-allowed' : 'text-[#2447d7]'
+                                                    }`}>
                                                     {m.action}
                                                 </button>
                                             )}
@@ -153,7 +151,7 @@ const LoanStatus = () => {
             <section className="mt-10 bg-gradient-to-r from-[#2447d7] to-[#4c6ef5] rounded-3xl p-8 relative overflow-hidden flex items-center gap-8 lg:flex-col lg:items-start lg:gap-6">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32"></div>
                 <div className="absolute bottom-0 left-1/4 w-32 h-32 bg-white/5 rounded-full -mb-16"></div>
-                
+
                 <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center shrink-0 border border-white/30 shadow-xl">
                     <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="32" height="32">
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />

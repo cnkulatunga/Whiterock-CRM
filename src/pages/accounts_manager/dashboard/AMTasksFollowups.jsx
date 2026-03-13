@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { signIn, createCalendarEvent, getCalendarEvents, getAccount } from '../../../services/outlookService';
 
-const AGENTS = [
-    { id: 1, name: 'John Smith', initials: 'JS', color: '#2447d7' },
-    { id: 2, name: 'Alice Wong', initials: 'AW', color: '#7c3aed' },
-    { id: 3, name: 'Robert King', initials: 'RK', color: '#f59e0b' },
-    { id: 4, name: 'Sarah Meow', initials: 'SM', color: '#10b981' },
+const LEADERS = [
+    { id: 1, name: 'Team Leader 1' },
+    { id: 2, name: 'Team Leader 2' },
 ];
 
-const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
+const MEMBERS = [
+    { id: 3, name: 'John Smith', initials: 'JS', color: '#2447d7' },
+    { id: 4, name: 'Alice Wong', initials: 'AW', color: '#7c3aed' },
+    { id: 5, name: 'Robert King', initials: 'RK', color: '#f59e0b' },
+    { id: 6, name: 'Sarah Meow', initials: 'SM', color: '#10b981' },
+];
+
+const AllAgents = [...LEADERS, ...MEMBERS];
+
+const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
 
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All'); // All, Personal, Team
@@ -71,7 +78,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
             ...newTask,
             id: Date.now(),
             status: 'Pending',
-            createdBy: 'Team Leader'
+            createdBy: 'Accounts Manager'
         };
         setTasks([taskToAdd, ...tasks]);
         if (notifyReminderSet) notifyReminderSet(taskToAdd);
@@ -235,8 +242,8 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
             <header className="flex justify-between items-center mb-10 sm:flex-col sm:items-start sm:gap-6">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Team & Personal Tasks and Followups</h1>
-                    <p className="text-[0.95rem] text-[#718096] font-medium">Manage your tasks, follow-ups, and assign work to your team members.</p>
+                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Tasks and Followups</h1>
+                    <p className="text-[0.95rem] text-[#718096] font-medium">Manage your tasks, follow-ups, and assign work to team leaders and members.</p>
                 </div>
                 <div className="flex items-center gap-4 sm:flex-wrap">
                     <div className="relative">
@@ -296,11 +303,12 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[13px] font-bold text-[#4a5568]">Assign To</label>
                                     <select value={newTask.assignedTo} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, assignedTo: e.target.value})}>
-                                        <option value="Self">Myself (Team Leader)</option>
+                                        <option value="Self">Assign to me (Manager)</option>
+                                        <optgroup label="Team Leaders">
+                                            {LEADERS.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                        </optgroup>
                                         <optgroup label="Team Members">
-                                            {AGENTS.map(agent => (
-                                                <option key={agent.id} value={agent.id}>{agent.name}</option>
-                                            ))}
+                                            {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
                                         </optgroup>
                                     </select>
                                 </div>
@@ -388,6 +396,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                 onClick={() => setAssignmentFilter(f)}
                             >
                                 {f}
+                                {status}
                             </button>
                         ))}
                     </div>
@@ -521,7 +530,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                                 <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
                                             ) : (
                                                 <span className="text-[9px] font-black text-[#2447d7] bg-[#ebf0ff] px-2 py-0.5 rounded border border-[#d9e3ff] uppercase tracking-wider whitespace-nowrap">
-                                                    Assignee: {AGENTS.find(a => a.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
+                                                    Assignee: {AllAgents.find(a => a.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
                                                 </span>
                                             )}
                                         </div>
@@ -641,4 +650,4 @@ const IconUser = ({ size = 18 }) => (
     </svg>
 );
 
-export default TeamLeaderCalendar;
+export default AMTasksFollowups;

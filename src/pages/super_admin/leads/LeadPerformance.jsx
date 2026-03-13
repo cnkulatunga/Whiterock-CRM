@@ -22,14 +22,12 @@ const LeadPerformance = () => {
     const [search, setSearch]         = useState('');
     const [dateRange, setDateRange]   = useState('Last 30 Days');
     const [agent, setAgent]           = useState('All Agents');
-    const [leadStage, setLeadStage]   = useState('All Stages');
     const [leadStatus, setLeadStatus] = useState('Active');
 
     const filters = [
         { label: 'DATE RANGE',     value: dateRange,   setter: setDateRange,   opts: ['Last 30 Days','Last 90 Days','This Year'] },
         { label: 'ASSIGNED AGENT', value: agent,       setter: setAgent,       opts: ['All Agents','Sarah Jenkins','Michael Ross','David Miller'] },
-        { label: 'LEAD STAGE',     value: leadStage,   setter: setLeadStage,   opts: ['All Stages','Stage 01','Stage 02','Stage 03','Stage 04','Closed Won'] },
-        { label: 'LEAD STATUS',    value: leadStatus,  setter: setLeadStatus,  opts: ['Active','Completed','Urgent','All'] },
+        { label: 'LEAD STATUS',    value: leadStatus,  setter: setLeadStatus,  opts: ['All','Active','Completed','Urgent'] },
     ];
 
     return (
@@ -53,28 +51,7 @@ const LeadPerformance = () => {
                 </div>
             </header>
 
-            {/* ── FILTERS ── */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm grid grid-cols-4 gap-4 lg:grid-cols-2 sm:grid-cols-1 animate-slideDown [animation-delay:100ms] [animation-fill-mode:both]">
-                {filters.map(f => (
-                    <div key={f.label} className="flex flex-col gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">{f.label}</span>
-                        <div className="relative">
-                            <select
-                                className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors"
-                                value={f.value}
-                                onChange={e => f.setter(e.target.value)}
-                            >
-                                {f.opts.map(o => <option key={o}>{o}</option>)}
-                            </select>
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]">
-                                <IcoChevron />
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── KPI CARDS ── */}
+            {/* ── HEADER ── */}
             <div className="grid grid-cols-2 gap-5 sm:grid-cols-1">
                 <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:200ms] [animation-fill-mode:both]">
                     <div className="flex items-center gap-4 mb-4">
@@ -108,6 +85,27 @@ const LeadPerformance = () => {
                 </div>
             </div>
 
+            {/* ── FILTERS ── */}
+            <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1 animate-slideDown [animation-delay:350ms] [animation-fill-mode:both]">
+                {filters.map(f => (
+                    <div key={f.label} className="flex flex-col gap-1.5">
+                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">{f.label}</span>
+                        <div className="relative">
+                            <select
+                                className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors"
+                                value={f.value}
+                                onChange={e => f.setter(e.target.value)}
+                            >
+                                {f.opts.map(o => <option key={o}>{o}</option>)}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]">
+                                <IcoChevron />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
             {/* ── RECENT LEADS TABLE ── */}
             <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:400ms] [animation-fill-mode:both]">
                 <div className="px-6 py-4 flex justify-between items-center border-b border-[#f7fafc]">
@@ -138,11 +136,18 @@ const LeadPerformance = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f7fafc]">
-                            {RECENT_LEADS.filter(l =>
-                                l.name.toLowerCase().includes(search.toLowerCase()) ||
-                                l.id.toLowerCase().includes(search.toLowerCase()) ||
-                                l.agent.toLowerCase().includes(search.toLowerCase())
-                            ).map((lead, i) => (
+                            {RECENT_LEADS.filter(l => {
+                                if (agent !== 'All Agents' && l.agent !== agent) return false;
+                                if (leadStatus !== 'All' && l.status !== leadStatus) return false;
+                                
+                                const searchLower = search.toLowerCase();
+                                if (searchLower) {
+                                    return l.name.toLowerCase().includes(searchLower) ||
+                                           l.id.toLowerCase().includes(searchLower) ||
+                                           l.agent.toLowerCase().includes(searchLower);
+                                }
+                                return true;
+                            }).map((lead, i) => (
                                 <tr key={lead.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${450 + i * 60}ms`, animationFillMode: 'both' }}>
                                     <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{lead.id}</span></td>
                                     <td className="px-6 py-4">
