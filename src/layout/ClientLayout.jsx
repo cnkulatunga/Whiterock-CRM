@@ -7,6 +7,7 @@ import LoanStatus from '../pages/client/loan_status/LoanStatus';
 import LoanHistory from '../pages/client/loan_history/LoanHistory';
 import Support from '../pages/client/support/Support';
 import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from '../components/theme/ThemeToggle';
 
 /* ─── CLIENT LAYOUT ──────────────────────────────── */
 const ClientLayout = ({ onLogout }) => {
@@ -74,6 +75,9 @@ const ClientLayout = ({ onLogout }) => {
                         </svg>
                     </button>
                     <div className="flex-1" />
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                    </div>
                 </div>
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
                     <Routes>

@@ -10,6 +10,7 @@ import { useReminders } from '../hooks/useReminders';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from '../components/theme/ThemeToggle';
 
 const INITIAL_TASKS = [
     { id: 1, title: 'Follow up with Robert Miller', lead: 'Robert Miller', status: 'Pending', date: '2026-03-09', time: '14:00', type: 'Call', reminder: '15m' },
@@ -86,6 +87,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                     </button>
                     <div className="flex-1" />
                     <div className="flex items-center gap-3">
+                        <ThemeToggle />
                         <button
                             className="text-white border-none h-11 px-5 rounded-[10px] text-sm font-bold flex items-center gap-2 cursor-pointer transition-all duration-200 hover:-translate-y-px"
                             style={{

@@ -9,6 +9,7 @@ import { useReminders } from '../hooks/useReminders';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from '../components/theme/ThemeToggle';
 
 const INITIAL_TASKS = [
     { id: 101, title: 'Weekly Team Sync', lead: null, status: 'Pending', date: '2026-03-09', time: '09:00', type: 'Meeting', reminder: '15m', assignedTo: 'Self' },
@@ -73,7 +74,10 @@ const TeamLeaderLayout = ({ onLogout }) => {
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
-                    <div className="flex-1 max-w-[480px]" />
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                    </div>
                 </div>
 
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
