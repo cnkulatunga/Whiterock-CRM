@@ -9,7 +9,9 @@ import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
 import TeamLeaders from '../pages/super_admin/team_leaders/TeamLeaders';
 import Lenders from '../pages/super_admin/lenders/Lenders';
+import OperationalFlow from '../pages/super_admin/operational_flow/OperationalFlow';
 import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from '../components/theme/ThemeToggle';
 
 /* ─── PLACEHOLDER PAGES ───────────────────────── */
 const PlaceholderPage = ({ title, icon }) => (
@@ -63,6 +65,7 @@ const AppLayout = ({ onLogout }) => {
             case 'settings': navigate('/super-admin/settings'); break;
             case 'team-leaders': navigate('/super-admin/team-leaders'); break;
             case 'lenders': navigate('/super-admin/lenders'); break;
+            case 'operational-flow': navigate('/super-admin/operational-flow'); break;
             default: navigate('/super-admin/dashboard');
         }
     };
@@ -100,7 +103,10 @@ const AppLayout = ({ onLogout }) => {
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
-                    <div className="flex-1 max-w-[480px]" />
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                    </div>
                 </div>
 
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
@@ -115,6 +121,7 @@ const AppLayout = ({ onLogout }) => {
                         <Route path="settings" element={<SettingsPage />} />
                         <Route path="team-leaders" element={<TeamLeaders onNavigate={handleNavigate} />} />
                         <Route path="lenders" element={<Lenders readOnly={false} />} />
+                        <Route path="operational-flow" element={<OperationalFlow />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>

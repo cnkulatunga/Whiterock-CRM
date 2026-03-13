@@ -248,24 +248,48 @@ const SuperAdminDashboard = ({ onNavigate }) => {
             {/* ── QUICK ACTIONS ── */}
             <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm animate-slideUp [animation-delay:350ms] [animation-fill-mode:both]">
                 <h3 className="text-[13px] font-semibold text-[#1a202c] mb-4">Quick Actions</h3>
-                <div className="flex gap-4 flex-wrap">
+                <div className="grid grid-cols-4 gap-4 xl:grid-cols-2 lg:grid-cols-1">
+                    <QuickAction
+                        iconBg="#e0f2fe"
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
+                        title="User Management" desc="Permissions & access"
+                        onClick={() => onNavigate && onNavigate('user-management')}
+                    />
                     <QuickAction
                         iconBg="#eef2ff"
                         icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
-                        title="Manage Leaders" desc="Review team leader performance"
+                        title="Team Leaders" desc="Manage performance"
                         onClick={() => onNavigate && onNavigate('team-leaders')}
+                    />
+                    <QuickAction
+                        iconBg="#f0fdf4"
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>}
+                        title="Lender Partners" desc="Manage relationships"
+                        onClick={() => onNavigate && onNavigate('lenders')}
+                    />
+                    <QuickAction
+                        iconBg="#fff7ed"
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>}
+                        title="Operational Flow" desc="Visual roadmap"
+                        onClick={() => onNavigate && onNavigate('operational-flow')}
                     />
                     <QuickAction
                         iconBg="#f3e8ff"
                         icon={<svg viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>}
-                        title="Finance Report" desc="Access revenue & transactions"
+                        title="Finance & Payments" desc="Revenue & transactions"
                         onClick={() => onNavigate && onNavigate('finance')}
                     />
                     <QuickAction
-                        iconBg="#e0f2fe"
-                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>}
-                        title="Manage Users" desc="Update permissions & access"
-                        onClick={() => onNavigate && onNavigate('user-management')}
+                        iconBg="#eff6ff"
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
+                        title="Lead Performance" desc="Insightful metrics"
+                        onClick={() => onNavigate && onNavigate('leads')}
+                    />
+                    <QuickAction
+                        iconBg="#f8fafc"
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
+                        title="Audit Logs" desc="Security & tracking"
+                        onClick={() => onNavigate && onNavigate('reports')}
                     />
                 </div>
             </section>
