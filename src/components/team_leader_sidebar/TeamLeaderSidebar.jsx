@@ -52,20 +52,20 @@ const TeamLeaderSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCollaps
                 </div>
                 {!isCollapsed && (
                     <div className="flex flex-col gap-[1px] min-w-0 flex-1 pr-4">
-                        <span className="text-[0.95rem] font-bold tracking-[-0.3px] whitespace-nowrap" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>Whiterock CRM</span>
+                        <span className="text-[0.95rem] font-bold tracking-[-0.3px] whitespace-nowrap" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>Alpha Funding</span>
                         <span className="text-[0.62rem] font-bold tracking-[1.1px] uppercase" style={{ color: isDark ? '#546298' : '#7d8eb6' }}>Team Leader</span>
                     </div>
                 )}
-                
+
                 <button
                     onClick={toggle}
                     className={`absolute top-[40px] flex items-center justify-center transition-all hover:scale-105 shadow-sm border ${isCollapsed ? '-right-3.5 w-7 h-7 rounded-full' : 'right-4 w-7 h-7 rounded-lg'}`}
-                    style={{ 
-                        color: isDark ? '#7a96fa' : '#2855e8', 
-                        background: isDark ? '#1a1f3c' : '#ffffff', 
-                        borderColor: isDark ? '#36407a' : '#dde5f5', 
-                        cursor: 'pointer', 
-                        zIndex: 10 
+                    style={{
+                        color: isDark ? '#7a96fa' : '#2855e8',
+                        background: isDark ? '#1a1f3c' : '#ffffff',
+                        borderColor: isDark ? '#36407a' : '#dde5f5',
+                        cursor: 'pointer',
+                        zIndex: 10
                     }}
                     title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
