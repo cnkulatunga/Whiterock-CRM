@@ -14,6 +14,7 @@ import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_
 import Lenders from '../pages/super_admin/lenders/Lenders';
 import ClientLenderSelection from '../pages/accounts_manager/client_lender_selection/ClientLenderSelection';
 import { useTheme } from '../context/ThemeContext';
+import ThemeToggle from '../components/theme/ThemeToggle';
 
 const INITIAL_TASKS = [
     { id: 201, title: 'Review loan applications', lead: 'Pipeline', status: 'Pending', date: '2026-03-11', time: '10:00', type: 'Review', reminder: 'none', assignedTo: 'Self' },
@@ -83,6 +84,10 @@ const AccountsManagerLayout = ({ onLogout }) => {
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
+                    <div className="flex-1" />
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle />
+                    </div>
                 </div>
 
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
