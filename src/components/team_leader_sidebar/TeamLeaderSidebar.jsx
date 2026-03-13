@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import ThemeToggle from '../theme/ThemeToggle';
 
 const NAV_GROUPS = [
     {
@@ -128,24 +127,6 @@ const TeamLeaderSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCollaps
                     </div>
                 ))}
             </nav>
-            {/* Theme Toggle row */}
-            {!isCollapsed && (
-                <div
-                    className="px-[14px] py-3"
-                    style={{ borderTop: `1px solid ${isDark ? '#2c3568' : '#dde5f5'}` }}
-                >
-                    <span className="text-[0.68rem] font-semibold tracking-wider uppercase block mb-2" style={{ color: isDark ? '#546298' : '#7d8eb6' }}>
-                        Appearance
-                    </span>
-                    <ThemeToggle />
-                </div>
-            )}
-
-            {isCollapsed && (
-                <div className="flex justify-center py-2" style={{ borderTop: `1px solid ${isDark ? '#2c3568' : '#dde5f5'}` }}>
-                    <ThemeToggle compact />
-                </div>
-            )}
 
             {/* User Profile */}
             <div style={{ borderTop: `1px solid ${isDark ? '#2c3568' : '#dde5f5'}` }}>
