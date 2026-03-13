@@ -219,7 +219,7 @@ const Login = ({ onLogin, defaultRole }) => {
 
                 {/* ── LEFT BRAND PANEL ──────────────────────────────── */}
                 {!isTablet && <div style={{
-                    width: '42%', minWidth: 380, display: 'flex', flexDirection: 'column',
+                    width: '50%', minWidth: 420, display: 'flex', flexDirection: 'column',
                     justifyContent: 'center', padding: '40px 48px',
                     background: isDark
                         ? 'linear-gradient(160deg, #1a1f3c 0%, #131726 60%, #0e1220 100%)'
@@ -231,10 +231,10 @@ const Login = ({ onLogin, defaultRole }) => {
                     <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.06)' : 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
                     <div style={{ position: 'absolute', bottom: -60, left: -60, width: 220, height: 220, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.04)' : 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
 
-                    <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#fff', lineHeight: 1.25, letterSpacing: '-0.5px', marginBottom: 12 }}>
+                    <h1 style={{ fontSize: '2.75rem', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.8px', marginBottom: 16 }}>
                         Manage your<br />loans smarter
                     </h1>
-                    <p style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.65)', lineHeight: 1.65, marginBottom: 28, maxWidth: 340 }}>
+                    <p style={{ fontSize: '1.15rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.6, marginBottom: 40, maxWidth: 440 }}>
                         The all-in-one platform for loan management, lead tracking, and team collaboration.
                     </p>
 
@@ -243,17 +243,17 @@ const Login = ({ onLogin, defaultRole }) => {
                         { icon: '◉', text: 'Smart lead & document tracking' },
                         { icon: '◆', text: 'Multi-role team management' },
                     ].map((f) => (
-                        <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-                            <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem', color: '#fff', flexShrink: 0 }}>{f.icon}</div>
-                            <span style={{ fontSize: '0.92rem', color: 'rgba(255,255,255,0.82)', fontWeight: 500 }}>{f.text}</span>
+                        <div key={f.text} style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', color: '#fff', flexShrink: 0 }}>{f.icon}</div>
+                            <span style={{ fontSize: '1.05rem', color: 'rgba(255,255,255,0.85)', fontWeight: 500 }}>{f.text}</span>
                         </div>
                     ))}
 
-                    <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ marginTop: 40, paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', gap: 12 }}>
                         {['AT','SJ','JD','MC'].map((ini, i) => (
-                            <div key={ini} style={{ width: 34, height: 34, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', background: ['#6080f8','#22c55e','#f97316','#a855f7'][i], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, color: '#fff', marginLeft: i > 0 ? -10 : 0 }}>{ini}</div>
+                            <div key={ini} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', background: ['#6080f8','#22c55e','#f97316','#a855f7'][i], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: '#fff', marginLeft: i > 0 ? -12 : 0 }}>{ini}</div>
                         ))}
-                        <span style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', marginLeft: 6 }}>2,400+ users trust Whiterock</span>
+                        <span style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', marginLeft: 8 }}>2,400+ users trust Whiterock</span>
                     </div>
                 </div>}
 
