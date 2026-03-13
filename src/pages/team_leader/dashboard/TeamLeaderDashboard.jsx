@@ -258,7 +258,14 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                     <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Monitoring agent performance and real-time lead flow</p>
                 </div>
                 <div className="relative">
-                    <button className={`w-11 h-11 bg-white border border-[#edf2f7] rounded-xl text-[#718096] flex items-center justify-center hover:bg-[#f7fafc] hover:text-[#2447d7] transition-all duration-200 relative ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
+                    <button
+                        className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative border ${
+                            isDark
+                                ? 'bg-[#1e2347] border-[#2c3568] text-[#8ea0d4] hover:bg-[#242b58] hover:text-[#e4ecff]'
+                                : 'bg-white border-[#edf2f7] text-[#718096] hover:bg-[#f7fafc] hover:text-[#2447d7]'
+                        } ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`}
+                        onClick={() => setShowNotifications(!showNotifications)}
+                    >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
@@ -279,7 +286,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                         const reminderTasks = tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed');
                         return (
                             <div style={{
-                                position: 'absolute', top: '56px', right: 0, width: '300px', zIndex: 100,
+                                position: 'absolute', top: '56px', right: 0, width: '300px', zIndex: 1000,
                                 background: popupBg, border: `1px solid ${popupBorder}`,
                                 borderRadius: '16px', overflow: 'hidden',
                                 boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.5)' : '0 8px 32px rgba(0,0,0,0.12)',

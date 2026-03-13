@@ -1,26 +1,34 @@
 import React from 'react';
 
-const NotificationTray = ({ notifications, onRemove }) => {
+const NotificationTray = ({ notifications, onRemove, isDark = false }) => {
     return (
         <div className="fixed top-6 right-6 flex flex-col gap-3 z-[10000] w-[350px] max-w-[90vw] pointer-events-none">
             {notifications.map(n => (
                 <div 
                     key={n.id} 
-                    className={`pointer-events-auto bg-white border-2 rounded-[1.25rem] p-4 flex gap-4 shadow-2xl animate-slideInRight cursor-pointer group transition-all hover:translate-x-[-4px] active:scale-95 ${
-                        n.type === 'reminder' ? 'border-[#2447d7]/20 shadow-[#2447d7]/5' : 'border-[#10b981]/20 shadow-[#10b981]/5'
+                    className={`pointer-events-auto border-2 rounded-[1.25rem] p-4 flex gap-4 shadow-2xl animate-slideInRight cursor-pointer group transition-all hover:translate-x-[-4px] active:scale-95 ${
+                        isDark ? 'bg-[#11162a]' : 'bg-white'
+                    } ${
+                        n.type === 'reminder'
+                            ? (isDark ? 'border-[#2447d7]/40 shadow-[#2447d7]/10' : 'border-[#2447d7]/20 shadow-[#2447d7]/5')
+                            : (isDark ? 'border-[#10b981]/35 shadow-[#10b981]/10' : 'border-[#10b981]/20 shadow-[#10b981]/5')
                     }`} 
                     onClick={() => onRemove(n.id)}
                 >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-inner ${
-                        n.type === 'reminder' ? 'bg-[#ebf0ff] text-[#2447d7]' : 'bg-[#ecfdf5] text-[#10b981]'
+                        n.type === 'reminder'
+                            ? (isDark ? 'bg-[#1a2559] text-[#9bb0ff]' : 'bg-[#ebf0ff] text-[#2447d7]')
+                            : (isDark ? 'bg-[#0b2a22] text-[#5fe0ba]' : 'bg-[#ecfdf5] text-[#10b981]')
                     }`}>
                         {n.type === 'reminder' ? <IconBell size={20} /> : <IconInfo size={20} />}
                     </div>
                     <div className="flex flex-col gap-0.5 min-w-0 flex-1">
-                        <h4 className="text-[13px] font-black text-[#1a202c] uppercase tracking-wider">{n.title}</h4>
-                        <p className="text-[12px] font-bold text-[#718096] leading-relaxed line-clamp-2">{n.message}</p>
+                        <h4 className={`text-[13px] font-black uppercase tracking-wider ${isDark ? 'text-[#e9efff]' : 'text-[#1a202c]'}`}>{n.title}</h4>
+                        <p className={`text-[12px] font-bold leading-relaxed line-clamp-2 ${isDark ? 'text-[#a9b7dd]' : 'text-[#718096]'}`}>{n.message}</p>
                     </div>
-                    <button className="text-[#cbd5e0] hover:text-[#1a202c] transition-colors text-xl font-black px-1 group-hover:scale-125 transition-transform">
+                    <button className={`transition-colors text-xl font-black px-1 group-hover:scale-125 transition-transform ${
+                        isDark ? 'text-[#5f6a8f] hover:text-[#e9efff]' : 'text-[#cbd5e0] hover:text-[#1a202c]'
+                    }`}>
                         &times;
                     </button>
                 </div>

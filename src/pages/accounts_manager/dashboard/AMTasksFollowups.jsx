@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { signIn, createCalendarEvent, getCalendarEvents, getAccount } from '../../../services/outlookService';
+import { useTheme } from '../../../context/ThemeContext';
 
 const LEADERS = [
     { id: 1, name: 'Team Leader 1' },
@@ -16,6 +17,8 @@ const MEMBERS = [
 const AllAgents = [...LEADERS, ...MEMBERS];
 
 const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All'); // All, Personal, Team
@@ -247,31 +250,50 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                 </div>
                 <div className="flex items-center gap-4 sm:flex-wrap">
                     <div className="relative">
-                        <button className={`w-11 h-11 bg-white border border-[#edf2f7] rounded-xl text-[#718096] flex items-center justify-center hover:bg-[#f7fafc] hover:text-[#2447d7] transition-all duration-200 relative ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
+                        <button className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-200 relative border ${
+                            isDark
+                                ? 'bg-[#1e2347] border-[#2c3568] text-[#8ea0d4] hover:bg-[#242b58] hover:text-[#e4ecff]'
+                                : 'bg-white border-[#edf2f7] text-[#718096] hover:bg-[#f7fafc] hover:text-[#2447d7]'
+                        } ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
                             </svg>
                         </button>
                         {showNotifications && (
-                            <div className="absolute top-14 right-0 w-[300px] bg-white rounded-2xl shadow-xl border border-[#edf2f7] z-[100] overflow-hidden animate-fadeIn">
-                                <div className="p-4 bg-[#f8fafc] border-b border-[#edf2f7] text-sm font-bold text-[#1a202c]">Reminders & Alerts</div>
+                            <div className={`absolute top-14 right-0 w-[300px] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${
+                                isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'
+                            }`}>
+                                <div className={`p-4 border-b text-sm font-bold ${
+                                    isDark ? 'bg-[#141829] border-[#2c3568] text-[#e4ecff]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#1a202c]'
+                                }`}>Reminders & Alerts</div>
                                 <div className="max-h-[300px] overflow-y-auto">
                                     {tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').length > 0 ? (
                                         tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').map(t => (
-                                            <div key={t.id} className="p-3 px-4 flex items-center gap-3 border-b border-[#f7fafc] hover:bg-[#f8fafc] transition-colors">
-                                                <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                                            <div key={t.id} className={`p-3 px-4 flex items-center gap-3 border-b transition-colors ${
+                                                isDark ? 'border-[#2c3568] hover:bg-[#242b58]' : 'border-[#f7fafc] hover:bg-[#f8fafc]'
+                                            }`}>
+                                                <div className={`w-8 h-8 rounded-lg text-red-500 flex items-center justify-center shrink-0 ${
+                                                    isDark ? 'bg-red-500/15' : 'bg-red-50'
+                                                }`}>
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
                                                         <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3L2 6" /><path d="M22 6l-3-3" /><path d="M6.38 18.7l-.44 1.1a1 1 0 0 1-1.32.5l-2.2-.9a1 1 0 0 1-.5-1.32l.44-1.1" /><path d="M17.62 18.7l.44 1.1a1 1 0 0 1 1.32.5l2.2-.9a1 1 0 0 1 .5-1.32l-.44-1.1" />
                                                     </svg>
                                                 </div>
                                                 <div className="flex flex-col gap-0.5">
-                                                    <span className="text-[13px] font-bold text-[#2d3748] leading-tight flex items-center gap-1.5">{t.title} {t.assignedTo === 'Self' ? <span className="bg-[#f8fafc] text-[#a0aec0] text-[9px] px-1 rounded uppercase tracking-wider border border-[#edf2f7]">Self</span> : ''}</span>
-                                                    <span className="text-[11px] text-[#a0aec0] font-medium">{t.date} at {t.time}</span>
+                                                    <span className={`text-[13px] font-bold leading-tight flex items-center gap-1.5 ${isDark ? 'text-[#e4ecff]' : 'text-[#2d3748]'}`}>
+                                                        {t.title}
+                                                        {t.assignedTo === 'Self' ? (
+                                                            <span className={`text-[9px] px-1 rounded uppercase tracking-wider border ${
+                                                                isDark ? 'bg-[#141829] text-[#8ea0d4] border-[#2c3568]' : 'bg-[#f8fafc] text-[#a0aec0] border-[#edf2f7]'
+                                                            }`}>Self</span>
+                                                        ) : ''}
+                                                    </span>
+                                                    <span className={`text-[11px] font-medium ${isDark ? 'text-[#8ea0d4]' : 'text-[#a0aec0]'}`}>{t.date} at {t.time}</span>
                                                 </div>
                                             </div>
                                         ))
                                     ) : (
-                                        <div className="p-6 text-center text-[#a0aec0] text-[13px] italic">No active reminders</div>
+                                        <div className={`p-6 text-center text-[13px] italic ${isDark ? 'text-[#8ea0d4]' : 'text-[#a0aec0]'}`}>No active reminders</div>
                                     )}
                                 </div>
                             </div>

@@ -86,7 +86,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
                 </div>
-                <NotificationTray notifications={notifications} onRemove={removeNotification} />
+                <NotificationTray notifications={notifications} onRemove={removeNotification} isDark={isDark} />
                 {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}
             </div>
         </div>
