@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import ThemeToggle from '../../components/theme/ThemeToggle';
+import alphaLogo from '../../assets/images/alpha.png';
 
 /* ─── ICONS ──────────────────────────────────────────────────────── */
 const IconUser   = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
@@ -17,19 +18,20 @@ const IconCheckSm= () => <svg viewBox="0 0 12 12" fill="none" stroke="white" str
 const LogoIcon = ({ size = 40 }) => (
     <div
         style={{
-            width: size, height: size,
-            background: 'linear-gradient(135deg, #2855e8, #1a38b8)',
+            width: size,
+            height: size,
             borderRadius: size * 0.28,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 16px rgba(40,85,232,0.4)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             flexShrink: 0,
         }}
     >
-        <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2"
-            strokeLinecap="round" strokeLinejoin="round"
-            width={size * 0.5} height={size * 0.5}>
-            <path d="M4 6l3 11 5-7 5 7 3-11" />
-        </svg>
+        <img
+            src={alphaLogo}
+            alt="Alpha"
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+        />
     </div>
 );
 

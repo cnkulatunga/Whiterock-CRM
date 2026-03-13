@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import ThemeToggle from '../theme/ThemeToggle';
+import alphaLogo from '../../assets/images/alpha.png';
 
 const NAV_GROUPS = [
     {
@@ -58,7 +59,7 @@ const SuperAdminSidebar = ({ activePage, onNavigate, onLogout, isOpen, onClose, 
                 style={{ borderBottom: `1px solid ${isDark ? '#2c3568' : '#dde5f5'}` }}
             >
                 <div className="w-[40px] h-[40px] bg-gradient-to-br from-[#2855e8] to-[#1a38b8] rounded-xl flex items-center justify-center shrink-0 shadow-[0_4px_14px_rgba(40,85,232,0.38)]">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><path d="M4 6l3 11 5-7 5 7 3-11" fill="none"/></svg>
+                    <img src={alphaLogo} alt="Alpha" className="w-full h-full object-contain" />
                 </div>
                 {!isCollapsed && (
                     <div className="flex flex-col gap-[1px] min-w-0 flex-1 pr-4">
