@@ -6,7 +6,7 @@ import LenderSelector from '../pages/accounts_manager/lender_selector/LenderSele
 import LenderSelection from '../pages/accounts_manager/lender_selection/LenderSelection';
 import FinanceReport from '../pages/super_admin/finance/FinanceReport';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
-import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar';
+import AMTasksFollowups from '../pages/accounts_manager/dashboard/AMTasksFollowups';
 import { useReminders } from '../hooks/useReminders';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
@@ -95,7 +95,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="lender-selection-approved" element={<LenderSelectionApproved />} />
                         <Route path="lenders" element={<Lenders readOnly={true} />} />
                         <Route path="client-lender-selection" element={<ClientLenderSelection onNavigate={handleNavigate} />} />
-                        <Route path="tasks-followups" element={<TeamLeaderCalendar tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="tasks-followups" element={<AMTasksFollowups tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>

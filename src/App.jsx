@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useTheme } from './context/ThemeContext';
+import useAutoLogout from './hooks/useAutoLogout';
 import Login from './pages/login/Login';
 import ClientLayout from './layout/ClientLayout';
 import SuperAdminLayout from './layout/SuperAdminLayout';
@@ -62,6 +63,15 @@ function App() {
     const navigate = useNavigate();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+
+    const autoLogout = useCallback(() => {
+        localStorage.removeItem('user');
+        setIsLoggedIn(false);
+        setShowLogoutConfirm(false);
+        navigate('/login');
+    }, [navigate]);
+
+    useAutoLogout(autoLogout, isLoggedIn);
 
     const handleLogin = (role = null) => {
         setIsLoggedIn(true);

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
+import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 
 // Removed INITIAL_TASKS mock data, using props from layout.
 
@@ -25,6 +26,40 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
 
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);
+    const [outlookAccount, setOutlookAccount] = useState(null);
+    const [outlookEvents, setOutlookEvents] = useState([]);
+    const [loadingEvents, setLoadingEvents] = useState(false);
+
+    useEffect(() => {
+        const acc = getAccount();
+        if (acc) {
+            setOutlookAccount(acc);
+            fetchOutlookEvents();
+        }
+    }, [useOutlookCalendar]);
+
+    const fetchOutlookEvents = async () => {
+        setLoadingEvents(true);
+        try {
+            const evts = await getCalendarEvents();
+            setOutlookEvents(evts);
+        } catch (error) {
+            console.error("Failed to fetch events", error);
+        } finally {
+            setLoadingEvents(false);
+        }
+    };
+
+    const handleOutlookLogin = async () => {
+        try {
+            const acc = await signIn();
+            setOutlookAccount(acc);
+            fetchOutlookEvents();
+        } catch (error) {
+            console.error("Login failed", error);
+        }
+    };
 
     // Handle auto-open if coming from dashboard with a specific date
     React.useEffect(() => {
@@ -299,24 +334,113 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                         placeholder="Search tasks or leads..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        disabled={useOutlookCalendar}
                     />
                 </div>
-                <div className="flex bg-[#f7fafc] p-1 rounded-2xl border border-[#edf2f7] overflow-x-auto scrollbar-none sm:gap-1">
-                    {['All', 'Pending', 'In Progress', 'Completed'].map(status => (
-                        <button
-                            key={status}
-                            className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-200 whitespace-nowrap ${filter === status ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                            onClick={() => setFilter(status)}
-                        >
-                            {status}
-                        </button>
-                    ))}
-                </div>
+                {!useOutlookCalendar && (
+                    <div className="flex bg-[#f7fafc] p-1 rounded-2xl border border-[#edf2f7] overflow-x-auto scrollbar-none sm:gap-1">
+                        {['All', 'Pending', 'In Progress', 'Completed'].map(status => (
+                            <button
+                                key={status}
+                                className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-200 whitespace-nowrap ${filter === status ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
+                                onClick={() => setFilter(status)}
+                            >
+                                {status}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {viewMode === 'calendar' ? (
-                <div className="animate-fadeIn">
-                    {renderCalendar()}
+                <div className="animate-fadeIn flex flex-col gap-6">
+                    <div className="flex justify-center">
+                        <div className="flex bg-[#f7fafc] p-1.5 rounded-xl border border-[#edf2f7] w-fit shadow-sm relative z-10" style={{ background: isDark ? '#1e2347' : '#f7fafc', borderColor: isDark ? '#2c3568' : '#edf2f7' }}>
+                            <button
+                                className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${!useOutlookCalendar ? 'bg-[#2447d7] text-white shadow-md' : 'text-[#718096] hover:text-[#4a5568]'}`}
+                                onClick={() => setUseOutlookCalendar(false)}
+                            >
+                                Local
+                            </button>
+                            <button
+                                className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${useOutlookCalendar ? 'bg-[#2447d7] text-white shadow-md' : 'text-[#718096] hover:text-[#4a5568]'}`}
+                                onClick={() => setUseOutlookCalendar(true)}
+                            >
+                                Outlook Calendar
+                            </button>
+                        </div>
+                    </div>
+                    {useOutlookCalendar ? (
+                        <div className="relative rounded-2xl overflow-hidden bg-white border border-[#edf2f7] min-h-[500px] shadow-sm">
+                            {!outlookAccount ? (
+                                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center p-8 bg-gradient-to-br from-[#f8fafc] to-white">
+                                    <div className="w-20 h-20 bg-[#0078d4]/10 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-md">
+                                        <svg viewBox="0 0 24 24" width="36" height="36">
+                                            <path d="M11 2h10v10H11V2M2 2h7v7H2V2m9 9h10v10H11V11M2 11h7v10H2v-10z" fill="#0078d4" />
+                                        </svg>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-[#1a202c] mb-3">Connect Your Outlook Calendar</h3>
+                                    <p className="text-[15px] text-[#718096] leading-relaxed max-w-[400px] mb-8 font-medium">Sync with your Microsoft 365 account to view and manage your schedule directly from Whiterock CRM.</p>
+                                    <button className="px-8 py-3.5 bg-[#0078d4] text-white rounded-xl font-bold text-sm shadow-[0_4px_16px_rgba(0,120,212,0.25)] hover:bg-[#005a9e] hover:-translate-y-px transition-all duration-200 active:translate-y-0 flex items-center gap-3" onClick={handleOutlookLogin}>
+                                        <svg width="18" height="18" viewBox="0 0 21 21"><path d="M10 0v10H0V0h10zm11 0v10H11V0h10zM10 11v10H0V11h10zm11 0v10H11V11h10z" fill="#fff" /></svg>
+                                        Sign in with Microsoft
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="absolute inset-0 z-5 bg-white flex flex-col p-6 animate-fadeIn">
+                                    <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#f1f5f9]">
+                                        <div className="flex items-center gap-3 bg-[#f8fafc] px-4 py-2 rounded-xl border border-[#edf2f7]">
+                                            <div className="w-8 h-8 bg-[#0078d4] text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm">{outlookAccount.name?.charAt(0) || 'U'}</div>
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-bold text-[#1e293b]">{outlookAccount.name}</span>
+                                                <span className="text-[11px] font-medium text-[#64748b] truncate max-w-[200px]">{outlookAccount.username}</span>
+                                            </div>
+                                        </div>
+                                        <button className="flex items-center gap-2 px-4 py-2 bg-[#f8fafc] text-[#0078d4] rounded-xl font-bold text-sm hover:bg-[#ebf0ff] transition-all disabled:opacity-50 disabled:cursor-not-allowed" onClick={fetchOutlookEvents} disabled={loadingEvents}>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" className={loadingEvents ? "animate-spin" : ""}><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.92-10.44l5.08 5.08" /></svg>
+                                            {loadingEvents ? 'Syncing...' : 'Refresh'}
+                                        </button>
+                                    </div>
+                                    <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4 scrollbar-thin">
+                                        {outlookEvents.length > 0 ? (
+                                            outlookEvents.map((evt, i) => (
+                                                <div key={i} className="flex gap-4 p-5 rounded-2xl border border-[#edf2f7] hover:border-[#0078d4]/30 hover:shadow-md transition-all duration-300 bg-white group relative overflow-hidden">
+                                                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#0078d4]"></div>
+                                                    <div className="flex flex-col items-center justify-center min-w-[70px] bg-[#f8fafc] rounded-xl p-2 border border-[#edf2f7] group-hover:bg-[#ebf0ff] transition-colors">
+                                                        <span className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover:text-[#0078d4]">{new Date(evt.start.dateTime).toLocaleDateString([], { month: 'short' })}</span>
+                                                        <span className="text-xl font-black text-[#1e293b] group-hover:text-[#0078d4]">{new Date(evt.start.dateTime).getDate()}</span>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1.5 min-w-0 flex-1 justify-center">
+                                                        <div className="text-[15px] font-bold text-[#1e293b] truncate leading-tight group-hover:text-[#0078d4] transition-colors">{evt.subject}</div>
+                                                        <div className="flex items-center gap-4 flex-wrap">
+                                                            <div className="flex items-center gap-1.5 text-xs font-medium text-[#64748b]">
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                                                                {new Date(evt.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                            </div>
+                                                            {evt.location?.displayName && (
+                                                                <div className="flex items-center gap-1.5 text-xs font-medium text-[#64748b] truncate max-w-[200px]">
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                                                                    {evt.location.displayName}
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-20 bg-[#f8fafc] rounded-2xl border-2 border-dashed border-[#edf2f7]">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" strokeWidth="1.5" width="48" height="48" className="mb-4"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+                                                <p className="text-[15px] text-[#718096] font-bold">Your Outlook schedule is clear</p>
+                                                <p className="text-sm text-[#a0aec0] mt-1">No upcoming events found</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        renderCalendar()
+                    )}
                 </div>
             ) : (
                 <div className="flex flex-col gap-4">

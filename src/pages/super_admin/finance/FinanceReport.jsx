@@ -228,6 +228,10 @@ const FinanceReport = () => {
     const userName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
 
     const filteredTransactions = TRANSACTIONS.filter(t => {
+        if (status !== 'All' && t.status !== status) {
+            return false;
+        }
+
         if (userRole === 'accounts_manager') {
             return t.manager === userName;
         }
@@ -245,37 +249,6 @@ const FinanceReport = () => {
                 <div>
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Financial Report</h1>
                     <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Real-time financial tracking and payment analysis</p>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                    {/* Date Range */}
-                    <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568] cursor-pointer hover:border-[#2447d7]/20 transition-colors">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                        <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={dateRange} onChange={e => setDateRange(e.target.value)}>
-                            <option>Last 30 Days</option><option>Last 90 Days</option><option>This Year</option>
-                        </select>
-                        <IcoChevron />
-                    </div>
-                    {/* Status */}
-                    <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
-                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">STATUS:</span>
-                        <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={status} onChange={e => setStatus(e.target.value)}>
-                            <option>All</option><option>Approved</option><option>Pending</option><option>Rejected</option>
-                        </select>
-                        <IcoChevron />
-                    </div>
-                    {/* Manager - Only visible to super_admin or admin */}
-                    {(userRole === 'super_admin' || userRole === 'admin') && (
-                        <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
-                            <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">MANAGER:</span>
-                            <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={manager} onChange={e => setManager(e.target.value)}>
-                                <option>All Managers</option>
-                                <option>Sarah Miller</option>
-                                <option>James Chen</option>
-                                <option>Alex Thompson</option>
-                            </select>
-                            <IcoChevron />
-                        </div>
-                    )}
                 </div>
             </div>
 
@@ -357,6 +330,39 @@ const FinanceReport = () => {
                         ))}
                     </div>
                 </div>
+            </div>
+
+            {/* ── FILTERS ── */}
+            <div className="flex items-center gap-3 flex-wrap animate-slideUp [animation-delay:450ms] [animation-fill-mode:both]">
+                {/* Date Range */}
+                <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568] cursor-pointer hover:border-[#2447d7]/20 transition-colors">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={dateRange} onChange={e => setDateRange(e.target.value)}>
+                        <option>Last 30 Days</option><option>Last 90 Days</option><option>This Year</option>
+                    </select>
+                    <IcoChevron />
+                </div>
+                {/* Status */}
+                <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
+                    <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">STATUS:</span>
+                    <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={status} onChange={e => setStatus(e.target.value)}>
+                        <option>All</option><option>Approved</option><option>Pending</option><option>Rejected</option>
+                    </select>
+                    <IcoChevron />
+                </div>
+                {/* Manager - Only visible to super_admin or admin */}
+                {(userRole === 'super_admin' || userRole === 'admin') && (
+                    <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
+                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">MANAGER:</span>
+                        <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={manager} onChange={e => setManager(e.target.value)}>
+                            <option>All Managers</option>
+                            <option>Sarah Miller</option>
+                            <option>James Chen</option>
+                            <option>Alex Thompson</option>
+                        </select>
+                        <IcoChevron />
+                    </div>
+                )}
             </div>
 
             {/* ── TRANSACTION TABLE ── */}
