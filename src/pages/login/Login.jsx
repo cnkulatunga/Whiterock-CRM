@@ -199,7 +199,7 @@ const Login = ({ onLogin, defaultRole }) => {
                     <LogoIcon size={isMobile ? 30 : 36} />
                     {!isMobile && (
                         <span style={{ fontSize: '1.05rem', fontWeight: 800, color: textPrimary, letterSpacing: '-0.3px' }}>
-                            Whiterock <span style={{ color: accent }}>CRM</span>
+                            Alpha <span style={{ color: accent }}>Funding</span>
                         </span>
                     )}
                 </div>
@@ -253,7 +253,7 @@ const Login = ({ onLogin, defaultRole }) => {
                         {['AT','SJ','JD','MC'].map((ini, i) => (
                             <div key={ini} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', background: ['#6080f8','#22c55e','#f97316','#a855f7'][i], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: '#fff', marginLeft: i > 0 ? -12 : 0 }}>{ini}</div>
                         ))}
-                        <span style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', marginLeft: 8 }}>2,400+ users trust Whiterock</span>
+                        <span style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', marginLeft: 8 }}>2,400+ users trust Alpha Funding</span>
                     </div>
                 </div>}
 
