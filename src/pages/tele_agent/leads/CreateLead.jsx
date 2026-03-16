@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { IconUpload, IconFile, IconCheck, IconAlert, IconClose, IconTrash, IconDocs, IconEye } from '../../../components/DocumentManagement/Icons';
 
-const CreateLead = ({ onBack, tasks, setTasks }) => {
+const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     const [user, setUser] = useState({});
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -125,13 +125,18 @@ const CreateLead = ({ onBack, tasks, setTasks }) => {
                 date: followUp.date,
                 time: followUp.time,
                 type: followUp.type,
-                priority: followUp.priority,
+                reminder: '15m', // Default reminder
                 status: 'Pending',
-                client: formData.customerName || 'New Lead',
-                assignedTo: user.id || 1,
-                source: 'Lead Creation'
+                lead: formData.customerName || 'New Lead',
+                assignedTo: user.id || 'Self',
+                createdBy: user.role || 'Tele Agent'
             };
-            setTasks(prev => [...prev, newTask]);
+            setTasks(prev => [newTask, ...prev]);
+            
+            // Connect to general reminders system
+            if (notifyReminderSet) {
+                notifyReminderSet(newTask);
+            }
         }
 
         if (pendingIds.length === 0) {
@@ -537,10 +542,7 @@ const CreateLead = ({ onBack, tasks, setTasks }) => {
                                     Saving...
                                 </div>
                             ) : (
-                                <>
-                                    <div className="mr-0.5"><IconKey /></div>
-                                    Send Credentials & Save
-                                </>
+                                'Save Lead'
                             )}
                         </button>
                     </div>
@@ -574,10 +576,10 @@ const CreateLead = ({ onBack, tasks, setTasks }) => {
                     <div className="w-full max-w-[480px] bg-white rounded-2xl shadow-2xl overflow-hidden animate-slideUp">
                         <div className="flex items-center gap-3 p-[20px_24px] border-b border-[#f1f5f9] bg-[#ecfdf3] text-[#067647]">
                             <IconCheck />
-                            <h3 className="font-bold text-base">Saved & Shared</h3>
+                            <h3 className="font-bold text-base">Lead Saved Successfully</h3>
                         </div>
                         <div className="p-[20px_24px] text-[#475569] text-sm">
-                            <p>Lead saved successfully and credentials shared with the customer.</p>
+                            <p>The new lead has been recorded and the follow-up task has been scheduled.</p>
                         </div>
                         <div className="p-[18px_24px_22px] flex justify-end gap-3 border-t border-[#f1f5f9] md:flex-col md:items-stretch">
                             <button

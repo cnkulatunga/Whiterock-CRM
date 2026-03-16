@@ -21,18 +21,22 @@ const TeleAgentLayout = ({ onLogout }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     
     // Filter tasks for this agent
-    const tasks = allTasks.filter(t => t.assignedTo?.toString() === user.id?.toString());
+    const tasks = allTasks.filter(t => 
+        t.assignedTo?.toString() === user.id?.toString() || 
+        (t.assignedTo === 'Self' && user.role === 'Tele Agent')
+    );
+
     const setTasks = (newTasksOrFn) => {
         if (typeof newTasksOrFn === 'function') {
             setAllTasks(prev => {
-                const currentAgentTasks = prev.filter(t => t.assignedTo?.toString() === user.id?.toString());
-                const otherTasks = prev.filter(t => t.assignedTo?.toString() !== user.id?.toString());
-                const updatedAgentTasks = newTasksOrFn(currentAgentTasks);
-                return [...otherTasks, ...updatedAgentTasks];
+                const currentRelevantTasks = prev.filter(t => t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent'));
+                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent')));
+                const updatedRelevantTasks = newTasksOrFn(currentRelevantTasks);
+                return [...otherTasks, ...updatedRelevantTasks];
             });
         } else {
             setAllTasks(prev => {
-                const otherTasks = prev.filter(t => t.assignedTo?.toString() !== user.id?.toString());
+                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent')));
                 return [...otherTasks, ...newTasksOrFn];
             });
         }
@@ -128,14 +132,14 @@ const TeleAgentLayout = ({ onLogout }) => {
                         <Route path="dashboard" element={<TeleDashboard onNavigate={handleNavigate} tasks={tasks} />} />
                         <Route path="leads" element={<ManageLeads onViewDetails={handleViewLeadDetails} />} />
                         <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => navigate('/tele-agent/leads')} />} />
-                        <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} tasks={tasks} setTasks={setTasks} />} />
+                        <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="follow-ups" element={<TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
                 </div>
                 <NotificationTray notifications={notifications} onRemove={removeNotification} isDark={isDark} />
-                {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}
+                {activeAlerts.length > 0 && <ReminderModal reminders={activeAlerts} onDismiss={(id) => dismissAlert(id)} />}
             </div>
         </div>
     );

@@ -128,7 +128,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                     </Routes>
                 </div>
                 <NotificationTray notifications={notifications} onRemove={removeNotification} isDark={isDark} />
-                {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}
+                {activeAlerts.length > 0 && <ReminderModal reminders={activeAlerts} onDismiss={(id) => dismissAlert(id)} />}
             </div>
         </div>
     );
