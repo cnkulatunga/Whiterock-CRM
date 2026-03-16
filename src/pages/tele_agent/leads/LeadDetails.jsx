@@ -1,10 +1,54 @@
 import React, { useState } from 'react';
+import { useTheme } from '../../../context/ThemeContext';
+import UploadModal from '../../../components/DocumentManagement/UploadModal';
+import { IconDocs, IconCheck, IconAlert, IconEye } from '../../../components/DocumentManagement/Icons';
 
 const LeadDetails = ({ leadId = 'WR-2026-0001', onBack, tasks = [], setTasks }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const leadName = "Robert C. Mayfield"; // In a real app, this would be dynamic
     const leadTasks = tasks.filter(t => t.lead === leadName || t.leadId === leadId);
     
+    // Mock lead data for documents
+    const [lead, setLead] = useState({
+        id: leadId,
+        name: leadName,
+        documents: [
+            { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Verified by SG', date: '2024-03-15' },
+            { id: 2, type: 'Payslip', status: 'Pending', note: '', date: '2024-03-16' }
+        ]
+    });
+
     const [isAddingTask, setIsAddingTask] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [uploadingDocs, setUploadingDocs] = useState({});
+
+    const handleUpload = (leadId, docId, docName) => {
+        const targetDocId = docId || Date.now();
+        setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0 } }));
+        
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            if (progress >= 100) {
+                clearInterval(interval);
+                setLead(prev => {
+                    const exists = prev.documents.find(d => d.id === targetDocId);
+                    const newDocs = exists 
+                        ? prev.documents.map(d => d.id === targetDocId ? { ...d, status: 'Pending', date: new Date().toISOString().split('T')[0] } : d)
+                        : [...prev.documents, { id: targetDocId, type: docName, status: 'Pending', date: new Date().toISOString().split('T')[0] }];
+                    return { ...prev, documents: newDocs };
+                });
+                setUploadingDocs(prev => {
+                    const next = { ...prev };
+                    delete next[targetDocId];
+                    return next;
+                });
+            } else {
+                setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress } }));
+            }
+        }, 150);
+    };
     const [newTask, setNewTask] = useState({
         title: '',
         lead: leadName,
@@ -153,36 +197,50 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack, tasks = [], setTasks }) 
                                 <span className="w-8 h-8 bg-[#f3e8ff] text-[#7c3aed] rounded-lg flex items-center justify-center flex-shrink-0"><IconDocs /></span>
                                 <h3 className="text-base font-bold text-[#1a202c]">Documents & Verification</h3>
                             </div>
-                            <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-tight sm:ml-11">1 / 1 COMPLETED</span>
+                            <button 
+                                onClick={() => setShowModal(true)}
+                                className="bg-[#2447d7] text-white p-1.5 px-4 rounded-lg text-xs font-bold hover:bg-[#1a36b1] transition-all shadow-sm"
+                            >
+                                Manage Docs
+                            </button>
                         </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full border-collapse">
-                                <thead>
-                                    <tr className="bg-[#fbfeff]">
-                                        <th className="text-left p-[12px_24px] text-[11px] font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider">DOCUMENT</th>
-                                        <th className="text-left p-[12px_24px] text-[11px] font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider">VERIFICATION STATUS</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr className="hover:bg-[#fcfdfe] transition-colors">
-                                        <td className="p-[16px_24px] border-b border-[#f7fafc]">
-                                            <div className="flex flex-col gap-1">
-                                                <span className="text-sm font-bold text-[#1a202c]">Bank Statements</span>
-                                                <span className="text-xs text-[#a0aec0]">Uploaded 1h ago</span>
-                                            </div>
-                                        </td>
-                                        <td className="p-[16px_24px] border-b border-[#f7fafc]">
-                                            <span className="inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#ecfdf5] text-[#10b981] uppercase tracking-wide">Verified</span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            <div className="flex items-center gap-3 p-[16px_24px] bg-[#fdfdfd]">
-                                <div className="w-7 h-7 rounded-full overflow-hidden shrink-0">
-                                    <img src="https://ui-avatars.com/api/?name=Sarah+Jenkins&background=2447d7&color=fff" alt="SJ" className="w-full h-full object-cover" />
-                                </div>
-                                <p className="text-xs text-[#718096] italic flex-1 break-words">"Bank statement for Sept is blurry. Request clear scan."</p>
-                            </div>
+                        <div className="p-8 pb-10 flex flex-col items-center justify-center text-center gap-4">
+                            {(() => {
+                                const hasRejected = lead.documents?.some(d => d.status === 'Rejected');
+                                const isAllVerified = lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0;
+                                const docCount = lead.documents?.length || 0;
+                                const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
+
+                                if (hasRejected) {
+                                    return (
+                                        <div className="flex flex-col items-center gap-3">
+                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm animate-pulse">
+                                                <IconAlert size={14} /> Docs Rejected
+                                            </span>
+                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">Some documents were rejected. Please review and re-upload.</p>
+                                        </div>
+                                    );
+                                }
+                                if (isAllVerified) {
+                                    return (
+                                        <div className="flex flex-col items-center gap-3">
+                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm">
+                                                <IconCheck size={14} strokeWidth={3} /> Fully Verified
+                                            </span>
+                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">All submitted documents have been approved by the Team Leader.</p>
+                                        </div>
+                                    );
+                                }
+                                return (
+                                    <div className="flex flex-col items-center gap-3">
+                                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
+                                            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(36,71,215,0.4)]" />
+                                            Checking ({approvedCount}/{docCount})
+                                        </span>
+                                        <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">Document verification is currently in progress.</p>
+                                    </div>
+                                );
+                            })()}
                         </div>
                     </div>
 
@@ -303,6 +361,20 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack, tasks = [], setTasks }) 
                     </div>
                 </div>
             )}
+
+            {showModal && (
+                <UploadModal
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                    client={lead}
+                    onUpload={handleUpload}
+                    onDelete={(leadId, docId) => {
+                        setLead(prev => ({ ...prev, documents: prev.documents.filter(d => d.id !== docId) }));
+                    }}
+                    uploadingDocs={uploadingDocs}
+                    isDark={isDark}
+                />
+            )}
         </div>
     );
 };
@@ -311,11 +383,6 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack, tasks = [], setTasks }) 
 const IconInfo = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
         <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-);
-const IconDocs = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
     </svg>
 );
 const IconEmail = () => (
