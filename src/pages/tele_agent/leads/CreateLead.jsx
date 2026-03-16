@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { IconUpload, IconFile, IconCheck, IconAlert, IconClose, IconTrash, IconDocs, IconEye } from '../../../components/DocumentManagement/Icons';
 
-const CreateLead = ({ onBack }) => {
+const CreateLead = ({ onBack, tasks, setTasks }) => {
+    const [user, setUser] = useState({});
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const [formData, setFormData] = useState({
         customerName: '',
+        businessName: '',
         nic: '',
         phoneNumber: '',
         emailAddress: '',
@@ -15,14 +17,24 @@ const CreateLead = ({ onBack }) => {
         notes: '',
         documents: []
     });
+
+    const [followUp, setFollowUp] = useState({
+        enabled: false,
+        date: new Date().toISOString().split('T')[0],
+        time: '09:00',
+        type: 'Initial Call',
+        priority: 'Medium',
+        notes: ''
+    });
     const [uploadingDocs, setUploadingDocs] = useState({});
     const [previewDoc, setPreviewDoc] = useState(null);
     const fileInputRef = useRef(null);
     const [customDocName, setCustomDocName] = useState('');
 
     React.useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const agentName = user.role === 'tele_agent' ? 'Sarah Jenkins' : `${user.first_name || 'Tele'} ${user.last_name || 'Agent'}`.trim();
+        const userData = JSON.parse(localStorage.getItem('user') || '{}');
+        setUser(userData);
+        const agentName = userData.role === 'tele_agent' ? 'Sarah Jenkins' : `${userData.first_name || 'Tele'} ${userData.last_name || 'Agent'}`.trim();
         setFormData(prev => ({ ...prev, assignedAgent: agentName }));
     }, []);
 
@@ -103,6 +115,25 @@ const CreateLead = ({ onBack }) => {
 
     const triggerSaveAndSend = () => {
         const pendingIds = Object.keys(uploadingDocs);
+        
+        // Handle Follow-up Task Creation
+        if (followUp.enabled && setTasks) {
+            const newTask = {
+                id: Date.now(),
+                title: `${formData.customerName || 'New Lead'} - ${followUp.type}`,
+                description: followUp.notes || `Initial follow-up for new lead. Notes: ${formData.notes || 'None'}`,
+                date: followUp.date,
+                time: followUp.time,
+                type: followUp.type,
+                priority: followUp.priority,
+                status: 'Pending',
+                client: formData.customerName || 'New Lead',
+                assignedTo: user.id || 1,
+                source: 'Lead Creation'
+            };
+            setTasks(prev => [...prev, newTask]);
+        }
+
         if (pendingIds.length === 0) {
             setShowSuccess(true);
             return;
@@ -283,6 +314,17 @@ const CreateLead = ({ onBack }) => {
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
+                                <label className="text-[13px] font-semibold text-[#4a5568]">Company/Business Name</label>
+                                <input
+                                    type="text"
+                                    name="businessName"
+                                    className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full"
+                                    placeholder="Enter registered business name..."
+                                    value={formData.businessName}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
                                 <label className="text-[13px] font-semibold text-[#4a5568]">Assigned Agent</label>
                                 <input 
                                     type="text"
@@ -299,15 +341,93 @@ const CreateLead = ({ onBack }) => {
                     <div className="mb-8">
                         <h4 className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5">ADDITIONAL COMMENTARY</h4>
                         <div className="flex flex-col gap-2">
-                            <label className="text-[13px] font-semibold text-[#4a5568]">Notes & Context</label>
+                            <label className="text-[13px] font-semibold text-[#4a5568]">Lead Notes & Context</label>
                             <textarea
                                 name="notes"
-                                className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full min-h-[120px] resize-y"
+                                className="bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full min-h-[100px] resize-y"
                                 placeholder="Enter relevant history, preferred contact times, or special requirements..."
                                 value={formData.notes}
                                 onChange={handleInputChange}
                             />
                         </div>
+                    </div>
+
+                    {/* Follow-up & Reminders */}
+                    <div className="mb-8 p-6 bg-[#f8faff] rounded-2xl border border-[#ebf0ff] animate-slideUp">
+                        <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center gap-3">
+                                <span className="w-8 h-8 bg-white text-[#2447d7] rounded-lg flex items-center justify-center shadow-sm border border-[#ebf0ff]"><IconBell size={16} /></span>
+                                <div>
+                                    <h4 className="text-[13px] font-bold text-[#1a202c]">Follow-up & Reminders</h4>
+                                    <p className="text-[10px] text-[#718096] font-medium">Schedule an initial task for this lead</p>
+                                </div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    className="sr-only peer" 
+                                    checked={followUp.enabled}
+                                    onChange={(e) => setFollowUp(prev => ({ ...prev, enabled: e.target.checked }))}
+                                />
+                                <div className="w-11 h-6 bg-[#e2e8f0] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2447d7]"></div>
+                            </label>
+                        </div>
+
+                        {followUp.enabled && (
+                            <>
+                                <div className="grid grid-cols-3 gap-4 animate-fadeIn md:grid-cols-1">
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[12px] font-semibold text-[#4a5568] flex items-center gap-1.5">
+                                            <IconCalendar size={14} className="text-[#a0aec0]" /> Task Date
+                                        </label>
+                                        <input
+                                            type="date"
+                                            className="bg-white border border-[#e2e8f0] p-2.5 px-4 rounded-xl text-xs outline-none focus:border-[#2447d7] transition-all"
+                                            value={followUp.date}
+                                            onChange={(e) => setFollowUp(prev => ({ ...prev, date: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[12px] font-semibold text-[#4a5568] flex items-center gap-1.5">
+                                            <IconClock size={14} className="text-[#a0aec0]" /> Preferred Time
+                                        </label>
+                                        <input
+                                            type="time"
+                                            className="bg-white border border-[#e2e8f0] p-2.5 px-4 rounded-xl text-xs outline-none focus:border-[#2447d7] transition-all"
+                                            value={followUp.time}
+                                            onChange={(e) => setFollowUp(prev => ({ ...prev, time: e.target.value }))}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[12px] font-semibold text-[#4a5568] flex items-center gap-1.5">
+                                            <IconInfo size={14} className="text-[#a0aec0]" /> Task Type
+                                        </label>
+                                        <select
+                                            className="bg-white border border-[#e2e8f0] p-2.5 px-4 rounded-xl text-xs outline-none focus:border-[#2447d7] transition-all appearance-none"
+                                            value={followUp.type}
+                                            onChange={(e) => setFollowUp(prev => ({ ...prev, type: e.target.value }))}
+                                        >
+                                            <option>Initial Call</option>
+                                            <option>Document Request</option>
+                                            <option>Lender Meeting</option>
+                                            <option>Follow-up Email</option>
+                                            <option>General Task</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="mt-4 flex flex-col gap-2">
+                                    <label className="text-[12px] font-semibold text-[#4a5568] flex items-center gap-1.5">
+                                        <IconInfo size={14} className="text-[#a0aec0]" /> Task Context & Notes
+                                    </label>
+                                    <textarea
+                                        className="bg-white border border-[#e2e8f0] p-3 px-4 rounded-xl text-xs outline-none focus:border-[#2447d7] transition-all w-full min-h-[80px] resize-y"
+                                        placeholder="Specific instructions for this follow-up..."
+                                        value={followUp.notes}
+                                        onChange={(e) => setFollowUp(prev => ({ ...prev, notes: e.target.value }))}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
 
                     {/* Documentation */}
@@ -546,6 +666,30 @@ const IconMail = () => (
 const IconKey = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '8px' }}>
         <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l2.5-2.5" />
+    </svg>
+);
+
+const IconCalendar = ({ size = 18, className = "" }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size} className={className}>
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
+
+const IconClock = ({ size = 18, className = "" }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size} className={className}>
+        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+    </svg>
+);
+
+const IconBell = ({ size = 18 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+);
+
+const IconInfo = ({ size = 18, className = "" }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size} className={className}>
+        <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
     </svg>
 );
 

@@ -11,6 +11,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const [lead, setLead] = useState(initialLead || { 
         id: 'WR-2026-0000', 
         name: 'Guest Lead', 
+        businessName: '',
         email: 'no-email@example.com', 
         phone: 'N/A', 
         documents: [] 
@@ -170,6 +171,13 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                     <div className="text-2xl font-bold text-[#1a202c] tracking-tight sm:text-lg">{leadName}</div>
                                 </div>
 
+                                {lead.businessName && (
+                                    <div className="flex flex-col gap-2 col-span-2 bg-[#f0f4ff]/40 p-3 rounded-xl border border-[#dfe7ff]/50">
+                                        <label className="text-[10px] font-bold text-[#2447d7] uppercase tracking-wider">BUSINESS NAME</label>
+                                        <div className="text-base font-bold text-[#2447d7]">{lead.businessName}</div>
+                                    </div>
+                                )}
+
                                 <div className="flex flex-col gap-2 md:col-span-2">
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">EMAIL ADDRESS</label>
                                     <div className="flex items-center gap-2.5 p-[10px_12px] bg-white border border-[#edf2f7] rounded-xl cursor-pointer hover:border-[#2447d7] hover:bg-[#f0f4ff] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(36,71,215,0.08)] transition-all">
@@ -184,6 +192,24 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                         <div className="w-7 h-7 bg-[#ecfdf5] text-[#10b981] rounded-lg flex items-center justify-center shrink-0"><IconPhone /></div>
                                         <span className="text-[13px] font-semibold text-[#4a5568] leading-tight">{lead.phone || 'N/A'}</span>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Lead Notes & Context */}
+                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
+                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
+                            <span className="w-8 h-8 bg-[#fff1f2] text-[#f43f5e] rounded-lg flex items-center justify-center flex-shrink-0">
+                                <IconInfo />
+                            </span>
+                            <h3 className="text-base font-bold text-[#1a202c]">Notes & Context</h3>
+                        </div>
+                        <div className="p-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ADDITIONAL COMMENTARY</label>
+                                <div className="bg-[#fffcfc] border border-dashed border-[#fecaca] p-4 rounded-xl text-[13px] text-[#4a5568] leading-relaxed italic">
+                                    {lead.notes || 'No additional notes provided for this lead.'}
                                 </div>
                             </div>
                         </div>

@@ -4,27 +4,29 @@ import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconUpload, IconAlert, IconCheck, IconDocs } from '../../../components/DocumentManagement/Icons';
 
 const MOCK_LEADS = [
-    { id: 1, name: 'Robert Miller', email: 'robert@example.com', phone: '+1 234-567-890', source: 'Website Form', status: 'Document Collected', lastContact: '2 hours ago', stage: 'Initial', 
+    { id: 1, name: 'Robert Miller', businessName: 'Miller Logistics Co.', email: 'robert@example.com', phone: '+1 234-567-890', source: 'Website Form', status: 'Document Collected', lastContact: '2 hours ago', stage: 'Initial', 
+        notes: 'Customer is looking for a home loan for a primary residence. Preferred contact time is evening after 6 PM.',
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Verified by SG', date: '2024-03-15' },
             { id: 2, type: 'Payslip', status: 'Approved', note: 'Clear copy', date: '2024-03-15' },
             { id: 3, type: 'ID Document', status: 'Pending', note: '', date: '2024-03-16' }
         ] 
     },
-    { id: 2, name: 'Alice Huang', email: 'alice.h@gmail.com', phone: '+1 987-654-321', source: 'Referral', status: 'Document Verifications', lastContact: 'Today, 10:30 AM', stage: 'In Progress',
+    { id: 2, name: 'Alice Huang', businessName: 'Huang Tech Solutions', email: 'alice.h@gmail.com', phone: '+1 987-654-321', source: 'Referral', status: 'Document Verifications', lastContact: 'Today, 10:30 AM', stage: 'In Progress',
+        notes: 'Interested in business expansion loan. Needs quick turnaround as they have a pending property purchase.',
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Period missing', date: '2024-03-14' },
             { id: 2, type: 'Payslip', status: 'Missing', note: '', date: '' }
         ]
     },
-    { id: 3, name: 'David Rivera', email: 'd.rivera@outlook.com', phone: '+1 456-123-789', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'In Progress', documents: [] },
-    { id: 4, name: 'Sarah Connor', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Loan Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost', 
+    { id: 3, name: 'David Rivera', businessName: 'Rivera Designs', email: 'd.rivera@outlook.com', phone: '+1 456-123-789', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'In Progress', documents: [] },
+    { id: 4, name: 'Sarah Connor', businessName: 'Connor Security Group', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Loan Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost', 
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Unclear scan', date: '2024-03-01' },
             { id: 2, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-01' }
         ] 
     },
-    { id: 5, name: 'Michael Chen', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Loan Confirmed', lastContact: '3 days ago', stage: 'Closed', 
+    { id: 5, name: 'Michael Chen', businessName: 'Chen Finance Hub', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Loan Confirmed', lastContact: '3 days ago', stage: 'Closed', 
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Final review OK', date: '2024-03-10' },
             { id: 2, type: 'Payslip', status: 'Approved', note: 'Verified', date: '2024-03-10' },
@@ -32,7 +34,7 @@ const MOCK_LEADS = [
             { id: 4, type: 'Loan Agreement', status: 'Approved', note: 'Signed', date: '2024-03-12' }
         ] 
     },
-    { id: 6, name: 'Emma Watson', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress', 
+    { id: 6, name: 'Emma Watson', businessName: 'Watson Creative Agency', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress', 
         documents: [
             { id: 1, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-15' }
         ] 
@@ -189,7 +191,10 @@ const ManageLeads = ({ onViewDetails }) => {
                                             <div className="w-8 h-8 bg-[#f0f4ff] text-[#2447d7] rounded-lg flex items-center justify-center text-[11px] font-bold">
                                                 {lead.name.split(' ').map(n => n[0]).join('')}
                                             </div>
-                                            <span className="text-sm font-bold text-[#1a202c]">{lead.name}</span>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-bold text-[#1a202c] leading-tight">{lead.name}</span>
+                                                {lead.businessName && <span className="text-[10px] font-bold text-[#2447d7] uppercase tracking-wider">{lead.businessName}</span>}
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="p-[16px_24px] md:p-[12px_16px]">

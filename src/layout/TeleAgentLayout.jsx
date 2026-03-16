@@ -128,7 +128,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                         <Route path="dashboard" element={<TeleDashboard onNavigate={handleNavigate} tasks={tasks} />} />
                         <Route path="leads" element={<ManageLeads onViewDetails={handleViewLeadDetails} />} />
                         <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => navigate('/tele-agent/leads')} />} />
-                        <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} />} />
+                        <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} tasks={tasks} setTasks={setTasks} />} />
                         <Route path="follow-ups" element={<TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
