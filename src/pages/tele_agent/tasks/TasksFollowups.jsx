@@ -21,7 +21,8 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         time: '12:00',
         type: 'Call',
         reminder: 'none',
-        message: ''
+        message: '',
+        assignedTo: JSON.parse(localStorage.getItem('user') || '{}').id?.toString() || ''
     });
 
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -89,7 +90,8 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
             time: '12:00',
             type: 'Call',
             reminder: 'none',
-            message: ''
+            message: '',
+            assignedTo: JSON.parse(localStorage.getItem('user') || '{}').id?.toString() || ''
         });
 
     };
@@ -463,7 +465,11 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
                                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                                                     </svg>
-                                                    {task.lead}
+                                                    {task.lead || 'Personal'}
+                                                    {task.createdBy && (
+                                                        <span className="bg-[#f0f4ff] text-[#2447d7] text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider ml-1">By: {task.createdBy}</span>
+                                                    )}
+
                                                 </span>
                                                 <span className="text-[12px] font-medium text-[#a0aec0]">
                                                     {task.date} • {task.time}

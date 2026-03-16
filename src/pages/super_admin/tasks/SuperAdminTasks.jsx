@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { signIn, createCalendarEvent, getCalendarEvents, getAccount } from '../../../services/outlookService';
+import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
 
-const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
+const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
     const { users } = useUsers();
-    
-    // Team Members (Tele Agents) + Account Managers
-    const assignableUsers = users.filter(u => u.role === 'Tele Agent' || u.role === 'Accounts Manager');
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+
+    // All users except Super Admins (or include everyone?)
+    // The user said "Super admin also same", likely meaning they can assign to anyone.
+    const assignableUsers = users.filter(u => u.role !== 'Super Admin');
 
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All'); // All, Personal, Team
@@ -70,7 +74,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
             ...newTask,
             id: Date.now(),
             status: 'Pending',
-            createdBy: 'Team Leader'
+            createdBy: 'Super Admin'
         };
         setTasks([taskToAdd, ...tasks]);
         if (notifyReminderSet) notifyReminderSet(taskToAdd);
@@ -208,15 +212,15 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                                     <span className="text-[13px] font-bold text-[#1a202c] leading-tight">
                                                         {t.title}
                                                     </span>
-                                                    {t.assignedTo !== 'Self' && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Team</span>}
+                                                    {t.assignedTo !== 'Self' && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Assigned</span>}
                                                 </div>
                                                 <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
                                                 {t.assignedTo !== 'Self' && (
-                                                    <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: '#f0f4ff', color: '#2447d7' }}>
+                                                    <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: isDark ? 'rgba(36,71,215,0.15)' : '#f0f4ff', color: '#2447d7' }}>
                                                         Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
                                                     </span>
                                                 )}
-                                                {t.createdBy && t.createdBy !== 'Team Leader' && (
+                                                {t.createdBy && t.createdBy !== 'Super Admin' && (
                                                     <span className="text-[9px] font-black mt-1 px-1.5 py-0.5 rounded uppercase tracking-wider w-fit" style={{ background: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5' }}>
                                                         By: {t.createdBy}
                                                     </span>
@@ -243,8 +247,8 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
             <header className="flex justify-between items-center mb-10 sm:flex-col sm:items-start sm:gap-6">
                 <div className="flex flex-col gap-1">
-                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Team & Personal Tasks and Followups</h1>
-                    <p className="text-[0.95rem] text-[#718096] font-medium">Manage your tasks, follow-ups, and assign work to your team members.</p>
+                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Global Tasks & Followups</h1>
+                    <p className="text-[0.95rem] text-[#718096] font-medium">Monitor and manage all system tasks and assignments.</p>
                 </div>
                 <div className="flex items-center gap-4 sm:flex-wrap">
                     <div className="relative">
@@ -304,7 +308,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                             <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
                                 <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
                                     <label className="text-[13px] font-bold text-[#4a5568]">Task Title</label>
-                                    <input required type="text" value={newTask.title} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. Portfolio Review..." />
+                                    <input required type="text" value={newTask.title} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. System Wide Sync..." />
                                 </div>
                                 <div className="flex flex-col gap-2 col-span-2">
                                     <label className="text-xs font-bold text-[#4a5568]">Assign To</label>
@@ -313,15 +317,20 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                         value={newTask.assignedTo}
                                         onChange={e => setNewTask({...newTask, assignedTo: e.target.value})}
                                     >
-                                        <option value="Self">Self (Team Leader)</option>
-                                        <optgroup label="Tele Agents">
-                                            {assignableUsers.filter(u => u.role === 'Tele Agent').map(agent => (
-                                                <option key={agent.id} value={agent.id}>{agent.name}</option>
+                                        <option value="Self">Self (Admin)</option>
+                                        <optgroup label="Team Leaders">
+                                            {assignableUsers.filter(u => u.role === 'Team Leader').map(user => (
+                                                <option key={user.id} value={user.id}>{user.name}</option>
                                             ))}
                                         </optgroup>
                                         <optgroup label="Account Managers">
-                                            {assignableUsers.filter(u => u.role === 'Accounts Manager').map(am => (
-                                                <option key={am.id} value={am.id}>{am.name}</option>
+                                            {assignableUsers.filter(u => u.role === 'Accounts Manager').map(user => (
+                                                <option key={user.id} value={user.id}>{user.name}</option>
+                                            ))}
+                                        </optgroup>
+                                        <optgroup label="Tele Agents">
+                                            {assignableUsers.filter(u => u.role === 'Tele Agent').map(user => (
+                                                <option key={user.id} value={user.id}>{user.name}</option>
                                             ))}
                                         </optgroup>
                                     </select>
@@ -398,11 +407,11 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                 </div>
                 <div className="flex items-center gap-4 flex-1 max-w-[500px] md:max-w-full">
                     <div className="flex-1 bg-white border border-[#edf2f7] p-3 px-4 rounded-2xl flex items-center gap-3 shadow-sm focus-within:ring-4 focus-within:ring-[#2447d7]/5 focus-within:border-[#2447d7] transition-all">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="18" height="18"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                        <IconSearch />
                         <input 
                             type="text" 
                             className="bg-transparent border-none outline-none text-sm w-full text-[#1a202c] placeholder:text-[#a0aec0]" 
-                            placeholder="Find tasks, leads or assignees..." 
+                            placeholder="Search all tasks..." 
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -428,9 +437,9 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                             <div key={task.id} className="bg-white rounded-2xl border border-[#edf2f7] p-6 flex items-center justify-between gap-6 hover:translate-y-[-2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300 group">
                                 <div className="flex items-center gap-5">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fff7ed] text-[#ea580c]' : 'bg-[#f0fdf4] text-[#16a34a]'}`}>
-                                        {task.type === 'Call' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>}
-                                        {task.type === 'Document' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>}
-                                        {task.type !== 'Call' && task.type !== 'Document' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22"><polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>}
+                                        {task.type === 'Call' && <IconPhone />}
+                                        {task.type === 'Document' && <IconDoc />}
+                                        {task.type !== 'Call' && task.type !== 'Document' && <IconMeeting />}
                                     </div>
                                     <div className="flex flex-col gap-1.5">
                                         <div className="flex items-center gap-3">
@@ -442,14 +451,14 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                                     Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
                                                 </span>
                                             )}
-                                            {task.createdBy && task.createdBy !== 'Team Leader' && (
+                                            {task.createdBy && task.createdBy !== 'Super Admin' && (
                                                 <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-[#ffedd5]">By: {task.createdBy}</span>
                                             )}
 
                                         </div>
                                         <div className="flex items-center gap-4 flex-wrap">
                                             <span className="flex items-center gap-1.5 text-[13px] font-bold text-[#718096]">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                                <IconUser size={14} />
                                                 {task.lead || 'Administrative'}
                                             </span>
                                             <span className="text-[12px] font-bold text-[#a0aec0] uppercase tracking-widest">{task.date} • {task.time}</span>
@@ -457,12 +466,6 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-6">
-                                    {task.reminder !== 'none' && (
-                                        <div className="flex items-center gap-2 text-[#2447d7] bg-[#ebf0ff] p-[6px_14px] rounded-xl">
-                                            <IconBellActive />
-                                            <span className="text-xs font-bold leading-none">{task.reminder === '15m' ? '15m' : task.reminder === '1h' ? '1h' : '1d'} reminder</span>
-                                        </div>
-                                    )}
                                     <select 
                                         className={`p-[10px_20px] rounded-xl text-sm font-bold border-2 outline-none transition-all cursor-pointer appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:12px] pr-10
                                             ${task.status === 'Completed' ? 'bg-[#f0fdf4] text-[#166534] border-[#dcfce7]' : task.status === 'In Progress' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#dbeafe]' : 'bg-[#f8fafc] text-[#718096] border-[#edf2f7]'}
@@ -482,7 +485,6 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                         <div className="py-24 text-center bg-[#fdfdfd] rounded-[32px] border-2 border-dashed border-[#edf2f7]">
                             <IconCalendar size={48} className="mx-auto text-[#cbd5e0] mb-4" />
                             <p className="text-lg font-bold text-[#718096]">No tasks found</p>
-                            <p className="text-sm text-[#a0aec0] mt-1">Try adjusting your filters or search terms</p>
                         </div>
                     )}
                 </div>
@@ -493,28 +495,44 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
     );
 };
 
-const IconPlus = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18">
-        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+/* ── ICONS ── */
+const IconPhone = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
     </svg>
 );
-
+const IconDoc = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+    </svg>
+);
+const IconMeeting = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
 const IconList = ({ size = 20 }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
         <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
     </svg>
 );
-
 const IconCalendar = ({ size = 20 }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
     </svg>
 );
-
-const IconBellActive = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" className="animate-ring">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+const IconPlus = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18">
+        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+);
+const IconSearch = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="18" height="18"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+);
+const IconUser = ({ size = 18 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
     </svg>
 );
 
-export default TeamLeaderCalendar;
+export default SuperAdminTasks;

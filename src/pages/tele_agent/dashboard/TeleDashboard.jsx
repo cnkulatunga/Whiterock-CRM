@@ -162,11 +162,18 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                             <tr key={item.id} className="border-b border-[#f7fafc] last:border-0 hover:bg-[#f8fafc] transition-colors duration-150 animate-rowIn" style={{ animationDelay: `${500 + idx * 60}ms`, animationFillMode: 'both' }}>
                                                 <td className="py-4 pr-3 flex items-center gap-3">
                                                     <div className="w-10 h-10 rounded-full bg-[#ebf0ff] flex items-center justify-center font-bold text-[13px] shrink-0">
-                                                        <span className="text-[#2447d7]">{item.lead.split(' ').map(n => n[0]).join('')}</span>
+                                                        <span className="text-[#2447d7]">{(item.lead || item.title || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}</span>
                                                     </div>
                                                     <div className="flex flex-col min-w-0">
-                                                        <div className="text-sm font-bold text-[#1a202c] truncate">{item.lead}</div>
+                                                        <div className="text-sm font-bold text-[#1a202c] truncate">{item.title}</div>
+                                                        <div className="flex items-center gap-1.5 min-w-0">
+                                                            <span className="text-[11px] text-[#718096] truncate">{item.lead || 'Personal'}</span>
+                                                            {item.createdBy && (
+                                                                <span className="bg-[#f0f4ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0">By: {item.createdBy}</span>
+                                                            )}
+                                                        </div>
                                                     </div>
+
                                                 </td>
                                                 <td className="py-4 pr-3 md:hidden">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold tracking-wide uppercase ${item.type === 'Call' ? 'bg-blue-100 text-blue-700' :

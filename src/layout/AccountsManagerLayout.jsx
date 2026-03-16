@@ -8,6 +8,7 @@ import FinanceReport from '../pages/super_admin/finance/FinanceReport';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
 import AMTasksFollowups from '../pages/accounts_manager/dashboard/AMTasksFollowups';
 import { useReminders } from '../hooks/useReminders';
+import { useTasks } from '../context/TasksContext';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
@@ -15,11 +16,7 @@ import Lenders from '../pages/super_admin/lenders/Lenders';
 import ClientLenderSelection from '../pages/accounts_manager/client_lender_selection/ClientLenderSelection';
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
-
-const INITIAL_TASKS = [
-    { id: 201, title: 'Review loan applications', lead: 'Pipeline', status: 'Pending', date: '2026-03-11', time: '10:00', type: 'Review', reminder: 'none', assignedTo: 'Self' },
-    { id: 202, title: 'Follow up with lender', lead: 'ABC Bank', status: 'In Progress', date: '2026-03-11', time: '14:00', type: 'Call', reminder: '15m', assignedTo: 'Self' },
-];
+import { UsersProvider } from '../context/UsersContext';
 
 const AccountsManagerLayout = ({ onLogout }) => {
     const location = useLocation();
@@ -27,7 +24,32 @@ const AccountsManagerLayout = ({ onLogout }) => {
     const [selectedLead, setSelectedLead] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [tasks, setTasks] = useState(INITIAL_TASKS);
+    const { tasks: allTasks, setTasks: setAllTasks } = useTasks();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    // Filter tasks for this manager
+    const tasks = allTasks.filter(t => 
+        t.assignedTo?.toString() === user.id?.toString() || 
+        t.createdBy === 'Accounts Manager' || 
+        (t.assignedTo === 'Self' && user.role === 'Accounts Manager')
+    );
+
+    const setTasks = (newTasksOrFn) => {
+        if (typeof newTasksOrFn === 'function') {
+            setAllTasks(prev => {
+                const currentRelevantTasks = prev.filter(t => t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Accounts Manager' || (t.assignedTo === 'Self' && user.role === 'Accounts Manager'));
+                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Accounts Manager' || (t.assignedTo === 'Self' && user.role === 'Accounts Manager')));
+                const updatedRelevantTasks = newTasksOrFn(currentRelevantTasks);
+                return [...otherTasks, ...updatedRelevantTasks];
+            });
+        } else {
+            setAllTasks(prev => {
+                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Accounts Manager' || (t.assignedTo === 'Self' && user.role === 'Accounts Manager')));
+                return [...otherTasks, ...newTasksOrFn];
+            });
+        }
+    };
+
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
@@ -112,4 +134,10 @@ const AccountsManagerLayout = ({ onLogout }) => {
     );
 };
 
-export default AccountsManagerLayout;
+const AccountsManagerLayoutWithProviders = (props) => (
+    <UsersProvider>
+        <AccountsManagerLayout {...props} />
+    </UsersProvider>
+);
+
+export default AccountsManagerLayoutWithProviders;

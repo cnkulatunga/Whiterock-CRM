@@ -1,18 +1,20 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { SHARED_INITIAL_USERS } from '../../context/UsersContext';
+
 import { useTheme } from '../../context/ThemeContext';
 import ThemeToggle from '../../components/theme/ThemeToggle';
 import alphaLogo from '../../assets/images/alpha.png';
 
 /* ─── ICONS ──────────────────────────────────────────────────────── */
-const IconUser   = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
-const IconLock   = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>;
-const IconMail   = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
-const IconEye    = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="17" height="17"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>;
-const IconEyeOff = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="17" height="17"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>;
-const IconArrow  = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="17" height="17"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
-const IconBack   = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>;
-const IconCheck  = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="32" height="32"><polyline points="20 6 9 17 4 12"/></svg>;
-const IconCheckSm= () => <svg viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="11" height="11"><polyline points="2 6 5 9 10 3"/></svg>;
+const IconUser = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
+const IconLock = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>;
+const IconMail = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>;
+const IconEye = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="17" height="17"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>;
+const IconEyeOff = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="17" height="17"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></svg>;
+const IconArrow = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="17" height="17"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>;
+const IconBack = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>;
+const IconCheck = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="32" height="32"><polyline points="20 6 9 17 4 12" /></svg>;
+const IconCheckSm = () => <svg viewBox="0 0 12 12" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="11" height="11"><polyline points="2 6 5 9 10 3" /></svg>;
 
 /* ─── W LOGO ICON ────────────────────────────────────────────────── */
 const LogoIcon = ({ size = 40 }) => (
@@ -118,13 +120,36 @@ const Login = ({ onLogin, defaultRole }) => {
     const isValidEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
     const pwReqs = { length: newPw.length >= 8, upper: /[A-Z]/.test(newPw), symbol: /[!@#$%^&*()\-_=+[\]{};':"\\|,.<>/?`~]/.test(newPw) };
 
-    const openForgotFlow = () => { setFpEmail(''); setFpEmailError(''); setOtp(['','','','','','']); setOtpError(''); setNewPw(''); setConfirmPw(''); setNewPwError(''); setView('fp-email'); };
+    const openForgotFlow = () => { setFpEmail(''); setFpEmailError(''); setOtp(['', '', '', '', '', '']); setOtpError(''); setNewPw(''); setConfirmPw(''); setNewPwError(''); setView('fp-email'); };
 
     const handleLogin = (e) => {
         e.preventDefault();
         setLoginError('');
         if (!loginEmail) { setLoginError('Please enter your email address.'); return; }
         if (!loginPassword) { setLoginError('Please enter your password.'); return; }
+        const ROLE_MAP = {
+            'Super Admin': 'super_admin',
+            'Team Leader': 'team_leader',
+            'Tele Agent': 'tele_agent',
+            'Accounts Manager': 'accounts_manager'
+        };
+
+        // Try to find user in shared initial users first
+        const foundUser = SHARED_INITIAL_USERS.find(u => u.email.toLowerCase() === loginEmail.toLowerCase());
+
+        if (foundUser) {
+            localStorage.setItem('user', JSON.stringify({
+                id: foundUser.id,
+                email: foundUser.email,
+                first_name: foundUser.name.split(' ')[0],
+                last_name: foundUser.name.split(' ')[1] || '',
+                role: ROLE_MAP[foundUser.role] || foundUser.role.toLowerCase().replace(' ', '_'),
+                is_staff: foundUser.role === 'Super Admin'
+            }));
+            if (onLogin) onLogin();
+            return;
+        }
+
         let role = defaultRole;
         if (!defaultRole) {
             if (loginEmail.startsWith('tele')) role = 'tele_agent';
@@ -132,25 +157,41 @@ const Login = ({ onLogin, defaultRole }) => {
             else if (loginEmail.startsWith('manager')) role = 'accounts_manager';
             else if (loginEmail.startsWith('leader')) role = 'team_leader';
         }
-        const NAMES = { tele_agent:['Tele','User'], super_admin:['Admin','User'], accounts_manager:['Alex','Thompson'], team_leader:['Sarah','Johnson'] };
+
+        const NAMES = { 
+            tele_agent: ['Cody', 'Lane'], 
+            super_admin: ['Jane', 'Doe'], 
+            accounts_manager: ['Sarah', 'White'], 
+            team_leader: ['Marcus', 'Smith'] 
+        };
+        const ROLE_IDS = { super_admin: 1, team_leader: 2, tele_agent: 3, accounts_manager: 4 };
+
         if (role && NAMES[role]) {
-            localStorage.setItem('user', JSON.stringify({ id:'123', email:loginEmail, first_name:NAMES[role][0], last_name:NAMES[role][1], role, is_staff: role==='super_admin' }));
+            localStorage.setItem('user', JSON.stringify({ 
+                id: ROLE_IDS[role], 
+                email: loginEmail, 
+                first_name: NAMES[role][0], 
+                last_name: NAMES[role][1], 
+                role, 
+                is_staff: role === 'super_admin' 
+            }));
             if (onLogin) onLogin();
         } else {
             setLoginError('Invalid login credentials or role not authorized.');
         }
+
     };
 
     const handleSendCode = (e) => { e.preventDefault(); setFpEmailError(''); if (!fpEmail) { setFpEmailError('Please enter your email address.'); return; } if (!isValidEmail(fpEmail)) { setFpEmailError('Please enter a valid email address.'); return; } setView('fp-otp'); setTimeout(() => otpRefs.current[0]?.focus(), 300); };
-    const handleOtpChange = (val, idx) => { const digit = val.replace(/\D/g, '').slice(0,1); const next = [...otp]; next[idx] = digit; setOtp(next); if (digit && idx < 5) otpRefs.current[idx+1]?.focus(); };
-    const handleOtpKey = (e, idx) => { if (e.key==='Backspace' && !otp[idx] && idx>0) otpRefs.current[idx-1]?.focus(); };
-    const handleOtpPaste = (e) => { e.preventDefault(); const digits = e.clipboardData.getData('text').replace(/\D/g,'').slice(0,6).split(''); const next = ['','','','','','']; digits.forEach((d,i) => { next[i]=d; }); setOtp(next); otpRefs.current[Math.min(digits.length,5)]?.focus(); };
-    const handleVerifyOtp = (e) => { e.preventDefault(); setOtpError(''); if (otp.join('').length<6) { setOtpError('Please enter the full 6-digit code.'); return; } setView('fp-newpw'); };
-    const handleSetPassword = (e) => { e.preventDefault(); setNewPwError(''); if (!newPw||!confirmPw) { setNewPwError('Please fill in both fields.'); return; } if (newPw!==confirmPw) { setNewPwError('Passwords do not match.'); return; } if (!Object.values(pwReqs).every(Boolean)) { setNewPwError('Password does not meet all requirements.'); return; } setView('fp-success'); };
+    const handleOtpChange = (val, idx) => { const digit = val.replace(/\D/g, '').slice(0, 1); const next = [...otp]; next[idx] = digit; setOtp(next); if (digit && idx < 5) otpRefs.current[idx + 1]?.focus(); };
+    const handleOtpKey = (e, idx) => { if (e.key === 'Backspace' && !otp[idx] && idx > 0) otpRefs.current[idx - 1]?.focus(); };
+    const handleOtpPaste = (e) => { e.preventDefault(); const digits = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6).split(''); const next = ['', '', '', '', '', '']; digits.forEach((d, i) => { next[i] = d; }); setOtp(next); otpRefs.current[Math.min(digits.length, 5)]?.focus(); };
+    const handleVerifyOtp = (e) => { e.preventDefault(); setOtpError(''); if (otp.join('').length < 6) { setOtpError('Please enter the full 6-digit code.'); return; } setView('fp-newpw'); };
+    const handleSetPassword = (e) => { e.preventDefault(); setNewPwError(''); if (!newPw || !confirmPw) { setNewPwError('Please fill in both fields.'); return; } if (newPw !== confirmPw) { setNewPwError('Passwords do not match.'); return; } if (!Object.values(pwReqs).every(Boolean)) { setNewPwError('Password does not meet all requirements.'); return; } setView('fp-success'); };
 
     /* ── Shared styles ── */
-    const pageBg  = isDark ? '#181c2e' : '#edf0fb';
-    const cardBg  = isDark ? '#1f2347' : '#ffffff';
+    const pageBg = isDark ? '#181c2e' : '#edf0fb';
+    const cardBg = isDark ? '#1f2347' : '#ffffff';
     const cardBorder = isDark ? '#36407a' : '#dde5f5';
     const inputBg = isDark ? '#242b50' : '#f5f7fe';
     const inputBorder = isDark ? '#36407a' : '#dbe1f5';
@@ -186,7 +227,7 @@ const Login = ({ onLogin, defaultRole }) => {
         boxShadow: '0 4px 18px rgba(40,85,232,0.35)',
         transition: 'all 0.18s ease',
     };
-    const fpStep = view==='fp-email' ? 1 : view==='fp-otp' ? 2 : 3;
+    const fpStep = view === 'fp-email' ? 1 : view === 'fp-otp' ? 2 : 3;
 
     return (
         <div style={{ fontFamily: "'Sora', sans-serif", minHeight: '100vh', background: pageBg, display: 'flex', flexDirection: 'column' }}>
@@ -256,8 +297,8 @@ const Login = ({ onLogin, defaultRole }) => {
                     ))}
 
                     <div style={{ marginTop: 40, paddingTop: 28, borderTop: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                        {['AT','SJ','JD','MC'].map((ini, i) => (
-                            <div key={ini} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', background: ['#6080f8','#22c55e','#f97316','#a855f7'][i], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: '#fff', marginLeft: i > 0 ? -12 : 0 }}>{ini}</div>
+                        {['AT', 'SJ', 'JD', 'MC'].map((ini, i) => (
+                            <div key={ini} style={{ width: 40, height: 40, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.4)', background: ['#6080f8', '#22c55e', '#f97316', '#a855f7'][i], display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, color: '#fff', marginLeft: i > 0 ? -12 : 0 }}>{ini}</div>
                         ))}
                         <span style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.6)', marginLeft: 8 }}>2,400+ users trust Alpha Funding</span>
                     </div>
@@ -318,7 +359,7 @@ const Login = ({ onLogin, defaultRole }) => {
                     )}
 
                     {/* ══ FORGOT PASSWORD VIEWS ══ */}
-                    {['fp-email','fp-otp','fp-newpw'].includes(view) && (
+                    {['fp-email', 'fp-otp', 'fp-newpw'].includes(view) && (
                         <div style={{ width: '100%', maxWidth: 440 }}>
                             <StepIndicator current={fpStep} isDark={isDark} />
                             <div style={{ background: cardBg, border: `1px solid ${cardBorder}`, borderRadius: 20, padding: isMobile ? '24px 18px 20px' : '36px 36px 28px', boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.35)' : '0 4px 24px rgba(36,71,215,0.08)' }}>

@@ -2,23 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { signIn, createCalendarEvent, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
 
-const LEADERS = [
-    { id: 1, name: 'Team Leader 1' },
-    { id: 2, name: 'Team Leader 2' },
-];
-
-const MEMBERS = [
-    { id: 3, name: 'John Smith', initials: 'JS', color: '#2447d7' },
-    { id: 4, name: 'Alice Wong', initials: 'AW', color: '#7c3aed' },
-    { id: 5, name: 'Robert King', initials: 'RK', color: '#f59e0b' },
-    { id: 6, name: 'Sarah Meow', initials: 'SM', color: '#10b981' },
-];
-
-const AllAgents = [...LEADERS, ...MEMBERS];
+import { useUsers } from '../../../context/UsersContext';
 
 const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
+    const { users } = useUsers();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+
+    // Leaders (Team Leaders) + Members (Tele Agents)
+    const assignableUsers = users.filter(u => u.role === 'Team Leader' || u.role === 'Tele Agent');
 
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All'); // All, Personal, Team
@@ -224,6 +216,11 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                                     {t.assignedTo !== 'Self' && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Team</span>}
                                                 </div>
                                                 <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
+                                                {t.assignedTo !== 'Self' && (
+                                                    <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: isDark ? 'rgba(36,71,215,0.15)' : '#f0f4ff', color: '#2447d7' }}>
+                                                        Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -321,19 +318,27 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                 <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
                                     <label className="text-[13px] font-bold text-[#4a5568]">Task Title</label>
                                     <input required type="text" value={newTask.title} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. Portfolio Review..." />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Assign To</label>
-                                    <select value={newTask.assignedTo} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, assignedTo: e.target.value})}>
-                                        <option value="Self">Assign to me (Manager)</option>
+                                </div>                                <div className="flex flex-col gap-2 col-span-2">
+                                    <label className="text-xs font-bold text-[#4a5568]">Assign To</label>
+                                    <select 
+                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]"
+                                        value={newTask.assignedTo}
+                                        onChange={e => setNewTask({...newTask, assignedTo: e.target.value})}
+                                    >
+                                        <option value="Self">Self (Account Manager)</option>
                                         <optgroup label="Team Leaders">
-                                            {LEADERS.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                            {assignableUsers.filter(u => u.role === 'Team Leader').map(leader => (
+                                                <option key={leader.id} value={leader.id}>{leader.name}</option>
+                                            ))}
                                         </optgroup>
-                                        <optgroup label="Team Members">
-                                            {MEMBERS.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                                        <optgroup label="Tele Agents">
+                                            {assignableUsers.filter(u => u.role === 'Tele Agent').map(agent => (
+                                                <option key={agent.id} value={agent.id}>{agent.name}</option>
+                                            ))}
                                         </optgroup>
                                     </select>
                                 </div>
+
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[13px] font-bold text-[#4a5568]">Task Type</label>
                                     <select value={newTask.type} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, type: e.target.value})}>
@@ -551,10 +556,14 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                             {task.assignedTo === 'Self' ? (
                                                 <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
                                             ) : (
-                                                <span className="text-[9px] font-black text-[#2447d7] bg-[#ebf0ff] px-2 py-0.5 rounded border border-[#d9e3ff] uppercase tracking-wider whitespace-nowrap">
-                                                    Assignee: {AllAgents.find(a => a.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
+                                                <span className="flex items-center gap-1.5 text-[0.8rem] font-bold text-[#2447d7] bg-[#f0f4ff] px-2.5 py-1 rounded-lg">
+                                                    Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
                                                 </span>
                                             )}
+                                            {task.createdBy && task.createdBy !== 'Accounts Manager' && (
+                                                <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-[#ffedd5]">By: {task.createdBy}</span>
+                                            )}
+
                                         </div>
                                         <div className="flex items-center gap-4 flex-wrap">
                                             <span className="text-[12px] font-bold text-[#718096] flex items-center gap-1.5 whitespace-nowrap">

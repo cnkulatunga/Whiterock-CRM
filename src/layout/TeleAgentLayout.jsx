@@ -7,25 +7,38 @@ import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
 import TasksFollowups from '../pages/tele_agent/tasks/TasksFollowups';
 import { useReminders } from '../hooks/useReminders';
+import { useTasks } from '../context/TasksContext';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import Documents from '../pages/tele_agent/documents/Documents';
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
 
-const INITIAL_TASKS = [
-    { id: 1, title: 'Follow up with Robert Miller', lead: 'Robert Miller', status: 'Pending', date: '2026-03-09', time: '14:00', type: 'Call', reminder: '15m' },
-    { id: 2, title: "Verify Alice Huang's documents", lead: 'Alice Huang', status: 'In Progress', date: '2026-03-09', time: '16:30', type: 'Document', reminder: '1h' },
-    { id: 3, title: 'Check loan eligibility for David Rivera', lead: 'David Rivera', status: 'Completed', date: '2026-03-08', time: '10:00', type: 'Review', reminder: 'none' },
-    { id: 4, title: 'Send welcome email to Michael Chen', lead: 'Michael Chen', status: 'Pending', date: '2026-03-10', time: '10:00', type: 'Email', reminder: '1d' },
-];
-
-/* ─── TELE AGENT LAYOUT ──────────────────────────────── */
 const TeleAgentLayout = ({ onLogout }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [selectedLeadId, setSelectedLeadId] = useState(null);
-    const [tasks, setTasks] = useState(INITIAL_TASKS);
+    const { tasks: allTasks, setTasks: setAllTasks } = useTasks();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    // Filter tasks for this agent
+    const tasks = allTasks.filter(t => t.assignedTo?.toString() === user.id?.toString());
+    const setTasks = (newTasksOrFn) => {
+        if (typeof newTasksOrFn === 'function') {
+            setAllTasks(prev => {
+                const currentAgentTasks = prev.filter(t => t.assignedTo?.toString() === user.id?.toString());
+                const otherTasks = prev.filter(t => t.assignedTo?.toString() !== user.id?.toString());
+                const updatedAgentTasks = newTasksOrFn(currentAgentTasks);
+                return [...otherTasks, ...updatedAgentTasks];
+            });
+        } else {
+            setAllTasks(prev => {
+                const otherTasks = prev.filter(t => t.assignedTo?.toString() !== user.id?.toString());
+                return [...otherTasks, ...newTasksOrFn];
+            });
+        }
+    };
+
     const [pendingTaskDate, setPendingTaskDate] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);

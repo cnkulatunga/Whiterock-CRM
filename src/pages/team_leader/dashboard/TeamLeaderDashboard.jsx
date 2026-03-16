@@ -366,15 +366,19 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                     <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3L2 6" /><path d="M22 6l-3-3" />
                                                 </svg>
                                             </div>
-                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0, flex: 1 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                                                    <span style={{ fontSize: '13px', fontWeight: 700, color: titleColor, lineHeight: 1.3 }}>{t.title}</span>
-                                                    {t.assignedTo === 'Self' && (
-                                                        <span style={{ fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.06em', background: badgeBg, color: badgeColor }}>Self</span>
-                                                    )}
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0, flex: 1 }}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                                        <span style={{ fontSize: '13px', fontWeight: 700, color: titleColor, lineHeight: 1.3 }}>{t.title}</span>
+                                                        {t.assignedTo === 'Self' && (
+                                                            <span style={{ fontSize: '9px', fontWeight: 700, padding: '1px 5px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.06em', background: badgeBg, color: badgeColor }}>Self</span>
+                                                        )}
+                                                        {t.createdBy && t.createdBy !== 'Team Leader' && (
+                                                            <span style={{ fontSize: '8px', fontWeight: 900, padding: '1px 4px', borderRadius: '3px', textTransform: 'uppercase', letterSpacing: '0.04em', background: isDark ? 'rgba(245,158,11,0.2)' : '#fff7ed', color: '#ea580c', border: `1px solid ${isDark ? 'rgba(245,158,11,0.3)' : '#ffedd5'}` }}>By: {t.createdBy}</span>
+                                                        )}
+                                                    </div>
+                                                    <span style={{ fontSize: '11px', fontWeight: 500, color: metaColor }}>{t.date} at {t.time} {t.lead ? `· ${t.lead}` : ''}</span>
                                                 </div>
-                                                <span style={{ fontSize: '11px', fontWeight: 500, color: metaColor }}>{t.date} at {t.time}</span>
-                                            </div>
+
                                         </div>
                                     )) : (
                                         <div style={{ padding: '24px 16px', textAlign: 'center', fontSize: '13px', fontStyle: 'italic', color: emptyColor }}>No active reminders</div>
@@ -601,8 +605,14 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                             }`}></span>
                                                         <div className="flex flex-col min-w-0">
                                                             <span className="text-[12px] font-bold text-[#1a202c] truncate leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
-                                                            <span className="text-[10px] text-[#a0aec0] font-medium mt-0.5">{t.time}</span>
+                                                            <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                                                                <span className="text-[10px] text-[#a0aec0] font-medium truncate">{t.time} {t.lead ? `· ${t.lead}` : '· Personal'}</span>
+                                                                {t.createdBy && t.createdBy !== 'Team Leader' && (
+                                                                    <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 border border-[#ffedd5]">By: {t.createdBy}</span>
+                                                                )}
+                                                            </div>
                                                         </div>
+
                                                     </div>
                                                     <div className="flex items-center gap-2 pl-4">
                                                         <div className="flex items-center border border-[#edf2f7] rounded-lg bg-[#f7fafc]">

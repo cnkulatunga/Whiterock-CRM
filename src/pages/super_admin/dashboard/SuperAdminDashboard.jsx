@@ -286,6 +286,12 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                         onClick={() => onNavigate && onNavigate('leads')}
                     />
                     <QuickAction
+                        iconBg="#fef2f2"
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>}
+                        title="Tasks & Followups" desc="Global assignments"
+                        onClick={() => onNavigate && onNavigate('tasks')}
+                    />
+                    <QuickAction
                         iconBg="#f8fafc"
                         icon={<svg viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
                         title="Audit Logs" desc="Security & tracking"

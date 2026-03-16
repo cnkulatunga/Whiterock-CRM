@@ -6,24 +6,45 @@ import LeadMonitoring from '../pages/team_leader/lead_monitoring/LeadMonitoring'
 import DocumentVerification from '../pages/team_leader/document_verification/DocumentVerification';
 import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar';
 import { useReminders } from '../hooks/useReminders';
+import { useTasks } from '../context/TasksContext';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
+import { UsersProvider } from '../context/UsersContext';
 
-const INITIAL_TASKS = [
-    { id: 101, title: 'Weekly Team Sync', lead: null, status: 'Pending', date: '2026-03-09', time: '09:00', type: 'Meeting', reminder: '15m', assignedTo: 'Self' },
-    { id: 102, title: "Review John's high-value leads", lead: 'Portfolio Review', status: 'In Progress', date: '2026-03-09', time: '11:00', type: 'Review', reminder: 'none', assignedTo: '1' },
-    { id: 103, title: 'Monthly goal setting', lead: null, status: 'Completed', date: '2026-03-02', time: '10:00', type: 'Review', reminder: 'none', assignedTo: 'Self' },
-    { id: 104, title: 'Check document backlog', lead: 'Backlog', status: 'Pending', date: '2026-03-10', time: '14:00', type: 'Document', reminder: '1h', assignedTo: '3' },
-];
 
 const TeamLeaderLayout = ({ onLogout }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-    const [tasks, setTasks] = useState(INITIAL_TASKS);
+    const { tasks: allTasks, setTasks: setAllTasks } = useTasks();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    // Filter tasks: assigned to self OR created by self (so they can see team assignments)
+    const tasks = allTasks.filter(t => 
+        t.assignedTo?.toString() === user.id?.toString() || 
+        t.createdBy === 'Team Leader' || 
+        (t.assignedTo === 'Self' && user.role === 'Team Leader')
+    );
+
+    const setTasks = (newTasksOrFn) => {
+        if (typeof newTasksOrFn === 'function') {
+            setAllTasks(prev => {
+                const currentRelevantTasks = prev.filter(t => t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Team Leader' || (t.assignedTo === 'Self' && user.role === 'Team Leader'));
+                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Team Leader' || (t.assignedTo === 'Self' && user.role === 'Team Leader')));
+                const updatedRelevantTasks = newTasksOrFn(currentRelevantTasks);
+                return [...otherTasks, ...updatedRelevantTasks];
+            });
+        } else {
+            setAllTasks(prev => {
+                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Team Leader' || (t.assignedTo === 'Self' && user.role === 'Team Leader')));
+                return [...otherTasks, ...newTasksOrFn];
+            });
+        }
+    };
+
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
@@ -97,4 +118,10 @@ const TeamLeaderLayout = ({ onLogout }) => {
     );
 };
 
-export default TeamLeaderLayout;
+const TeamLeaderLayoutWithProviders = (props) => (
+    <UsersProvider>
+        <TeamLeaderLayout {...props} />
+    </UsersProvider>
+);
+
+export default TeamLeaderLayoutWithProviders;
