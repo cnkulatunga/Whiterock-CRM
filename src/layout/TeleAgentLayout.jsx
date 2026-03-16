@@ -16,7 +16,7 @@ import ThemeToggle from '../components/theme/ThemeToggle';
 const TeleAgentLayout = ({ onLogout }) => {
     const location = useLocation();
     const navigate = useNavigate();
-    const [selectedLeadId, setSelectedLeadId] = useState(null);
+    const [selectedLead, setSelectedLead] = useState(null);
     const { tasks: allTasks, setTasks: setAllTasks } = useTasks();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     
@@ -60,8 +60,8 @@ const TeleAgentLayout = ({ onLogout }) => {
         }
     };
 
-    const handleViewLeadDetails = (leadId) => {
-        setSelectedLeadId(leadId);
+    const handleViewLeadDetails = (lead) => {
+        setSelectedLead(lead);
         navigate('/tele-agent/lead-details');
     };
 
@@ -127,7 +127,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                     <Routes>
                         <Route path="dashboard" element={<TeleDashboard onNavigate={handleNavigate} tasks={tasks} />} />
                         <Route path="leads" element={<ManageLeads onViewDetails={handleViewLeadDetails} />} />
-                        <Route path="lead-details" element={<LeadDetails leadId={selectedLeadId} tasks={tasks} setTasks={setTasks} onBack={() => navigate('/tele-agent/leads')} />} />
+                        <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => navigate('/tele-agent/leads')} />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} />} />
                         <Route path="follow-ups" element={<TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
