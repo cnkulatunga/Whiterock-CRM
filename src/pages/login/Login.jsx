@@ -125,16 +125,20 @@ const Login = ({ onLogin, defaultRole }) => {
         setLoginError('');
         if (!loginEmail) { setLoginError('Please enter your email address.'); return; }
         if (!loginPassword) { setLoginError('Please enter your password.'); return; }
-        let role = defaultRole || 'client';
+        let role = defaultRole;
         if (!defaultRole) {
             if (loginEmail.startsWith('tele')) role = 'tele_agent';
             else if (loginEmail.startsWith('admin')) role = 'super_admin';
             else if (loginEmail.startsWith('manager')) role = 'accounts_manager';
             else if (loginEmail.startsWith('leader')) role = 'team_leader';
         }
-        const NAMES = { tele_agent:['Tele','User'], super_admin:['Admin','User'], accounts_manager:['Alex','Thompson'], team_leader:['Sarah','Johnson'], client:['Client','User'] };
-        localStorage.setItem('user', JSON.stringify({ id:'123', email:loginEmail, first_name:NAMES[role][0], last_name:NAMES[role][1], role, is_staff: role==='super_admin' }));
-        if (onLogin) onLogin();
+        const NAMES = { tele_agent:['Tele','User'], super_admin:['Admin','User'], accounts_manager:['Alex','Thompson'], team_leader:['Sarah','Johnson'] };
+        if (role && NAMES[role]) {
+            localStorage.setItem('user', JSON.stringify({ id:'123', email:loginEmail, first_name:NAMES[role][0], last_name:NAMES[role][1], role, is_staff: role==='super_admin' }));
+            if (onLogin) onLogin();
+        } else {
+            setLoginError('Invalid login credentials or role not authorized.');
+        }
     };
 
     const handleSendCode = (e) => { e.preventDefault(); setFpEmailError(''); if (!fpEmail) { setFpEmailError('Please enter your email address.'); return; } if (!isValidEmail(fpEmail)) { setFpEmailError('Please enter a valid email address.'); return; } setView('fp-otp'); setTimeout(() => otpRefs.current[0]?.focus(), 300); };

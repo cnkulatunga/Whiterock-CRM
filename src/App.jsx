@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useTheme } from './context/ThemeContext';
 import useAutoLogout from './hooks/useAutoLogout';
 import Login from './pages/login/Login';
-import ClientLayout from './layout/ClientLayout';
 import SuperAdminLayout from './layout/SuperAdminLayout';
 import TeleAgentLayout from './layout/TeleAgentLayout';
 import AccountsManagerLayout from './layout/AccountsManagerLayout';
@@ -26,8 +25,7 @@ const ProtectedRoute = ({ children, allowedRoles, isLoggedIn }) => {
                 case 'tele_agent': return <Navigate to="/tele-agent" replace />;
                 case 'accounts_manager': return <Navigate to="/accounts-manager" replace />;
                 case 'team_leader': return <Navigate to="/team-leader" replace />;
-                case 'client':
-                default: return <Navigate to="/client" replace />;
+                default: return <Navigate to="/login" replace />;
             }
         }
         return children;
@@ -49,10 +47,14 @@ const DashboardHome = ({ isLoggedIn }) => {
             case 'tele_agent': return <Navigate to="/tele-agent" replace />;
             case 'accounts_manager': return <Navigate to="/accounts-manager" replace />;
             case 'team_leader': return <Navigate to="/team-leader" replace />;
-            case 'client':
-            default: return <Navigate to="/client" replace />;
+            default: 
+                console.error("Unknown role:", role);
+                localStorage.removeItem('user');
+                window.location.reload(); // Force reload to clear state and go to login
+                return null;
         }
     } catch (e) {
+        localStorage.removeItem('user');
         return <Navigate to="/login" replace />;
     }
 };
@@ -77,7 +79,7 @@ function App() {
         setIsLoggedIn(true);
         const userString = localStorage.getItem('user');
         const user = userString ? JSON.parse(userString) : {};
-        const userRole = role || user.role || 'client';
+        const userRole = role || user.role;
         
         console.log("Logging in as:", userRole);
         switch (userRole) {
@@ -85,7 +87,7 @@ function App() {
             case 'tele_agent': navigate('/tele-agent'); break;
             case 'accounts_manager': navigate('/accounts-manager'); break;
             case 'team_leader': navigate('/team-leader'); break;
-            default: navigate('/client'); break;
+            default: navigate('/login'); break;
         }
     };
 
@@ -111,7 +113,6 @@ function App() {
                 <Route path="/login" element={isLoggedIn ? <DashboardHome isLoggedIn={isLoggedIn} /> : <Login onLogin={() => handleLogin()} />} />
                 
                 {/* Specific Login Routes */}
-                <Route path="/login/lead" element={isLoggedIn ? <Navigate to="/client" replace /> : <Login onLogin={() => handleLogin('client')} defaultRole="client" />} />
                 <Route path="/login/tele-agent" element={isLoggedIn ? <Navigate to="/tele-agent" replace /> : <Login onLogin={() => handleLogin('tele_agent')} defaultRole="tele_agent" />} />
                 <Route path="/login/team-leader" element={isLoggedIn ? <Navigate to="/team-leader" replace /> : <Login onLogin={() => handleLogin('team_leader')} defaultRole="team_leader" />} />
                 <Route path="/login/accounts-manager" element={isLoggedIn ? <Navigate to="/accounts-manager" replace /> : <Login onLogin={() => handleLogin('accounts_manager')} defaultRole="accounts_manager" />} />
@@ -139,12 +140,6 @@ function App() {
                 <Route path="/team-leader/*" element={
                     <ProtectedRoute isLoggedIn={isLoggedIn} allowedRoles={['team_leader']}>
                         <TeamLeaderLayout onLogout={handleLogoutTrigger} />
-                    </ProtectedRoute>
-                } />
-                
-                <Route path="/client/*" element={
-                    <ProtectedRoute isLoggedIn={isLoggedIn} allowedRoles={['client']}>
-                        <ClientLayout onLogout={handleLogoutTrigger} />
                     </ProtectedRoute>
                 } />
 
