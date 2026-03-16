@@ -367,8 +367,14 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                                                 <span className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#f59e0b]' : 'bg-[#cbd5e0]'}`} />
                                                 <div className="flex flex-col min-w-0 flex-1">
                                                     <span className="text-[12px] font-bold text-[#1a202c] truncate leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
-                                                    <span className="text-[10px] text-[#a0aec0] font-medium mt-0.5">{t.time} {t.lead ? `· ${t.lead}` : ''}</span>
+                                                    <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                                                        <span className="text-[10px] text-[#a0aec0] font-medium truncate">{t.time} {t.lead ? `· ${t.lead}` : '· Personal'}</span>
+                                                        {t.createdBy && t.createdBy !== 'Accounts Manager' && (
+                                                            <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 border border-[#ffedd5]">By: {t.createdBy}</span>
+                                                        )}
+                                                    </div>
                                                 </div>
+
                                             </div>
                                             <div className="flex items-center gap-2 pl-4">
                                                 <div className="flex items-center border border-[#edf2f7] rounded-lg bg-white">

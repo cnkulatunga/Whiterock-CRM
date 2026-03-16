@@ -10,6 +10,11 @@ import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
 import TeamLeaders from '../pages/super_admin/team_leaders/TeamLeaders';
 import Lenders from '../pages/super_admin/lenders/Lenders';
 import OperationalFlow from '../pages/super_admin/operational_flow/OperationalFlow';
+import SuperAdminTasks from '../pages/super_admin/tasks/SuperAdminTasks';
+import { useReminders } from '../hooks/useReminders';
+import { useTasks } from '../context/TasksContext';
+import NotificationTray from '../components/NotificationTray/NotificationTray';
+import ReminderModal from '../components/NotificationTray/ReminderModal';
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
 
@@ -49,8 +54,11 @@ const AppLayout = ({ onLogout }) => {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const { tasks, setTasks } = useTasks();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+
+    const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
 
     const handleNavigate = (page) => {
         setSidebarOpen(false);
@@ -65,6 +73,7 @@ const AppLayout = ({ onLogout }) => {
             case 'settings': navigate('/super-admin/settings'); break;
             case 'team-leaders': navigate('/super-admin/team-leaders'); break;
             case 'lenders': navigate('/super-admin/lenders'); break;
+            case 'tasks': navigate('/super-admin/tasks'); break;
             case 'operational-flow': navigate('/super-admin/operational-flow'); break;
             default: navigate('/super-admin/dashboard');
         }
@@ -121,11 +130,14 @@ const AppLayout = ({ onLogout }) => {
                         <Route path="settings" element={<SettingsPage />} />
                         <Route path="team-leaders" element={<TeamLeaders onNavigate={handleNavigate} />} />
                         <Route path="lenders" element={<Lenders readOnly={false} />} />
+                        <Route path="tasks" element={<SuperAdminTasks tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="operational-flow" element={<OperationalFlow />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
                 </div>
+                <NotificationTray notifications={notifications} onRemove={removeNotification} isDark={isDark} />
+                {activeAlerts.length > 0 && <ReminderModal reminder={activeAlerts[0]} onDismiss={() => dismissAlert(activeAlerts[0].id)} />}
             </div>
         </div>
     );
