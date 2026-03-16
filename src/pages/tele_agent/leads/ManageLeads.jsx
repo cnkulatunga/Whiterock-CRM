@@ -18,9 +18,25 @@ const MOCK_LEADS = [
         ]
     },
     { id: 3, name: 'David Rivera', email: 'd.rivera@outlook.com', phone: '+1 456-123-789', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'In Progress', documents: [] },
-    { id: 4, name: 'Sarah Connor', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Loan Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost', documents: [] },
-    { id: 5, name: 'Michael Chen', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Loan Confirmed', lastContact: '3 days ago', stage: 'Closed', documents: [] },
-    { id: 6, name: 'Emma Watson', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress', documents: [] },
+    { id: 4, name: 'Sarah Connor', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Loan Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost', 
+        documents: [
+            { id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Unclear scan', date: '2024-03-01' },
+            { id: 2, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-01' }
+        ] 
+    },
+    { id: 5, name: 'Michael Chen', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Loan Confirmed', lastContact: '3 days ago', stage: 'Closed', 
+        documents: [
+            { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Final review OK', date: '2024-03-10' },
+            { id: 2, type: 'Payslip', status: 'Approved', note: 'Verified', date: '2024-03-10' },
+            { id: 3, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-10' },
+            { id: 4, type: 'Loan Agreement', status: 'Approved', note: 'Signed', date: '2024-03-12' }
+        ] 
+    },
+    { id: 6, name: 'Emma Watson', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress', 
+        documents: [
+            { id: 1, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-15' }
+        ] 
+    },
 ];
 
 const ITEMS_PER_PAGE = 5;
@@ -246,13 +262,15 @@ const ManageLeads = ({ onViewDetails }) => {
                                             >
                                                 Details
                                             </button>
-                                            <button 
-                                                className="p-1.5 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
-                                                title="Upload/Manage Documents"
-                                                onClick={() => handleOpenModal(lead)}
-                                            >
-                                                <IconUpload size={18} />
-                                            </button>
+                                            {!(lead.status === 'Document Verifications' && lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
+                                                <button 
+                                                    className="p-1.5 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
+                                                    title="Upload/Manage Documents"
+                                                    onClick={() => handleOpenModal(lead)}
+                                                >
+                                                    <IconUpload size={18} />
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
