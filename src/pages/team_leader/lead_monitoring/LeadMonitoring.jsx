@@ -5,6 +5,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8812',
         customer: 'Jonathan Vane',
+        businessName: 'Vane Ventures',
         agent: { name: 'Sarah Johnson', color: '#2447d7' },
         progress: 20,
         stage: 'Document Collection',
@@ -12,6 +13,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8845',
         customer: 'Amara Okafor',
+        businessName: 'Okafor Global',
         agent: { name: 'Michael Smith', color: '#10b981' },
         progress: 100,
         stage: 'Completed',
@@ -19,6 +21,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8901',
         customer: 'Robert Taylor',
+        businessName: 'Taylor & Sons',
         agent: { name: 'Elena Rodriguez', color: '#8b5cf6' },
         progress: 40,
         stage: 'Document Verification Done',
@@ -26,6 +29,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8722',
         customer: 'Li Wei',
+        businessName: 'Wei Tech Solutions',
         agent: { name: 'Sarah Johnson', color: '#2447d7' },
         progress: 60,
         stage: 'Lender Selection',
@@ -33,6 +37,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8735',
         customer: 'Patricia Moore',
+        businessName: 'Moore Investments',
         agent: { name: 'Michael Smith', color: '#10b981' },
         progress: 80,
         stage: 'Final Review',
@@ -40,6 +45,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8744',
         customer: 'Kevin Adams',
+        businessName: 'Adams Logistics',
         agent: { name: 'Elena Rodriguez', color: '#8b5cf6' },
         progress: 100,
         stage: 'Rejected',
@@ -47,6 +53,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8756',
         customer: 'David Lee',
+        businessName: 'Lee Creative',
         agent: { name: 'Elena Rodriguez', color: '#8b5cf6' },
         progress: 20,
         stage: 'Document Collection',
@@ -54,6 +61,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8770',
         customer: 'Fatima Al-Hassan',
+        businessName: 'Al-Hassan Trading',
         agent: { name: 'Sarah Johnson', color: '#2447d7' },
         progress: 60,
         stage: 'Lender Selection',
@@ -61,6 +69,7 @@ const LEADS_DATA = [
     {
         id: 'WR-2024-8785',
         customer: 'Carlos Rivera',
+        businessName: 'Rivera Carpentry',
         agent: { name: 'Michael Smith', color: '#10b981' },
         progress: 40,
         stage: 'Document Verification Done',
@@ -144,12 +153,12 @@ const LeadRow = ({ lead, idx }) => {
         <div
             className="group grid md:flex md:flex-col items-center md:items-start gap-5 md:gap-6 px-6 md:px-8 py-5 md:py-4 hover:bg-[#f8faff] transition-all duration-200 border-b border-[#f7fafc] last:border-0 animate-rowIn"
             style={{
-                gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(0, 1.4fr)',
+                gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1.3fr) minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1.4fr)',
                 animationDelay: `${400 + idx * 55}ms`,
                 animationFillMode: 'both',
             }}
         >
-            {/* Customer & ID - Desktop Col 1, Mobile Top Row */}
+            {/* Lead ID / Client - Desktop Col 1, Mobile Top Row */}
             <div className="flex items-start md:justify-between md:items-center w-full min-w-0">
                 <div className="flex flex-col gap-0.5 min-w-0">
                     <span className="text-[10px] font-black text-[#2447d7] font-mono tracking-widest uppercase">{lead.id}</span>
@@ -159,6 +168,17 @@ const LeadRow = ({ lead, idx }) => {
                 <div className="hidden md:flex shrink-0">
                     <StageBadge stage={lead.stage} />
                 </div>
+            </div>
+
+            {/* Business Name - Desktop Col 2, Mobile Row 2 */}
+            <div className="flex items-center min-w-0 w-full md:w-auto">
+                {lead.businessName ? (
+                    <span className="text-[11px] font-bold text-[#4a5568] uppercase tracking-wider truncate bg-[#f8faff] px-2.5 py-1 rounded-lg border border-[#edf2f7]">
+                        {lead.businessName}
+                    </span>
+                ) : (
+                    <span className="text-[11px] font-medium text-[#cbd5e0] italic">Personal Lead</span>
+                )}
             </div>
 
             {/* Agent - Desktop Col 2, Mobile Row 2 */}
@@ -200,7 +220,8 @@ const LeadMonitoring = () => {
         const matchesSearch =
             searchTerm === '' ||
             lead.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            lead.customer.toLowerCase().includes(searchTerm.toLowerCase());
+            lead.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (lead.businessName && lead.businessName.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesAgent = selectedAgent === 'All Agents' || lead.agent.name === selectedAgent;
         const matchesStage = selectedStage === 'All Stages' || lead.stage === selectedStage;
         return matchesSearch && matchesAgent && matchesStage;
@@ -217,8 +238,8 @@ const LeadMonitoring = () => {
     const showingStart = totalFiltered === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1;
 
     const handleExportCSV = () => {
-        const headers = ['ID', 'Customer', 'Agent', 'Progress', 'Stage'];
-        const rows = LEADS_DATA.map(l => [l.id, l.customer, l.agent.name, `${l.progress}%`, l.stage]);
+        const headers = ['ID', 'Customer', 'Business Name', 'Agent', 'Progress', 'Stage'];
+        const rows = LEADS_DATA.map(l => [l.id, l.customer, l.businessName || 'N/A', l.agent.name, `${l.progress}%`, l.stage]);
         const csvContent = [headers, ...rows].map(r => r.join(',')).join('\n');
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = URL.createObjectURL(blob);
@@ -427,9 +448,9 @@ const LeadMonitoring = () => {
                 {/* ── Table Header ── */}
                 <div
                     className="grid md:hidden gap-6 px-8 py-3 bg-[#f8fafc] border-b border-[#f1f5f9]"
-                    style={{ gridTemplateColumns: 'minmax(0, 1.8fr) minmax(0, 1.4fr) minmax(0, 1.2fr) minmax(0, 1.4fr)' }}
+                    style={{ gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1.3fr) minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1.4fr)' }}
                 >
-                    {['ID & Customer', 'Agent', 'Progress', 'Stage'].map((h, i) => (
+                    {['Lead ID / Client', 'Business Name', 'Agent', 'Progress', 'Stage'].map((h, i) => (
                         <div key={i} className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">{h}</div>
                     ))}
                 </div>

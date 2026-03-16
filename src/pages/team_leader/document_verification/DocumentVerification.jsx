@@ -8,8 +8,10 @@ const MOCK_LEADS = [
         id: 1,
         leadId: 'WR-2026-8812',
         name: 'Jonathan Vane',
+        businessName: 'Vane Ventures',
         agentName: 'Sarah Connor',
         status: 'Document Verifications',
+        submissionDate: '2026-03-16', // Today
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Verified by SG', date: '2024-03-10' },
             { id: 2, type: 'Payslip', status: 'Pending', note: '', date: '2024-03-11' }
@@ -19,8 +21,10 @@ const MOCK_LEADS = [
         id: 2,
         leadId: 'WR-2026-8845',
         name: 'Amara Okafor',
+        businessName: 'Okafor Global',
         agentName: 'Michael Reese',
         status: 'Document Verifications',
+        submissionDate: '2026-03-15', // Yesterday
         documents: [
             { id: 3, type: 'Bank Statement', status: 'Approved', note: 'Clear copy', date: '2024-03-09' },
             { id: 4, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-09' }
@@ -30,8 +34,10 @@ const MOCK_LEADS = [
         id: 3,
         leadId: 'WR-2026-8901',
         name: 'Robert Taylor',
+        businessName: 'Taylor & Sons',
         agentName: 'Sarah Connor',
         status: 'Document Verifications',
+        submissionDate: '2026-03-14', // Last 7 Days
         documents: [
             { id: 5, type: 'Bank Statement', status: 'Pending', note: '', date: '2024-03-11' }
         ]
@@ -40,8 +46,10 @@ const MOCK_LEADS = [
         id: 4,
         leadId: 'WR-2026-9012',
         name: 'Elena Gilbert',
+        businessName: 'Gilbert Medical',
         agentName: 'Damon Salvatore',
         status: 'Document Verifications',
+        submissionDate: '2026-03-10', // Last 7 Days
         documents: [
             { id: 6, type: 'ID Document', status: 'Rejected', note: 'Image is blurry', date: '2024-03-12' },
             { id: 7, type: 'Bank Statement', status: 'Approved', note: 'Verified', date: '2024-03-12' }
@@ -51,8 +59,10 @@ const MOCK_LEADS = [
         id: 5,
         leadId: 'WR-2026-9123',
         name: 'Arthur Morgan',
+        businessName: 'Morgan Ranching',
         agentName: 'John Marston',
         status: 'Document Verifications',
+        submissionDate: '2026-02-28', // Older
         documents: [
             { id: 8, type: 'Payslip', status: 'Pending', note: '', date: '2024-03-13' }
         ]
@@ -64,6 +74,8 @@ const DocumentVerification = () => {
     const [selectedLead, setSelectedLead] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedDateFilter, setSelectedDateFilter] = useState('All Time');
 
     const stats = {
         totalLeads: leads.length,
@@ -112,6 +124,27 @@ const DocumentVerification = () => {
 
     const handleFinalApproval = () => setIsSuccess(true);
 
+    const filteredLeads = leads.filter(lead => {
+        const searchLower = searchTerm.toLowerCase();
+        const matchesSearch = 
+            lead.name.toLowerCase().includes(searchLower) ||
+            lead.leadId.toLowerCase().includes(searchLower) ||
+            lead.businessName?.toLowerCase().includes(searchLower) ||
+            lead.agentName.toLowerCase().includes(searchLower);
+
+        if (!matchesSearch) return false;
+
+        const submissionDate = new Date(lead.submissionDate);
+        const today = new Date('2026-03-16');
+        const diffDays = (today - submissionDate) / (1000 * 60 * 60 * 24);
+
+        if (selectedDateFilter === 'Today') return lead.submissionDate === '2026-03-16';
+        if (selectedDateFilter === 'Yesterday') return lead.submissionDate === '2026-03-15';
+        if (selectedDateFilter === 'Last 7 Days') return diffDays >= 0 && diffDays <= 7;
+        
+        return true;
+    });
+
     // ── Success Screen ──
     if (isSuccess) {
         return (
@@ -141,22 +174,55 @@ const DocumentVerification = () => {
     return (
         <div className="flex flex-col gap-8 animate-fadeIn font-['Sora',sans-serif]">
             {/* ── Header ── */}
-            <header className="flex justify-between items-start gap-4 sm:flex-col animate-headerDrop">
+            <header className="flex justify-between items-center gap-4 sm:flex-col animate-headerDrop">
                 <div className="flex flex-col gap-1">
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] tracking-tight">Document Verification</h1>
                     <p className="text-[0.9rem] text-[#718096] font-medium">
                         Verify and approve documents submitted by Tele-Agents for active leads.
                     </p>
                 </div>
-                {stats.pendingReview === 0 && stats.fullyVerified > 0 && (
-                    <button
-                        onClick={handleFinalApproval}
-                        className="flex items-center gap-2 bg-[#10b981] text-white px-5 py-2.5 rounded-xl text-[13px] font-bold shadow-[0_4px_14px_rgba(16,185,129,0.25)] hover:bg-[#059669] hover:-translate-y-px transition-all shrink-0"
-                    >
-                        <IconCheck size={16} strokeWidth={3} />
-                        Release to Lenders
-                    </button>
-                )}
+                <div className="flex items-center gap-4 sm:w-full">
+                    {/* Date Filter */}
+                    <div className="relative min-w-[140px]">
+                        <select
+                            className="w-full bg-white border border-[#edf2f7] px-4 py-2 rounded-xl text-[13px] font-bold text-[#4a5568] outline-none hover:border-[#2447d7] focus:border-[#2447d7] transition-all appearance-none cursor-pointer pr-9 shadow-sm"
+                            value={selectedDateFilter}
+                            onChange={(e) => setSelectedDateFilter(e.target.value)}
+                        >
+                            {['All Time', 'Today', 'Yesterday', 'Last 7 Days'].map(opt => (
+                                <option key={opt}>{opt}</option>
+                            ))}
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12">
+                                <polyline points="6 9 12 15 18 9"/>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-2.5 bg-white px-4 py-2 border border-[#edf2f7] rounded-xl w-[280px] sm:w-full shadow-sm">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2.5" width="16" height="16">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input
+                            type="text"
+                            className="bg-transparent border-none outline-none text-[13px] text-[#4a5568] w-full font-medium placeholder:text-[#cbd5e0]"
+                            placeholder="Search leads, ID, business..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    {stats.pendingReview === 0 && stats.fullyVerified > 0 && (
+                        <button
+                            onClick={handleFinalApproval}
+                            className="flex items-center gap-2 bg-[#10b981] text-white px-5 py-2.5 rounded-xl text-[13px] font-bold shadow-[0_4px_14px_rgba(16,185,129,0.25)] hover:bg-[#059669] hover:-translate-y-px transition-all shrink-0"
+                        >
+                            <IconCheck size={16} strokeWidth={3} />
+                            Release to Lenders
+                        </button>
+                    )}
+                </div>
             </header>
 
             {/* ── KPI Cards ── */}
@@ -182,29 +248,40 @@ const DocumentVerification = () => {
 
             {/* ── Leads Table ── */}
             <div className="bg-white rounded-3xl border border-[#edf2f7] shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden animate-slideUp [animation-delay:450ms] [animation-fill-mode:both]">
-                <div className="grid md:hidden gap-4 px-8 py-3.5 bg-[#f8fafc] border-b border-[#f1f5f9]" style={{ gridTemplateColumns: '150px 1fr 180px 150px' }}>
-                    {['Lead ID', 'Client Name', 'Verification Status', 'Actions'].map((h, i) => (
-                        <div key={i} className={`text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ${i === 3 ? 'text-right' : ''}`}>{h}</div>
+                <div className="grid md:hidden gap-4 px-8 py-3.5 bg-[#f8fafc] border-b border-[#f1f5f9]" style={{ gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1.8fr) minmax(0, 1.5fr) minmax(0, 1.4fr) minmax(0, 1fr)' }}>
+                    {['Lead ID / Client', 'Business Name', 'Assigned Agent', 'Verification Status', 'Actions'].map((h, i) => (
+                        <div key={i} className={`text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ${i === 4 ? 'text-center' : ''}`}>{h}</div>
                     ))}
                 </div>
 
                 <div className="flex flex-col divide-y divide-[#f7fafc]">
-                    {leads.map((lead, idx) => (
+                    {filteredLeads.length > 0 ? (
+                        filteredLeads.map((lead, idx) => (
                         <div
                             key={lead.id}
-                            className="grid md:flex md:flex-col gap-5 md:gap-4 px-8 py-5 items-center md:items-start hover:bg-[#f8faff] transition-all duration-200 animate-rowIn"
-                            style={{ gridTemplateColumns: '150px 1fr 180px 150px', animationDelay: `${500 + idx * 60}ms`, animationFillMode: 'both' }}
+                            className="grid md:flex md:flex-col gap-5 md:gap-4 px-8 py-5 items-center md:items-start hover:bg-[#f8faff] transition-all duration-200 border-b border-[#f7fafc] last:border-0 animate-rowIn"
+                            style={{ gridTemplateColumns: 'minmax(0, 1.5fr) minmax(0, 1.8fr) minmax(0, 1.5fr) minmax(0, 1.4fr) minmax(0, 1fr)', animationDelay: `${500 + idx * 60}ms`, animationFillMode: 'both' }}
                         >
-                            <span className="text-[11px] font-black text-[#2447d7] font-mono tracking-wider">{lead.leadId}</span>
-                            
-                            <div className="flex flex-col">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-[10px] font-black text-[#2447d7] font-mono tracking-wider">{lead.leadId}</span>
                                 <span className="text-[14px] font-bold text-[#1a202c]">{lead.name}</span>
-                                <div className="flex items-center gap-1.5 mt-0.5">
-                                    <div className="w-4 h-4 rounded-full bg-[#f1f5f9] flex items-center justify-center text-[10px] text-[#718096] border border-[#e2e8f0]">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="8" height="8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                                    </div>
-                                    <span className="text-[11px] font-medium text-[#718096]">Agent: <span className="font-bold text-[#4a5568]">{lead.agentName}</span></span>
+                            </div>
+                            
+                            <div className="flex items-center min-w-0">
+                                {lead.businessName ? (
+                                    <span className="text-[11px] font-bold text-[#4a5568] uppercase tracking-wider truncate bg-[#f8faff] px-2.5 py-1 rounded-lg border border-[#edf2f7]">
+                                        {lead.businessName}
+                                    </span>
+                                ) : (
+                                    <span className="text-[11px] font-medium text-[#cbd5e0] italic">Personal Lead</span>
+                                )}
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <div className="w-6 h-6 rounded-lg bg-[#f0f4ff] flex items-center justify-center text-[10px] font-bold text-[#2447d7] border border-[#dfe7ff]">
+                                    {lead.agentName.split(' ').map(n => n[0]).join('')}
                                 </div>
+                                <span className="text-[12px] font-semibold text-[#4a5568] truncate max-w-[120px]">{lead.agentName}</span>
                             </div>
 
                             <div className="flex items-center">
@@ -237,7 +314,7 @@ const DocumentVerification = () => {
                                 })()}
                             </div>
 
-                            <div className="flex justify-end">
+                            <div className="flex justify-center">
                                 <button
                                     onClick={() => handleOpenModal(lead)}
                                     className="px-4 py-1.5 bg-[#2447d7] text-white rounded-lg text-[11px] font-black hover:bg-[#1732a3] transition-all shadow-[0_2px_8px_rgba(36,71,215,0.2)]"
@@ -246,7 +323,16 @@ const DocumentVerification = () => {
                                 </button>
                             </div>
                         </div>
-                    ))}
+                    ))
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-20 animate-fadeIn">
+                        <div className="w-16 h-16 bg-[#f8fafc] rounded-2xl flex items-center justify-center mb-4 text-[#cbd5e0]">
+                            <IconDocs size={32} />
+                        </div>
+                        <h3 className="text-[15px] font-bold text-[#4a5568]">No matching leads found</h3>
+                        <p className="text-[13px] text-[#a0aec0] mt-1">Try adjusting your search terms</p>
+                    </div>
+                )}
                 </div>
             </div>
 

@@ -177,7 +177,7 @@ const ManageLeads = ({ onViewDetails }) => {
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-[#fbfeff]">
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">LEAD NAME</th>
+                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">Client / Business Name</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">EMAIL / PHONE</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">STATUS</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">ACTION</th>
