@@ -105,14 +105,14 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
         <div className="flex flex-col gap-6 w-full max-w-full overflow-x-hidden font-['Sora',sans-serif] animate-fadeIn">
 
             {/* ── HEADER ── */}
-            <header className="flex flex-col gap-1 animate-headerDrop">
-                <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Tele Agent Dashboard</h1>
+            <header className="flex flex-col gap-1 animate-headerDrop px-1">
+                <h1 className="text-[1.6rem] sm:text-[1.3rem] font-bold text-[#1a202c] mb-1">Tele Agent Dashboard</h1>
                 <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Real-time overview of your lead activity and schedule.</p>
             </header>
 
             {/* ── TOP STATS ── */}
-            <section className="flex gap-6 sm:flex-col">
-                <div className="flex-1 bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] flex flex-col gap-5 min-w-0 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:200ms] [animation-fill-mode:both]">
+            <section className="flex gap-6 sm:flex-col sm:gap-4">
+                <div className="flex-1 bg-white rounded-2xl border border-[#edf2f7] p-6 sm:p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] flex flex-col gap-5 sm:gap-3 min-w-0 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:200ms] [animation-fill-mode:both]">
                     <div className="flex justify-between items-start">
                         <div className="w-12 h-12 bg-[#ebf0ff] text-[#2447d7] rounded-xl flex items-center justify-center">
                             <IconUserGroup />
@@ -123,7 +123,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                         <h2 className="text-[2rem] font-bold text-[#1a202c] mt-1">1,284</h2>
                     </div>
                 </div>
-                <div className="flex-1 bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] flex flex-col gap-5 min-w-0 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:280ms] [animation-fill-mode:both]">
+                <div className="flex-1 bg-white rounded-2xl border border-[#edf2f7] p-6 sm:p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] flex flex-col gap-5 sm:gap-3 min-w-0 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:280ms] [animation-fill-mode:both]">
                     <div className="flex justify-between items-start">
                         <div className="w-12 h-12 bg-[#fffbef] text-[#ed8936] rounded-xl flex items-center justify-center">
                             <IconFolder />
@@ -141,7 +141,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                 {/* ── LEFT COLUMN ── */}
                 <div className="flex flex-col gap-6 min-w-0">
 
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] animate-slideUp [animation-delay:400ms] [animation-fill-mode:both]">
+                    <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 sm:p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] animate-slideUp [animation-delay:400ms] [animation-fill-mode:both]">
                         <div className="flex justify-between items-center mb-6 gap-3 sm:flex-col sm:items-start">
                             <h2 className="text-lg font-bold text-[#1a202c]">Today's Follow-ups</h2>
                             <button className="bg-none border-none text-[#2447d7] font-semibold text-sm cursor-pointer hover:underline" onClick={() => onNavigate('follow-ups')}>View all schedule</button>
@@ -160,8 +160,8 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                     {tasks.filter(t => t.date === todayStr).length > 0 ? (
                                         tasks.filter(t => t.date === todayStr).map((item, idx) => (
                                             <tr key={item.id} className="border-b border-[#f7fafc] last:border-0 hover:bg-[#f8fafc] transition-colors duration-150 animate-rowIn" style={{ animationDelay: `${500 + idx * 60}ms`, animationFillMode: 'both' }}>
-                                                <td className="py-4 pr-3 flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-full bg-[#ebf0ff] flex items-center justify-center font-bold text-[13px] shrink-0">
+                                                <td className="py-4 pr-3 flex items-center gap-3 sm:gap-1">
+                                                    <div className="w-10 h-10 rounded-full bg-[#ebf0ff] flex items-center justify-center font-bold text-[13px] shrink-0 sm:hidden">
                                                         <span className="text-[#2447d7]">{(item.lead || item.title || 'U').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)}</span>
                                                     </div>
                                                     <div className="flex flex-col min-w-0">
@@ -207,7 +207,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                         </div>
                     </div>
 
-                    <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] animate-slideUp [animation-delay:550ms] [animation-fill-mode:both]">
+                    <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 sm:p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] animate-slideUp [animation-delay:550ms] [animation-fill-mode:both]">
                         <div className="flex justify-between items-center mb-6 gap-4 flex-wrap">
                             <h2 className="text-lg font-bold text-[#1a202c]">Tasks and Followups</h2>
 
@@ -305,7 +305,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                                                 `}
                                                 onClick={() => setSelectedDate(dateStr)}
                                             >
-                                                <span className={`text-[13px] font-bold w-6 h-6 flex items-center justify-center rounded-full
+                                                <span className={`text-[13px] sm:text-[11px] font-bold w-6 h-6 sm:w-5 sm:h-5 flex items-center justify-center rounded-full
                                                     ${itoday ? 'bg-[#2447d7] text-white' : isSelected ? 'text-white' : 'text-[#4a5568] hover:text-[#2447d7]'}
                                                 `}>{day}</span>
                                                 {dayTasks.length > 0 && !isSelected && (
@@ -353,7 +353,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                 <div className="flex flex-col gap-6 w-full">
 
                     {/* Leads by Stage */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] animate-slideUp [animation-delay:650ms] [animation-fill-mode:both]">
+                    <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 sm:p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] animate-slideUp [animation-delay:650ms] [animation-fill-mode:both]">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-lg font-bold text-[#1a202c]">Leads by Stage</h2>
                             <span className="text-[10px] font-bold text-[#a0aec0] tracking-widest uppercase">128 TOTAL</span>

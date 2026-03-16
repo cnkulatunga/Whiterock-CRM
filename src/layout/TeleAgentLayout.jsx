@@ -84,7 +84,7 @@ const TeleAgentLayout = ({ onLogout }) => {
             />
             <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-[margin] duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[280px] lg:ml-0'}`}>
                 <div
-                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
+                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-5 sm:px-3 sm:gap-2 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
                     style={{
                         background: isDark ? 'rgba(22,26,48,0.97)' : 'rgba(255,255,255,0.98)',
                         borderBottom: `1px solid ${isDark ? '#36407a' : '#e6ebf5'}`,
@@ -106,7 +106,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                     <div className="flex items-center gap-3">
                         <ThemeToggle />
                         <button
-                            className="text-white border-none h-11 px-6 rounded-xl text-sm font-extrabold flex items-center gap-2.5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
+                            className="text-white border-none h-11 sm:h-10 px-6 sm:px-3 rounded-xl text-sm font-extrabold flex items-center gap-2.5 sm:gap-1 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
                             style={{
                                 background: isDark 
                                     ? 'linear-gradient(135deg, #3b82f6, #2563eb)' 
@@ -127,7 +127,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                         </button>
                     </div>
                 </div>
-                <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
+                <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4 sm:p-5 sm:px-3">
                     <Routes>
                         <Route path="dashboard" element={<TeleDashboard onNavigate={handleNavigate} tasks={tasks} />} />
                         <Route path="leads" element={<ManageLeads onViewDetails={handleViewLeadDetails} />} />

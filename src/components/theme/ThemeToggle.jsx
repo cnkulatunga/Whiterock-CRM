@@ -111,7 +111,7 @@ const ThemeToggle = ({ compact = false }) => {
                         }}
                     >
                         <Icon size={13} />
-                        {label}
+                        <span className="sm:hidden">{label}</span>
                     </button>
                 );
             })}
