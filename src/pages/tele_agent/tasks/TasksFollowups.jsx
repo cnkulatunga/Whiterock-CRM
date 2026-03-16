@@ -31,6 +31,9 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     const [outlookAccount, setOutlookAccount] = useState(null);
     const [outlookEvents, setOutlookEvents] = useState([]);
     const [loadingEvents, setLoadingEvents] = useState(false);
+    const [editingTask, setEditingTask] = useState(null);
+    const [isEditingTask, setIsEditingTask] = useState(false);
+
 
     useEffect(() => {
         const acc = getAccount();
@@ -74,13 +77,25 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
 
     const handleAddTask = (e) => {
         e.preventDefault();
-        const taskToAdd = {
-            ...newTask,
-            id: Date.now(),
-            status: 'Pending'
-        };
-        setTasks([taskToAdd, ...tasks]);
-        if (notifyReminderSet) notifyReminderSet(taskToAdd);
+        
+        if (isEditingTask && editingTask) {
+            const taskToUpdate = {
+                ...editingTask,
+                ...newTask
+            };
+            setTasks(tasks.map(t => t.id === taskToUpdate.id ? taskToUpdate : t));
+            setIsEditingTask(false);
+            setEditingTask(null);
+        } else {
+            const taskToAdd = {
+                ...newTask,
+                id: Date.now(),
+                status: 'Pending'
+            };
+            setTasks([taskToAdd, ...tasks]);
+            if (notifyReminderSet) notifyReminderSet(taskToAdd);
+        }
+
         setIsAddingTask(false);
 
         setNewTask({
@@ -93,8 +108,30 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
             message: '',
             assignedTo: JSON.parse(localStorage.getItem('user') || '{}').id?.toString() || ''
         });
-
     };
+
+    const handleEditClick = (task) => {
+        setEditingTask(task);
+        setIsEditingTask(true);
+        setNewTask({
+            title: task.title,
+            lead: task.lead || '',
+            date: task.date,
+            time: task.time,
+            type: task.type,
+            reminder: task.reminder || 'none',
+            message: task.message || '',
+            assignedTo: task.assignedTo || JSON.parse(localStorage.getItem('user') || '{}').id?.toString() || ''
+        });
+        setIsAddingTask(true);
+    };
+
+    const handleDeleteTask = (id) => {
+        if (window.confirm('Are you sure you want to delete this task?')) {
+            setTasks(tasks.filter(t => t.id !== id));
+        }
+    };
+
 
     const updateTaskStatus = (id, newStatus) => {
         setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
@@ -196,11 +233,22 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                     <div className="flex justify-between items-center pb-3" style={{ borderBottom: `1px solid ${sidePanelBorder}` }}>
                         <h3 className="text-sm font-bold" style={{ color: titleColor }}>Tasks for {selectedDate}</h3>
                         <button className="w-7 h-7 bg-[#2447d7] text-white rounded-lg flex items-center justify-center hover:scale-105 transition-transform" onClick={() => {
-                            setNewTask({...newTask, date: selectedDate});
+                            setNewTask({
+                                title: '',
+                                lead: '',
+                                date: selectedDate,
+                                time: '12:00',
+                                type: 'Call',
+                                reminder: 'none',
+                                message: '',
+                                assignedTo: JSON.parse(localStorage.getItem('user') || '{}').id?.toString() || ''
+                            });
+                            setIsEditingTask(false);
                             setIsAddingTask(true);
                         }}>
                             <IconPlus />
                         </button>
+
                     </div>
                     <div className="flex-1 flex flex-col gap-3 overflow-y-auto max-h-[500px] pr-1 scrollbar-thin">
                         {tasks.filter(t => t.date === selectedDate).length > 0 ? (
@@ -211,7 +259,22 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                         <span className="text-[13px] font-bold truncate leading-tight" style={{ color: taskTitleColor }}>{t.title}</span>
                                         <span className="text-[11px] font-medium" style={{ color: mutedColor }}>{t.time} • {t.lead}</span>
                                     </div>
+                                    <div className="flex items-center gap-1.5 ml-auto">
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
+                                            className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#2447d7] transition-all`}
+                                        >
+                                            <IconEdit size={14} />
+                                        </button>
+                                        <button 
+                                            onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
+                                            className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#e53e3e] transition-all`}
+                                        >
+                                            <IconTrash size={14} />
+                                        </button>
+                                    </div>
                                 </div>
+
                             ))
                         ) : (
                             <p className="text-[12px] text-center mt-4 italic" style={{ color: mutedColor }}>No tasks scheduled for this day.</p>
@@ -259,9 +322,10 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                         <button className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-bold transition-all duration-200 ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><IconList size={14} /> List</button>
                         <button className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-bold transition-all duration-200 ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><IconCalendar size={14} /> Calendar</button>
                     </div>
-                    <button className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_4px_12px_rgba(36,71,215,0.2)] hover:bg-[#1a36b1] hover:-translate-y-px transition-all sm:w-full sm:justify-center" onClick={() => setIsAddingTask(true)}>
+                    <button className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_4px_12px_rgba(36,71,215,0.2)] hover:bg-[#1a36b1] hover:-translate-y-px transition-all sm:w-full sm:justify-center" onClick={() => { setIsAddingTask(true); setIsEditingTask(false); setEditingTask(null); setNewTask({ title: '', lead: '', date: new Date().toISOString().split('T')[0], time: '12:00', type: 'Call', reminder: 'none', message: '', assignedTo: JSON.parse(localStorage.getItem('user') || '{}').id?.toString() || '' }); }}>
                         <IconPlus /> <span>New Task</span>
                     </button>
+
                 </div>
             </div>
 
@@ -269,9 +333,10 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-[4px] flex items-center justify-center z-[2000] animate-fadeIn p-4">
                     <div className="bg-white w-full max-w-[500px] max-h-[90vh] rounded-2xl p-8 shadow-2xl relative animate-slideUp overflow-y-auto scrollbar-thin">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-[#1a202c]">Create New Task</h2>
-                            <button className="text-2xl text-[#a0aec0] hover:text-[#4a5568]" onClick={() => setIsAddingTask(false)}>&times;</button>
+                            <h2 className="text-xl font-bold text-[#1a202c]">{isEditingTask ? 'Edit Task' : 'Create New Task'}</h2>
+                            <button className="text-2xl text-[#a0aec0] hover:text-[#4a5568]" onClick={() => { setIsAddingTask(false); setIsEditingTask(false); setEditingTask(null); }}>&times;</button>
                         </div>
+
                         <form onSubmit={handleAddTask}>
                             <div className="grid grid-cols-2 gap-4 mb-6 sm:grid-cols-1">
                                 <div className="flex flex-col gap-2 col-span-2">
@@ -315,10 +380,11 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                 </div>
                             </div>
 
-                            <div className="flex justify-end gap-3 mt-4">
-                                <button type="button" className="px-5 py-2.5 bg-[#f7fafc] border border-[#edf2f7] rounded-xl font-bold text-[#4a5568] hover:bg-[#edf2f7] transition-all" onClick={() => setIsAddingTask(false)}>Cancel</button>
-                                <button type="submit" className="px-6 py-2.5 bg-[#2447d7] text-white rounded-xl font-bold hover:bg-[#1a36b1] hover:-translate-y-px shadow-lg transition-all">Create Task</button>
+                             <div className="flex justify-end gap-3 mt-4">
+                                <button type="button" className="px-5 py-2.5 bg-[#f7fafc] border border-[#edf2f7] rounded-xl font-bold text-[#4a5568] hover:bg-[#edf2f7] transition-all" onClick={() => { setIsAddingTask(false); setIsEditingTask(false); setEditingTask(null); }}>Cancel</button>
+                                <button type="submit" className="px-6 py-2.5 bg-[#2447d7] text-white rounded-xl font-bold hover:bg-[#1a36b1] hover:-translate-y-px shadow-lg transition-all">{isEditingTask ? 'Update Task' : 'Create Task'}</button>
                             </div>
+
                         </form>
                     </div>
                 </div>
@@ -510,7 +576,24 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                             <option>Completed</option>
                                         </select>
                                     </div>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => handleEditClick(task)}
+                                            className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                            title="Edit Task"
+                                        >
+                                            <IconEdit />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteTask(task.id)}
+                                            className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                            title="Delete Task"
+                                        >
+                                            <IconTrash />
+                                        </button>
+                                    </div>
                                 </div>
+
                             </div>
                         ))
                     ) : (
@@ -580,4 +663,17 @@ const IconAlarm = () => (
     </svg>
 );
 
+const IconEdit = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+);
+
+const IconTrash = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+);
+
 export default TasksFollowups;
+

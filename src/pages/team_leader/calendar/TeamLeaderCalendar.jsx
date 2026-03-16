@@ -20,6 +20,9 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
     const [outlookEvents, setOutlookEvents] = useState([]);
     const [loadingEvents, setLoadingEvents] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [editingTask, setEditingTask] = useState(null);
+    const [isEditingTask, setIsEditingTask] = useState(false);
+
 
     useEffect(() => {
         const acc = getAccount();
@@ -66,34 +69,45 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
 
     const handleAddTask = async (e) => {
         e.preventDefault();
-        const taskToAdd = {
-            ...newTask,
-            id: Date.now(),
-            status: 'Pending',
-            createdBy: 'Team Leader'
-        };
-        setTasks([taskToAdd, ...tasks]);
-        if (notifyReminderSet) notifyReminderSet(taskToAdd);
         
-        if (addToOutlook) {
-            setIsSyncingOutlook(true);
-            try {
-                if (!getAccount()) {
-                    await signIn();
+        if (isEditingTask && editingTask) {
+            const taskToUpdate = {
+                ...editingTask,
+                ...newTask
+            };
+            setTasks(tasks.map(t => t.id === taskToUpdate.id ? taskToUpdate : t));
+            setIsEditingTask(false);
+            setEditingTask(null);
+        } else {
+            const taskToAdd = {
+                ...newTask,
+                id: Date.now(),
+                status: 'Pending',
+                createdBy: 'Team Leader'
+            };
+            setTasks([taskToAdd, ...tasks]);
+            if (notifyReminderSet) notifyReminderSet(taskToAdd);
+            
+            if (addToOutlook) {
+                setIsSyncingOutlook(true);
+                try {
+                    if (!getAccount()) {
+                        await signIn();
+                    }
+                    const startTime = new Date(`${newTask.date}T${newTask.time}`);
+                    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
+                    
+                    await createCalendarEvent({
+                        subject: newTask.title,
+                        body: { contentType: "HTML", content: newTask.message || `Task: ${newTask.title}` },
+                        start: { dateTime: startTime.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+                        end: { dateTime: endTime.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+                    });
+                } catch (error) {
+                    console.error("Failed to sync with outlook", error);
+                } finally {
+                    setIsSyncingOutlook(false);
                 }
-                const startTime = new Date(`${newTask.date}T${newTask.time}`);
-                const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
-                
-                await createCalendarEvent({
-                    subject: newTask.title,
-                    body: { contentType: "HTML", content: newTask.message || `Task: ${newTask.title}` },
-                    start: { dateTime: startTime.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-                    end: { dateTime: endTime.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-                });
-            } catch (error) {
-                console.error("Failed to sync with outlook", error);
-            } finally {
-                setIsSyncingOutlook(false);
             }
         }
 
@@ -111,6 +125,29 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
         });
         setAddToOutlook(false);
     };
+
+    const handleEditClick = (task) => {
+        setEditingTask(task);
+        setIsEditingTask(true);
+        setNewTask({
+            title: task.title,
+            lead: task.lead || '',
+            date: task.date,
+            time: task.time,
+            type: task.type,
+            reminder: task.reminder || 'none',
+            assignedTo: task.assignedTo || 'Self',
+            message: task.message || ''
+        });
+        setIsAddingTask(true);
+    };
+
+    const handleDeleteTask = (id) => {
+        if (window.confirm('Are you sure you want to delete this task?')) {
+            setTasks(tasks.filter(t => t.id !== id));
+        }
+    };
+
 
     const updateTaskStatus = (id, newStatus) => {
         setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
@@ -191,11 +228,22 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                         <div className="flex justify-between items-center pb-4 border-b border-[#f7fafc]">
                             <h3 className="text-[15px] font-bold text-[#1a202c]">Tasks for {selectedDate}</h3>
                             <button className="w-8 h-8 bg-[#2447d7] text-white rounded-lg flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-[#2447d7]/20" onClick={() => {
-                                setNewTask({...newTask, date: selectedDate});
+                                setNewTask({
+                                    title: '',
+                                    lead: '',
+                                    date: selectedDate,
+                                    time: '12:00',
+                                    type: 'Call',
+                                    reminder: 'none',
+                                    assignedTo: 'Self',
+                                    message: ''
+                                });
+                                setIsEditingTask(false);
                                 setIsAddingTask(true);
                             }}>
                                 <IconPlus />
                             </button>
+
                         </div>
                         <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                             {tasks.filter(t => t.date === selectedDate).length > 0 ? (
@@ -221,6 +269,21 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                                         By: {t.createdBy}
                                                     </span>
                                                 )}
+                                                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
+                                                        className="p-1 px-2 rounded-md bg-[#f8fafc] text-[#718096] hover:text-[#2447d7] hover:bg-[#eef2ff] transition-all text-[10px] font-bold border border-[#edf2f7]"
+                                                    >
+                                                        Edit
+                                                    </button>
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
+                                                        className="p-1 px-2 rounded-md bg-[#f8fafc] text-[#718096] hover:text-[#e53e3e] hover:bg-[#fff5f5] transition-all text-[10px] font-bold border border-[#edf2f7]"
+                                                    >
+                                                        Delete
+                                                    </button>
+                                                </div>
+
 
                                             </div>
                                         </div>
@@ -287,9 +350,10 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><div className="flex items-center gap-2"><IconList size={14} /> List</div></button>
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><div className="flex items-center gap-2"><IconCalendar size={14} /> Calendar</div></button>
                     </div>
-                    <button className="bg-[#2447d7] text-white p-[10px_20px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center gap-2 sm:w-full sm:justify-center" onClick={() => setIsAddingTask(true)}>
+                    <button className="bg-[#2447d7] text-white p-[10px_20px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center gap-2 sm:w-full sm:justify-center" onClick={() => { setIsAddingTask(true); setIsEditingTask(false); setEditingTask(null); setNewTask({ title: '', lead: '', date: new Date().toISOString().split('T')[0], time: '12:00', type: 'Call', reminder: 'none', assignedTo: 'Self', message: '' }); }}>
                         <IconPlus /> <span>New Task</span>
                     </button>
+
                 </div>
             </header>
 
@@ -297,9 +361,10 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-6 animate-fadeIn" role="dialog" aria-modal="true">
                     <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
                         <div className="p-6 px-8 border-b border-[#f1f5f9] flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-[#1a202c]">Create New Task</h2>
-                            <button className="w-10 h-10 border border-[#f1f5f9] text-[#a0aec0] hover:text-[#e53e3e] hover:bg-[#fff5f5] rounded-xl flex items-center justify-center transition-all text-2xl font-light" onClick={() => setIsAddingTask(false)}>&times;</button>
+                            <h2 className="text-xl font-bold text-[#1a202c]">{isEditingTask ? 'Edit Task' : 'Create New Task'}</h2>
+                            <button className="w-10 h-10 border border-[#f1f5f9] text-[#a0aec0] hover:text-[#e53e3e] hover:bg-[#fff5f5] rounded-xl flex items-center justify-center transition-all text-2xl font-light" onClick={() => { setIsAddingTask(false); setIsEditingTask(false); setEditingTask(null); }}>&times;</button>
                         </div>
+
                         <form onSubmit={handleAddTask} className="p-8 md:p-6 overflow-y-auto max-h-[80vh] custom-scrollbar">
                             <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
                                 <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
@@ -475,7 +540,24 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                         <option>In Progress</option>
                                         <option>Completed</option>
                                     </select>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => handleEditClick(task)}
+                                            className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                            title="Edit Task"
+                                        >
+                                            <IconEdit />
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteTask(task.id)}
+                                            className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                            title="Delete Task"
+                                        >
+                                            <IconTrash />
+                                        </button>
+                                    </div>
                                 </div>
+
                             </div>
                         ))
                     ) : (
@@ -517,4 +599,17 @@ const IconBellActive = () => (
     </svg>
 );
 
+const IconEdit = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+);
+
+const IconTrash = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+        <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+);
+
 export default TeamLeaderCalendar;
+
