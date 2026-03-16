@@ -13,7 +13,7 @@ import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
 import Lenders from '../pages/super_admin/lenders/Lenders';
-import ClientLenderSelection from '../pages/accounts_manager/client_lender_selection/ClientLenderSelection';
+
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
 import { UsersProvider } from '../context/UsersContext';
@@ -67,7 +67,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
             case 'audit_logs': navigate('/accounts-manager/audit-logs'); break;
             case 'lender_selection_approved': navigate('/accounts-manager/lender-selection-approved'); break;
             case 'lenders': navigate('/accounts-manager/lenders'); break;
-            case 'client_lender_selection': navigate('/accounts-manager/client-lender-selection'); break;
+
             case 'tasks_followups': navigate('/accounts-manager/tasks-followups'); break;
             default: navigate('/accounts-manager/dashboard');
         }
@@ -121,7 +121,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="audit-logs" element={<AuditLogs />} />
                         <Route path="lender-selection-approved" element={<LenderSelectionApproved />} />
                         <Route path="lenders" element={<Lenders readOnly={true} />} />
-                        <Route path="client-lender-selection" element={<ClientLenderSelection onNavigate={handleNavigate} />} />
+
                         <Route path="tasks-followups" element={<AMTasksFollowups tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
