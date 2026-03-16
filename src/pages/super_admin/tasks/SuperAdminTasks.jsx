@@ -8,8 +8,7 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
-    // All users except Super Admins (or include everyone?)
-    // The user said "Super admin also same", likely meaning they can assign to anyone.
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
     const assignableUsers = users.filter(u => u.role !== 'Super Admin');
 
     const [filter, setFilter] = useState('All');
@@ -315,7 +314,7 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                 </div>
                 <div className="flex items-center gap-4 sm:flex-wrap">
                     <div className="relative">
-                        <button className={`w-11 h-11 bg-white border border-[#edf2f7] rounded-xl text-[#718096] flex items-center justify-center hover:bg-[#f7fafc] hover:text-[#2447d7] transition-all duration-200 relative ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
+                        <button className={`w-11 h-11 bg-white border border-[#edf2f7] rounded-xl text-[#718096] flex items-center justify-center hover:bg-[#f7fafc] hover:text-[#2447d7] transition-all duration-200 relative ${tasks.some(t => (t.assignedTo === 'Self' || t.assignedTo?.toString() === user.id?.toString()) && t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
                                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
                             </svg>
@@ -324,8 +323,8 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                             <div className="absolute top-14 right-0 w-[300px] bg-white rounded-2xl shadow-xl border border-[#edf2f7] z-[100] overflow-hidden animate-fadeIn">
                                 <div className="p-4 bg-[#f8fafc] border-b border-[#edf2f7] text-sm font-bold text-[#1a202c]">Reminders & Alerts</div>
                                 <div className="max-h-[300px] overflow-y-auto">
-                                    {tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').length > 0 ? (
-                                        tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').map(t => (
+                                    {tasks.filter(t => (t.assignedTo === 'Self' || t.assignedTo?.toString() === user.id?.toString()) && t.reminder && t.reminder !== 'none' && t.status !== 'Completed').length > 0 ? (
+                                        tasks.filter(t => (t.assignedTo === 'Self' || t.assignedTo?.toString() === user.id?.toString()) && t.reminder && t.reminder !== 'none' && t.status !== 'Completed').map(t => (
                                             <div key={t.id} className="p-3 px-4 flex items-center gap-3 border-b border-[#f7fafc] hover:bg-[#f8fafc] transition-colors">
                                                 <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
@@ -393,7 +392,7 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                                                 <option key={user.id} value={user.id}>{user.name}</option>
                                             ))}
                                         </optgroup>
-                                        <optgroup label="Tele Agents">
+                                        <optgroup label="Members (Tele Agents)">
                                             {assignableUsers.filter(u => u.role === 'Tele Agent').map(user => (
                                                 <option key={user.id} value={user.id}>{user.name}</option>
                                             ))}
