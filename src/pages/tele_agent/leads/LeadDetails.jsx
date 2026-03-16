@@ -23,6 +23,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [uploadingDocs, setUploadingDocs] = useState({});
+    const [previewDoc, setPreviewDoc] = useState(null);
 
     const handleUpload = (leadId, docId, docName) => {
         const targetDocId = docId || Date.now();
@@ -198,12 +199,14 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                 <span className="w-8 h-8 bg-[#f3e8ff] text-[#7c3aed] rounded-lg flex items-center justify-center flex-shrink-0"><IconDocs /></span>
                                 <h3 className="text-base font-bold text-[#1a202c]">Documents & Verification</h3>
                             </div>
-                            <button 
-                                onClick={() => setShowModal(true)}
-                                className="bg-[#2447d7] text-white p-1.5 px-4 rounded-lg text-xs font-bold hover:bg-[#1a36b1] transition-all shadow-sm"
-                            >
-                                Manage Docs
-                            </button>
+                            {!(lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
+                                <button 
+                                    onClick={() => setShowModal(true)}
+                                    className="bg-[#2447d7] text-white p-1.5 px-4 rounded-lg text-xs font-bold hover:bg-[#1a36b1] transition-all shadow-sm"
+                                >
+                                    Manage Docs
+                                </button>
+                            )}
                         </div>
                         <div className="p-8 pb-10 flex flex-col items-center justify-center text-center gap-4">
                             {(() => {
@@ -212,23 +215,37 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                 const docCount = lead.documents?.length || 0;
                                 const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
 
-                                if (hasRejected) {
+                                if (hasRejected || lead.status === 'Loan Rejected') {
                                     return (
                                         <div className="flex flex-col items-center gap-3">
                                             <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm animate-pulse">
-                                                <IconAlert size={14} /> Docs Rejected
+                                                <IconAlert size={14} /> {lead.status === 'Document Verifications' ? 'Docs Rejected' : lead.status}
                                             </span>
-                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">Some documents were rejected. Please review and re-upload.</p>
+                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">
+                                                {lead.status === 'Loan Rejected' ? 'This loan application has been declined.' : 'Some documents were rejected. Please review and re-upload.'}
+                                            </p>
                                         </div>
                                     );
                                 }
-                                if (isAllVerified) {
+                                if (lead.status === 'Loan Confirmed' || isAllVerified) {
                                     return (
                                         <div className="flex flex-col items-center gap-3">
-                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm">
-                                                <IconCheck size={14} strokeWidth={3} /> Fully Verified
+                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm text-center">
+                                                <IconCheck size={14} strokeWidth={3} /> {lead.status === 'Loan Confirmed' ? 'Loan Confirmed' : 'Fully Verified'}
                                             </span>
-                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">All submitted documents have been approved by the Team Leader.</p>
+                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">
+                                                {lead.status === 'Loan Confirmed' ? 'The loan has been successfully approved and confirmed.' : 'All submitted documents have been approved by the Team Leader.'}
+                                            </p>
+                                        </div>
+                                    );
+                                }
+                                if (lead.status === 'Lender Selection') {
+                                    return (
+                                        <div className="flex flex-col items-center gap-3">
+                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100 shadow-sm">
+                                                <IconCheck size={14} strokeWidth={3} /> Lender Selection
+                                            </span>
+                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">Lead is currently in the lender selection phase.</p>
                                         </div>
                                     );
                                 }
@@ -243,6 +260,43 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                 );
                             })()}
                         </div>
+
+                        {/* Inline Document List */}
+                        {lead.documents?.length > 0 && (
+                            <div className="px-5 pb-6">
+                                <div className="bg-[#f8fafc] rounded-xl border border-[#edf2f7] overflow-hidden">
+                                    <div className="p-3 px-4 bg-[#f1f5f9]/50 border-b border-[#edf2f7]">
+                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">
+                                            {lead.status === 'Loan Confirmed' ? 'CONFIRMED DOCUMENTS' : 'SUBMITTED DOCUMENTS'}
+                                        </span>
+                                    </div>
+                                    <div className="divide-y divide-[#edf2f7]">
+                                        {lead.documents.map(doc => (
+                                            <div key={doc.id} className="p-3 px-4 flex items-center justify-between hover:bg-white transition-colors">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${doc.status === 'Approved' ? 'bg-[#ecfdf5] text-[#10b981]' : doc.status === 'Rejected' ? 'bg-[#fff1f2] text-[#f43f5e]' : 'bg-[#f0f4ff] text-[#2447d7]'}`}>
+                                                        <IconFile size={16} />
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-xs font-bold text-[#1a202c]">{doc.type}</span>
+                                                        <span className={`text-[10px] font-bold uppercase tracking-tight ${doc.status === 'Approved' ? 'text-[#10b981]' : doc.status === 'Rejected' ? 'text-[#f43f5e]' : 'text-[#718096]'}`}>
+                                                            {lead.status === 'Loan Confirmed' && doc.status === 'Approved' ? 'Confirmed' : doc.status}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <button 
+                                                    onClick={() => setPreviewDoc(doc)}
+                                                    className="p-1.5 text-[#2447d7] hover:bg-[#2447d7]/10 rounded-lg transition-colors border border-[#2447d7]/10"
+                                                    title="View Document"
+                                                >
+                                                    <IconEye size={14} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* Tasks & Follow-ups Section */}
@@ -376,6 +430,57 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                     isDark={isDark}
                 />
             )}
+
+            {/* Document Preview Overlay */}
+            {previewDoc && (
+                <div className="fixed inset-0 z-[2100] flex items-center justify-center p-8 bg-black/80 backdrop-blur-md animate-fadeIn">
+                    <div className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-scaleIn">
+                        <div className="p-5 border-b flex justify-between items-center bg-gray-50/50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-[#ebf0ff] flex items-center justify-center text-[#2447d7]">
+                                    <IconFile size={16} />
+                                </div>
+                                <span className="font-bold text-gray-800 text-sm">{previewDoc.type || previewDoc.name}</span>
+                            </div>
+                            <button onClick={() => setPreviewDoc(null)} className="p-2 rounded-xl hover:bg-gray-200 transition-colors text-gray-500"><IconClose size={18} /></button>
+                        </div>
+                        <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-[400px] p-8 relative overflow-hidden">
+                            {previewDoc.url || previewDoc.previewUrl ? (
+                                <img 
+                                    src={previewDoc.url || previewDoc.previewUrl} 
+                                    alt="Preview" 
+                                    className="max-w-full max-h-full object-contain shadow-2xl animate-scaleIn"
+                                />
+                            ) : (
+                                <div className="bg-white w-full h-full max-w-md shadow-lg p-8 flex flex-col gap-5 animate-slideUp border border-gray-100">
+                                    <div className="h-6 w-1/2 bg-gray-100 rounded-lg flex items-center px-3 text-[10px] font-bold text-gray-400">FILE METADATA</div>
+                                    <div className="flex flex-col gap-4 mt-4">
+                                        <div className="flex justify-between border-b pb-2">
+                                            <span className="text-xs text-gray-400">Filename</span>
+                                            <span className="text-xs font-bold text-gray-700">{previewDoc.fileName || previewDoc.name || 'document.pdf'}</span>
+                                        </div>
+                                        <div className="flex justify-between border-b pb-2">
+                                            <span className="text-xs text-gray-400">Status</span>
+                                            <span className={`text-xs font-bold ${previewDoc.status === 'Approved' ? 'text-[#10b981]' : previewDoc.status === 'Rejected' ? 'text-[#f43f5e]' : 'text-[#718096]'}`}>{previewDoc.status}</span>
+                                        </div>
+                                    </div>
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
+                                        <IconDocs size={200} />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-4 border-t bg-gray-50/50 flex justify-center">
+                            <button 
+                                onClick={() => setPreviewDoc(null)}
+                                className="px-10 py-2.5 rounded-xl bg-gray-800 text-white text-xs font-bold hover:bg-gray-900 transition-all shadow-lg active:scale-95"
+                            >
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
@@ -405,6 +510,18 @@ const IconPlus = () => (
 const IconBell = ({ color = "currentColor" }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" width="18" height="18">
         <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </svg>
+);
+
+const IconFile = ({ size = 18 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" />
+    </svg>
+);
+
+const IconClose = ({ size = 20 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={size} height={size}>
+        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
     </svg>
 );
 
