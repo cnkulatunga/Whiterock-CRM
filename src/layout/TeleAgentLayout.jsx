@@ -9,7 +9,6 @@ import TasksFollowups from '../pages/tele_agent/tasks/TasksFollowups';
 import { useReminders } from '../hooks/useReminders';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
-import Documents from '../pages/tele_agent/documents/Documents';
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
 
@@ -44,7 +43,6 @@ const TeleAgentLayout = ({ onLogout }) => {
             case 'lead-details': navigate('/tele-agent/lead-details'); break;
             case 'create-lead': navigate('/tele-agent/create-lead'); break;
             case 'follow-ups': navigate('/tele-agent/follow-ups'); break;
-            case 'documents': navigate('/tele-agent/documents'); break;
             default: navigate('/tele-agent/dashboard');
         }
     };
@@ -119,7 +117,6 @@ const TeleAgentLayout = ({ onLogout }) => {
                         <Route path="lead-details" element={<LeadDetails leadId={selectedLeadId} tasks={tasks} setTasks={setTasks} onBack={() => navigate('/tele-agent/leads')} />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} />} />
                         <Route path="follow-ups" element={<TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} notifyReminderSet={notifyReminderSet} />} />
-                        <Route path="documents" element={<Documents />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>

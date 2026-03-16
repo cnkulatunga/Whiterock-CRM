@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { IconUpload, IconFile, IconCheck, IconAlert, IconClose, IconTrash, IconDocs, IconEye } from '../../../components/DocumentManagement/Icons';
 
 const CreateLead = ({ onBack }) => {
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
@@ -11,8 +12,13 @@ const CreateLead = ({ onBack }) => {
         residentialAddress: '',
         loanAmount: '',
         assignedAgent: '',
-        notes: ''
+        notes: '',
+        documents: []
     });
+    const [uploadingDocs, setUploadingDocs] = useState({});
+    const [previewDoc, setPreviewDoc] = useState(null);
+    const fileInputRef = useRef(null);
+    const [customDocName, setCustomDocName] = useState('');
 
     React.useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -35,8 +41,130 @@ const CreateLead = ({ onBack }) => {
     };
 
     const handleSaveAndSend = () => {
-        console.log('Saving Lead & Sending Credentials:', formData);
-        setShowSuccess(true);
+        if (formData.documents.length === 0 && Object.keys(uploadingDocs).length === 0) {
+            console.log('Saving Lead & Sending Credentials:', formData);
+            setShowSuccess(true);
+            return;
+        }
+
+        // Trigger simulation for all pending docs
+        const pendingDocs = Object.keys(uploadingDocs);
+        if (pendingDocs.length === 0) {
+            setShowSuccess(true);
+            return;
+        }
+
+        pendingDocs.forEach(tempId => {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setFormData(prev => ({
+                        ...prev,
+                        documents: [...prev.documents, { id: tempId, type: uploadingDocs[tempId].name, status: 'Pending', date: new Date().toISOString().split('T')[0] }]
+                    }));
+                    setUploadingDocs(prev => {
+                        const next = { ...prev };
+                        delete next[tempId];
+                        return next;
+                    });
+                } else {
+                    setUploadingDocs(prev => ({ 
+                        ...prev, 
+                        [tempId]: { ...prev[tempId], progress, isSimulating: true } 
+                    }));
+                }
+            }, 100);
+        });
+    };
+
+    // Watch for simulation completion
+    React.useEffect(() => {
+        const isStillSimulating = Object.values(uploadingDocs).some(doc => doc.isSimulating);
+        const hasPendingQueue = Object.keys(uploadingDocs).length > 0;
+        
+        if (!hasPendingQueue && isStillSimulating === false && formData.customerName) {
+            // Check if we just finished a batch
+            // This is a simple heuristic; in a real app we'd track the submission state
+        }
+    }, [uploadingDocs]);
+
+    // Update handleSaveAndSend to also show success modal after all are done
+    // Let's refine the approach: use a state to track if we are in "submitting" mode
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    React.useEffect(() => {
+        if (isSubmitting && Object.keys(uploadingDocs).length === 0) {
+            setIsSubmitting(false);
+            setShowSuccess(true);
+        }
+    }, [isSubmitting, uploadingDocs]);
+
+    const triggerSaveAndSend = () => {
+        const pendingIds = Object.keys(uploadingDocs);
+        if (pendingIds.length === 0) {
+            setShowSuccess(true);
+            return;
+        }
+
+        setIsSubmitting(true);
+        pendingIds.forEach(tempId => {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.floor(Math.random() * 15) + 5;
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setFormData(prev => ({
+                        ...prev,
+                        documents: [...prev.documents, { id: tempId, type: uploadingDocs[tempId].name, status: 'Pending', date: new Date().toISOString().split('T')[0] }]
+                    }));
+                    setUploadingDocs(prev => {
+                        const next = { ...prev };
+                        delete next[tempId];
+                        return next;
+                    });
+                } else {
+                    setUploadingDocs(prev => ({ 
+                        ...prev, 
+                        [tempId]: { ...prev[tempId], progress, isSimulating: true } 
+                    }));
+                }
+            }, 150);
+        });
+    };
+
+    const handleUploadClick = () => {
+        fileInputRef.current.click();
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const docName = customDocName.trim() || `Document ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+        const tempId = Date.now();
+        const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+
+        // Just add to queue, don't start progress
+        setUploadingDocs(prev => ({ ...prev, [tempId]: { name: docName, progress: 0, isSimulating: false, file, previewUrl } }));
+        setCustomDocName('');
+        e.target.value = '';
+    };
+
+    const handleDeleteQueuedDoc = (tempId) => {
+        setUploadingDocs(prev => {
+            const next = { ...prev };
+            delete next[tempId];
+            return next;
+        });
+    };
+
+    const handleDeleteDoc = (docId) => {
+        setFormData(prev => ({
+            ...prev,
+            documents: prev.documents.filter(d => d.id !== docId)
+        }));
     };
 
     return (
@@ -182,12 +310,118 @@ const CreateLead = ({ onBack }) => {
                         </div>
                     </div>
 
+                    {/* Documentation */}
+                    <div className="mb-8">
+                        <h4 className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5">DOCUMENTATION</h4>
+                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} />
+                        
+                        <div className="flex gap-4 mb-6 md:flex-col">
+                            <div className="flex-1 flex gap-3">
+                                <input
+                                    type="text"
+                                    className="flex-1 bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] transition-all"
+                                    placeholder="Enter document name (e.g. NIC Front)"
+                                    value={customDocName}
+                                    onChange={(e) => setCustomDocName(e.target.value)}
+                                />
+                                <button 
+                                    className="bg-[#ebf0ff] text-[#2447d7] p-3 px-6 rounded-xl text-sm font-bold hover:bg-[#2447d7] hover:text-white transition-all flex items-center gap-2"
+                                    onClick={handleUploadClick}
+                                >
+                                    <IconUpload size={16} /> Upload
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4 md:grid-cols-1">
+                            {/* Uploading Progress Items */}
+                            {Object.entries(uploadingDocs).map(([id, doc]) => (
+                                <div key={id} className="p-4 rounded-2xl border border-[#edf2f7] bg-[#fcfdff]">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <div className="flex items-center gap-2">
+                                            {doc.isSimulating ? (
+                                                <div className="animate-spin rounded-full h-3 w-3 border-2 border-[#2447d7] border-t-transparent" />
+                                            ) : (
+                                                <div className="w-3 h-3 rounded-full bg-[#cbd5e0]" />
+                                            )}
+                                            <span className="text-[13px] font-bold text-[#1a202c]">{doc.name}</span>
+                                        </div>
+                                        <span className="text-[11px] font-black text-[#2447d7]">
+                                            {doc.isSimulating ? `${doc.progress}%` : 'Queued'}
+                                        </span>
+                                        {!doc.isSimulating && (
+                                            <div className="flex items-center gap-1.5 ml-2">
+                                                <button 
+                                                    onClick={() => setPreviewDoc(doc)}
+                                                    className="p-1 text-[#2447d7] hover:bg-[#2447d7]/10 rounded-lg transition-colors"
+                                                    title="View Document"
+                                                >
+                                                    <IconEye size={14} />
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleDeleteQueuedDoc(id)}
+                                                    className="p-1 text-[#fb7185] hover:bg-[#fb7185]/10 rounded-lg transition-colors"
+                                                    title="Remove from queue"
+                                                >
+                                                    <IconTrash size={14} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="h-1.5 rounded-full bg-[#f1f5f9] overflow-hidden">
+                                        <div className="h-full bg-[#2447d7] transition-all duration-300" style={{ width: `${doc.progress}%` }} />
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Completed Items */}
+                            {formData.documents.map(doc => (
+                                <div key={doc.id} className="p-4 rounded-2xl border border-[#edf2f7] bg-white flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 bg-[#f8faff] text-[#2447d7] rounded-lg flex items-center justify-center">
+                                            <IconFile size={18} />
+                                        </div>
+                                        <div>
+                                            <span className="block text-[13px] font-bold text-[#1a202c]">{doc.type}</span>
+                                            <span className="text-[10px] font-bold text-[#10b981] uppercase tracking-wider">Ready to Save</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => setPreviewDoc(doc)}
+                                            className="p-1.5 text-[#2447d7] hover:bg-[#2447d7]/10 rounded-lg transition-colors border border-[#2447d7]/20"
+                                            title="View Document"
+                                        >
+                                            <IconEye size={14} />
+                                        </button>
+                                        <div className="text-[#10b981] bg-[#ecfdf5] p-1.5 rounded-lg border border-[#d1fae5]">
+                                            <IconCheck size={14} />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* Final Actions */}
                     <div className="flex justify-end items-center gap-4 mt-10 pt-8 border-t border-[#f7fafc] md:flex-col-reverse md:items-stretch">
-                        <button className="bg-white border border-[#e2e8f0] text-[#718096] p-[10px_24px] rounded-xl text-sm font-semibold hover:bg-[#f7fafc] hover:text-[#4a5568] transition-all" onClick={handleCancelClick}>Cancel</button>
-                        <button className="flex items-center justify-center gap-2 bg-[#2447d7] text-white p-[10px_24px] rounded-xl text-sm font-semibold shadow-[0_4px_12px_rgba(36,71,215,0.2)] hover:bg-[#1732a3] hover:translate-y-[-1px] hover:shadow-[0_6px_15px_rgba(36,71,215,0.3)] transition-all" onClick={handleSaveAndSend}>
-                            <div className="mr-0.5"><IconKey /></div>
-                            Send Credentials & Save
+                        <button className="bg-white border border-[#e2e8f0] text-[#718096] p-[10px_24px] rounded-xl text-sm font-semibold hover:bg-[#f7fafc] hover:text-[#4a5568] transition-all" onClick={handleCancelClick} disabled={isSubmitting}>Cancel</button>
+                        <button 
+                            className={`flex items-center justify-center gap-2 p-[10px_24px] rounded-xl text-sm font-semibold transition-all ${isSubmitting ? 'bg-[#94a3b8] cursor-not-allowed' : 'bg-[#2447d7] text-white shadow-[0_4px_12px_rgba(36,71,215,0.2)] hover:bg-[#1732a3] hover:translate-y-[-1px] hover:shadow-[0_6px_15px_rgba(36,71,215,0.3)]'}`} 
+                            onClick={triggerSaveAndSend}
+                            disabled={isSubmitting}
+                        >
+                            {isSubmitting ? (
+                                <div className="flex items-center gap-2">
+                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                                    Saving...
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="mr-0.5"><IconKey /></div>
+                                    Send Credentials & Save
+                                </>
+                            )}
                         </button>
                     </div>
                 </div>
@@ -239,16 +473,66 @@ const CreateLead = ({ onBack }) => {
                     </div>
                 </div>
             )}
+            {/* Document Preview Overlay */}
+            {previewDoc && (
+                <div className="fixed inset-0 z-[2100] flex items-center justify-center p-8 bg-black/80 backdrop-blur-md animate-fadeIn">
+                    <div className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-scaleIn">
+                        <div className="p-5 border-b flex justify-between items-center bg-gray-50/50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-[#ebf0ff] flex items-center justify-center text-[#2447d7]">
+                                    <IconFile size={16} />
+                                </div>
+                                <span className="font-bold text-gray-800 text-sm">{previewDoc.type || previewDoc.name}</span>
+                            </div>
+                            <button onClick={() => setPreviewDoc(null)} className="p-2 rounded-xl hover:bg-gray-200 transition-colors text-gray-500"><IconClose size={18} /></button>
+                        </div>
+                        <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-[400px] p-8 relative overflow-hidden">
+                            {previewDoc.url || previewDoc.previewUrl ? (
+                                <img 
+                                    src={previewDoc.url || previewDoc.previewUrl} 
+                                    alt="Preview" 
+                                    className="max-w-full max-h-full object-contain shadow-2xl animate-scaleIn"
+                                />
+                            ) : (
+                                /* Mock Document Preview Content for Non-images */
+                                <div className="bg-white w-full h-full max-w-md shadow-lg p-8 flex flex-col gap-5 animate-slideUp border border-gray-100">
+                                    <div className="h-6 w-1/2 bg-gray-100 rounded-lg flex items-center px-3 text-[10px] font-bold text-gray-400">FILE METADATA</div>
+                                    <div className="flex flex-col gap-4 mt-4">
+                                        <div className="flex justify-between border-b pb-2">
+                                            <span className="text-xs text-gray-400">Filename</span>
+                                            <span className="text-xs font-bold text-gray-700">{previewDoc.fileName || previewDoc.name || 'document.pdf'}</span>
+                                        </div>
+                                        <div className="flex justify-between border-b pb-2">
+                                            <span className="text-xs text-gray-400">File Type</span>
+                                            <span className="text-xs font-bold text-gray-700">{previewDoc.file?.type || 'application/pdf'}</span>
+                                        </div>
+                                        <div className="flex justify-between border-b pb-2">
+                                            <span className="text-xs text-gray-400">Size</span>
+                                            <span className="text-xs font-bold text-gray-700">{previewDoc.file ? `${(previewDoc.file.size / 1024).toFixed(1)} KB` : '1.2 MB'}</span>
+                                        </div>
+                                    </div>
+                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
+                                        <IconFile size={200} />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-4 border-t bg-gray-50/50 flex justify-center">
+                            <button 
+                                onClick={() => setPreviewDoc(null)}
+                                className="px-10 py-2.5 rounded-xl bg-gray-800 text-white text-xs font-bold hover:bg-gray-900 transition-all shadow-lg active:scale-95"
+                            >
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
 
 /* ─── ICONS ─── */
-const IconDocs = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-    </svg>
-);
 const IconPhone = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" strokeWidth="2" width="16" height="16">
         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
@@ -262,16 +546,6 @@ const IconMail = () => (
 const IconKey = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '8px' }}>
         <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3m-3-3l2.5-2.5" />
-    </svg>
-);
-const IconCheck = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16" style={{ marginRight: '8px' }}>
-        <polyline points="20 6 9 17 4 12" />
-    </svg>
-);
-const IconClose = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" style={{ marginRight: '8px' }}>
-        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
     </svg>
 );
 
