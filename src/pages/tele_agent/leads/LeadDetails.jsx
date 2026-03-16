@@ -3,21 +3,22 @@ import { useTheme } from '../../../context/ThemeContext';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconDocs, IconCheck, IconAlert, IconEye } from '../../../components/DocumentManagement/Icons';
 
-const LeadDetails = ({ leadId = 'WR-2026-0001', onBack, tasks = [], setTasks }) => {
+const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const leadName = "Robert C. Mayfield"; // In a real app, this would be dynamic
-    const leadTasks = tasks.filter(t => t.lead === leadName || t.leadId === leadId);
     
-    // Mock lead data for documents
-    const [lead, setLead] = useState({
-        id: leadId,
-        name: leadName,
-        documents: [
-            { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Verified by SG', date: '2024-03-15' },
-            { id: 2, type: 'Payslip', status: 'Pending', note: '', date: '2024-03-16' }
-        ]
+    // Use initialLead or a fallback
+    const [lead, setLead] = useState(initialLead || { 
+        id: 'WR-2026-0000', 
+        name: 'Guest Lead', 
+        email: 'no-email@example.com', 
+        phone: 'N/A', 
+        documents: [] 
     });
+
+    const leadId = lead.id?.toString().startsWith('WR-') ? lead.id : `WR-2026-${String(lead.id).padStart(4, '0')}`;
+    const leadName = lead.name;
+    const leadTasks = tasks.filter(t => t.lead === leadName || t.leadId === leadId);
 
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [showModal, setShowModal] = useState(false);
@@ -172,7 +173,7 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack, tasks = [], setTasks }) 
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">EMAIL ADDRESS</label>
                                     <div className="flex items-center gap-2.5 p-[10px_12px] bg-white border border-[#edf2f7] rounded-xl cursor-pointer hover:border-[#2447d7] hover:bg-[#f0f4ff] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(36,71,215,0.08)] transition-all">
                                         <div className="w-7 h-7 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center shrink-0"><IconEmail /></div>
-                                        <span className="text-[13px] font-semibold text-[#4a5568] break-all leading-tight">r.mayfield@example.com</span>
+                                        <span className="text-[13px] font-semibold text-[#4a5568] break-all leading-tight">{lead.email || 'no-email@example.com'}</span>
                                     </div>
                                 </div>
 
@@ -180,7 +181,7 @@ const LeadDetails = ({ leadId = 'WR-2026-0001', onBack, tasks = [], setTasks }) 
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">PHONE NUMBER</label>
                                     <div className="flex items-center gap-2.5 p-[10px_12px] bg-white border border-[#edf2f7] rounded-xl cursor-pointer hover:border-[#2447d7] hover:bg-[#ecfdf5] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(16,185,129,0.08)] transition-all">
                                         <div className="w-7 h-7 bg-[#ecfdf5] text-[#10b981] rounded-lg flex items-center justify-center shrink-0"><IconPhone /></div>
-                                        <span className="text-[13px] font-semibold text-[#4a5568] leading-tight">(555) 012-3456</span>
+                                        <span className="text-[13px] font-semibold text-[#4a5568] leading-tight">{lead.phone || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>

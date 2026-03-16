@@ -242,7 +242,7 @@ const ManageLeads = ({ onViewDetails }) => {
                                         <div className="flex items-center gap-2">
                                             <button 
                                                 className="px-3 py-1.5 border border-[#edf2f7] rounded-lg text-[13px] font-semibold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200" 
-                                                onClick={() => onViewDetails(`WR-2026-${String(lead.id).padStart(4, '0')}`)}
+                                                onClick={() => onViewDetails(lead)}
                                             >
                                                 Details
                                             </button>
