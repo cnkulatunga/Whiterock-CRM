@@ -89,18 +89,24 @@ const TeleAgentLayout = ({ onLogout }) => {
                     <div className="flex items-center gap-3">
                         <ThemeToggle />
                         <button
-                            className="text-white border-none h-11 px-5 rounded-[10px] text-sm font-bold flex items-center gap-2 cursor-pointer transition-all duration-200 hover:-translate-y-px"
+                            className="text-white border-none h-11 px-6 rounded-xl text-sm font-extrabold flex items-center gap-2.5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
                             style={{
-                                background: 'linear-gradient(135deg, #2447d7, #1a38b8)',
-                                boxShadow: '0 4px 12px rgba(36,71,215,0.25)',
+                                background: isDark 
+                                    ? 'linear-gradient(135deg, #3b82f6, #2563eb)' 
+                                    : 'linear-gradient(135deg, #2447d7, #1a38b8)',
+                                boxShadow: isDark
+                                    ? '0 8px 20px rgba(59,130,246,0.3)'
+                                    : '0 8px 20px rgba(36,71,215,0.25)',
                             }}
                             onClick={() => navigate('/tele-agent/create-lead')}
                         >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-                                <line x1="12" y1="5" x2="12" y2="19" />
-                                <line x1="5" y1="12" x2="19" y2="12" />
-                            </svg>
-                            <span className="md:hidden">Create Lead</span>
+                            <div className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                            </div>
+                            <span className="md:hidden lg:inline-block">Create Lead</span>
                         </button>
                     </div>
                 </div>
