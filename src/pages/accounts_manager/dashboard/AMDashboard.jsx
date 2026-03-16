@@ -20,10 +20,10 @@ const STAT_CARDS = [
 ];
 
 const LEADS = [
-    { id: '#LD-99021', client: 'Sarah Jenkins', amount: '$250,000.00', stage: 'DOCUMENT COLLECTION', stageCls: 'bg-[#ebf0ff] text-[#2447d7] border-[#d9e8ff]', date: 'Oct 24, 2023' },
-    { id: '#LD-98912', client: 'TechStream Solutions', amount: '$1,200,000.00', stage: 'LENDER SELECTION', stageCls: 'bg-[#fff7ed] text-[#f97316] border-[#ffedd5]', date: 'Oct 23, 2023' },
-    { id: '#LD-98845', client: 'Marcus Aurelius', amount: '$75,000.00', stage: 'COMPLETE', stageCls: 'bg-[#ecfdf5] text-[#16a34a] border-[#dcfce7]', date: 'Oct 22, 2023' },
-    { id: '#LD-98712', client: 'Peak Dynamics', amount: '$540,000.00', stage: 'REJECTED', stageCls: 'bg-[#fef2f2] text-[#dc2626] border-[#fee2e2]', date: 'Oct 21, 2023' },
+    { id: '#LD-99021', client: 'Sarah Jenkins', business: 'Jenkins Real Estate', amount: '$250,000.00', stage: 'DOCUMENT COLLECTION', stageCls: 'bg-[#ebf0ff] text-[#2447d7] border-[#d9e8ff]', date: 'Oct 24, 2023' },
+    { id: '#LD-98912', client: 'TechStream Solutions', business: 'TechStream Solutions', amount: '$1,200,000.00', stage: 'LENDER SELECTION', stageCls: 'bg-[#fff7ed] text-[#f97316] border-[#ffedd5]', date: 'Oct 23, 2023' },
+    { id: '#LD-98845', client: 'Marcus Aurelius', business: 'Aurelius Consulting', amount: '$75,000.00', stage: 'COMPLETE', stageCls: 'bg-[#ecfdf5] text-[#16a34a] border-[#dcfce7]', date: 'Oct 22, 2023' },
+    { id: '#LD-98712', client: 'Peak Dynamics', business: 'Peak Dynamics Group', amount: '$540,000.00', stage: 'REJECTED', stageCls: 'bg-[#fef2f2] text-[#dc2626] border-[#fee2e2]', date: 'Oct 21, 2023' },
 ];
 
 const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) => {
@@ -189,8 +189,8 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="bg-[#f8fafc]">
-                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD ID</th>
-                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">CLIENT NAME</th>
+                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD ID & CLIENT</th>
+                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">BUSINESS NAME</th>
                                         <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">AMOUNT</th>
                                         <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">STAGE</th>
                                         <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">DATE</th>
@@ -199,8 +199,13 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                                 <tbody className="divide-y divide-[#f7fafc]">
                                     {LEADS.map((lead, i) => (
                                         <tr key={lead.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${440 + i * 60}ms`, animationFillMode: 'both' }}>
-                                            <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{lead.id}</span></td>
-                                            <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#1a202c]">{lead.client}</span></td>
+                                            <td className="px-6 py-4">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{lead.id}</span>
+                                                    <span className="text-[12px] font-medium text-[#1a202c]">{lead.client}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{lead.business}</span></td>
                                             <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{lead.amount}</span></td>
                                             <td className="px-6 py-4"><span className={`text-[10px] font-semibold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${lead.stageCls}`}>{lead.stage}</span></td>
                                             <td className="px-6 py-4"><span className="text-[12px] text-[#a0aec0]">{lead.date}</span></td>

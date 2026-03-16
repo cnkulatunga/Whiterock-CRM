@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 
 const APPROVED = [
-    { id: '#LD-98912', client: 'TechStream Solutions',  amount: '$1,200,000.00', lender: 'Bank of Whiterock',  interestRate: '3.8%', tenure: '30 Years', approvedDate: 'Oct 23, 2023' },
-    { id: '#LD-98845', client: 'Marcus Aurelius',        amount: '$75,000.00',    lender: 'Global Finance',     interestRate: '4.2%', tenure: '15 Years', approvedDate: 'Oct 22, 2023' },
-    { id: '#LD-98721', client: 'Quantum Capital Fund',   amount: '$4,500,000.00', lender: 'Apex Capital Group', interestRate: '3.5%', tenure: '20 Years', approvedDate: 'Oct 20, 2023' },
-    { id: '#LD-98614', client: 'Prime Wealth Trust',     amount: '$980,000.00',   lender: 'Secure Lenders',     interestRate: '4.9%', tenure: '25 Years', approvedDate: 'Oct 18, 2023' },
-    { id: '#LD-98502', client: 'Global Trade Bank',      amount: '$2,200,000.00', lender: 'Bank of Whiterock',  interestRate: '3.6%', tenure: '30 Years', approvedDate: 'Oct 15, 2023' },
+    { id: '#LD-98912', client: 'TechStream Solutions', business: 'TechStream Solutions',  amount: '$1,200,000.00', lender: 'Bank of Whiterock',  interestRate: '3.8%', tenure: '30 Years', approvedDate: 'Oct 23, 2023' },
+    { id: '#LD-98845', client: 'Marcus Aurelius',       business: 'Aurelius Consulting', amount: '$75,000.00',    lender: 'Global Finance',     interestRate: '4.2%', tenure: '15 Years', approvedDate: 'Oct 22, 2023' },
+    { id: '#LD-98721', client: 'Quantum Capital Fund',  business: 'Quantum Capital Fund', amount: '$4,500,000.00', lender: 'Apex Capital Group', interestRate: '3.5%', tenure: '20 Years', approvedDate: 'Oct 20, 2023' },
+    { id: '#LD-98614', client: 'Prime Wealth Trust',    business: 'Prime Wealth Trust',   amount: '$980,000.00',   lender: 'Secure Lenders',     interestRate: '4.9%', tenure: '25 Years', approvedDate: 'Oct 18, 2023' },
+    { id: '#LD-98502', client: 'Global Trade Bank',     business: 'Global Trade Bank',    amount: '$2,200,000.00', lender: 'Bank of Whiterock',  interestRate: '3.6%', tenure: '30 Years', approvedDate: 'Oct 15, 2023' },
 ];
 
 const LENDERS = [
@@ -93,8 +93,8 @@ const LenderSelectionApproved = () => {
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-[#f8fafc]">
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD ID</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">CLIENT NAME</th>
+                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD ID & CLIENT</th>
+                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">BUSINESS NAME</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">AMOUNT</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LENDER SELECTION</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">INTEREST RATE</th>
@@ -106,8 +106,13 @@ const LenderSelectionApproved = () => {
                         <tbody className="divide-y divide-[#f7fafc]">
                             {filtered.map((row, i) => (
                                 <tr key={row.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${550 + i * 60}ms`, animationFillMode: 'both' }}>
-                                    <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{row.id}</span></td>
-                                    <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#1a202c]">{row.client}</span></td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{row.id}</span>
+                                            <span className="text-[12px] font-medium text-[#1a202c]">{row.client}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{row.business}</span></td>
                                     <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{row.amount}</span></td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2 min-w-[190px]">

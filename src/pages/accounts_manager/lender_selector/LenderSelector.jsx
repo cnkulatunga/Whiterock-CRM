@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 
 const LEADS = [
-    { id: '#LD-10021', name: 'Jonathan Doe',    email: 'jonathan.doe@email.com', phone: '+1 (555) 201-4432', source: 'Referral',  status: 'New',       lastContact: 'Oct 24, 2023', loanAmount: '$500,000.00' },
-    { id: '#LD-10018', name: 'Priya Nair',      email: 'priya.nair@email.com',   phone: '+1 (555) 318-9901', source: 'Website',   status: 'Contacted', lastContact: 'Oct 23, 2023', loanAmount: '$875,000.00' },
-    { id: '#LD-10015', name: 'Marcus Reed',     email: 'marcus.reed@email.com',  phone: '+1 (555) 442-7712', source: 'Cold Call', status: 'Qualified', lastContact: 'Oct 22, 2023', loanAmount: '$320,000.00' },
-    { id: '#LD-10009', name: 'TechBridge Corp', email: 'contact@techbridge.com', phone: '+1 (555) 670-3348', source: 'Partner',   status: 'Qualified', lastContact: 'Oct 21, 2023', loanAmount: '$2,400,000.00' },
-    { id: '#LD-10003', name: 'Sandra Okonkwo',  email: 'sandra.o@email.com',     phone: '+1 (555) 899-1120', source: 'Referral',  status: 'New',       lastContact: 'Oct 20, 2023', loanAmount: '$430,000.00' },
-    { id: '#LD-09998', name: 'James Whitfield', email: 'j.whitfield@email.com',  phone: '+1 (555) 504-2291', source: 'Website',   status: 'Contacted', lastContact: 'Oct 19, 2023', loanAmount: '$150,000.00' },
+    { id: '#LD-10021', name: 'Jonathan Doe',    business: 'Doe Enterprises',    email: 'jonathan.doe@email.com', phone: '+1 (555) 201-4432', source: 'Referral',  status: 'New',       lastContact: 'Oct 24, 2023', loanAmount: '$500,000.00' },
+    { id: '#LD-10018', name: 'Priya Nair',      business: 'Nair Solutions',     email: 'priya.nair@email.com',   phone: '+1 (555) 318-9901', source: 'Website',   status: 'Contacted', lastContact: 'Oct 23, 2023', loanAmount: '$875,000.00' },
+    { id: '#LD-10015', name: 'Marcus Reed',     business: 'Reed Consulting',    email: 'marcus.reed@email.com',  phone: '+1 (555) 442-7712', source: 'Cold Call', status: 'Qualified', lastContact: 'Oct 22, 2023', loanAmount: '$320,000.00' },
+    { id: '#LD-10009', name: 'TechBridge Corp', business: 'TechBridge Corp',   email: 'contact@techbridge.com', phone: '+1 (555) 670-3348', source: 'Partner',   status: 'Qualified', lastContact: 'Oct 21, 2023', loanAmount: '$2,400,000.00' },
+    { id: '#LD-10003', name: 'Sandra Okonkwo',  business: 'Okonkwo Logistics',  email: 'sandra.o@email.com',     phone: '+1 (555) 899-1120', source: 'Referral',  status: 'New',       lastContact: 'Oct 20, 2023', loanAmount: '$430,000.00' },
+    { id: '#LD-09998', name: 'James Whitfield', business: 'Whitfield & Co',     email: 'j.whitfield@email.com',  phone: '+1 (555) 504-2291', source: 'Website',   status: 'Contacted', lastContact: 'Oct 19, 2023', loanAmount: '$150,000.00' },
 ];
 
 const LenderSelector = ({ onNavigate }) => {
@@ -71,12 +71,10 @@ const LenderSelector = ({ onNavigate }) => {
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-[#f8fafc]">
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD ID</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">CLIENT NAME</th>
+                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD ID & CLIENT</th>
+                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">BUSINESS NAME</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">CONTACT</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LOAN AMOUNT</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">SOURCE</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LAST CONTACT</th>
                                 <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">ACTION</th>
                             </tr>
                         </thead>
@@ -85,8 +83,13 @@ const LenderSelector = ({ onNavigate }) => {
                                 const isSelected = lead.status === 'Qualified';
                                 return (
                                     <tr key={lead.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${450 + i * 60}ms`, animationFillMode: 'both' }}>
-                                        <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{lead.id}</span></td>
-                                        <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#1a202c]">{lead.name}</span></td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{lead.id}</span>
+                                                <span className="text-[12px] font-medium text-[#1a202c]">{lead.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{lead.business}</span></td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-0.5">
                                                 <span className="text-[12px] text-[#4a5568]">{lead.email}</span>
@@ -94,8 +97,6 @@ const LenderSelector = ({ onNavigate }) => {
                                             </div>
                                         </td>
                                         <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#1a202c]">{lead.loanAmount}</span></td>
-                                        <td className="px-6 py-4"><span className="text-[10px] font-semibold px-2.5 py-1 bg-[#f1f5f9] text-[#64748b] rounded-lg border border-[#e2e8f0] uppercase tracking-wide">{lead.source}</span></td>
-                                        <td className="px-6 py-4"><span className="text-[12px] text-[#718096]">{lead.lastContact}</span></td>
                                         <td className="px-6 py-4">
                                             {isSelected ? (
                                                 <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#059669] bg-[#ecfdf5] px-3 py-1.5 rounded-lg border border-[#d1fae5] w-fit">
