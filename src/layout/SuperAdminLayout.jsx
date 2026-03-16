@@ -57,8 +57,10 @@ const AppLayout = ({ onLogout }) => {
     const { tasks, setTasks } = useTasks();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const myTasks = tasks.filter(t => t.assignedTo?.toString() === user.id?.toString() || t.assignedTo === 'Self');
 
-    const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(tasks, setTasks);
+    const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(myTasks, setTasks);
 
     const handleNavigate = (page) => {
         setSidebarOpen(false);
