@@ -401,14 +401,14 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                         </div>
 
                         {useOutlookCalendar ? (
-                            <div className="relative rounded-xl overflow-hidden bg-[#fdfdfd] min-h-[400px] border border-[#f1f5f9]">
+                            <div className={`relative rounded-xl overflow-hidden min-h-[400px] ${isDark ? 'bg-[#1e293b] border border-[#334155]' : 'bg-[#fdfdfd] border border-[#f1f5f9]'}`}>
                                 {!outlookAccount ? (
-                                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center bg-white/90 backdrop-blur-[2px] p-8">
+                                    <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center text-center p-8 ${isDark ? 'bg-[#1e293b]/95 backdrop-blur-[2px]' : 'bg-white/90 backdrop-blur-[2px]'}`}>
                                         <svg viewBox="0 0 24 24" width="48" height="48" className="mb-4">
                                             <path d="M11 2h10v10H11V2M2 2h7v7H2V2m9 9h10v10H11V11M2 11h7v10H2v-10z" fill="#0078d4" />
                                         </svg>
-                                        <h3 className="text-lg font-bold text-[#1a202c] mb-2">Connect Your Outlook Calendar</h3>
-                                        <p className="text-sm text-[#718096] leading-relaxed max-w-[300px] mb-6">Sync with your Microsoft 365 account to manage your CRM follow-ups directly from Outlook.</p>
+                                        <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>Connect Your Outlook Calendar</h3>
+                                        <p className={`text-sm leading-relaxed max-w-[300px] mb-6 ${isDark ? 'text-[#94a3b8]' : 'text-[#718096]'}`}>Sync with your Microsoft 365 account to manage your CRM follow-ups directly from Outlook.</p>
                                         <button className="px-6 py-2.5 bg-[#0078d4] text-white rounded-xl font-bold text-sm shadow-[0_4px_12px_rgba(0,120,212,0.2)] hover:bg-[#005a9e] hover:-translate-y-px transition-all duration-200 active:translate-y-0" onClick={handleOutlookLogin}>
                                             Sign in with Microsoft
                                         </button>
@@ -495,16 +495,15 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                                                 t.status === 'In Progress' ? 'bg-[#f59e0b]' :
                                                                     'bg-[#cbd5e0]'
                                                             }`}></span>
-                                                        <div className="flex flex-col min-w-0">
+                                                        <div className="flex flex-col min-w-0 flex-1">
                                                             <span className="text-[12px] font-bold text-[#1a202c] truncate leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
-                                                            <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
-                                                                <span className="text-[10px] text-[#a0aec0] font-medium truncate">{t.time} {t.lead ? `· ${t.lead}` : '· Personal'}</span>
+                                                            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                                                                <span className="text-[10px] text-[#a0aec0] font-medium whitespace-nowrap">{t.time} {t.lead ? `· ${t.lead}` : (t.createdBy && t.createdBy !== 'Team Leader' ? '· Assigned' : '· Personal')}</span>
                                                                 {t.createdBy && t.createdBy !== 'Team Leader' && (
-                                                                    <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 border border-[#ffedd5]">By: {t.createdBy}</span>
+                                                                    <span className="bg-[#fff7ed] text-[#ea580c] text-[8px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wide border border-[#ffedd5] whitespace-nowrap">By: {t.createdBy}</span>
                                                                 )}
                                                             </div>
                                                         </div>
-
                                                     </div>
                                                     <div className="flex items-center gap-2 pl-4">
                                                         <div className="flex items-center border border-[#edf2f7] rounded-lg bg-[#f7fafc]">

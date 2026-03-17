@@ -519,16 +519,16 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                         </div>
                     </div>
                     {useOutlookCalendar ? (
-                        <div className="relative rounded-3xl overflow-hidden bg-white border border-[#edf2f7] min-h-[500px] shadow-sm mb-8">
+                        <div className={`relative rounded-3xl overflow-hidden min-h-[500px] shadow-sm mb-8 ${isDark ? 'bg-[#1e293b] border border-[#334155]' : 'bg-white border border-[#edf2f7]'}`}>
                             {!outlookAccount ? (
-                                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center text-center p-8 bg-gradient-to-br from-[#f8fafc] to-white">
-                                    <div className="w-20 h-20 bg-[#0078d4]/10 rounded-full flex items-center justify-center mb-6 border-4 border-white shadow-md">
+                                <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center text-center p-8 ${isDark ? 'bg-gradient-to-br from-[#1e293b] to-[#0f172a]' : 'bg-gradient-to-br from-[#f8fafc] to-white'}`}>
+                                    <div className={`w-20 h-20 bg-[#0078d4]/10 rounded-full flex items-center justify-center mb-6 border-4 shadow-md ${isDark ? 'border-[#1e293b]' : 'border-white'}`}>
                                         <svg viewBox="0 0 24 24" width="36" height="36">
                                             <path d="M11 2h10v10H11V2M2 2h7v7H2V2m9 9h10v10H11V11M2 11h7v10H2v-10z" fill="#0078d4" />
                                         </svg>
                                     </div>
-                                    <h3 className="text-xl font-bold text-[#1a202c] mb-3">Connect Your Outlook Calendar</h3>
-                                    <p className="text-[15px] text-[#718096] leading-relaxed max-w-[400px] mb-8 font-medium">Sync with your Microsoft 365 account to view and manage your schedule directly from Whiterock CRM.</p>
+                                    <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>Connect Your Outlook Calendar</h3>
+                                    <p className={`text-[15px] leading-relaxed max-w-[400px] mb-8 font-medium ${isDark ? 'text-[#94a3b8]' : 'text-[#718096]'}`}>Sync with your Microsoft 365 account to view and manage your schedule directly from Whiterock CRM.</p>
                                     <button className="px-8 py-3.5 bg-[#0078d4] text-white rounded-xl font-bold text-sm shadow-[0_4px_16px_rgba(0,120,212,0.25)] hover:bg-[#005a9e] hover:-translate-y-px transition-all duration-200 active:translate-y-0 flex items-center gap-3" onClick={handleOutlookLogin}>
                                         <svg width="18" height="18" viewBox="0 0 21 21"><path d="M10 0v10H0V0h10zm11 0v10H11V0h10zM10 11v10H0V11h10zm11 0v10H11V11h10z" fill="#fff" /></svg>
                                         Sign in with Microsoft
