@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
-import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS, RECENT_LENDERS, AM_STAT_CARDS as STAT_CARDS, AM_RECENT_LEADS, LENDER_TYPE_COLORS } from '../../../data/dummyData';
+import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS, RECENT_LENDERS, AM_STAT_CARDS as STAT_CARDS, LENDER_TYPE_COLORS } from '../../../data/dummyData';
 
 // TYPE_COLORS removed, using LENDER_TYPE_COLORS from dummyData
 
@@ -164,65 +164,8 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
             {/* Main content + Calendar side-by-side */}
             <div className="grid grid-cols-[1fr_360px] gap-5 xl:grid-cols-1">
 
-                {/* Left: Lead Table + Lenders */}
+                {/* Left: Lenders */}
                 <div className="flex flex-col gap-5">
-                    {/* Recent Lead List */}
-                    <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:420ms] [animation-fill-mode:both]">
-                        <div className="px-6 py-4 border-b border-[#f7fafc] flex items-center justify-between bg-[#fcfdfe]">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-[#ebf0ff] flex items-center justify-center">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
-                                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                    </svg>
-                                </div>
-                                <h3 className="text-[14px] font-bold text-[#1a202c]">Recent Lead List</h3>
-                            </div>
-                            <button
-                                className="text-[11px] font-black text-[#2447d7] uppercase tracking-widest hover:underline"
-                                onClick={() => onNavigate && onNavigate('manage_leads')}
-                            >
-                                View Global Leads
-                            </button>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-[#f8fafc] border-b border-[#f1f5f9]">
-                                        <th className="px-6 py-4 text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Lead ID / Client</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Business Name</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Loan Amount</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Current Stage</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Entry Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[#f7fafc]">
-                                    {AM_RECENT_LEADS.map((lead, i) => (
-                                        <tr key={lead.id} className="hover:bg-[#f8faff] transition-colors group animate-rowIn" style={{ animationDelay: `${450 + i * 50}ms`, animationFillMode: 'both' }}>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] font-bold text-[#2447d7] font-mono tracking-wider mb-0.5">{lead.id}</span>
-                                                    <span className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#2447d7] transition-colors">{lead.name}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className="text-[11px] font-bold text-[#4a5568] bg-[#f1f5f9] px-2.5 py-1 rounded-lg border border-[#e2e8f0]">
-                                                    {lead.businessName}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 font-bold text-[13px] text-[#1a202c]">{lead.amount}</td>
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-sm ${lead.stageCls}`}>
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${lead.stageCls.includes('text-[#2447d7]') ? 'bg-[#2447d7]' : lead.stageCls.includes('text-[#f97316]') ? 'bg-[#f97316]' : lead.stageCls.includes('text-[#16a34a]') ? 'bg-[#16a34a]' : 'bg-[#dc2626]'}`} />
-                                                    {lead.stage}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-[12px] font-medium text-[#718096] whitespace-nowrap">{lead.date}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </section>
 
                     {/* Recently Added Lenders */}
                     <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:480ms] [animation-fill-mode:both] flex flex-col">
