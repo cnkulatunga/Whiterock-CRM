@@ -3,71 +3,7 @@ import { useTheme } from '../../../context/ThemeContext';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconAlert, IconCheck, IconDocs } from '../../../components/DocumentManagement/Icons';
 
-const MOCK_LEADS = [
-    {
-        id: 1,
-        leadId: 'WR-2026-8812',
-        name: 'Jonathan Vane',
-        businessName: 'Vane Ventures',
-        agentName: 'Sarah Connor',
-        status: 'Document Verifications',
-        submissionDate: '2026-03-16', // Today
-        documents: [
-            { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Verified by SG', date: '2024-03-10' },
-            { id: 2, type: 'Payslip', status: 'Pending', note: '', date: '2024-03-11' }
-        ]
-    },
-    {
-        id: 2,
-        leadId: 'WR-2026-8845',
-        name: 'Amara Okafor',
-        businessName: 'Okafor Global',
-        agentName: 'Michael Reese',
-        status: 'Document Verifications',
-        submissionDate: '2026-03-15', // Yesterday
-        documents: [
-            { id: 3, type: 'Bank Statement', status: 'Approved', note: 'Clear copy', date: '2024-03-09' },
-            { id: 4, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-09' }
-        ]
-    },
-    {
-        id: 3,
-        leadId: 'WR-2026-8901',
-        name: 'Robert Taylor',
-        businessName: 'Taylor & Sons',
-        agentName: 'Sarah Connor',
-        status: 'Document Verifications',
-        submissionDate: '2026-03-14', // Last 7 Days
-        documents: [
-            { id: 5, type: 'Bank Statement', status: 'Pending', note: '', date: '2024-03-11' }
-        ]
-    },
-    {
-        id: 4,
-        leadId: 'WR-2026-9012',
-        name: 'Elena Gilbert',
-        businessName: 'Gilbert Medical',
-        agentName: 'Damon Salvatore',
-        status: 'Document Verifications',
-        submissionDate: '2026-03-10', // Last 7 Days
-        documents: [
-            { id: 6, type: 'ID Document', status: 'Rejected', note: 'Image is blurry', date: '2024-03-12' },
-            { id: 7, type: 'Bank Statement', status: 'Approved', note: 'Verified', date: '2024-03-12' }
-        ]
-    },
-    {
-        id: 5,
-        leadId: 'WR-2026-9123',
-        name: 'Arthur Morgan',
-        businessName: 'Morgan Ranching',
-        agentName: 'John Marston',
-        status: 'Document Verifications',
-        submissionDate: '2026-02-28', // Older
-        documents: [
-            { id: 8, type: 'Payslip', status: 'Pending', note: '', date: '2024-03-13' }
-        ]
-    },
-];
+import { MOCK_LEADS } from '../../../data/dummyData';
 
 const DocumentVerification = () => {
     const [leads, setLeads] = useState(MOCK_LEADS);

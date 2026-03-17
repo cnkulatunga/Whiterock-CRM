@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
 
-const LOG_ENTRIES = [
-    { id: 1, date: 'Oct 24, 2023', time: '14:23:45 EST', initials: 'JD',  bg: '#22c55e', initBg: '#22c55e', name: 'Jane Doe',          role: 'Compliance', roleCls: 'bg-[#ecfdf5] text-[#059669]',  actionIcon: 'verify',  actionText: 'Verified identity docs for',      refId: '#WR-2026-0442' },
-    { id: 2, date: 'Oct 24, 2023', time: '13:10:12 EST', initials: 'MS',  bg: '#3b82f6', initBg: '#3b82f6', name: 'Marcus Smith',       role: 'Admin',      roleCls: 'bg-[#eff6ff] text-[#2563eb]',  actionIcon: 'payment', actionText: 'Approved Payment for',            refId: '#WR-2026-0001' },
-    { id: 3, date: 'Oct 24, 2023', time: '12:55:30 EST', initials: 'RK',  bg: '#f472b6', initBg: '#f472b6', name: 'Riley King',         role: 'Sales',      roleCls: 'bg-[#fdf2f8] text-[#db2777]',  actionIcon: 'edit',    actionText: 'Modified contact details on lead', refId: '#WR-2026-0511' },
-    { id: 4, date: 'Oct 24, 2023', time: '11:42:01 EST', initials: 'SYS', bg: '#475569', initBg: '#475569', name: 'System Automation',  role: 'Service',    roleCls: 'bg-[#f8fafc] text-[#475569]',  actionIcon: 'auto',    actionText: 'Lender Decision:',                refId: '#WR-2026-0492', autoApproved: true },
-    { id: 5, date: 'Oct 24, 2023', time: '10:05:19 EST', initials: 'AH',  bg: '#f97316', initBg: '#f97316', name: 'Alex Hunter',        role: 'Manager',    roleCls: 'bg-[#fff7ed] text-[#ea580c]',  actionIcon: 'reject',  actionText: 'Rejected Payment Approval for',   refId: '#WR-2026-0032' },
-];
+import { AUDIT_LOG_ENTRIES as LOG_ENTRIES, AUDIT_STATS, DATE_RANGE_OPTIONS, AUDIT_LOG_CATEGORIES, AUDIT_LOG_USER_ROLES } from '../../../data/dummyData';
+
 
 const ActionIcon = ({ type }) => {
     const map = {
@@ -35,7 +30,7 @@ const AuditLogs = () => {
     const [category, setCategory]   = useState('All Categories');
     const [userRole, setUserRole]   = useState('Any Role');
     const [currentPage, setCurrentPage] = useState(1);
-    const TOTAL = 1284;
+    const TOTAL = AUDIT_STATS.totalLogs;
 
     const filtered = LOG_ENTRIES.filter(e => {
         if (userRole !== 'Any Role' && e.role !== userRole) return false;
@@ -106,7 +101,7 @@ const AuditLogs = () => {
                         <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">DATE RANGE</span>
                         <div className="relative">
                             <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={dateRange} onChange={e => setDateRange(e.target.value)}>
-                                <option>Last 24 Hours</option><option>Last 7 Days</option><option>Last 30 Days</option><option>This Year</option>
+                                {DATE_RANGE_OPTIONS.map(o => <option key={o}>{o}</option>)}
                             </select>
                             <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
                         </div>
@@ -119,7 +114,7 @@ const AuditLogs = () => {
                         <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">CATEGORY</span>
                         <div className="relative">
                             <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={category} onChange={e => setCategory(e.target.value)}>
-                                <option>All Categories</option><option>Payment</option><option>Lead</option><option>User</option><option>System</option>
+                                {AUDIT_LOG_CATEGORIES.map(o => <option key={o}>{o}</option>)}
                             </select>
                             <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
                         </div>
@@ -132,7 +127,7 @@ const AuditLogs = () => {
                         <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">USER ROLE</span>
                         <div className="relative">
                             <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={userRole} onChange={e => setUserRole(e.target.value)}>
-                                <option>Any Role</option><option>Admin</option><option>Compliance</option><option>Sales</option><option>Manager</option><option>Service</option>
+                                {AUDIT_LOG_USER_ROLES.map(o => <option key={o}>{o}</option>)}
                             </select>
                             <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
                         </div>

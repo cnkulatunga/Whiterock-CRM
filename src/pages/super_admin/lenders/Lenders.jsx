@@ -1,15 +1,7 @@
 import React, { useState } from 'react';
 
-const INITIAL_LENDERS = [
-    { id: 1, name: 'ANZ Bank', type: 'Major Bank', interestRate: '5.89%', maxLoan: '$2,000,000', minDeposit: '10%', status: 'Active', contact: 'lending@anz.com.au' },
-    { id: 2, name: 'Commonwealth Bank', type: 'Major Bank', interestRate: '5.74%', maxLoan: '$3,000,000', minDeposit: '5%', status: 'Active', contact: 'homeloan@cba.com.au' },
-    { id: 3, name: 'Westpac', type: 'Major Bank', interestRate: '5.99%', maxLoan: '$2,500,000', minDeposit: '10%', status: 'Active', contact: 'loans@westpac.com.au' },
-    { id: 4, name: 'NAB', type: 'Major Bank', interestRate: '5.84%', maxLoan: '$2,000,000', minDeposit: '5%', status: 'Active', contact: 'homeloan@nab.com.au' },
-    { id: 5, name: 'Macquarie Bank', type: 'Non-Bank', interestRate: '5.59%', maxLoan: '$5,000,000', minDeposit: '20%', status: 'Active', contact: 'lending@macquarie.com' },
-    { id: 6, name: 'Liberty Financial', type: 'Non-Bank', interestRate: '6.49%', maxLoan: '$1,500,000', minDeposit: '15%', status: 'Inactive', contact: 'info@liberty.com.au' },
-];
+import { FULL_LENDERS_LIST as INITIAL_LENDERS, LENDER_TYPES, LENDER_TYPE_COLORS } from '../../../data/dummyData';
 
-const LENDER_TYPES = ['Major Bank', 'Non-Bank', 'Credit Union', 'Building Society', 'Specialist'];
 
 const EMPTY_FORM = { name: '', type: 'Major Bank', interestRate: '', maxLoan: '', minDeposit: '', contact: '', status: 'Active' };
 
@@ -25,14 +17,7 @@ const StatusBadge = ({ status }) => (
 );
 
 const TypeBadge = ({ type }) => {
-    const colors = {
-        'Major Bank': { bg: 'rgba(36,71,215,0.08)', color: '#2447d7', border: 'rgba(36,71,215,0.18)' },
-        'Non-Bank': { bg: 'rgba(139,92,246,0.08)', color: '#8b5cf6', border: 'rgba(139,92,246,0.2)' },
-        'Credit Union': { bg: 'rgba(6,182,212,0.08)', color: '#06b6d4', border: 'rgba(6,182,212,0.2)' },
-        'Building Society': { bg: 'rgba(245,158,11,0.08)', color: '#f59e0b', border: 'rgba(245,158,11,0.2)' },
-        'Specialist': { bg: 'rgba(16,185,129,0.08)', color: '#10b981', border: 'rgba(16,185,129,0.2)' },
-    };
-    const c = colors[type] || colors['Major Bank'];
+    const c = LENDER_TYPE_COLORS[type] || LENDER_TYPE_COLORS['Major Bank'];
     return (
         <span className="inline-flex text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider"
             style={{ backgroundColor: c.bg, color: c.color, border: `1px solid ${c.border}` }}>

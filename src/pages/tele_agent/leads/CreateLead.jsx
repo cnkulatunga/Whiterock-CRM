@@ -1,10 +1,13 @@
 import React, { useState, useRef } from 'react';
-import { IconUpload, IconFile, IconCheck, IconAlert, IconClose, IconTrash, IconDocs, IconEye } from '../../../components/DocumentManagement/Icons';
+import { IconUpload, IconFile, IconCheck, IconAlert, IconClose, IconTrash, IconDocs, IconEye, IconUsers } from '../../../components/DocumentManagement/Icons';
+import { MOCK_LEADS } from '../../../data/dummyData';
 
 const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     const [user, setUser] = useState({});
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
+    const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+    const [duplicateLead, setDuplicateLead] = useState(null);
     const [formData, setFormData] = useState({
         customerName: '',
         businessName: '',
@@ -123,6 +126,19 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     }, [isSubmitting, uploadingDocs]);
 
     const triggerSaveAndSend = () => {
+        // --- Duplicate Check Logic ---
+        const duplicate = MOCK_LEADS.find(l => 
+            (formData.emailAddress && l.email?.toLowerCase() === formData.emailAddress.toLowerCase()) ||
+            (formData.phoneNumber && l.phone === formData.phoneNumber) ||
+            (formData.nic && l.nic === formData.nic)
+        );
+
+        if (duplicate) {
+            setDuplicateLead(duplicate);
+            setShowDuplicateModal(true);
+            return;
+        }
+
         const pendingIds = Object.keys(uploadingDocs);
         
         // Handle Follow-up Task Creation
@@ -604,6 +620,75 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                     </div>
                 </div>
             )}
+
+            {showDuplicateModal && duplicateLead && (
+                <div className="fixed inset-0 bg-slate-900/45 backdrop-blur-sm flex items-center justify-center z-[999] p-6 animate-fadeIn" role="dialog" aria-modal="true">
+                    <div className="w-full max-w-[500px] bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
+                        <div className="flex items-center gap-3 p-[24px_32px] border-b border-[#f1f5f9] bg-[#fffaf0] text-[#c05621]">
+                            <IconAlert size={24} />
+                            <h3 className="font-bold text-lg">Duplicate Lead Found</h3>
+                        </div>
+                        <div className="p-[32px] flex flex-col gap-6">
+                            <div className="flex flex-col gap-2">
+                                <p className="text-[#4a5568] text-sm leading-relaxed">
+                                    A lead with similar contact information already exists in the system. This helps prevent redundancy and ensures data integrity.
+                                </p>
+                            </div>
+                            
+                            <div className="bg-[#f7fafc] rounded-2xl p-5 border border-[#edf2f7] flex flex-col gap-4">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 bg-[#ebf0ff] text-[#2447d7] rounded-xl flex items-center justify-center font-bold text-lg">
+                                        {duplicateLead.name.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-base font-bold text-[#1a202c]">{duplicateLead.name}</span>
+                                        <span className="text-xs font-bold text-[#2447d7] uppercase tracking-wider">{duplicateLead.businessName || 'Individual Lead'}</span>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 gap-3 pt-2 border-t border-[#edf2f7]">
+                                    <div className="flex items-center gap-3 text-sm text-[#4a5568]">
+                                        <IconMail size={16} className="text-[#a0aec0]" />
+                                        <span className="font-medium">{duplicateLead.email}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm text-[#4a5568]">
+                                        <IconPhone size={16} className="text-[#a0aec0]" />
+                                        <span className="font-medium">{duplicateLead.phone}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-sm text-[#4a5568]">
+                                        <IconUsers size={16} className="text-[#a0aec0]" />
+                                        <span className="text-xs font-bold text-[#718096] uppercase bg-white px-2 py-0.5 rounded border">ID: {duplicateLead.id}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p className="text-[13px] text-[#718096] italic text-center">
+                                Please review the details above. If this is a different person, please use unique contact details.
+                            </p>
+                        </div>
+                        <div className="p-[20px_32px_24px] flex justify-end gap-3 border-t border-[#f1f5f9] bg-[#fdfdfd] md:flex-col md:items-stretch">
+                            <button
+                                className="bg-white border border-[#e2e8f0] text-[#4a5568] p-[12px_24px] rounded-xl text-sm font-bold hover:bg-[#f7fafc] transition-all"
+                                onClick={() => {
+                                    setShowDuplicateModal(false);
+                                    setDuplicateLead(null);
+                                }}
+                            >
+                                Re-edit Details
+                            </button>
+                            <button
+                                className="bg-[#2447d7] text-white border-none p-[12px_24px] rounded-xl text-sm font-bold hover:bg-[#1732a3] shadow-[0_4px_12px_rgba(36,71,215,0.2)] transition-all"
+                                onClick={() => {
+                                    setShowDuplicateModal(false);
+                                    onBack(); // navigate to leads list where they can find the existing lead
+                                }}
+                            >
+                                View Existing Lead
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Document Preview Overlay */}
             {previewDoc && (
                 <div className="fixed inset-0 z-[2100] flex items-center justify-center p-8 bg-black/80 backdrop-blur-md animate-fadeIn">

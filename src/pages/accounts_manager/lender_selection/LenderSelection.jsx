@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-
-const LENDERS = [
-    { id: 'bank_of_whiterock', name: 'Bank of Whiterock',  tier: 'Tier 1 • Trusted Partner',  match: 98, color: '#2447d7', bg: '#ebf0ff' },
-    { id: 'global_finance',    name: 'Global Finance',     tier: 'Tier 1 • International',     match: 92, color: '#2447d7', bg: '#ebf0ff' },
-    { id: 'secure_lenders',    name: 'Secure Lenders',     tier: 'Tier 2 • Private Equity',    match: 85, color: '#16a34a', bg: '#ecfdf5' },
-    { id: 'apex_capital',      name: 'Apex Capital Group', tier: 'Tier 1 • High Net Worth',    match: 78, color: '#ea580c', bg: '#fff7ed' },
-];
+import { QUALIFIED_LENDERS as LENDERS } from '../../../data/dummyData';
 
 const LenderSelection = ({ lead, onNavigate }) => {
     const clientName = lead?.name || 'Jonathan Doe';

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { SHARED_INITIAL_USERS } from '../../context/UsersContext';
+import { SHARED_INITIAL_USERS } from '../../data/dummyData';
 
 import { useTheme } from '../../context/ThemeContext';
 import ThemeToggle from '../../components/theme/ThemeToggle';

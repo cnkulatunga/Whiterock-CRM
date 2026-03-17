@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useUsers } from '../../../context/UsersContext';
 
-const ALL_ROLES = ['All Roles', 'Super Admin', 'Team Leader', 'Tele Agent', 'Accounts Manager'];
-const ALL_STATUSES = ['All Status', 'Active', 'Inactive'];
+import { ALL_ROLES, ALL_STATUSES, AVATAR_COLORS } from '../../../data/dummyData';
 const TOTAL_USERS = 24;
 
 /* ─── ICONS ────────────────────────────────────── */
@@ -111,7 +110,7 @@ const UserFormFields = ({ form, setForm, error }) => (
                 <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Status</label>
                 <div className="relative">
                     <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:bg-white focus:border-[#2447d7]/30 transition-all" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                        <option>Active</option><option>Inactive</option>
+                        {ALL_STATUSES.slice(1).map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
                 </div>
@@ -218,7 +217,7 @@ const UserManagement = () => {
     const { users, setUsers } = useUsers();
     const [search, setSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('All Roles');
-    const [statusFilter, setStatusFilter] = useState('All Status');
+    const [statusFilter, setStatusFilter] = useState('All');
     const [viewMode, setViewMode] = useState('list');
     const [currentPage, setCurrentPage] = useState(1);
     const [showModal, setShowModal] = useState(false);
@@ -231,14 +230,7 @@ const UserManagement = () => {
         'Tele Agent':       'bg-[#f1f5f9] text-[#64748b] border-[#e2e8f0]',
         'Accounts Manager': 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]',
     };
-    const avatarColors = [
-        { bg: '#ebf0ff', text: '#2447d7' },
-        { bg: '#f3e8ff', text: '#7c3aed' },
-        { bg: '#f1f5f9', text: '#475569' },
-        { bg: '#fffbeb', text: '#d97706' },
-        { bg: '#ecfdf5', text: '#059669' },
-        { bg: '#fef2f2', text: '#dc2626' },
-    ];
+    const avatarColors = AVATAR_COLORS;
     const getInitials = (name) => (name || '').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     React.useEffect(() => { fetchUsers(); }, []);
@@ -265,7 +257,7 @@ const UserManagement = () => {
     const filtered = users.filter(u => {
         const matchSearch = (u.name || '').toLowerCase().includes(search.toLowerCase()) || (u.email || '').toLowerCase().includes(search.toLowerCase());
         const matchRole = roleFilter === 'All Roles' || u.role === roleFilter;
-        const matchStatus = statusFilter === 'All Status' || u.status === statusFilter;
+        const matchStatus = statusFilter === 'All' || u.status === statusFilter;
         return matchSearch && matchRole && matchStatus;
     });
 
@@ -343,12 +335,12 @@ const UserManagement = () => {
                     </div>
                     <div className="relative">
                         <select className="bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-7 rounded-xl text-[13px] font-medium text-[#4a5568] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                            {ALL_STATUSES.map(s => <option key={s}>{s}</option>)}
+                            {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                         <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
                     </div>
-                    {(roleFilter !== 'All Roles' || statusFilter !== 'All Status' || search) && (
-                        <button className="text-[12px] font-medium text-[#dc2626] hover:underline transition-all" onClick={() => { setRoleFilter('All Roles'); setStatusFilter('All Status'); setSearch(''); }}>
+                    {(roleFilter !== 'All Roles' || statusFilter !== 'All' || search) && (
+                        <button className="text-[12px] font-medium text-[#dc2626] hover:underline transition-all" onClick={() => { setRoleFilter('All Roles'); setStatusFilter('All'); setSearch(''); }}>
                             ✕ Clear
                         </button>
                     )}

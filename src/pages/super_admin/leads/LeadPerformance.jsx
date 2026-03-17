@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 
-const RECENT_LEADS = [
-    { id: '#LD-9482', name: 'Jonathan Doe',  initials: 'JD', bg: '#ebf0ff', tc: '#2447d7', stage: 'STAGE 03', stageCls: 'bg-[#1a202c] text-white',        status: 'Active',    statusCls: 'text-[#059669]', dot: 'bg-[#059669]', agent: 'Sarah Jenkins', date: 'Oct 24, 2023' },
-    { id: '#LD-9481', name: 'Amanda Smith',  initials: 'AS', bg: '#ecfdf5', tc: '#059669', stage: 'STAGE 01', stageCls: 'bg-[#fef9c3] text-[#a16207]',    status: 'Active',    statusCls: 'text-[#059669]', dot: 'bg-[#059669]', agent: 'Michael Ross',  date: 'Oct 24, 2023' },
-    { id: '#LD-9480', name: 'Robert King',   initials: 'RK', bg: '#f3e8ff', tc: '#7c3aed', stage: 'CLOSED WON', stageCls: 'bg-[#ecfdf5] text-[#059669]', status: 'Completed', statusCls: 'text-[#a0aec0]', dot: 'bg-[#a0aec0]', agent: 'Sarah Jenkins', date: 'Oct 23, 2023' },
-    { id: '#LD-9479', name: 'Emily Lawson',  initials: 'EL', bg: '#fff7ed', tc: '#ea580c', stage: 'STAGE 04', stageCls: 'bg-[#f1f5f9] text-[#64748b]',    status: 'Urgent',    statusCls: 'text-[#dc2626]', dot: 'bg-[#dc2626]', agent: 'David Miller',  date: 'Oct 23, 2023' },
-];
+import { SA_RECENT_LEADS as RECENT_LEADS, SA_STATS, DATE_RANGE_OPTIONS, PERFORMANCE_AGENT_OPTIONS, PERFORMANCE_LEAD_STATUSES } from '../../../data/dummyData';
 
 const IcoChevron = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
@@ -25,9 +20,9 @@ const LeadPerformance = () => {
     const [leadStatus, setLeadStatus] = useState('Active');
 
     const filters = [
-        { label: 'DATE RANGE',     value: dateRange,   setter: setDateRange,   opts: ['Last 30 Days','Last 90 Days','This Year'] },
-        { label: 'ASSIGNED AGENT', value: agent,       setter: setAgent,       opts: ['All Agents','Sarah Jenkins','Michael Ross','David Miller'] },
-        { label: 'LEAD STATUS',    value: leadStatus,  setter: setLeadStatus,  opts: ['All','Active','Completed','Urgent'] },
+        { label: 'DATE RANGE',     value: dateRange,   setter: setDateRange,   opts: DATE_RANGE_OPTIONS.slice(2) }, // Use 30 days, 90 days, Year
+        { label: 'ASSIGNED AGENT', value: agent,       setter: setAgent,       opts: PERFORMANCE_AGENT_OPTIONS },
+        { label: 'LEAD STATUS',    value: leadStatus,  setter: setLeadStatus,  opts: PERFORMANCE_LEAD_STATUSES },
     ];
 
     return (
@@ -60,12 +55,12 @@ const LeadPerformance = () => {
                         </div>
                         <div>
                             <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Total Leads</div>
-                            <div className="text-2xl font-bold text-[#1a202c]">1,482</div>
+                            <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.totalLeads}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-1.5 text-[#059669] bg-[#ecfdf5] border border-[#d1fae5] px-3 py-1.5 rounded-lg w-fit text-[11px] font-medium">
                         <IcoTrendUp />
-                        +12.5% vs last month
+                        {SA_STATS.leadsChange} vs last month
                     </div>
                 </div>
                 <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:300ms] [animation-fill-mode:both]">
@@ -75,12 +70,12 @@ const LeadPerformance = () => {
                         </div>
                         <div>
                             <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Rejection Rate</div>
-                            <div className="text-2xl font-bold text-[#1a202c]">12.1%</div>
+                            <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.rejectionRate}</div>
                         </div>
                     </div>
                     <div className="flex items-center gap-1.5 text-[#dc2626] bg-[#fef2f2] border border-[#fee2e2] px-3 py-1.5 rounded-lg w-fit text-[11px] font-medium">
                         <IcoTrendUp />
-                        +1.4% vs last month
+                        {SA_STATS.rejectionChange} vs last month
                     </div>
                 </div>
             </div>

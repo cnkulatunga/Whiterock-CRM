@@ -4,66 +4,14 @@ import { useUsers } from '../../../context/UsersContext';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconUpload, IconAlert, IconCheck, IconDocs } from '../../../components/DocumentManagement/Icons';
 
-const INITIAL_MEMBERSHIPS = {
-    2: [ // Marcus Smith
-        { id: 3, name: 'Cody Lane', role: 'Tele Agent', initials: 'CL', color: '#f1f5f9', status: 'Active' },
-        { id: 11, name: 'Priya Sharma', role: 'Tele Agent', initials: 'PS', color: '#f0fdf4', status: 'Active' },
-    ],
-    5: [ // Diana Fernandez
-        { id: 6, name: 'Leo Kumar', role: 'Tele Agent', initials: 'LK', color: '#e0f2fe', status: 'Active' },
-        { id: 13, name: 'Elena Vasquez', role: 'Tele Agent', initials: 'EV', color: '#fff1f2', status: 'Active' },
-        { id: 15, name: 'Sophie Tan', role: 'Tele Agent', initials: 'ST', color: '#f5f3ff', status: 'Active' },
-    ],
-    8: [ // Ryan Patel
-        { id: 12, name: 'Jake Morrison', role: 'Tele Agent', initials: 'JM', color: '#f0f9ff', status: 'Active' },
-        { id: 7, name: 'Nina Hassan', role: 'Tele Agent', initials: 'NH', color: '#fce7f3', status: 'Inactive' },
-    ]
-};
-
-const MOCK_LEADS = [
-    { id: 1, name: 'Robert Miller', businessName: 'Miller Logistics Co.', email: 'robert@example.com', phone: '+1 234-567-890', source: 'Website Form', status: 'Document Collected', lastContact: '2 hours ago', stage: 'Initial', assignedStaffId: 3,
-        notes: 'Customer is looking for a home loan for a primary residence. Preferred contact time is evening after 6 PM.',
-        documents: [
-            { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Verified by SG', date: '2024-03-15' },
-            { id: 2, type: 'Payslip', status: 'Approved', note: 'Clear copy', date: '2024-03-15' },
-            { id: 3, type: 'ID Document', status: 'Pending', note: '', date: '2024-03-16' }
-        ] 
-    },
-    { id: 2, name: 'Alice Huang', businessName: 'Huang Tech Solutions', email: 'alice.h@gmail.com', phone: '+1 987-654-321', source: 'Referral', status: 'Document Verifications', lastContact: 'Today, 10:30 AM', stage: 'In Progress', assignedStaffId: 6,
-        notes: 'Interested in business expansion loan. Needs quick turnaround as they have a pending property purchase.',
-        documents: [
-            { id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Period missing', date: '2024-03-14' },
-            { id: 2, type: 'Payslip', status: 'Missing', note: '', date: '' }
-        ]
-    },
-    { id: 3, name: 'David Rivera', businessName: 'Rivera Designs', email: 'd.rivera@outlook.com', phone: '+1 456-123-789', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'In Progress', assignedStaffId: 11, documents: [] },
-    { id: 4, name: 'Sarah Connor', businessName: 'Connor Security Group', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Loan Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost', assignedStaffId: 2,
-        documents: [
-            { id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Unclear scan', date: '2024-03-01' },
-            { id: 2, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-01' }
-        ] 
-    },
-    { id: 5, name: 'Michael Chen', businessName: 'Chen Finance Hub', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Loan Confirmed', lastContact: '3 days ago', stage: 'Closed', assignedStaffId: 12,
-        documents: [
-            { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Final review OK', date: '2024-03-10' },
-            { id: 2, type: 'Payslip', status: 'Approved', note: 'Verified', date: '2024-03-10' },
-            { id: 3, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-10' },
-            { id: 4, type: 'Loan Agreement', status: 'Approved', note: 'Signed', date: '2024-03-12' }
-        ] 
-    },
-    { id: 6, name: 'Emma Watson', businessName: 'Watson Creative Agency', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress', assignedStaffId: 5,
-        documents: [
-            { id: 1, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-15' }
-        ] 
-    },
-];
+import { MOCK_LEADS, INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS } from '../../../data/dummyData';
 
 const ITEMS_PER_PAGE = 5;
 
 const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const { users } = useUsers();
+    const { users } = useUsers() || {};
     const fileInputRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
@@ -167,9 +115,9 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
 
             <div className="flex gap-5 mb-8 flex-wrap lg:gap-4 sm:gap-3">
                 {[
-                    { label: 'Total Leads', value: '1,284' },
-                    { label: 'New Today', value: '12' },
-                    { label: 'Response Rate', value: '94%' }
+                    { label: 'Total Leads', value: MOCK_LEAD_COUNTS.total.toLocaleString() },
+                    { label: 'New Today', value: MOCK_LEAD_COUNTS.newToday },
+                    { label: 'Response Rate', value: MOCK_LEAD_COUNTS.responseRate }
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-[16px_24px] sm:p-4 rounded-xl border border-[#edf2f7] flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[calc(33.33%-14px)] md:min-w-[calc(50%-10px)] sm:min-w-[calc(50%-6px)] hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop" style={{ animationDelay: `${200 + i * 80}ms`, animationFillMode: 'both' }}>
                         <span className="text-[11px] sm:text-[9px] font-bold text-[#a0aec0] uppercase tracking-wider">{stat.label}</span>

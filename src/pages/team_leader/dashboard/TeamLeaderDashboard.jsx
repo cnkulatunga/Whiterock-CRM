@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
+import { TL_STATS as stats, TL_AGENT_PERFORMANCE as agentPerformance, TL_DOCUMENT_COLLECTION as documentCollection, TL_PIPELINE_DATA as pipelineData } from '../../../data/dummyData';
 
 const DONUT_GAP_DEG = 3;
 
@@ -145,30 +146,6 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
-    // Shared Stats & Mock Data
-    const stats = [
-        { label: 'Total Active Leads', value: '1,284', trend: '+5.2%', trendType: 'positive' },
-        { label: 'Pending Documents', value: '48', trend: null, trendType: 'neutral' },
-    ];
-
-    const agentPerformance = [
-        { name: 'Sarah Johnson', initials: 'SJ', activeLeads: 156, closedDeals: 24, color: '#2447d7' },
-        { name: 'Michael Smith', initials: 'MS', activeLeads: 132, closedDeals: 19, color: '#10b981' },
-        { name: 'Elena Rodriguez', initials: 'ER', activeLeads: 145, closedDeals: 21, color: '#8b5cf6' },
-        { name: 'John Smith', initials: 'JS', activeLeads: 142, closedDeals: 18, color: '#f59e0b' },
-        { name: 'Alice Wong', initials: 'AW', activeLeads: 98, closedDeals: 22, color: '#7c3aed' },
-        { name: 'Robert King', initials: 'RK', activeLeads: 115, closedDeals: 12, color: '#06b6d4' },
-    ];
-
-    const documentCollection = [
-        { label: 'BANK STATEMENTS', progress: 78, color: '#2447d7' },
-    ];
-
-    const pipelineData = [
-        { label: 'Pending Documents', value: 35, color: '#f59e0b' },
-        { label: 'Approved Documents', value: 55, color: '#10b981' },
-        { label: 'Rejected Documents', value: 10, color: '#e53e3e' },
-    ];
 
     // Calendar & Interaction State
     const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);

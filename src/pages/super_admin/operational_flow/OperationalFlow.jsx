@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
+import { WORKFLOW_STAGES, OPERATIONAL_FLOW_LEADS } from '../../../data/dummyData';
 
 /* ─── STYLES & ANIMATIONS ─────────────────────── */
 const STYLES = `
@@ -96,86 +97,6 @@ if (typeof document !== 'undefined' && !document.getElementById('of-flow-styles'
     document.head.appendChild(s);
 }
 
-/* ─── MOCK WORKFLOW DATA ──────────────────────── */
-const WORKFLOW_STAGES = [
-    { id: 'lead_gather', label: 'Lead Detail Gather', color: '#6366f1', description: 'Tele Agent gathering core info' },
-    { id: 'doc_collect', label: 'Collect Document', color: '#8b5cf6', description: 'Team Leader collecting records' },
-    { id: 'lender_select', label: 'Lender Selection', color: '#ec4899', description: 'Manager selecting best partner' },
-    { id: 'closed', label: 'Won / Rejected', color: '#10b981', description: 'Final process outcome' },
-];
-
-const MOCK_CLIENTS = [
-    { 
-        id: 1, name: 'Global Tech Solutions', manager: 'Sarah Chen', tl: 'Cody Lane', agent: 'Priya Sharma', stage: 'lead_gather', progress: 25, lastActive: '2h ago',
-        leadDetails: { 
-            phone: '+1 (555) 012-3456', email: 'corp@globaltech.com', source: 'Direct Website', 
-            amount: '$250,000', purpose: 'Working Capital', nic: '772910293-TX',
-            residentialAddress: '88 Tech Plaza, Austin, TX 78701',
-            notes: 'Client is looking for rapid funding to cover a sudden Q3 inventory spike. High priority.'
-        },
-        lenderDetails: { partner: 'Pending', rate: 'N/A', status: 'Analysis Stage', terms: 'N/A' }
-    },
-    { 
-        id: 2, name: 'Apex Industries', manager: 'Sarah Chen', tl: 'Cody Lane', agent: 'Jake Morrison', stage: 'doc_collect', progress: 50, lastActive: '45m ago',
-        leadDetails: { 
-            phone: '+1 (555) 987-6543', email: 'fin@apexind.io', source: 'Premium Referral', 
-            amount: '$1.2M', purpose: 'Equipment Finance', nic: '992010294-NY',
-            residentialAddress: '15 Industrial Blvd, Rochester, NY 14623',
-            notes: 'Requires heavy machinery leasing. Documents are partially submitted.'
-        },
-        lenderDetails: { partner: 'Pending', rate: 'N/A', status: 'Document Verification', terms: 'N/A' }
-    },
-    { 
-        id: 3, name: 'Blue Sky Ventures', manager: 'Michael Ross', tl: 'Leo Kumar', agent: 'Nina Hassan', stage: 'lender_select', progress: 75, lastActive: '1d ago',
-        leadDetails: { 
-            phone: '+1 (555) 444-2222', email: 'hello@bluesky.vc', source: 'LinkedIn Campaign', 
-            amount: '$500,000', purpose: 'Expansion Loan', nic: '448291039-SF',
-            residentialAddress: '22 Venture Way, San Francisco, CA 94105',
-            notes: 'Seed-stage startup looking for non-dilutive capital. Financials look strong.'
-        },
-        lenderDetails: { partner: 'Capital One', rate: '4.2%', status: 'Offer Received', terms: '60 Months' }
-    },
-    { 
-        id: 4, name: 'Summit Realty', manager: 'Michael Ross', tl: 'Elena Vasquez', agent: 'Sophie Tan', stage: 'won', progress: 100, lastActive: '3h ago',
-        leadDetails: { 
-            phone: '+1 (555) 333-1111', email: 'ops@summitrealty.com', source: 'Cold Outreach', 
-            amount: '$750,000', purpose: 'Bridge Loan', nic: '331029384-FL',
-            residentialAddress: '55 Ocean Dr, Miami, FL 33139',
-            notes: 'Urgent bridge loan for a real estate acquisition closing in 2 weeks.'
-        },
-        lenderDetails: { partner: 'Chase Business', rate: '3.8%', status: 'Funded', terms: '48 Months' }
-    },
-    { 
-        id: 5, name: 'Phoenix Corp', manager: 'Sarah Chen', tl: 'Jake Morrison', agent: 'Omar Khalil', stage: 'won', progress: 100, lastActive: '10m ago',
-        leadDetails: { 
-            phone: '+1 (555) 777-8888', email: 'finance@phoenix.io', source: 'Email Marketing', 
-            amount: '$300,000', purpose: 'Inventory Purchase', nic: '772930485-WA',
-            residentialAddress: '7 Phoenix Center, Seattle, WA 98101',
-            notes: 'Repeat client. High trust score. Fast tracked for inventory expansion.'
-        },
-        lenderDetails: { partner: 'Wells Fargo', rate: '4.1%', status: 'Funded', terms: '36 Months' }
-    },
-    { 
-        id: 6, name: 'Nova Logistics', manager: 'Michael Ross', tl: 'Leo Kumar', agent: 'Nina Hassan', stage: 'rejected', progress: 100, lastActive: '5h ago',
-        leadDetails: { 
-            phone: '+1 (555) 111-9999', email: 'admin@novalogistics.com', source: 'Direct Website', 
-            amount: '$150,000', purpose: 'Vehicle Lease', nic: '112039485-IL',
-            residentialAddress: '33 Logistics Park, Chicago, IL 60607',
-            notes: 'Rejected due to low credit score and high debt-to-income ratio.'
-        },
-        lenderDetails: { partner: 'HSBC', rate: 'N/A', status: 'Credit Denied', terms: 'N/A' }
-    },
-    { 
-        id: 7, name: 'Stellar Dynamics', manager: 'Sarah Chen', tl: 'Cody Lane', agent: 'Priya Sharma', stage: 'rejected', progress: 100, lastActive: '2d ago',
-        leadDetails: { 
-            phone: '+1 (555) 222-0000', email: 'contact@stellar.space', source: 'Event Networking', 
-            amount: '$2M', purpose: 'Major Acquisition', nic: '221039485-CA',
-            residentialAddress: '99 Orbital Way, Los Angeles, CA 90001',
-            notes: 'Client failed to provide verified business tax returns for the last 3 years.'
-        },
-        lenderDetails: { partner: 'Citi Bank', rate: 'N/A', status: 'Incomplete Docs', terms: 'N/A' }
-    },
-];
 
 /* ─── COMPONENTS ──────────────────────────────── */
 
@@ -225,7 +146,7 @@ const ClientDetailModal = ({ client, onClose, isDark }) => {
                         <h2 style={{ fontSize: '26px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', margin: 0 }}>{client.name}</h2>
                         <StageBadge stageId={client.stage} isDark={isDark} />
                     </div>
-                    <span style={{ fontSize: '14px', color: '#94a3b8', fontWeight: 600 }}>ID: #WC-{client.id}092 • {client.lastActive}</span>
+                    <span style={{ fontSize: '14px', color: '#94a3b8', fontWeight: 600 }}>ID: {client.id} • {client.lastActive}</span>
 
                     {/* Tab Navigation */}
                     <div style={{ display: 'flex', gap: '24px', marginTop: '32px', borderBottom: `1px solid ${isDark ? '#2c3568' : '#f1f5f9'}` }}>
@@ -490,7 +411,7 @@ const OperationalFlow = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
-    const filteredClients = MOCK_CLIENTS.filter(c => {
+    const filteredClients = OPERATIONAL_FLOW_LEADS.filter(c => {
         const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || 
                              c.agent.toLowerCase().includes(search.toLowerCase()) ||
                              c.tl.toLowerCase().includes(search.toLowerCase());
@@ -773,7 +694,7 @@ const OperationalFlow = () => {
                                     <td>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                             <span style={{ fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', fontSize: '14px' }}>{client.name}</span>
-                                            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>ID: #WC-{client.id}092</span>
+                                            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>ID: {client.id}</span>
                                         </div>
                                     </td>
                                     <td>

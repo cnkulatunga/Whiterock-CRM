@@ -90,44 +90,16 @@ const AnimatedNumber = ({ value }) => {
     return <>{display}</>;
 };
 import { useUsers } from '../../../context/UsersContext';
-
-/* ─── INITIAL TEAM MEMBERSHIPS ────────────────── */
-const INITIAL_MEMBERSHIPS = {
-    2: [
-        { id: 3,  name: 'Cody Lane',     email: 'cody.l@whiterock.crm',      phone: '', status: 'Active' },
-        { id: 11, name: 'Priya Sharma',  email: 'p.sharma@whiterock.crm',    phone: '', status: 'Active' },
-    ],
-    5: [
-        { id: 6,  name: 'Leo Kumar',     email: 'leo.k@whiterock.crm',       phone: '', status: 'Active' },
-        { id: 7,  name: 'Nina Hassan',   email: 'nina.h@whiterock.crm',      phone: '', status: 'Inactive' },
-        { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@whiterock.crm',   phone: '', status: 'Active' },
-    ],
-    8: [
-        { id: 12, name: 'Jake Morrison', email: 'j.morrison@whiterock.crm',  phone: '', status: 'Active' },
-        { id: 15, name: 'Sophie Tan',    email: 's.tan@whiterock.crm',       phone: '', status: 'Active' },
-    ],
-    9: [
-        { id: 14, name: 'Omar Khalil',   email: 'o.khalil@whiterock.crm',    phone: '', status: 'Inactive' },
-    ],
-    10: [],
-};
-
-/* ─── AVATAR COLORS ───────────────────────────── */
-const AVATAR_COLORS = [
-    { bg: 'linear-gradient(135deg,#6366f1,#4f46e5)', text: '#fff' },
-    { bg: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', text: '#fff' },
-    { bg: 'linear-gradient(135deg,#10b981,#059669)', text: '#fff' },
-    { bg: 'linear-gradient(135deg,#f59e0b,#d97706)', text: '#fff' },
-    { bg: 'linear-gradient(135deg,#ef4444,#dc2626)', text: '#fff' },
-    { bg: 'linear-gradient(135deg,#0ea5e9,#0284c7)', text: '#fff' },
-    { bg: 'linear-gradient(135deg,#ec4899,#db2777)', text: '#fff' },
-    { bg: 'linear-gradient(135deg,#14b8a6,#0d9488)', text: '#fff' },
-];
+import { INITIAL_MEMBERSHIPS, ALL_STATUSES as TABS, AVATAR_COLORS } from '../../../data/dummyData';
 
 const getInitials = (name) =>
     name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
-const getAvatarColor = (id) => AVATAR_COLORS[id % AVATAR_COLORS.length];
+
+const getAvatarColor = (id) => {
+    const color = AVATAR_COLORS[id % AVATAR_COLORS.length];
+    return { bg: color.grad, text: color.text };
+};
 
 /* ─── ICONS ───────────────────────────────────── */
 const IconSearch = () => (
@@ -691,7 +663,7 @@ const TeamLeaders = ({ onNavigate }) => {
         }));
     };
 
-    const TABS = ['All', 'Active', 'Inactive'];
+    // TABS imported from dummyData
     const tabCounts = {
         All: leaders.length,
         Active: leaders.filter(l => l.status === 'Active').length,

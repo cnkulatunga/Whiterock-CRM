@@ -12,6 +12,7 @@ import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
+import { UsersProvider } from '../context/UsersContext';
 
 const TeleAgentLayout = ({ onLogout }) => {
     const location = useLocation();
@@ -208,4 +209,10 @@ const TeleAgentLayout = ({ onLogout }) => {
     );
 };
 
-export default TeleAgentLayout;
+const TeleAgentLayoutWithProviders = (props) => (
+    <UsersProvider>
+        <TeleAgentLayout {...props} />
+    </UsersProvider>
+);
+
+export default TeleAgentLayoutWithProviders;

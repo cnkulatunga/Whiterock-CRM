@@ -1,28 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 
-const TRANSACTIONS = [
-    { id: '#TRX-82910', lead: 'LD-4421', name: 'Alice Simpson',   initials: 'AS', bg: '#ebf0ff', tc: '#2447d7', amount: '$4,250.00',  date: 'Oct 24, 2023', status: 'Approved', manager: 'Alex Thompson' },
-    { id: '#TRX-82911', lead: 'LD-4422', name: 'Brian Miller',    initials: 'BM', bg: '#ecfdf5', tc: '#059669', amount: '$1,800.00',  date: 'Oct 24, 2023', status: 'Pending', manager: 'Sarah Miller' },
-    { id: '#TRX-82912', lead: 'LD-4423', name: 'Catherine West',  initials: 'CW', bg: '#fff7ed', tc: '#ea580c', amount: '$12,400.00', date: 'Oct 23, 2023', status: 'Approved', manager: 'Alex Thompson' },
-    { id: '#TRX-82913', lead: 'LD-4424', name: 'David King',      initials: 'DK', bg: '#f3e8ff', tc: '#7c3aed', amount: '$750.00',    date: 'Oct 23, 2023', status: 'Rejected', manager: 'James Chen' },
-    { id: '#TRX-82914', lead: 'LD-4425', name: 'Emma Lee',        initials: 'EL', bg: '#e0f2fe', tc: '#0ea5e9', amount: '$3,120.00',  date: 'Oct 22, 2023', status: 'Approved', manager: 'Alex Thompson' },
-];
+import { FINANCE_TRANSACTIONS as TRANSACTIONS, REVENUE_BAR_DATA as BAR_DATA, PAYMENT_STATUS_DONUT as DONUT_SEGMENTS, FINANCE_STATS, DATE_RANGE_OPTIONS, ALL_STATUSES, SHARED_INITIAL_USERS } from '../../../data/dummyData';
 
-const BAR_DATA = [
-    { label: 'Jan', revenue: 120, target: 100 },
-    { label: 'Feb', revenue: 148, target: 130 },
-    { label: 'Mar', revenue: 162, target: 150 },
-    { label: 'Apr', revenue: 195, target: 175 },
-    { label: 'May', revenue: 228, target: 200 },
-    { label: 'Jun', revenue: 256, target: 240 },
-];
+const FINANCE_MANAGERS = ['All Managers', ...SHARED_INITIAL_USERS.filter(u => ['Accounts Manager', 'Super Admin'].includes(u.role)).map(u => u.name)];
 
-const DONUT_SEGMENTS = [
-    { label: 'Approved', pct: 75, color: '#22c55e' },
-    { label: 'Pending',  pct: 10, color: '#f59e0b' },
-    { label: 'Rejected', pct: 15, color: '#ef4444' },
-];
 
 const IcoChevron = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12">
@@ -255,10 +237,10 @@ const FinanceReport = () => {
             {/* ── KPI CARDS ── */}
             <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 sm:grid-cols-1">
                 {[
-                    { iconBg: '#dcfce7', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>, label: 'Total Loans', value: '$428,540.00', trend: 'up', trendLabel: '+12%' },
-                    { iconBg: '#fef3c7', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: 'Pending Loans', value: '$42,180.50', trend: 'flat', trendLabel: '-0%' },
-                    { iconBg: '#fef2f2', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, label: 'Rejected Loans', value: '$8,240.00', trend: 'down', trendLabel: '-4%' },
-                    { iconBg: '#eef2ff', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, label: 'Monthly Revenue', value: '$156,200.00', trend: 'up', trendLabel: '+8%' },
+                    { iconBg: '#dcfce7', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>, label: 'Total Loans', value: FINANCE_STATS.totalLoans, trend: 'up', trendLabel: '+12%' },
+                    { iconBg: '#fef3c7', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: 'Pending Loans', value: FINANCE_STATS.pendingLoans, trend: 'flat', trendLabel: '-0%' },
+                    { iconBg: '#fef2f2', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, label: 'Rejected Loans', value: FINANCE_STATS.rejectedLoans, trend: 'down', trendLabel: '-4%' },
+                    { iconBg: '#eef2ff', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, label: 'Monthly Revenue', value: FINANCE_STATS.monthlyRevenue, trend: 'up', trendLabel: '+8%' },
                 ].map((kpi, i) => (
                     <div key={i} className="animate-kpiPop" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
                         <KpiCard {...kpi} />
@@ -290,7 +272,7 @@ const FinanceReport = () => {
                     {/* X-axis total */}
                     <div className="mt-6 pt-4 border-t border-[#f1f5f9] flex items-center justify-between">
                         <span className="text-[11px] font-semibold text-[#94a3b8] uppercase tracking-wider">6-Month Total</span>
-                        <span className="text-[15px] font-bold text-[#1a202c]">$1,109k <span className="text-[11px] font-semibold text-[#059669] bg-[#ecfdf5] px-2 py-0.5 rounded-full ml-1">↑ 18.2%</span></span>
+                        <span className="text-[15px] font-bold text-[#1a202c]">{FINANCE_STATS.sixMonthTotal} <span className="text-[11px] font-semibold text-[#059669] bg-[#ecfdf5] px-2 py-0.5 rounded-full ml-1">↑ {FINANCE_STATS.sixMonthTrend}</span></span>
                     </div>
                 </section>
 
@@ -338,7 +320,7 @@ const FinanceReport = () => {
                 <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568] cursor-pointer hover:border-[#2447d7]/20 transition-colors">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={dateRange} onChange={e => setDateRange(e.target.value)}>
-                        <option>Last 30 Days</option><option>Last 90 Days</option><option>This Year</option>
+                        {DATE_RANGE_OPTIONS.slice(2).map(o => <option key={o}>{o}</option>)}
                     </select>
                     <IcoChevron />
                 </div>
@@ -346,7 +328,7 @@ const FinanceReport = () => {
                 <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
                     <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">STATUS:</span>
                     <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={status} onChange={e => setStatus(e.target.value)}>
-                        <option>All</option><option>Approved</option><option>Pending</option><option>Rejected</option>
+                        {['All', 'Approved', 'Pending', 'Rejected'].map(o => <option key={o}>{o}</option>)}
                     </select>
                     <IcoChevron />
                 </div>
@@ -355,10 +337,7 @@ const FinanceReport = () => {
                     <div className="relative flex items-center gap-2 bg-white border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] text-[#4a5568]">
                         <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-wider">MANAGER:</span>
                         <select className="bg-transparent text-[13px] font-medium outline-none cursor-pointer appearance-none pr-4" value={manager} onChange={e => setManager(e.target.value)}>
-                            <option>All Managers</option>
-                            <option>Sarah Miller</option>
-                            <option>James Chen</option>
-                            <option>Alex Thompson</option>
+                            {FINANCE_MANAGERS.map(o => <option key={o}>{o}</option>)}
                         </select>
                         <IcoChevron />
                     </div>
@@ -412,7 +391,7 @@ const FinanceReport = () => {
                     </table>
                 </div>
                 <div className="px-6 py-4 border-t border-[#f7fafc] flex justify-between items-center bg-[#fcfdff]">
-                    <span className="text-[12px] text-[#a0aec0]">Showing <span className="text-[#2447d7] font-medium">1 to 5</span> of <span className="text-[#1a202c] font-medium">128 transactions</span></span>
+                    <span className="text-[12px] text-[#a0aec0]">Showing <span className="text-[#2447d7] font-medium">1 to 5</span> of <span className="text-[#1a202c] font-medium">{FINANCE_STATS.totalTransactions} transactions</span></span>
                     <div className="flex items-center gap-1.5">
                         <button className="w-8 h-8 bg-white border border-[#edf2f7] rounded-lg flex items-center justify-center text-[#a0aec0] hover:text-[#2447d7] hover:border-[#2447d7] disabled:opacity-30 transition-all" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>

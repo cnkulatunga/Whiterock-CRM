@@ -1,21 +1,6 @@
 import React, { useState } from 'react';
 
-const APPROVED = [
-    { id: '#LD-98912', client: 'TechStream Solutions', business: 'TechStream Solutions',  amount: '$1,200,000.00', lender: 'Bank of Whiterock',  interestRate: '3.8%', tenure: '30 Years', approvedDate: 'Oct 23, 2023' },
-    { id: '#LD-98845', client: 'Marcus Aurelius',       business: 'Aurelius Consulting', amount: '$75,000.00',    lender: 'Global Finance',     interestRate: '4.2%', tenure: '15 Years', approvedDate: 'Oct 22, 2023' },
-    { id: '#LD-98721', client: 'Quantum Capital Fund',  business: 'Quantum Capital Fund', amount: '$4,500,000.00', lender: 'Apex Capital Group', interestRate: '3.5%', tenure: '20 Years', approvedDate: 'Oct 20, 2023' },
-    { id: '#LD-98614', client: 'Prime Wealth Trust',    business: 'Prime Wealth Trust',   amount: '$980,000.00',   lender: 'Secure Lenders',     interestRate: '4.9%', tenure: '25 Years', approvedDate: 'Oct 18, 2023' },
-    { id: '#LD-98502', client: 'Global Trade Bank',     business: 'Global Trade Bank',    amount: '$2,200,000.00', lender: 'Bank of Whiterock',  interestRate: '3.6%', tenure: '30 Years', approvedDate: 'Oct 15, 2023' },
-];
-
-const LENDERS = [
-    'Bank of Whiterock',
-    'Global Finance',
-    'Apex Capital Group',
-    'Secure Lenders',
-    'Northline Credit',
-    'PrimeLend Partners',
-];
+import { AM_APPROVED_LOANS as APPROVED, AM_LENDER_OPTIONS as LENDERS, AM_APPROVED_STATS } from '../../../data/dummyData';
 
 const LenderSelectionApproved = () => {
     const [search, setSearch] = useState('');
@@ -27,7 +12,7 @@ const LenderSelectionApproved = () => {
     const setDecision = (id, decision) => setRows(prev => prev.map(r => r.id === id ? { ...r, decision }                  : r));
 
     const filtered       = rows.filter(a =>
-        a.client.toLowerCase().includes(search.toLowerCase()) ||
+        a.name.toLowerCase().includes(search.toLowerCase()) ||
         a.id.toLowerCase().includes(search.toLowerCase()) ||
         a.selectedLender.toLowerCase().includes(search.toLowerCase())
     );
@@ -40,7 +25,7 @@ const LenderSelectionApproved = () => {
         { label: 'Approved',     value: totalApproved,   bg: '#ecfdf5', color: '#16a34a', icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></> },
         { label: 'Rejected',     value: totalRejected,   bg: '#fff1f2', color: '#e11d48', icon: <><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></> },
         { label: 'Pending',      value: totalPending,    bg: '#fff7ed', color: '#f97316', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
-        { label: 'Total Value',  value: '$8,955,000.00', bg: '#f5f3ff', color: '#7c3aed', icon: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></> },
+        { label: 'Total Value',  value: AM_APPROVED_STATS.totalValue, bg: '#f5f3ff', color: '#7c3aed', icon: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></> },
     ];
 
     return (
@@ -109,10 +94,10 @@ const LenderSelectionApproved = () => {
                                     <td className="px-6 py-4">
                                         <div className="flex flex-col">
                                             <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{row.id}</span>
-                                            <span className="text-[12px] font-medium text-[#1a202c]">{row.client}</span>
+                                            <span className="text-[12px] font-medium text-[#1a202c]">{row.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{row.business}</span></td>
+                                    <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{row.businessName}</span></td>
                                     <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{row.amount}</span></td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-2 min-w-[190px]">

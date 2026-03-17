@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LEADS_BY_STAGE, MOCK_LEAD_COUNTS } from '../../../data/dummyData';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 
 /* ─── SVG ICONS ─── */
@@ -27,13 +28,6 @@ const IconFolder = () => (
 /* ─── DATA MOCK ─── */
 // Removed FOLLOW_UPS mock data, using prop instead.
 
-const LEADS_BY_STAGE = [
-    { stage: 'DOCUMENT COLLECTED', count: 42, percentage: 85 },
-    { stage: 'DOCUMENT VERIFICATIONS', count: 28, percentage: 60 },
-    { stage: 'LENDER SELECTION', count: 34, percentage: 75 },
-    { stage: 'LOAN CONFIRMED', count: 12, percentage: 30 },
-    { stage: 'LOAN REJECTED', count: 3, percentage: 10 },
-];
 
 /* ─── MAIN COMPONENT ─── */
 const TeleDashboard = ({ onNavigate, tasks }) => {
@@ -120,7 +114,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                     </div>
                     <div>
                         <span className="text-sm text-[#718096] font-medium">My Active Leads</span>
-                        <h2 className="text-[2rem] font-bold text-[#1a202c] mt-1">1,284</h2>
+                        <h2 className="text-[2rem] font-bold text-[#1a202c] mt-1">{MOCK_LEAD_COUNTS.total.toLocaleString()}</h2>
                     </div>
                 </div>
                 <div className="flex-1 bg-white rounded-2xl border border-[#edf2f7] p-6 sm:p-4 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02),0_2px_4px_-1px_rgba(0,0,0,0.01)] flex flex-col gap-5 sm:gap-3 min-w-0 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:280ms] [animation-fill-mode:both]">
@@ -131,7 +125,7 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                     </div>
                     <div>
                         <span className="text-sm text-[#718096] font-medium">Pending Documents</span>
-                        <h2 className="text-[2rem] font-bold text-[#1a202c] mt-1">28</h2>
+                        <h2 className="text-[2rem] font-bold text-[#1a202c] mt-1">{MOCK_LEAD_COUNTS.pending}</h2>
                     </div>
                 </div>
             </section>

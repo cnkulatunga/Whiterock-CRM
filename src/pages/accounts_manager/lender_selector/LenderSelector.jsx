@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
 
-const LEADS = [
-    { id: '#LD-10021', name: 'Jonathan Doe',    business: 'Doe Enterprises',    email: 'jonathan.doe@email.com', phone: '+1 (555) 201-4432', source: 'Referral',  status: 'New',       lastContact: 'Oct 24, 2023', loanAmount: '$500,000.00' },
-    { id: '#LD-10018', name: 'Priya Nair',      business: 'Nair Solutions',     email: 'priya.nair@email.com',   phone: '+1 (555) 318-9901', source: 'Website',   status: 'Contacted', lastContact: 'Oct 23, 2023', loanAmount: '$875,000.00' },
-    { id: '#LD-10015', name: 'Marcus Reed',     business: 'Reed Consulting',    email: 'marcus.reed@email.com',  phone: '+1 (555) 442-7712', source: 'Cold Call', status: 'Qualified', lastContact: 'Oct 22, 2023', loanAmount: '$320,000.00' },
-    { id: '#LD-10009', name: 'TechBridge Corp', business: 'TechBridge Corp',   email: 'contact@techbridge.com', phone: '+1 (555) 670-3348', source: 'Partner',   status: 'Qualified', lastContact: 'Oct 21, 2023', loanAmount: '$2,400,000.00' },
-    { id: '#LD-10003', name: 'Sandra Okonkwo',  business: 'Okonkwo Logistics',  email: 'sandra.o@email.com',     phone: '+1 (555) 899-1120', source: 'Referral',  status: 'New',       lastContact: 'Oct 20, 2023', loanAmount: '$430,000.00' },
-    { id: '#LD-09998', name: 'James Whitfield', business: 'Whitfield & Co',     email: 'j.whitfield@email.com',  phone: '+1 (555) 504-2291', source: 'Website',   status: 'Contacted', lastContact: 'Oct 19, 2023', loanAmount: '$150,000.00' },
-];
+import { AM_LOAN_PIPELINE_LEADS as LEADS } from '../../../data/dummyData';
+
 
 const LenderSelector = ({ onNavigate }) => {
     const [search, setSearch] = useState('');
@@ -89,7 +83,7 @@ const LenderSelector = ({ onNavigate }) => {
                                                 <span className="text-[12px] font-medium text-[#1a202c]">{lead.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{lead.business}</span></td>
+                                        <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{lead.businessName}</span></td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-0.5">
                                                 <span className="text-[12px] text-[#4a5568]">{lead.email}</span>

@@ -36,14 +36,7 @@ const KpiCard = ({ icon, iconBg, label, value, trend, trendLabel }) => (
 );
 
 /* ─── RECENT ACTIVITY ─────────────────────── */
-const ACTIVITIES = [
-    { color: '#16a34a', label: 'Loan Approved',       detail: 'Ref #4821 — $42,000',           time: '2m ago' },
-    { color: '#2447d7', label: 'New Lead Submitted',  detail: 'by Agent Sarah Miller',          time: '8m ago' },
-    { color: '#0ea5e9', label: 'Document Uploaded',   detail: 'KYC — John M.',                  time: '15m ago' },
-    { color: '#dc2626', label: 'Loan Rejected',       detail: 'Ref #4819 — insufficient docs',  time: '34m ago' },
-    { color: '#7c3aed', label: 'New User Registered', detail: 'Agent — Emily Tan',              time: '1h ago' },
-    { color: '#16a34a', label: 'Deal Closed',         detail: '$28,500 — Priya Nair',           time: '2h ago' },
-];
+import { SA_ACTIVITIES as ACTIVITIES, SA_DONUT_DATA as DONUT_DATA, SA_STATS } from '../../../data/dummyData';
 
 const RecentActivity = () => (
     <div className="flex flex-col divide-y divide-[#f7fafc]">
@@ -64,12 +57,7 @@ const RecentActivity = () => (
 );
 
 /* ─── DONUT CHART ─────────────────────────── */
-const DONUT_DATA = [
-    { label: 'Active Deals',  pct: 46, color: '#2447d7' },
-    { label: 'Approved',      pct: 33, color: '#16a34a' },
-    { label: 'Pending Loans', pct: 13, color: '#f59e0b' },
-    { label: 'Rejected',      pct: 8,  color: '#dc2626' },
-];
+
 
 const DonutChart = () => {
     const [hovered, setHovered] = useState(null);
@@ -204,7 +192,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                     <KpiCard
                         iconBg="#eef2ff"
                         icon={<svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>}
-                        label="Total Leads" value="12,840" trend="up" trendLabel="+12%"
+                        label="Total Leads" value={SA_STATS.totalLeads} trend="up" trendLabel="+12%"
                     />
                 </div>
 
@@ -217,10 +205,10 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                     </div>
                     <div className="relative z-10">
                         <div className="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2">Monthly Revenue</div>
-                        <div className="text-3xl font-bold text-white mb-4">$2.4M</div>
+                        <div className="text-3xl font-bold text-white mb-4">{SA_STATS.monthlyRevenue}</div>
                         <div className="flex items-center gap-1.5 bg-[#10b981]/20 text-[#6ee7b7] px-2.5 py-1 rounded-lg w-fit">
                             <IcoTrendUp />
-                            <span className="text-[11px] font-medium">18% Increase vs. Last Month</span>
+                            <span className="text-[11px] font-medium">{SA_STATS.revenueIncrease} Increase vs. Last Month</span>
                         </div>
                     </div>
                 </div>
@@ -235,7 +223,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                         </div>
                         <div>
                             <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Document Pending Verification</div>
-                            <div className="text-2xl font-bold text-[#1a202c]">45</div>
+                            <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.pendingDocs}</div>
                         </div>
                     </div>
                     <div className="h-1.5 bg-[#f1f5f9] rounded-full mb-3 overflow-hidden">
