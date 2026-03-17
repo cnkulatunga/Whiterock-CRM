@@ -50,16 +50,23 @@ const ThemeToggle = ({ compact = false }) => {
                 onMouseLeave={() => setHovered(false)}
                 title={`Theme: ${mode} — click to cycle`}
                 style={{
-                    width: '32px', height: '32px', borderRadius: '8px', border: 'none',
-                    background: hovered
-                        ? isDark ? 'rgba(96,128,248,0.2)' : 'rgba(40,85,232,0.08)'
-                        : 'transparent',
-                    color: isDark ? '#7a96fa' : '#8b97ba',
+                    width: '40px', height: '40px', borderRadius: '12px', 
+                    border: `1.5px solid ${isDark ? '#2c3568' : '#edf2f7'}`,
+                    background: isDark ? '#1e2347' : '#ffffff',
+                    color: isDark ? '#8ea0d4' : '#718096',
                     cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'all 0.2s ease', flexShrink: 0,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+                    ...(hovered && {
+                        background: isDark ? '#242b58' : '#f7fafc',
+                        color: isDark ? '#e4ecff' : '#2447d7',
+                        borderColor: isDark ? '#36407a' : '#e2e8f0',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                    })
                 }}
             >
-                <CurrentIcon size={15} />
+                <CurrentIcon size={18} />
             </button>
         );
     }

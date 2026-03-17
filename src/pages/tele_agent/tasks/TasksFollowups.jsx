@@ -11,7 +11,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
 
     const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState('list'); // 'list' or 'calendar'
+    const [viewMode, setViewMode] = useState('calendar'); // Default to calendar
     const [isAddingTask, setIsAddingTask] = useState(false);
     
     const [newTask, setNewTask] = useState({
@@ -293,31 +293,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                     <p className="text-[0.95rem] text-[#718096]">Schedule calls, site visits and manage your daily pipeline.</p>
                 </div>
                 <div className="flex items-center gap-4 sm:w-full sm:flex-wrap">
-                    <div className="relative">
-                        <button className={`w-11 h-11 bg-white border border-[#edf2f7] rounded-xl text-[#718096] flex items-center justify-center hover:bg-[#f7fafc] hover:text-[#2447d7] transition-all duration-200 relative ${tasks.some(t => t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
-                            <IconBell />
-                        </button>
-                        {showNotifications && (
-                            <div className="absolute top-14 right-0 w-[300px] bg-white rounded-2xl shadow-xl border border-[#edf2f7] z-[100] overflow-hidden animate-fadeIn">
-                                <div className="p-4 bg-[#f8fafc] border-b border-[#edf2f7] text-sm font-bold text-[#1a202c]">Reminders & Alerts</div>
-                                <div className="max-height-[300px] overflow-y-auto">
-                                    {tasks.filter(t => t.reminder !== 'none' && t.status !== 'Completed').length > 0 ? (
-                                        tasks.filter(t => t.reminder !== 'none' && t.status !== 'Completed').map(t => (
-                                            <div key={t.id} className="p-3 px-4 flex items-center gap-3 border-b border-[#f7fafc] hover:bg-[#f8fafc] transition-colors">
-                                                <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0"><IconAlarm /></div>
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="text-[13px] font-bold text-[#2d3748] leading-tight">Upcoming: {t.title}</span>
-                                                    <span className="text-[11px] text-[#a0aec0] font-medium">{t.date} at {t.time}</span>
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="p-6 text-center text-[#a0aec0] text-[13px] italic">No active reminders</div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+
                     <div className="flex bg-[#edf2f7] p-1 rounded-xl">
                         <button className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-bold transition-all duration-200 ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><IconList size={14} /> List</button>
                         <button className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-bold transition-all duration-200 ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><IconCalendar size={14} /> Calendar</button>

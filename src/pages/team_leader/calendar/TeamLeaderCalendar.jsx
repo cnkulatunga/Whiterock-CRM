@@ -16,10 +16,8 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
     const [addToOutlook, setAddToOutlook] = useState(false);
     const [isSyncingOutlook, setIsSyncingOutlook] = useState(false);
     const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);
-    const [outlookAccount, setOutlookAccount] = useState(null);
     const [outlookEvents, setOutlookEvents] = useState([]);
     const [loadingEvents, setLoadingEvents] = useState(false);
-    const [showNotifications, setShowNotifications] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
     const [isEditingTask, setIsEditingTask] = useState(false);
 
@@ -310,42 +308,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                     <p className="text-[0.95rem] text-[#718096] font-medium">Manage your tasks, follow-ups, and assign work to your team members.</p>
                 </div>
                 <div className="flex items-center gap-4 sm:flex-wrap">
-                    <div className="relative">
-                        <button className={`w-11 h-11 bg-white border border-[#edf2f7] rounded-xl text-[#718096] flex items-center justify-center hover:bg-[#f7fafc] hover:text-[#2447d7] transition-all duration-200 relative ${tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed') ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:border-white after:rounded-full' : ''}`} onClick={() => setShowNotifications(!showNotifications)}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                            </svg>
-                        </button>
-                        {showNotifications && (
-                            <div className="absolute top-14 right-0 w-[300px] bg-white rounded-2xl shadow-xl border border-[#edf2f7] z-[100] overflow-hidden animate-fadeIn">
-                                <div className="p-4 bg-[#f8fafc] border-b border-[#edf2f7] text-sm font-bold text-[#1a202c]">Reminders & Alerts</div>
-                                <div className="max-h-[300px] overflow-y-auto">
-                                    {tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').length > 0 ? (
-                                        tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').map(t => (
-                                            <div key={t.id} className="p-3 px-4 flex items-center gap-3 border-b border-[#f7fafc] hover:bg-[#f8fafc] transition-colors">
-                                                <div className="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-                                                        <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3L2 6" /><path d="M22 6l-3-3" /><path d="M6.38 18.7l-.44 1.1a1 1 0 0 1-1.32.5l-2.2-.9a1 1 0 0 1-.5-1.32l.44-1.1" /><path d="M17.62 18.7l.44 1.1a1 1 0 0 1 1.32.5l2.2-.9a1 1 0 0 1 .5-1.32l-.44-1.1" />
-                                                    </svg>
-                                                </div>
-                                                <div className="flex flex-col gap-0.5">
-                                                    <span className="text-[13px] font-bold text-[#2d3748] leading-tight flex items-center gap-1.5">{t.title} {t.assignedTo === 'Self' ? <span className="bg-[#f8fafc] text-[#a0aec0] text-[9px] px-1 rounded uppercase tracking-wider border border-[#edf2f7]">Self</span> : ''}</span>
-                                                    <span className="text-[11px] text-[#a0aec0] font-medium">{t.date} at {t.time}</span>
-                                                    {t.assignedTo !== 'Self' && (
-                                                        <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: '#f0f4ff', color: '#2447d7' }}>
-                                                            Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="p-6 text-center text-[#a0aec0] text-[13px] italic">No active reminders</div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+
                     <div className="flex p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0]">
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><div className="flex items-center gap-2"><IconList size={14} /> List</div></button>
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><div className="flex items-center gap-2"><IconCalendar size={14} /> Calendar</div></button>
