@@ -1,10 +1,27 @@
 import React, { useState, useRef } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
+import { useUsers } from '../../../context/UsersContext';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconUpload, IconAlert, IconCheck, IconDocs } from '../../../components/DocumentManagement/Icons';
 
+const INITIAL_MEMBERSHIPS = {
+    2: [ // Marcus Smith
+        { id: 3, name: 'Cody Lane', role: 'Tele Agent', initials: 'CL', color: '#f1f5f9', status: 'Active' },
+        { id: 11, name: 'Priya Sharma', role: 'Tele Agent', initials: 'PS', color: '#f0fdf4', status: 'Active' },
+    ],
+    5: [ // Diana Fernandez
+        { id: 6, name: 'Leo Kumar', role: 'Tele Agent', initials: 'LK', color: '#e0f2fe', status: 'Active' },
+        { id: 13, name: 'Elena Vasquez', role: 'Tele Agent', initials: 'EV', color: '#fff1f2', status: 'Active' },
+        { id: 15, name: 'Sophie Tan', role: 'Tele Agent', initials: 'ST', color: '#f5f3ff', status: 'Active' },
+    ],
+    8: [ // Ryan Patel
+        { id: 12, name: 'Jake Morrison', role: 'Tele Agent', initials: 'JM', color: '#f0f9ff', status: 'Active' },
+        { id: 7, name: 'Nina Hassan', role: 'Tele Agent', initials: 'NH', color: '#fce7f3', status: 'Inactive' },
+    ]
+};
+
 const MOCK_LEADS = [
-    { id: 1, name: 'Robert Miller', businessName: 'Miller Logistics Co.', email: 'robert@example.com', phone: '+1 234-567-890', source: 'Website Form', status: 'Document Collected', lastContact: '2 hours ago', stage: 'Initial', 
+    { id: 1, name: 'Robert Miller', businessName: 'Miller Logistics Co.', email: 'robert@example.com', phone: '+1 234-567-890', source: 'Website Form', status: 'Document Collected', lastContact: '2 hours ago', stage: 'Initial', assignedStaffId: 3,
         notes: 'Customer is looking for a home loan for a primary residence. Preferred contact time is evening after 6 PM.',
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Verified by SG', date: '2024-03-15' },
@@ -12,21 +29,21 @@ const MOCK_LEADS = [
             { id: 3, type: 'ID Document', status: 'Pending', note: '', date: '2024-03-16' }
         ] 
     },
-    { id: 2, name: 'Alice Huang', businessName: 'Huang Tech Solutions', email: 'alice.h@gmail.com', phone: '+1 987-654-321', source: 'Referral', status: 'Document Verifications', lastContact: 'Today, 10:30 AM', stage: 'In Progress',
+    { id: 2, name: 'Alice Huang', businessName: 'Huang Tech Solutions', email: 'alice.h@gmail.com', phone: '+1 987-654-321', source: 'Referral', status: 'Document Verifications', lastContact: 'Today, 10:30 AM', stage: 'In Progress', assignedStaffId: 6,
         notes: 'Interested in business expansion loan. Needs quick turnaround as they have a pending property purchase.',
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Period missing', date: '2024-03-14' },
             { id: 2, type: 'Payslip', status: 'Missing', note: '', date: '' }
         ]
     },
-    { id: 3, name: 'David Rivera', businessName: 'Rivera Designs', email: 'd.rivera@outlook.com', phone: '+1 456-123-789', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'In Progress', documents: [] },
-    { id: 4, name: 'Sarah Connor', businessName: 'Connor Security Group', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Loan Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost', 
+    { id: 3, name: 'David Rivera', businessName: 'Rivera Designs', email: 'd.rivera@outlook.com', phone: '+1 456-123-789', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'In Progress', assignedStaffId: 11, documents: [] },
+    { id: 4, name: 'Sarah Connor', businessName: 'Connor Security Group', email: 'sconnor@tech.co', phone: '+1 555-010-999', source: 'Direct Call', status: 'Loan Rejected', lastContact: 'Mar 04, 2024', stage: 'Lost', assignedStaffId: 2,
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Unclear scan', date: '2024-03-01' },
             { id: 2, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-01' }
         ] 
     },
-    { id: 5, name: 'Michael Chen', businessName: 'Chen Finance Hub', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Loan Confirmed', lastContact: '3 days ago', stage: 'Closed', 
+    { id: 5, name: 'Michael Chen', businessName: 'Chen Finance Hub', email: 'm.chen@sales.com', phone: '+1 888-222-333', source: 'Facebook Ads', status: 'Loan Confirmed', lastContact: '3 days ago', stage: 'Closed', assignedStaffId: 12,
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Final review OK', date: '2024-03-10' },
             { id: 2, type: 'Payslip', status: 'Approved', note: 'Verified', date: '2024-03-10' },
@@ -34,7 +51,7 @@ const MOCK_LEADS = [
             { id: 4, type: 'Loan Agreement', status: 'Approved', note: 'Signed', date: '2024-03-12' }
         ] 
     },
-    { id: 6, name: 'Emma Watson', businessName: 'Watson Creative Agency', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress', 
+    { id: 6, name: 'Emma Watson', businessName: 'Watson Creative Agency', email: 'emma@watson.inc', phone: '+1 777-555-444', source: 'Webinar', status: 'Document Verifications', lastContact: 'Feb 28, 2024', stage: 'In Progress', assignedStaffId: 5,
         documents: [
             { id: 1, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-15' }
         ] 
@@ -43,15 +60,18 @@ const MOCK_LEADS = [
 
 const ITEMS_PER_PAGE = 5;
 
-const ManageLeads = ({ onViewDetails }) => {
+const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const { users } = useUsers();
     const fileInputRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [leads, setLeads] = useState(MOCK_LEADS);
     const [selectedLead, setSelectedLead] = useState(null);
     const [showModal, setShowModal] = useState(false);
+    const [showReassignModal, setShowReassignModal] = useState(false);
+    const [leadToReassign, setLeadToReassign] = useState(null);
     const [uploadContext, setUploadContext] = useState(null);
     const [uploadingDocs, setUploadingDocs] = useState({});
 
@@ -129,6 +149,12 @@ const ManageLeads = ({ onViewDetails }) => {
         setSelectedLead(prev => prev && prev.id === leadId ? { ...prev, documents: prev.documents.filter(d => d.id !== docId) } : prev);
     };
 
+    const handleReassign = (leadId, newStaffId) => {
+        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assignedStaffId: parseInt(newStaffId) } : l));
+        setShowReassignModal(false);
+        setLeadToReassign(null);
+    };
+
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>
             <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept=".pdf,.jpg,.png,.doc,.docx" />
@@ -179,6 +205,7 @@ const ManageLeads = ({ onViewDetails }) => {
                             <tr className="bg-[#fbfeff]">
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">Client / Business</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:hidden">EMAIL / PHONE</th>
+                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">ASSIGNED TO</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">STATUS</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">ACTION</th>
                             </tr>
@@ -201,6 +228,25 @@ const ManageLeads = ({ onViewDetails }) => {
                                         <div className="flex flex-col">
                                             <span className="text-sm font-medium text-[#1a202c]">{lead.email}</span>
                                             <span className="text-xs text-[#a0aec0]">{lead.phone}</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
+                                        <div className="flex items-center gap-2">
+                                            {(() => {
+                                                const staff = users?.find(u => u.id === lead.assignedStaffId);
+                                                if (!staff) return <span className="text-[11px] text-[#a0aec0] italic">Unassigned</span>;
+                                                return (
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm" style={{ backgroundColor: staff.textColor || '#2447d7' }}>
+                                                            {staff.initials}
+                                                        </div>
+                                                        <div className="flex flex-col min-w-0">
+                                                            <span className="text-[12px] font-bold text-[#1a202c] truncate">{staff.name}</span>
+                                                            <span className="text-[9px] font-medium text-[#718096] uppercase tracking-wider">{staff.role}</span>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })()}
                                         </div>
                                     </td>
                                     <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
@@ -276,6 +322,17 @@ const ManageLeads = ({ onViewDetails }) => {
                                                     <IconUpload size={18} />
                                                 </button>
                                             )}
+                                            {isAccountsManager && (
+                                                <button 
+                                                    className="px-3 sm:px-1.5 py-1.5 sm:py-1 border border-[#ebf0ff] bg-[#f0f4ff] rounded-lg text-[13px] sm:text-[9px] font-bold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
+                                                    onClick={() => {
+                                                        setLeadToReassign(lead);
+                                                        setShowReassignModal(true);
+                                                    }}
+                                                >
+                                                    Reassign
+                                                </button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -316,6 +373,81 @@ const ManageLeads = ({ onViewDetails }) => {
                     uploadingDocs={uploadingDocs}
                     isDark={isDark}
                 />
+            )}
+            {showReassignModal && leadToReassign && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-6 animate-fadeIn" onClick={() => setShowReassignModal(false)}>
+                    <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 border-b border-[#f1f5f9] flex justify-between items-center">
+                            <h3 className="text-lg font-bold text-[#1a202c]">Reassign Lead</h3>
+                            <button onClick={() => setShowReassignModal(false)} className="text-[#a0aec0] hover:text-[#1a202c] transition-colors text-2xl font-light">&times;</button>
+                        </div>
+                        <div className="p-8">
+                            <p className="text-sm text-[#718096] mb-6">Assign <span className="font-bold text-[#1a202c]">{leadToReassign.name}</span> to a Team:</p>
+                            <div className="flex flex-col gap-6">
+                                <div className="max-h-[400px] overflow-y-auto flex flex-col gap-8 pr-2 custom-scrollbar">
+                                    {users?.filter(u => u.role === 'Team Leader').map(leader => {
+                                        const teamMembers = INITIAL_MEMBERSHIPS[leader.id] || [];
+                                        return (
+                                            <div key={leader.id} className="flex flex-col gap-3">
+                                                {/* Team Leader Header */}
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="text-[10px] font-black text-[#2447d7] uppercase tracking-[2px] bg-[#f0f4ff] px-2 py-0.5 rounded">Team: {leader.name}</span>
+                                                    <div className="h-[1px] flex-1 bg-[#f1f5f9]"></div>
+                                                </div>
+
+                                                {/* Leader Card */}
+                                                <button
+                                                    onClick={() => handleReassign(leadToReassign.id, leader.id)}
+                                                    className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${leadToReassign.assignedStaffId === leader.id ? 'border-[#2447d7] bg-[#f0f4ff] shadow-sm' : 'border-[#f1f5f9] hover:border-[#2447d7]/30 hover:bg-[#fcfdfe]'}`}
+                                                >
+                                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-black text-white shadow-sm" style={{ backgroundColor: leader.textColor || '#2447d7' }}>
+                                                        {leader.initials}
+                                                    </div>
+                                                    <div className="flex flex-col min-w-0 flex-1">
+                                                        <span className={`text-[14px] font-black truncate ${leadToReassign.assignedStaffId === leader.id ? 'text-[#2447d7]' : 'text-[#1a202c]'}`}>{leader.name}</span>
+                                                        <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider">Team Leader</span>
+                                                    </div>
+                                                    {leadToReassign.assignedStaffId === leader.id && (
+                                                        <div className="w-6 h-6 bg-[#2447d7] text-white rounded-full flex items-center justify-center">
+                                                            <IconCheck size={14} strokeWidth={3} />
+                                                        </div>
+                                                    )}
+                                                </button>
+
+                                                {/* Team Members Grid */}
+                                                <div className="grid grid-cols-1 gap-2 pl-4 border-l-2 border-[#f1f5f9]">
+                                                    {teamMembers.map(member => (
+                                                        <button
+                                                            key={member.id}
+                                                            onClick={() => handleReassign(leadToReassign.id, member.id)}
+                                                            className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all text-left group ${leadToReassign.assignedStaffId === member.id ? 'border-[#2447d7] bg-[#f0f4ff]' : 'border-transparent hover:bg-[#f8fafc]'}`}
+                                                        >
+                                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold text-white opacity-80 group-hover:opacity-100 transition-opacity" style={{ backgroundColor: member.color || '#94a3b8' }}>
+                                                                {member.initials}
+                                                            </div>
+                                                            <div className="flex flex-col min-w-0 flex-1">
+                                                                <span className={`text-[13px] font-bold truncate ${leadToReassign.assignedStaffId === member.id ? 'text-[#2447d7]' : 'text-[#4a5568]'}`}>{member.name}</span>
+                                                                <span className="text-[9px] font-semibold text-[#a0aec0] uppercase">Tele Agent</span>
+                                                            </div>
+                                                            {leadToReassign.assignedStaffId === member.id && (
+                                                                <div className="w-5 h-5 bg-[#2447d7] text-white rounded-full flex items-center justify-center">
+                                                                    <IconCheck size={12} strokeWidth={3} />
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-[#f8fafc] border-t border-[#f1f5f9] flex justify-end gap-3">
+                            <button onClick={() => setShowReassignModal(false)} className="px-5 py-2 rounded-xl text-sm font-bold text-[#718096] hover:bg-white transition-all">Cancel</button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

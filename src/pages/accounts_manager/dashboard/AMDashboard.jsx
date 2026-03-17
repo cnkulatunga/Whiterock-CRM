@@ -1,5 +1,30 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
+import { useUsers } from '../../../context/UsersContext';
+
+const INITIAL_MEMBERSHIPS = {
+    2: [
+        { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', phone: '', status: 'Active' },
+        { id: 11, name: 'Priya Sharma', email: 'p.sharma@whiterock.crm', phone: '', status: 'Active' },
+    ],
+    5: [
+        { id: 6, name: 'Leo Kumar', email: 'leo.k@whiterock.crm', phone: '', status: 'Active' },
+        { id: 7, name: 'Nina Hassan', email: 'nina.h@whiterock.crm', phone: '', status: 'Inactive' },
+        { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@whiterock.crm', phone: '', status: 'Active' },
+    ],
+    8: [
+        { id: 12, name: 'Jake Morrison', email: 'j.morrison@whiterock.crm', phone: '', status: 'Active' },
+        { id: 15, name: 'Sophie Tan', email: 's.tan@whiterock.crm', phone: '', status: 'Active' },
+    ],
+    9: [
+        { id: 14, name: 'Omar Khalil', email: 'o.khalil@whiterock.crm', phone: '', status: 'Inactive' },
+    ],
+    10: [],
+};
+
+const MOCK_LEAD_COUNTS = {
+    3: 15, 11: 12, 6: 22, 7: 5, 13: 18, 12: 14, 15: 20, 14: 3
+};
 
 const RECENT_LENDERS = [
     { id: 1, name: 'ANZ Bank', type: 'Major Bank', interestRate: '5.89%', maxLoan: '$2,000,000', status: 'Active' },
@@ -29,6 +54,12 @@ const LEADS = [
 const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const { users } = useUsers();
+
+    // Team Leader drill-down state
+    const [selectedTeam, setSelectedTeam] = useState(null);
+
+    const teamLeaders = users ? users.filter(u => u.role === 'Team Leader').slice(0, 3) : [];
 
     // Calendar state
     const [viewDate, setViewDate] = useState(new Date());
@@ -91,11 +122,20 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* Header */}
-            <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
+            <header className="flex justify-between items-center gap-4 flex-wrap animate-headerDrop">
                 <div>
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Accounts Manager Dashboard</h1>
                     <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Real-time overview of financial processing and lender governance.</p>
                 </div>
+                <button
+                    onClick={() => onNavigate && onNavigate('create_lead')}
+                    className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#2447d7]/20 hover:bg-[#1a32a3] hover:translate-y-[-1px] transition-all"
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+                        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                    Create Lead
+                </button>
             </header>
 
             {/* KPI Cards */}
@@ -118,57 +158,57 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                 ))}
             </div>
 
+            {/* Team Leaders Section */}
+            <section className="flex flex-col gap-4 animate-fadeIn [animation-delay:300ms] [animation-fill-mode:both]">
+                <div className="flex items-center gap-2 px-1">
+                    <span className="w-5 h-5 bg-[#ebf0ff] text-[#2447d7] rounded flex items-center justify-center">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                    </span>
+                    <h2 className="text-sm font-bold text-[#1a202c] uppercase tracking-wider">Team Leaders Overview</h2>
+                </div>
+                <div className="grid grid-cols-3 gap-4 md:grid-cols-2 sm:grid-cols-1">
+                    {teamLeaders.map((tl, i) => {
+                        const members = INITIAL_MEMBERSHIPS[tl.id] || [];
+                        const activeCount = members.filter(m => m.status === 'Active').length;
+                        return (
+                            <div
+                                key={tl.id}
+                                onClick={() => setSelectedTeam({ ...tl, members })}
+                                className="bg-white rounded-2xl border border-[#edf2f7] p-4 shadow-sm hover:shadow-xl hover:translate-y-[-2px] hover:border-[#2447d7]/30 transition-all cursor-pointer group animate-kpiPop"
+                                style={{ animationDelay: `${350 + i * 50}ms`, animationFillMode: 'both' }}
+                            >
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="w-10 h-10 rounded-xl bg-[#f0f4ff] border border-[#ebf0ff] flex items-center justify-center text-[#2447d7] font-bold text-sm group-hover:bg-[#2447d7] group-hover:text-white transition-colors">
+                                        {tl.initials}
+                                    </div>
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="text-[13px] font-bold text-[#1a202c] truncate">{tl.name}</span>
+                                        <span className="text-[10px] font-medium text-[#718096]">Team Leader</span>
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-between pt-3 border-t border-[#f7fafc]">
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Members</span>
+                                        <span className="text-[13px] font-bold text-[#1a202c]">{members.length}</span>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Active</span>
+                                        <span className="text-[13px] font-bold text-[#10b981]">{activeCount}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+
             {/* Main content + Calendar side-by-side */}
             <div className="grid grid-cols-[1fr_360px] gap-5 xl:grid-cols-1">
 
                 {/* Left: Lead Table + Lenders */}
                 <div className="flex flex-col gap-5">
 
-                    {/* Recent Lead List */}
-                    <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:380ms] [animation-fill-mode:both]">
-                        <div className="px-6 py-4 flex justify-between items-center border-b border-[#f7fafc]">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-[#ebf0ff] flex items-center justify-center">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                                </div>
-                                <span className="text-[13px] font-semibold text-[#1a202c]">Recent Lead List</span>
-                            </div>
-                        </div>
-                        <div className="overflow-x-auto">
-                            <table className="w-full border-collapse">
-                                <thead>
-                                    <tr className="bg-[#f8fafc]">
-                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD ID & CLIENT</th>
-                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">BUSINESS NAME</th>
-                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">AMOUNT</th>
-                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">STAGE</th>
-                                        <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">DATE</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-[#f7fafc]">
-                                    {LEADS.map((lead, i) => (
-                                        <tr key={lead.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${440 + i * 60}ms`, animationFillMode: 'both' }}>
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{lead.id}</span>
-                                                    <span className="text-[12px] font-medium text-[#1a202c]">{lead.client}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{lead.business}</span></td>
-                                            <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{lead.amount}</span></td>
-                                            <td className="px-6 py-4"><span className={`text-[10px] font-semibold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${lead.stageCls}`}>{lead.stage}</span></td>
-                                            <td className="px-6 py-4"><span className="text-[12px] text-[#a0aec0]">{lead.date}</span></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                        <div className="px-6 py-4 border-t border-[#f7fafc]">
-                            <button className="w-full py-2.5 text-[12px] font-medium text-[#718096] border border-dashed border-[#edf2f7] rounded-xl hover:bg-[#f8fafc] hover:border-[#2447d7] hover:text-[#2447d7] transition-all">
-                                Load more leads
-                            </button>
-                        </div>
-                    </section>
+
 
                     {/* Recently Added Lenders */}
                     <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:480ms] [animation-fill-mode:both] flex flex-col">
@@ -433,6 +473,87 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                                 <button type="submit" className="bg-[#2447d7] text-white p-[10px_24px] rounded-xl text-sm font-bold shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:translate-y-[-1px] transition-all">Create Task</button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+            {/* Team Details Modal */}
+            {selectedTeam && (
+                <div className="fixed inset-0 bg-slate-900/45 backdrop-blur-sm flex items-center justify-center z-[9999] p-6 animate-fadeIn" onClick={() => setSelectedTeam(null)}>
+                    <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp flex flex-col max-h-[90vh]" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 border-b border-[#f1f5f9] flex justify-between items-center bg-[#fcfdfe]">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-[#2447d7] text-white flex items-center justify-center font-black text-lg shadow-lg shadow-[#2447d7]/20">
+                                    {selectedTeam.initials}
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-black text-[#1a202c] tracking-tight">{selectedTeam.name}'s Team</h3>
+                                    <p className="text-xs font-bold text-[#718096] uppercase tracking-wider">Performance & Member Status</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedTeam(null)} className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-[#a0aec0] hover:text-[#1a202c]">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            </button>
+                        </div>
+
+                        <div className="p-6 overflow-y-auto">
+                            <div className="grid grid-cols-3 gap-4 mb-8">
+                                <div className="p-4 bg-[#f8fafc] rounded-2xl border border-[#edf2f7] flex flex-col gap-1">
+                                    <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-widest">Total Members</span>
+                                    <span className="text-xl font-black text-[#1a202c]">{selectedTeam.members.length}</span>
+                                </div>
+                                <div className="p-4 bg-[#ecfdf5] rounded-2xl border border-[#d1fae5] flex flex-col gap-1">
+                                    <span className="text-[10px] font-bold text-[#059669] uppercase tracking-widest">Active</span>
+                                    <span className="text-xl font-black text-[#059669]">{selectedTeam.members.filter(m => m.status === 'Active').length}</span>
+                                </div>
+                                <div className="p-4 bg-[#ebf0ff] rounded-2xl border border-[#d9e8ff] flex flex-col gap-1">
+                                    <span className="text-[10px] font-bold text-[#2447d7] uppercase tracking-widest">Leads</span>
+                                    <span className="text-xl font-black text-[#2447d7]">
+                                        {selectedTeam.members.reduce((sum, m) => sum + (MOCK_LEAD_COUNTS[m.id] || 0), 0)}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <h4 className="text-[11px] font-black text-[#a0aec0] uppercase tracking-widest mb-4 px-1">Team Members</h4>
+                            <div className="flex flex-col gap-3">
+                                {selectedTeam.members.length > 0 ? selectedTeam.members.map((member, mi) => (
+                                    <div
+                                        key={member.id}
+                                        className="flex items-center gap-4 p-4 rounded-2xl border border-[#f1f5f9] hover:border-[#2447d7]/20 hover:bg-[#fcfdfe] transition-all group animate-slideUp"
+                                        style={{ animationDelay: `${100 + mi * 50}ms`, animationFillMode: 'both' }}
+                                    >
+                                        <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[13px] font-black text-slate-400 group-hover:bg-[#ebf0ff] group-hover:text-[#2447d7] transition-all">
+                                            {member.name.split(' ').map(n => n[0]).join('')}
+                                        </div>
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-sm font-bold text-[#1a202c]">{member.name}</span>
+                                                <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ${member.status === 'Active' ? 'bg-[#ecfdf5] text-[#059669]' : 'bg-slate-100 text-slate-400'}`}>
+                                                    {member.status}
+                                                </span>
+                                            </div>
+                                            <span className="text-[11px] font-medium text-[#a0aec0]">{member.email}</span>
+                                        </div>
+                                        <div className="flex flex-col items-end">
+                                            <span className="text-lg font-black text-[#1a202c] leading-none">{MOCK_LEAD_COUNTS[member.id] || 0}</span>
+                                            <span className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Leads</span>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <div className="text-center py-12 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                                        <p className="text-sm font-bold text-slate-400">No members assigned to this team.</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="p-4 bg-[#f8fafc] border-t border-[#f1f5f9] flex justify-center">
+                            <button
+                                onClick={() => setSelectedTeam(null)}
+                                className="px-8 py-2.5 rounded-xl bg-[#1e293b] text-white text-xs font-bold hover:bg-[#0f172a] shadow-lg transition-all active:scale-95"
+                            >
+                                Close Overview
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

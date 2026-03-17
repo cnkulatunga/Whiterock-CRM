@@ -13,6 +13,9 @@ import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
 import Lenders from '../pages/super_admin/lenders/Lenders';
+import CreateLead from '../pages/tele_agent/leads/CreateLead';
+import ManageLeads from '../pages/tele_agent/leads/ManageLeads';
+import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
 
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
@@ -70,6 +73,9 @@ const AccountsManagerLayout = ({ onLogout }) => {
             case 'audit_logs': navigate('/accounts-manager/audit-logs'); break;
             case 'lender_selection_approved': navigate('/accounts-manager/lender-selection-approved'); break;
             case 'lenders': navigate('/accounts-manager/lenders'); break;
+            case 'create_lead': navigate('/accounts-manager/create-lead'); break;
+            case 'manage_leads': navigate('/accounts-manager/manage-leads'); break;
+            case 'lead_details': navigate('/accounts-manager/lead-details'); break;
 
             case 'tasks_followups': navigate('/accounts-manager/tasks-followups'); break;
             default: navigate('/accounts-manager/dashboard');
@@ -188,6 +194,9 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="lenders" element={<Lenders readOnly={true} />} />
 
                         <Route path="tasks-followups" element={<AMTasksFollowups tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="create-lead" element={<CreateLead onBack={() => handleNavigate('accounts_manager_dashboard')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="manage-leads" element={<ManageLeads onViewDetails={(lead) => handleNavigate('lead_details', lead)} isAccountsManager={true} />} />
+                        <Route path="lead-details" element={<LeadDetails lead={selectedLead} onBack={() => handleNavigate('manage_leads')} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
