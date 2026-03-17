@@ -208,7 +208,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                     onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = cardBg; }}
                                 >
                                     <span
-                                        className="text-[13px] font-bold w-7 h-7 flex items-center justify-center rounded-full transition-all"
+                                        className="text-[13px] sm:text-[11px] font-bold w-7 h-7 sm:w-6 sm:h-6 flex items-center justify-center rounded-full transition-all"
                                         style={{
                                             background: isToday ? '#2447d7' : 'transparent',
                                             color: isToday ? '#ffffff' : isSelected ? '#2447d7' : dayText,
@@ -511,12 +511,11 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                     )}
                 </div>
             ) : (
-                <div className="flex flex-col gap-4">
-                    {filteredTasks.length > 0 ? (
+                <div className="flex flex-col gap-4">                    {filteredTasks.length > 0 ? (
                         filteredTasks.map(task => (
                             <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 flex justify-between items-center gap-4 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-200 md:flex-col md:items-stretch" key={task.id}>
-                                <div className="flex items-center gap-5">
-                                    <div className={`w-12 h-12 rounded-[14px] flex items-center justify-center shrink-0 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fef3c7] text-[#d97706]' : task.type === 'Review' ? 'bg-[#f3e8ff] text-[#7c3aed]' : task.type === 'Email' ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#e0f2fe] text-[#0369a1]'}`}>
+                                <div className="flex items-center gap-5 sm:gap-3">
+                                    <div className={`w-12 h-12 sm:w-10 sm:h-10 rounded-[14px] flex items-center justify-center shrink-0 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fef3c7] text-[#d97706]' : task.type === 'Review' ? 'bg-[#f3e8ff] text-[#7c3aed]' : task.type === 'Email' ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#e0f2fe] text-[#0369a1]'}`}>
                                         {task.type === 'Call' && <IconPhone />}
                                         {task.type === 'Document' && <IconDoc />}
                                         {task.type === 'Review' && <IconReview />}
@@ -524,26 +523,22 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                         {task.type === 'Meeting' && <IconMeeting />}
                                     </div>
                                     <div className="flex flex-col gap-1 min-w-0">
-                                        <h3 className="text-base font-bold text-[#1a202c] truncate">{task.title}</h3>
+                                        <h3 className="text-base font-bold text-[#1a202c] truncate sm:text-sm">{task.title}</h3>
                                         <div className="flex flex-col gap-1.5">
-                                            <div className="flex items-center gap-4 flex-wrap">
-                                                <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#718096]">
+                                            <div className="flex items-center gap-4 flex-wrap sm:gap-2">
+                                                <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#718096] sm:text-[11px]">
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
                                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                                                     </svg>
                                                     {task.lead || 'Personal'}
-                                                    {task.createdBy && (
-                                                        <span className="bg-[#f0f4ff] text-[#2447d7] text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider ml-1">By: {task.createdBy}</span>
-                                                    )}
-
                                                 </span>
-                                                <span className="text-[12px] font-medium text-[#a0aec0]">
+                                                <span className="text-[12px] font-medium text-[#a0aec0] sm:text-[10px]">
                                                     {task.date} • {task.time}
                                                 </span>
                                             </div>
-                                            {task.message && <p className="p-2.5 px-3.5 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl text-[0.85rem] text-[#4a5568] leading-relaxed max-w-[500px] mt-1 italic"><span className="font-bold text-[#2447d7] not-italic mr-1">Notes:</span>{task.message}</p>}
+                                            {task.message && <p className="p-2.5 px-3.5 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl text-[0.85rem] text-[#4a5568] leading-relaxed max-w-[500px] mt-1 italic sm:text-[0.75rem]"><span className="font-bold text-[#2447d7] not-italic mr-1">Notes:</span>{task.message}</p>}
                                             {task.reminder !== 'none' && (
-                                                <span className="bg-[#f0f4ff] text-[#2447d7] px-2 py-0.5 rounded-md text-[11px] font-bold w-fit flex items-center gap-1.5">
+                                                <span className="bg-[#f0f4ff] text-[#2447d7] px-2 py-0.5 rounded-md text-[11px] font-bold w-fit flex items-center gap-1.5 sm:text-[9px]">
                                                     <IconBellActive />
                                                     Remind {task.reminder === '1d' ? '1 day before' : task.reminder === '1h' ? '1 hour before' : '15 min before'}
                                                 </span>
@@ -552,29 +547,31 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 shrink-0 sm:flex-col sm:items-stretch sm:gap-3">
-                                    <div className="flex items-center">
-                                        <select 
-                                            className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#718096] bg-[#f7fafc] border border-[#edf2f7] outline-none hover:border-[#2447d7] hover:text-[#2447d7] hover:bg-white transition-all cursor-pointer"
-                                            value={task.reminder}
-                                            onChange={(e) => updateTaskReminder(task.id, e.target.value)}
-                                            title="Update Reminder"
-                                        >
-                                            <option value="none">🔔 Off</option>
-                                            <option value="15m">15m</option>
-                                            <option value="1h">1h</option>
-                                            <option value="1d">1d</option>
-                                        </select>
-                                    </div>
-                                    <div className="relative">
-                                        <select 
-                                            className={`appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:12px] pr-9 pl-4 py-2 rounded-xl text-[13px] font-bold border outline-none transition-all hover:translate-y-[-1px] hover:shadow-sm min-w-[140px] sm:min-w-full ${task.status === 'Completed' ? 'bg-[#f0fff4] text-[#276749] border-[#9ae6b4]' : task.status === 'In Progress' ? 'bg-[#fffbef] text-[#c05621] border-[#fbd38d]' : 'bg-[#f7fafc] text-[#4a5568] border-[#e2e8f0]'}`}
-                                            value={task.status}
-                                            onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                        >
-                                            <option>Pending</option>
-                                            <option>In Progress</option>
-                                            <option>Completed</option>
-                                        </select>
+                                    <div className="flex items-center gap-2">
+                                        <div className="flex items-center">
+                                            <select 
+                                                className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#718096] bg-[#f7fafc] border border-[#edf2f7] outline-none hover:border-[#2447d7] hover:text-[#2447d7] hover:bg-white transition-all cursor-pointer"
+                                                value={task.reminder}
+                                                onChange={(e) => updateTaskReminder(task.id, e.target.value)}
+                                                title="Update Reminder"
+                                            >
+                                                <option value="none">🔔 Off</option>
+                                                <option value="15m">15m</option>
+                                                <option value="1h">1h</option>
+                                                <option value="1d">1d</option>
+                                            </select>
+                                        </div>
+                                        <div className="relative">
+                                            <select 
+                                                className={`appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:12px] pr-9 pl-4 py-2 rounded-xl text-[13px] font-bold border outline-none transition-all hover:translate-y-[-1px] hover:shadow-sm min-w-[140px] sm:min-w-full ${task.status === 'Completed' ? 'bg-[#f0fff4] text-[#276749] border-[#9ae6b4]' : task.status === 'In Progress' ? 'bg-[#fffbef] text-[#c05621] border-[#fbd38d]' : 'bg-[#f7fafc] text-[#4a5568] border-[#e2e8f0]'}`}
+                                                value={task.status}
+                                                onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                            >
+                                                <option>Pending</option>
+                                                <option>In Progress</option>
+                                                <option>Completed</option>
+                                            </select>
+                                        </div>
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <button 
@@ -593,7 +590,6 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                         </button>
                                     </div>
                                 </div>
-
                             </div>
                         ))
                     ) : (

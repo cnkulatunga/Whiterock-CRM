@@ -115,34 +115,34 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
             {/* ── PROGRESS TRACKER ── */}
             <div className="bg-white rounded-2xl border border-[#edf2f7] p-8 px-12 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-x-auto md:p-6 md:px-4 md:mx-[-12px] md:rounded-none">
-                <div className="flex items-start justify-between min-w-[750px]">
-                    <div className="flex flex-col items-center gap-3 flex-1">
+                <div className="flex items-start justify-between min-w-[750px] sm:min-w-[600px]">
+                    <div className="flex flex-col items-center gap-2 flex-1">
                         <div className="w-8 h-8 bg-[#10b981] rounded-full flex items-center justify-center">
                             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="14" height="14">
                                 <polyline points="20 6 9 17 4 12" />
                             </svg>
                         </div>
-                        <span className="text-[11px] font-bold text-[#10b981] text-center uppercase tracking-tight max-w-[100px]">Document Collected</span>
+                        <span className="text-[10px] font-bold text-[#10b981] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Document Collected</span>
                     </div>
-                    <div className="flex-1 h-0.5 bg-[#10b981] mt-[15px] min-w-[20px]"></div>
-                    <div className="flex flex-col items-center gap-3 flex-1">
+                    <div className="flex-1 h-0.5 bg-[#10b981] mt-[15px] min-w-[15px]"></div>
+                    <div className="flex flex-col items-center gap-2 flex-1">
                         <div className="w-8 h-8 bg-[#2447d7] rounded-full border-[4px] border-[#ebf0ff]"></div>
-                        <span className="text-[11px] font-bold text-[#2447d7] text-center uppercase tracking-tight max-w-[100px]">Document Verification Done</span>
+                        <span className="text-[10px] font-bold text-[#2447d7] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Document Verification Done</span>
                     </div>
-                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[20px]"></div>
-                    <div className="flex flex-col items-center gap-3 flex-1">
+                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[15px]"></div>
+                    <div className="flex flex-col items-center gap-2 flex-1">
                         <div className="w-3.5 h-3.5 bg-[#edf2f7] rounded-full border-[3px] border-white shadow-[0_0_0_1px_#edf2f7] mt-[9px]"></div>
-                        <span className="text-[11px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[100px]">Lender Selection</span>
+                        <span className="text-[10px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Lender Selection</span>
                     </div>
-                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[20px]"></div>
-                    <div className="flex flex-col items-center gap-3 flex-1">
+                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[15px]"></div>
+                    <div className="flex flex-col items-center gap-2 flex-1">
                         <div className="w-3.5 h-3.5 bg-[#edf2f7] rounded-full border-[3px] border-white shadow-[0_0_0_1px_#edf2f7] mt-[9px]"></div>
-                        <span className="text-[11px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[100px]">Loan Confirmed</span>
+                        <span className="text-[10px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Loan Confirmed</span>
                     </div>
-                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[20px]"></div>
-                    <div className="flex flex-col items-center gap-3 flex-1">
+                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[15px]"></div>
+                    <div className="flex flex-col items-center gap-2 flex-1">
                         <div className="w-3.5 h-3.5 bg-[#edf2f7] rounded-full border-[3px] border-white shadow-[0_0_0_1px_#edf2f7] mt-[9px]"></div>
-                        <span className="text-[11px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[100px]">Loan Rejected</span>
+                        <span className="text-[10px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Loan Rejected</span>
                     </div>
                 </div>
             </div>
@@ -168,7 +168,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
                                 <div className="flex flex-col gap-2 col-span-2">
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">CUSTOMER NAME</label>
-                                    <div className="text-2xl font-bold text-[#1a202c] tracking-tight sm:text-lg">{leadName}</div>
+                                    <div className="text-2xl font-bold text-[#1a202c] tracking-tight sm:text-xl">{leadName}</div>
                                 </div>
 
                                 {lead.businessName && (

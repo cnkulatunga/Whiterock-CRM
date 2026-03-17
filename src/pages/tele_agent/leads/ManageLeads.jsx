@@ -145,9 +145,9 @@ const ManageLeads = ({ onViewDetails }) => {
                     { label: 'New Today', value: '12' },
                     { label: 'Response Rate', value: '94%' }
                 ].map((stat, i) => (
-                    <div key={i} className="bg-white p-[16px_24px] rounded-xl border border-[#edf2f7] flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[calc(33.33%-14px)] md:min-w-[calc(50%-10px)] sm:min-w-full hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop" style={{ animationDelay: `${200 + i * 80}ms`, animationFillMode: 'both' }}>
-                        <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{stat.label}</span>
-                        <span className="text-[1.25rem] font-bold text-[#1a202c]">{stat.value}</span>
+                    <div key={i} className="bg-white p-[16px_24px] sm:p-4 rounded-xl border border-[#edf2f7] flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[calc(33.33%-14px)] md:min-w-[calc(50%-10px)] sm:min-w-[calc(50%-6px)] hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop" style={{ animationDelay: `${200 + i * 80}ms`, animationFillMode: 'both' }}>
+                        <span className="text-[11px] sm:text-[9px] font-bold text-[#a0aec0] uppercase tracking-wider">{stat.label}</span>
+                        <span className="text-[1.25rem] sm:text-[1rem] font-bold text-[#1a202c]">{stat.value}</span>
                     </div>
                 ))}
             </div>
@@ -177,33 +177,33 @@ const ManageLeads = ({ onViewDetails }) => {
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-[#fbfeff]">
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">Client / Business Name</th>
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">EMAIL / PHONE</th>
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">STATUS</th>
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px]">ACTION</th>
+                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">Client / Business</th>
+                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:hidden">EMAIL / PHONE</th>
+                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">STATUS</th>
+                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">ACTION</th>
                             </tr>
                         </thead>
                         <tbody>
                             {displayedLeads.map((lead, idx) => (
                                 <tr key={lead.id} className="hover:bg-[#fcfdfe] transition-colors border-b border-[#f7fafc] last:border-0 animate-rowIn" style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}>
-                                    <td className="p-[16px_24px] md:p-[12px_16px]">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 bg-[#f0f4ff] text-[#2447d7] rounded-lg flex items-center justify-center text-[11px] font-bold">
+                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
+                                        <div className="flex items-center gap-3 sm:gap-2">
+                                            <div className="w-8 h-8 sm:w-6 sm:h-6 bg-[#f0f4ff] text-[#2447d7] rounded-lg flex items-center justify-center text-[11px] sm:text-[9px] font-bold">
                                                 {lead.name.split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-bold text-[#1a202c] leading-tight">{lead.name}</span>
-                                                {lead.businessName && <span className="text-[10px] font-bold text-[#2447d7] uppercase tracking-wider">{lead.businessName}</span>}
+                                                <span className="text-sm sm:text-[11px] font-bold text-[#1a202c] leading-tight">{lead.name}</span>
+                                                {lead.businessName && <span className="text-[10px] sm:text-[8px] font-bold text-[#2447d7] uppercase tracking-wider">{lead.businessName}</span>}
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="p-[16px_24px] md:p-[12px_16px]">
+                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3 sm:hidden">
                                         <div className="flex flex-col">
                                             <span className="text-sm font-medium text-[#1a202c]">{lead.email}</span>
                                             <span className="text-xs text-[#a0aec0]">{lead.phone}</span>
                                         </div>
                                     </td>
-                                    <td className="p-[16px_24px] md:p-[12px_16px]">
+                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
                                         <div className="flex items-center">
                                             {(() => {
                                                 const isDecisionMade = ['Loan Confirmed', 'Loan Rejected', 'Lender Selection'].includes(lead.status);
@@ -215,7 +215,7 @@ const ManageLeads = ({ onViewDetails }) => {
                                                 // 1. Critical Rejection (Document or Loan level)
                                                 if (hasRejected || lead.status === 'Loan Rejected') {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm">
                                                             <IconAlert size={12} /> {lead.status === 'Document Verifications' ? 'Docs Rejected' : lead.status}
                                                         </span>
                                                     );
@@ -224,7 +224,7 @@ const ManageLeads = ({ onViewDetails }) => {
                                                 // 2. Success / Post-Verification Stage
                                                 if (lead.status === 'Loan Confirmed' || isAllVerified) {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm">
                                                             <IconCheck size={12} strokeWidth={3} /> {lead.status}
                                                         </span>
                                                     );
@@ -233,7 +233,7 @@ const ManageLeads = ({ onViewDetails }) => {
                                                 // 3. Selection / Advanced Stage
                                                 if (lead.status === 'Lender Selection') {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100 shadow-sm">
                                                             <IconCheck size={12} strokeWidth={3} /> {lead.status}
                                                         </span>
                                                     );
@@ -242,16 +242,16 @@ const ManageLeads = ({ onViewDetails }) => {
                                                 // 4. Collection / Pending Stage
                                                 if (docCount > 0) {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
                                                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(36,71,215,0.4)]" />
-                                                            {lead.status} ({approvedCount}/{docCount})
+                                                            {lead.status === 'Document Collected' ? 'Docs' : lead.status} ({approvedCount}/{docCount})
                                                         </span>
                                                     );
                                                 }
 
                                                 // 4. Default / Missing Docs Stage
                                                 return (
-                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-gray-50 text-gray-500 border border-gray-200">
+                                                    <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-gray-50 text-gray-500 border border-gray-200">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
                                                         {lead.status}
                                                     </span>
@@ -259,17 +259,17 @@ const ManageLeads = ({ onViewDetails }) => {
                                             })()}
                                         </div>
                                     </td>
-                                    <td className="p-[16px_24px] md:p-[12px_16px]">
-                                        <div className="flex items-center gap-2">
+                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
+                                        <div className="flex items-center gap-2 sm:gap-1">
                                             <button 
-                                                className="px-3 py-1.5 border border-[#edf2f7] rounded-lg text-[13px] font-semibold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200" 
+                                                className="px-3 sm:px-1.5 py-1.5 sm:py-1 border border-[#edf2f7] rounded-lg text-[13px] sm:text-[9px] font-semibold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200" 
                                                 onClick={() => onViewDetails(lead)}
                                             >
                                                 Details
                                             </button>
                                             {!(lead.status === 'Document Verifications' && lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
                                                 <button 
-                                                    className="p-1.5 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
+                                                    className="p-1.5 sm:p-1 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
                                                     title="Upload/Manage Documents"
                                                     onClick={() => handleOpenModal(lead)}
                                                 >
