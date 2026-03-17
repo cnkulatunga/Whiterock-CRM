@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
+import { useReminders } from '../../../hooks/useReminders';
+import { canManageTask } from '../../../utils/permissionUtils';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconDocs, IconCheck, IconAlert, IconEye } from '../../../components/DocumentManagement/Icons';
 
@@ -64,10 +66,15 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
     const handleAddTask = (e) => {
         e.preventDefault();
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
         const taskToAdd = {
             ...newTask,
             id: Date.now(),
-            status: 'Pending'
+            status: 'Pending',
+            lead: lead.name,
+            assignedTo: 'Self',
+            createdBy: 'Tele Agent',
+            creatorId: currentUser.id
         };
         setTasks([taskToAdd, ...tasks]);
         setIsAddingTask(false);
@@ -310,13 +317,15 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                <button 
-                                                    onClick={() => setPreviewDoc(doc)}
-                                                    className="p-1.5 text-[#2447d7] hover:bg-[#2447d7]/10 rounded-lg transition-colors border border-[#2447d7]/10"
-                                                    title="View Document"
-                                                >
-                                                    <IconEye size={14} />
-                                                </button>
+                                                {doc.status !== 'Approved' && (
+                                                    <button 
+                                                        onClick={() => setPreviewDoc(doc)}
+                                                        className="p-1.5 text-[#2447d7] hover:bg-[#2447d7]/10 rounded-lg transition-colors border border-[#2447d7]/10"
+                                                        title="View Document"
+                                                    >
+                                                        <IconEye size={14} />
+                                                    </button>
+                                                )}
                                             </div>
                                         ))}
                                     </div>

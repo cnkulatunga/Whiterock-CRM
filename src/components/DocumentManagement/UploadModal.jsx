@@ -113,19 +113,26 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                         
                                         {!uploading && (
                                             <div className="flex items-center gap-2">
-                                                <button 
-                                                    onClick={() => setPreviewDoc(doc)}
-                                                    className="p-2.5 rounded-xl border border-[#2447d7]/20 text-[#2447d7] hover:bg-[#2447d7]/10 active:scale-95 transition-all"
-                                                    title="View Document"
-                                                >
-                                                    <IconEye size={16} />
-                                                </button>
+                                                {!(doc.status === 'Approved' && !isTeamLeader) && (
+                                                    <button 
+                                                        onClick={() => setPreviewDoc(doc)}
+                                                        className="p-2.5 rounded-xl border border-[#2447d7]/20 text-[#2447d7] hover:bg-[#2447d7]/10 active:scale-95 transition-all"
+                                                        title="View Document"
+                                                    >
+                                                        <IconEye size={16} />
+                                                    </button>
+                                                )}
                                                 
                                                 {!isTeamLeader ? (
                                                     <button 
                                                         onClick={() => onUpload(client.id, doc.id, doc.type)}
-                                                        className="p-2.5 rounded-xl bg-[#2447d7] text-white shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:scale-105 active:scale-95 transition-all"
-                                                        title="Re-upload Document"
+                                                        disabled={doc.status === 'Approved' || doc.status === 'Pending'}
+                                                        className={`p-2.5 rounded-xl transition-all ${
+                                                            (doc.status === 'Approved' || doc.status === 'Pending')
+                                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60' 
+                                                                : 'bg-[#2447d7] text-white shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:scale-105 active:scale-95'
+                                                        }`}
+                                                        title={doc.status === 'Approved' || doc.status === 'Pending' ? `Cannot re-upload ${doc.status.toLowerCase()} document` : "Re-upload Document"}
                                                     >
                                                         <IconUpload size={16} />
                                                     </button>

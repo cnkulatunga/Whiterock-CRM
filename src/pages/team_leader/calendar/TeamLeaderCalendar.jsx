@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { signIn, createCalendarEvent, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useUsers } from '../../../context/UsersContext';
+import { canManageTask } from '../../../utils/permissionUtils';
 
 const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
     const { users } = useUsers();
@@ -77,11 +78,13 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
             setIsEditingTask(false);
             setEditingTask(null);
         } else {
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
             const taskToAdd = {
                 ...newTask,
                 id: Date.now(),
                 status: 'Pending',
-                createdBy: 'Team Leader'
+                createdBy: 'Team Leader',
+                creatorId: currentUser.id
             };
             setTasks([taskToAdd, ...tasks]);
             if (notifyReminderSet) notifyReminderSet(taskToAdd);
@@ -267,20 +270,22 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                                         By: {t.createdBy}
                                                     </span>
                                                 )}
-                                                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
-                                                        className="p-1 px-2 rounded-md bg-[#f8fafc] text-[#718096] hover:text-[#2447d7] hover:bg-[#eef2ff] transition-all text-[10px] font-bold border border-[#edf2f7]"
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
-                                                        className="p-1 px-2 rounded-md bg-[#f8fafc] text-[#718096] hover:text-[#e53e3e] hover:bg-[#fff5f5] transition-all text-[10px] font-bold border border-[#edf2f7]"
-                                                    >
-                                                        Delete
-                                                    </button>
-                                                </div>
+                                                {canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
+                                                            className="p-1 px-2 rounded-md bg-[#f8fafc] text-[#718096] hover:text-[#2447d7] hover:bg-[#eef2ff] transition-all text-[10px] font-bold border border-[#edf2f7]"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
+                                                            className="p-1 px-2 rounded-md bg-[#f8fafc] text-[#718096] hover:text-[#e53e3e] hover:bg-[#fff5f5] transition-all text-[10px] font-bold border border-[#edf2f7]"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                )}
 
 
                                             </div>
@@ -503,22 +508,24 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                         <option>In Progress</option>
                                         <option>Completed</option>
                                     </select>
-                                    <div className="flex items-center gap-2">
-                                        <button 
-                                            onClick={() => handleEditClick(task)}
-                                            className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
-                                            title="Edit Task"
-                                        >
-                                            <IconEdit />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteTask(task.id)}
-                                            className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
-                                            title="Delete Task"
-                                        >
-                                            <IconTrash />
-                                        </button>
-                                    </div>
+                                    {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                        <div className="flex items-center gap-2">
+                                            <button 
+                                                onClick={() => handleEditClick(task)}
+                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                                title="Edit Task"
+                                            >
+                                                <IconEdit />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteTask(task.id)}
+                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                                title="Delete Task"
+                                            >
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                             </div>

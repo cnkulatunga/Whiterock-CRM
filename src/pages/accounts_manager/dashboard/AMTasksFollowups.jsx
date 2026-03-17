@@ -3,6 +3,7 @@ import { signIn, createCalendarEvent, getCalendarEvents, getAccount } from '../.
 import { useTheme } from '../../../context/ThemeContext';
 
 import { useUsers } from '../../../context/UsersContext';
+import { canManageTask } from '../../../utils/permissionUtils';
 
 const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
     const { users } = useUsers();
@@ -24,6 +25,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
     const [loadingEvents, setLoadingEvents] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
     const [isEditingTask, setIsEditingTask] = useState(false);
+    const [addToOutlook, setAddToOutlook] = useState(true);
 
 
     useEffect(() => {
@@ -81,11 +83,13 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
             setIsEditingTask(false);
             setEditingTask(null);
         } else {
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
             const taskToAdd = {
                 ...newTask,
                 id: Date.now(),
                 status: 'Pending',
-                createdBy: 'Accounts Manager'
+                createdBy: 'Accounts Manager',
+                creatorId: currentUser.id
             };
             setTasks([taskToAdd, ...tasks]);
             if (notifyReminderSet) notifyReminderSet(taskToAdd);
@@ -262,26 +266,65 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                                     </span>
                                                     {t.assignedTo !== 'Self' && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Team</span>}
                                                 </div>
-                                                <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
+                                                    <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
+                                                    {t.reminder && t.reminder !== 'none' && (
+                                                        <span className="bg-[#f0f4ff] text-[#2447d7] px-2 py-0.5 rounded-md text-[9px] uppercase font-bold w-fit flex items-center gap-1 mt-1">
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10">
+                                                                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                                            </svg>
+                                                            {t.reminder === '1d' ? '1 day before' : t.reminder === '1h' ? '1 hour before' : '15 min before'}
+                                                        </span>
+                                                    )}
                                                 {t.assignedTo !== 'Self' && (
                                                     <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: isDark ? 'rgba(36,71,215,0.15)' : '#f0f4ff', color: '#2447d7' }}>
                                                         Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
                                                     </span>
                                                 )}
                                                 <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
-                                                        className={`p-1 px-2 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#2447d7] hover:bg-[#eef2ff] transition-all text-[10px] font-bold border border-[#edf2f7]`}
-                                                    >
-                                                        Edit
-                                                    </button>
-                                                    <button 
-                                                        onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
-                                                        className={`p-1 px-2 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#e53e3e] hover:bg-[#fff5f5] transition-all text-[10px] font-bold border border-[#edf2f7]`}
-                                                    >
-                                                        Delete
-                                                    </button>
+                                                    <div className="flex items-center border border-[#edf2f7] rounded-lg bg-white">
+                                                        <select
+                                                            className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
+                                                            value={t.reminder || 'none'}
+                                                            onChange={(e) => updateTaskReminder(t.id, e.target.value)}
+                                                            title="Update Reminder"
+                                                        >
+                                                            <option value="none">🔔 Off</option>
+                                                            <option value="15m">15m</option>
+                                                            <option value="1h">1h</option>
+                                                            <option value="1d">1d</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="flex items-center flex-1">
+                                                        <select
+                                                            className={`w-full py-1 text-[10px] pr-6 font-black uppercase tracking-widest border border-[#edf2f7] outline-none transition-all cursor-pointer shadow-sm rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669]' :
+                                                                    t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7]' :
+                                                                        'bg-[#fff7ed] text-[#ea580c]'
+                                                                }`}
+                                                            value={t.status}
+                                                            onChange={(e) => updateTaskStatus(t.id, e.target.value)}
+                                                        >
+                                                            <option>Pending</option>
+                                                            <option>In Progress</option>
+                                                            <option>Completed</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
+                                                {canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
+                                                            className={`p-1 px-2 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#2447d7] hover:bg-[#eef2ff] transition-all text-[10px] font-bold border border-[#edf2f7]`}
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button 
+                                                            onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
+                                                            className={`p-1 px-2 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#e53e3e] hover:bg-[#fff5f5] transition-all text-[10px] font-bold border border-[#edf2f7]`}
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                )}
 
                                             </div>
                                         </div>
@@ -576,7 +619,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                                     Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
                                                 </span>
                                             )}
-                                            {task.createdBy && task.createdBy !== 'Accounts Manager' && (
+                                            {task.createdBy && (task.createdBy !== 'Accounts Manager' && task.createdBy !== 'Manager') && (
                                                 <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-[#ffedd5]">By: {task.createdBy}</span>
                                             )}
 
@@ -630,22 +673,24 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                             <option>Completed</option>
                                         </select>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button 
-                                            onClick={() => handleEditClick(task)}
-                                            className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
-                                            title="Edit Task"
-                                        >
-                                            <IconEdit />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteTask(task.id)}
-                                            className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
-                                            title="Delete Task"
-                                        >
-                                            <IconTrash />
-                                        </button>
-                                    </div>
+                                    {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                        <div className="flex items-center gap-2">
+                                            <button 
+                                                onClick={() => handleEditClick(task)}
+                                                className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                                title="Edit Task"
+                                            >
+                                                <IconEdit />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteTask(task.id)}
+                                                className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                                title="Delete Task"
+                                            >
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                             </div>

@@ -129,7 +129,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                 status: 'Pending',
                 lead: formData.customerName || 'New Lead',
                 assignedTo: user.id || 'Self',
-                createdBy: user.role || 'Tele Agent'
+                createdBy: user.role || 'Tele Agent',
+                creatorId: user.id
             };
             setTasks(prev => [newTask, ...prev]);
             

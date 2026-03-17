@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
+import { canManageTask } from '../../../utils/permissionUtils';
+
 
 // Removed INITIAL_TASKS mock data, using props from layout.
 
@@ -87,10 +89,13 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
             setIsEditingTask(false);
             setEditingTask(null);
         } else {
+            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
             const taskToAdd = {
                 ...newTask,
                 id: Date.now(),
-                status: 'Pending'
+                status: 'Pending',
+                createdBy: 'Tele Agent',
+                creatorId: currentUser.id
             };
             setTasks([taskToAdd, ...tasks]);
             if (notifyReminderSet) notifyReminderSet(taskToAdd);
@@ -259,20 +264,22 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                         <span className="text-[13px] font-bold truncate leading-tight" style={{ color: taskTitleColor }}>{t.title}</span>
                                         <span className="text-[11px] font-medium" style={{ color: mutedColor }}>{t.time} • {t.lead}</span>
                                     </div>
-                                    <div className="flex items-center gap-1.5 ml-auto">
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
-                                            className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#2447d7] transition-all`}
-                                        >
-                                            <IconEdit size={14} />
-                                        </button>
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
-                                            className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#e53e3e] transition-all`}
-                                        >
-                                            <IconTrash size={14} />
-                                        </button>
-                                    </div>
+                                    {canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                        <div className="flex items-center gap-1.5 ml-auto">
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
+                                                className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#2447d7] transition-all`}
+                                            >
+                                                <IconEdit size={14} />
+                                            </button>
+                                            <button 
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
+                                                className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#e53e3e] transition-all`}
+                                            >
+                                                <IconTrash size={14} />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
 
                             ))
@@ -549,22 +556,24 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                             </select>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button 
-                                            onClick={() => handleEditClick(task)}
-                                            className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
-                                            title="Edit Task"
-                                        >
-                                            <IconEdit />
-                                        </button>
-                                        <button 
-                                            onClick={() => handleDeleteTask(task.id)}
-                                            className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
-                                            title="Delete Task"
-                                        >
-                                            <IconTrash />
-                                        </button>
-                                    </div>
+                                    {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                        <div className="flex items-center gap-2">
+                                            <button 
+                                                onClick={() => handleEditClick(task)}
+                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                                title="Edit Task"
+                                            >
+                                                <IconEdit />
+                                            </button>
+                                            <button 
+                                                onClick={() => handleDeleteTask(task.id)}
+                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                                title="Delete Task"
+                                            >
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))

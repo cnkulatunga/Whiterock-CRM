@@ -78,7 +78,7 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
 
     const handleAddTask = (e) => {
         e.preventDefault();
-        const taskToAdd = { ...newTask, id: Date.now(), status: 'Pending', createdBy: 'Manager' };
+        const taskToAdd = { ...newTask, id: Date.now(), status: 'Pending', createdBy: 'Accounts Manager' };
         if (setTasks) setTasks([taskToAdd, ...tasks]);
         if (notifyReminderSet) notifyReminderSet(taskToAdd);
         setIsAddingTask(false);
@@ -323,7 +323,15 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                                                     <span className="text-[12px] font-bold text-[#1a202c] truncate leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
                                                     <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
                                                         <span className="text-[10px] text-[#a0aec0] font-medium truncate">{t.time} {t.lead ? `· ${t.lead}` : '· Personal'}</span>
-                                                        {t.createdBy && t.createdBy !== 'Accounts Manager' && (
+                                                        {t.reminder && t.reminder !== 'none' && (
+                                                            <span className="bg-[#f0f4ff] text-[#2447d7] px-2 py-0.5 rounded-md text-[9px] uppercase font-bold w-fit flex items-center gap-1 mt-1">
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10">
+                                                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                                                </svg>
+                                                                {t.reminder === '1d' ? '1 day before' : t.reminder === '1h' ? '1 hour before' : '15 min before'}
+                                                            </span>
+                                                        )}
+                                                        {t.createdBy && (t.createdBy !== 'Accounts Manager' && t.createdBy !== 'Manager') && (
                                                             <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 border border-[#ffedd5]">By: {t.createdBy}</span>
                                                         )}
                                                     </div>
