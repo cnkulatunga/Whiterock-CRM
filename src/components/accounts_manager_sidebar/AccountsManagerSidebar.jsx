@@ -21,6 +21,30 @@ const NAV_GROUPS = [
                 ),
             },
             {
+                id: 'manage_leads',
+                path: '/accounts-manager/manage-leads',
+                label: 'Manage Leads',
+                icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <polyline points="16 11 18 13 22 9" />
+                    </svg>
+                ),
+            },
+            {
+                id: 'create_lead',
+                path: '/accounts-manager/create-lead',
+                label: 'Create Lead',
+                icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                ),
+            },
+            {
                 id: 'lender_selector',
                 path: '/accounts-manager/lender-selector',
                 label: 'Loan Pipeline',

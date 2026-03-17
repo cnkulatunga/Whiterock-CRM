@@ -34,7 +34,16 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     React.useEffect(() => {
         const userData = JSON.parse(localStorage.getItem('user') || '{}');
         setUser(userData);
-        const agentName = userData.role === 'tele_agent' ? 'Sarah Jenkins' : `${userData.first_name || 'Tele'} ${userData.last_name || 'Agent'}`.trim();
+        
+        let agentName = '';
+        if (userData.first_name || userData.last_name) {
+            agentName = `${userData.first_name || ''} ${userData.last_name || ''}`.trim();
+        } else if (userData.role === 'tele_agent') {
+            agentName = 'Sarah Jenkins';
+        } else {
+            agentName = userData.role || 'System Agent';
+        }
+        
         setFormData(prev => ({ ...prev, assignedAgent: agentName }));
     }, []);
 
@@ -129,7 +138,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                 status: 'Pending',
                 lead: formData.customerName || 'New Lead',
                 assignedTo: user.id || 'Self',
-                createdBy: user.role || 'Tele Agent'
+                createdBy: user.role === 'tele_agent' ? 'Tele Agent' : (user.role || 'Tele Agent')
             };
             setTasks(prev => [newTask, ...prev]);
             
