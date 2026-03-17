@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IconUpload, IconCheck, IconAlert, IconFile, IconClose, IconTrash, IconEye } from './Icons';
 
-const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject, uploadingDocs, isDark, isTeamLeader }) => {
+const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject, uploadingDocs, isDark, isTeamLeader, isAccountsManager }) => {
     const [customName, setCustomName] = useState('');
     const [previewDoc, setPreviewDoc] = useState(null);
     const [rejectionDocId, setRejectionDocId] = useState(null);
@@ -113,7 +113,7 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                         
                                         {!uploading && (
                                             <div className="flex items-center gap-2">
-                                                {!(doc.status === 'Approved' && !isTeamLeader) && (
+                                                {!(doc.status === 'Approved' && !isTeamLeader && !isAccountsManager) && (
                                                     <button 
                                                         onClick={() => setPreviewDoc(doc)}
                                                         className="p-2.5 rounded-xl border border-[#2447d7]/20 text-[#2447d7] hover:bg-[#2447d7]/10 active:scale-95 transition-all"
@@ -124,18 +124,29 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                                 )}
                                                 
                                                 {!isTeamLeader ? (
-                                                    <button 
-                                                        onClick={() => onUpload(client.id, doc.id, doc.type)}
-                                                        disabled={doc.status === 'Approved' || doc.status === 'Pending'}
-                                                        className={`p-2.5 rounded-xl transition-all ${
-                                                            (doc.status === 'Approved' || doc.status === 'Pending')
-                                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60' 
-                                                                : 'bg-[#2447d7] text-white shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:scale-105 active:scale-95'
-                                                        }`}
-                                                        title={doc.status === 'Approved' || doc.status === 'Pending' ? `Cannot re-upload ${doc.status.toLowerCase()} document` : "Re-upload Document"}
-                                                    >
-                                                        <IconUpload size={16} />
-                                                    </button>
+                                                    <>
+                                                        <button 
+                                                            onClick={() => onUpload(client.id, doc.id, doc.type)}
+                                                            disabled={!isAccountsManager && (doc.status === 'Approved' || doc.status === 'Pending')}
+                                                            className={`p-2.5 rounded-xl transition-all ${
+                                                                (!isAccountsManager && (doc.status === 'Approved' || doc.status === 'Pending'))
+                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60' 
+                                                                    : 'bg-[#2447d7] text-white shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:scale-105 active:scale-95'
+                                                            }`}
+                                                            title={(!isAccountsManager && (doc.status === 'Approved' || doc.status === 'Pending')) ? `Cannot re-upload ${doc.status.toLowerCase()} document` : "Re-upload Document"}
+                                                        >
+                                                            <IconUpload size={16} />
+                                                        </button>
+                                                        {isAccountsManager && (
+                                                            <button 
+                                                                onClick={() => onDelete?.(client.id, doc.id)}
+                                                                className="p-2.5 rounded-xl bg-white border border-[#fee2e2] text-[#ef4444] hover:bg-[#ef4444] hover:text-white hover:scale-105 active:scale-95 transition-all shadow-sm"
+                                                                title="Delete Document"
+                                                            >
+                                                                <IconTrash size={16} />
+                                                            </button>
+                                                        )}
+                                                    </>
                                                 ) : (
                                                     <div className="flex items-center gap-2">
                                                         {doc.status !== 'Approved' && (

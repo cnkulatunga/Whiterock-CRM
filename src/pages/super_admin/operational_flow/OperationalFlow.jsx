@@ -371,15 +371,15 @@ const StageBadge = ({ stageId, isDark, compact = false }) => {
 
     return (
         <span style={{ 
-            fontSize: compact ? '10px' : '11px', 
-            fontWeight: 800, 
-            padding: compact ? '2px 8px' : '4px 12px', 
+            fontSize: compact ? '9px' : '10px', 
+            fontWeight: 900, 
+            padding: compact ? '2px 6px' : '3px 10px', 
             borderRadius: '999px', 
             background: isDark ? `${color}20` : `${color}15`,
             color: color,
             border: `1px solid ${isDark ? `${color}40` : `${color}30`}`,
             textTransform: 'uppercase',
-            letterSpacing: '0.01em',
+            letterSpacing: '0.05em',
             display: 'inline-block',
             whiteSpace: 'nowrap'
         }}>
@@ -414,7 +414,8 @@ const OperationalFlow = () => {
     const filteredClients = OPERATIONAL_FLOW_LEADS.filter(c => {
         const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || 
                              c.agent.toLowerCase().includes(search.toLowerCase()) ||
-                             c.tl.toLowerCase().includes(search.toLowerCase());
+                             c.tl.toLowerCase().includes(search.toLowerCase()) ||
+                             (c.businessName && c.businessName.toLowerCase().includes(search.toLowerCase()));
         
         let matchesStage = filterStage === 'All' || c.stage === filterStage;
         if (filterStage === 'closed') {
@@ -588,59 +589,64 @@ const OperationalFlow = () => {
 
             {/* Content View */}
             {viewMode === 'grid' ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '24px' }}>
                     {filteredClients.map((client, idx) => (
                         <div key={client.id} className="flow-node" style={{
                             background: isDark ? '#1e2347' : '#fff',
-                            borderRadius: '24px',
+                            borderRadius: '20px',
                             border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`,
-                            padding: '24px',
+                            padding: '20px',
                             display: 'flex',
                             flexDirection: 'column',
-                            gap: '20px',
+                            gap: '16px',
                             animation: `slideUp 0.4s ease-out ${idx * 0.1}s both`
                         }}>
                             {/* Client Header */}
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div>
-                                    <h3 style={{ fontSize: '17px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', margin: 0, letterSpacing: '-0.2px' }}>{client.name}</h3>
-                                    <div style={{ fontSize: '12px', color: isDark ? '#546298' : '#94a3b8', fontWeight: 600, marginTop: '4px' }}>Active since {client.lastActive}</div>
+                                    <span style={{ textTransform: 'uppercase', fontSize: '9px', fontWeight: 900, color: '#2447d7', letterSpacing: '0.05em', marginBottom: '2px', display: 'block' }}>Client Lead</span>
+                                    <h3 style={{ fontSize: '16px', fontWeight: 800, color: isDark ? '#e4ecff' : '#1a202c', margin: 0, letterSpacing: '-0.3px' }}>{client.name}</h3>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                                        <div style={{ fontSize: '11px', color: '#a0aec0', fontWeight: 600 }}>Active {client.lastActive}</div>
+                                        {client.businessName && (
+                                            <>
+                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e0' }} />
+                                                <div style={{ fontSize: '11px', color: '#6366f1', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.02em' }}>{client.businessName}</div>
+                                            </>
+                                        )}
+                                    </div>
                                 </div>
                                 <StageBadge stageId={client.stage} isDark={isDark} />
                             </div>
 
-                            {/* Hierarchy Flow */}
                             <div style={{ 
-                                display: 'flex', 
-                                alignItems: window.innerWidth > 768 ? 'center' : 'stretch', 
+                                display: 'grid',
+                                gridTemplateColumns: window.innerWidth > 768 ? '1fr 1fr 1fr' : '1fr',
                                 gap: '12px', 
                                 padding: '16px', 
                                 background: isDark ? 'rgba(99,102,241,0.05)' : '#f8faff', 
                                 borderRadius: '16px',
                                 border: `1px solid ${isDark ? 'rgba(99,102,241,0.1)' : '#eff2ff'}`,
-                                flexDirection: window.innerWidth > 768 ? 'row' : 'column'
                             }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                    <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase' }}>Tele Agent</span>
-                                    <span style={{ fontSize: '13px', color: isDark ? '#e4ecff' : '#0f172a', fontWeight: 700 }}>{client.agent}</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <span style={{ fontSize: '9px', color: '#a0aec0', fontWeight: 900, textTransform: 'uppercase', trackingWidest: '0.05em' }}>Tele Agent</span>
+                                    <span style={{ fontSize: '12px', color: isDark ? '#e4ecff' : '#1a202c', fontWeight: 700 }}>{client.agent}</span>
                                 </div>
-                                {window.innerWidth > 768 && <FlowArrow />}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                    <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase' }}>Leader</span>
-                                    <span style={{ fontSize: '13px', color: isDark ? '#e4ecff' : '#0f172a', fontWeight: 700 }}>{client.tl}</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <span style={{ fontSize: '9px', color: '#a0aec0', fontWeight: 900, textTransform: 'uppercase', trackingWidest: '0.05em' }}>Team Leader</span>
+                                    <span style={{ fontSize: '12px', color: isDark ? '#e4ecff' : '#1a202c', fontWeight: 700 }}>{client.tl}</span>
                                 </div>
-                                {window.innerWidth > 768 && <FlowArrow />}
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
-                                    <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase' }}>Account Manager</span>
-                                    <span style={{ fontSize: '13px', color: isDark ? '#e4ecff' : '#0f172a', fontWeight: 700 }}>{client.manager}</span>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                    <span style={{ fontSize: '9px', color: '#a0aec0', fontWeight: 900, textTransform: 'uppercase', trackingWidest: '0.05em' }}>Account Mgr</span>
+                                    <span style={{ fontSize: '12px', color: isDark ? '#e4ecff' : '#1a202c', fontWeight: 700 }}>{client.manager}</span>
                                 </div>
                             </div>
 
                             {/* Progress Tracker */}
                             <div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'baseline' }}>
-                                    <span style={{ fontSize: '12px', fontWeight: 800, color: isDark ? '#94abda' : '#475569' }}>Overall Progress</span>
-                                    <span style={{ fontSize: '14px', fontWeight: 900, color: '#6366f1' }}>{client.progress}%</span>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', alignItems: 'baseline' }}>
+                                    <span style={{ fontSize: '10px', fontWeight: 900, color: '#a0aec0', textTransform: 'uppercase', trackingWidest: '0.05em' }}>Loan Progress</span>
+                                    <span style={{ fontSize: '13px', fontWeight: 900, color: '#2447d7' }}>{client.progress}%</span>
                                 </div>
                                 <div style={{ width: '100%', height: '8px', background: isDark ? '#2c3568' : '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
                                     <div style={{ 
@@ -680,9 +686,9 @@ const OperationalFlow = () => {
                 <div style={{ overflowX: 'auto', padding: '0 4px 20px' }}>
                     <table className="of-table">
                         <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: isDark ? '#1e2347' : '#fff' }}>
-                            <tr>
+                             <tr>
                                 <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client Name</th>
-                                <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Current Stage</th>
+                                <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Name</th>
                                 <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personnel Flow</th>
                                 <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Progress</th>
                                 <th style={{ padding: '20px 24px', textAlign: 'right', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
@@ -698,7 +704,23 @@ const OperationalFlow = () => {
                                         </div>
                                     </td>
                                     <td>
-                                        <StageBadge stageId={client.stage} isDark={isDark} compact />
+                                        {client.businessName ? (
+                                            <span style={{ 
+                                                fontSize: '11px', 
+                                                fontWeight: 800, 
+                                                color: isDark ? '#6366f1' : '#4f46e5', 
+                                                textTransform: 'uppercase', 
+                                                letterSpacing: '0.05em',
+                                                background: isDark ? 'rgba(99,102,241,0.1)' : 'rgba(99,102,241,0.05)',
+                                                padding: '4px 10px',
+                                                borderRadius: '8px',
+                                                border: `1px solid ${isDark ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)'}`
+                                            }}>
+                                                {client.businessName}
+                                            </span>
+                                        ) : (
+                                            <span style={{ fontSize: '11px', color: '#a0aec0', fontStyle: 'italic', fontWeight: 600 }}>Personal Lead</span>
+                                        )}
                                     </td>
                                     <td>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -718,12 +740,15 @@ const OperationalFlow = () => {
                                             </div>
                                         </div>
                                     </td>
-                                    <td style={{ minWidth: '140px', textAlign: 'left' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{ width: '120px', height: '6px', background: isDark ? '#2c3568' : '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
-                                                <div style={{ width: `${client.progress}%`, height: '100%', background: 'linear-gradient(90deg, #6366f1, #10b981)', borderRadius: '3px' }} />
+                                    <td style={{ minWidth: '160px', textAlign: 'left' }}>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div style={{ width: '120px', height: '6px', background: isDark ? '#2c3568' : '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
+                                                    <div style={{ width: `${client.progress}%`, height: '100%', background: 'linear-gradient(90deg, #6366f1, #10b981)', borderRadius: '3px' }} />
+                                                </div>
+                                                <span style={{ fontSize: '12px', fontWeight: 900, color: '#6366f1', minWidth: '35px' }}>{client.progress}%</span>
                                             </div>
-                                            <span style={{ fontSize: '12px', fontWeight: 900, color: '#6366f1', minWidth: '35px' }}>{client.progress}%</span>
+                                            <StageBadge stageId={client.stage} isDark={isDark} compact />
                                         </div>
                                     </td>
                                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>

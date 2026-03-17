@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
-import { IconUpload, IconAlert, IconCheck, IconDocs } from '../../../components/DocumentManagement/Icons';
+import EditLeadModal from './EditLeadModal';
+import { IconUpload, IconAlert, IconCheck, IconDocs, IconPencil, IconTrash, IconUsers } from '../../../components/DocumentManagement/Icons';
 
 import { MOCK_LEADS, INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS } from '../../../data/dummyData';
 
@@ -20,6 +21,10 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
     const [showModal, setShowModal] = useState(false);
     const [showReassignModal, setShowReassignModal] = useState(false);
     const [leadToReassign, setLeadToReassign] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [leadToDelete, setLeadToDelete] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [leadToEdit, setLeadToEdit] = useState(null);
     const [uploadContext, setUploadContext] = useState(null);
     const [uploadingDocs, setUploadingDocs] = useState({});
 
@@ -101,6 +106,30 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
         setLeads(prev => prev.map(l => l.id === leadId ? { ...l, assignedStaffId: parseInt(newStaffId) } : l));
         setShowReassignModal(false);
         setLeadToReassign(null);
+    };
+
+    const handleEditLead = (lead) => {
+        setLeadToEdit(lead);
+        setShowEditModal(true);
+    };
+
+    const handleSaveEditedLead = (updatedLead) => {
+        setLeads(prev => prev.map(l => l.id === updatedLead.id ? updatedLead : l));
+        setShowEditModal(false);
+        setLeadToEdit(null);
+    };
+
+    const handleDeleteLead = (lead) => {
+        setLeadToDelete(lead);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeleteLead = () => {
+        if (leadToDelete) {
+            setLeads(prev => prev.filter(l => l.id !== leadToDelete.id));
+            setShowDeleteModal(false);
+            setLeadToDelete(null);
+        }
     };
 
     return (
@@ -209,7 +238,7 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                                 // 1. Critical Rejection (Document or Loan level)
                                                 if (hasRejected || lead.status === 'Loan Rejected') {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm">
                                                             <IconAlert size={12} /> {lead.status === 'Document Verifications' ? 'Docs Rejected' : lead.status}
                                                         </span>
                                                     );
@@ -218,7 +247,7 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                                 // 2. Success / Post-Verification Stage
                                                 if (lead.status === 'Loan Confirmed' || isAllVerified) {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm">
                                                             <IconCheck size={12} strokeWidth={3} /> {lead.status}
                                                         </span>
                                                     );
@@ -227,7 +256,7 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                                 // 3. Selection / Advanced Stage
                                                 if (lead.status === 'Lender Selection') {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100 shadow-sm">
                                                             <IconCheck size={12} strokeWidth={3} /> {lead.status}
                                                         </span>
                                                     );
@@ -236,7 +265,7 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                                 // 4. Collection / Pending Stage
                                                 if (docCount > 0) {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
                                                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(36,71,215,0.4)]" />
                                                             {lead.status === 'Document Collected' ? 'Docs' : lead.status} ({approvedCount}/{docCount})
                                                         </span>
@@ -245,7 +274,7 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
 
                                                 // 4. Default / Missing Docs Stage
                                                 return (
-                                                    <span className="inline-flex items-center gap-1.5 sm:gap-1 px-3 sm:px-1.5 py-1 rounded-full text-[10px] sm:text-[8px] font-black uppercase tracking-wider bg-gray-50 text-gray-500 border border-gray-200">
+                                                    <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-gray-50 text-gray-500 border border-gray-200">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
                                                         {lead.status}
                                                     </span>
@@ -256,30 +285,47 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                     <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
                                         <div className="flex items-center gap-2 sm:gap-1">
                                             <button 
-                                                className="px-3 sm:px-1.5 py-1.5 sm:py-1 border border-[#edf2f7] rounded-lg text-[13px] sm:text-[9px] font-semibold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200" 
+                                                className="px-2 sm:px-1.5 py-1 sm:py-1 border border-[#edf2f7] rounded-lg text-[11px] sm:text-[9px] font-semibold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200" 
                                                 onClick={() => onViewDetails(lead)}
                                             >
                                                 Details
                                             </button>
                                             {!(lead.status === 'Document Verifications' && lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
                                                 <button 
-                                                    className="p-1.5 sm:p-1 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
+                                                    className="p-1 sm:p-1 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
                                                     title="Upload/Manage Documents"
                                                     onClick={() => handleOpenModal(lead)}
                                                 >
-                                                    <IconUpload size={18} />
+                                                    <IconUpload size={16} />
                                                 </button>
                                             )}
                                             {isAccountsManager && (
-                                                <button 
-                                                    className="px-3 sm:px-1.5 py-1.5 sm:py-1 border border-[#ebf0ff] bg-[#f0f4ff] rounded-lg text-[13px] sm:text-[9px] font-bold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
-                                                    onClick={() => {
-                                                        setLeadToReassign(lead);
-                                                        setShowReassignModal(true);
-                                                    }}
-                                                >
-                                                    Reassign
-                                                </button>
+                                                <>
+                                                    <button 
+                                                        className="p-1 sm:p-0.5 border border-[#ebf0ff] bg-[#f0f4ff] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
+                                                        title="Reassign Lead"
+                                                        onClick={() => {
+                                                            setLeadToReassign(lead);
+                                                            setShowReassignModal(true);
+                                                        }}
+                                                    >
+                                                        <IconUsers size={16} />
+                                                    </button>
+                                                    <button 
+                                                        className="p-1 sm:p-0.5 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
+                                                        title="Edit Lead"
+                                                        onClick={() => handleEditLead(lead)}
+                                                    >
+                                                        <IconPencil size={16} />
+                                                    </button>
+                                                    <button 
+                                                        className="p-1 sm:p-0.5 border border-[#fee2e2] bg-[#fef2f2] rounded-lg text-[#ef4444] hover:bg-[#ef4444] hover:text-white transition-all duration-200"
+                                                        title="Delete Lead"
+                                                        onClick={() => handleDeleteLead(lead)}
+                                                    >
+                                                        <IconTrash size={16} />
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
                                     </td>
@@ -320,6 +366,7 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                     onDelete={handleDeleteDocument}
                     uploadingDocs={uploadingDocs}
                     isDark={isDark}
+                    isAccountsManager={isAccountsManager}
                 />
             )}
             {showReassignModal && leadToReassign && (
@@ -397,6 +444,47 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                     </div>
                 </div>
             )}
+            {showDeleteModal && leadToDelete && (
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-6 animate-fadeIn" onClick={() => setShowDeleteModal(false)}>
+                    <div className="w-full max-w-sm bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp text-center" onClick={e => e.stopPropagation()}>
+                        <div className="p-8 pb-6 flex flex-col items-center gap-4">
+                            <div className="w-16 h-16 rounded-full bg-red-50 text-red-500 flex items-center justify-center">
+                                <IconTrash size={32} />
+                            </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-[#1a202c] mb-2">Delete Lead?</h3>
+                                <p className="text-sm text-[#718096]">
+                                    Are you sure you want to delete <strong className="text-[#1a202c]">{leadToDelete.name}</strong>? This action cannot be undone.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="p-4 bg-[#f8fafc] border-t border-[#f1f5f9] flex justify-center gap-3">
+                            <button 
+                                onClick={() => setShowDeleteModal(false)} 
+                                className="flex-1 px-5 py-2.5 rounded-xl text-sm font-bold text-[#4a5568] border border-[#e2e8f0] bg-white hover:bg-[#f8fafc] transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={confirmDeleteLead} 
+                                className="flex-1 px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-red-600 hover:bg-red-700 shadow-lg shadow-red-600/20 transition-all hover:-translate-y-0.5"
+                            >
+                                Yes, Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            <EditLeadModal 
+                isOpen={showEditModal} 
+                onClose={() => {
+                    setShowEditModal(false);
+                    setLeadToEdit(null);
+                }} 
+                lead={leadToEdit} 
+                onSave={handleSaveEditedLead} 
+            />
         </div>
     );
 };

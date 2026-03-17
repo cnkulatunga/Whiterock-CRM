@@ -159,7 +159,7 @@ export const WORKFLOW_STAGES = [
 
 export const OPERATIONAL_FLOW_LEADS = [
     {
-        id: 'WR-011', name: 'Global Tech Solutions', manager: 'Sarah White', tl: 'Marcus Smith', agent: 'Priya Sharma', stage: 'lead_gather', progress: 25, lastActive: '2h ago',
+        id: 'WR-011', name: 'James Wilson', businessName: 'Global Tech Solutions', manager: 'Sarah White', tl: 'Marcus Smith', agent: 'Priya Sharma', stage: 'lead_gather', progress: 25, lastActive: '2h ago',
         leadDetails: {
             phone: '+1 (555) 012-3456', email: 'corp@globaltech.com', source: 'Direct Website',
             amount: '$250,000', purpose: 'Working Capital', nic: '772910293-TX',
@@ -169,7 +169,7 @@ export const OPERATIONAL_FLOW_LEADS = [
         lenderDetails: { partner: 'Pending', rate: 'N/A', status: 'Analysis Stage', terms: 'N/A' }
     },
     {
-        id: 'WR-012', name: 'Apex Industries', manager: 'Sarah White', tl: 'Marcus Smith', agent: 'Jake Morrison', stage: 'doc_collect', progress: 50, lastActive: '45m ago',
+        id: 'WR-012', name: 'Robert Chen', businessName: 'Apex Industries', manager: 'Sarah White', tl: 'Marcus Smith', agent: 'Jake Morrison', stage: 'doc_collect', progress: 50, lastActive: '45m ago',
         leadDetails: {
             phone: '+1 (555) 987-6543', email: 'fin@apexind.io', source: 'Premium Referral',
             amount: '$1.2M', purpose: 'Equipment Finance', nic: '992010294-NY',
@@ -179,7 +179,7 @@ export const OPERATIONAL_FLOW_LEADS = [
         lenderDetails: { partner: 'Pending', rate: 'N/A', status: 'Document Verification', terms: 'N/A' }
     },
     {
-        id: 'WR-013', name: 'Blue Sky Ventures', manager: 'Sarah White', tl: 'Diana Fernandez', agent: 'Nina Hassan', stage: 'lender_select', progress: 75, lastActive: '1d ago',
+        id: 'WR-013', name: 'Sarah Miller', businessName: 'Blue Sky Ventures', manager: 'Sarah White', tl: 'Diana Fernandez', agent: 'Nina Hassan', stage: 'lender_select', progress: 75, lastActive: '1d ago',
         leadDetails: {
             phone: '+1 (555) 444-2222', email: 'hello@bluesky.vc', source: 'LinkedIn Campaign',
             amount: '$500,000', purpose: 'Expansion Loan', nic: '448291039-SF',
@@ -189,7 +189,7 @@ export const OPERATIONAL_FLOW_LEADS = [
         lenderDetails: { partner: 'Capital One', rate: '4.2%', status: 'Offer Received', terms: '60 Months' }
     },
     {
-        id: 'WR-014', name: 'Summit Realty', manager: 'Sarah White', tl: 'Elena Vasquez', agent: 'Sophie Tan', stage: 'won', progress: 100, lastActive: '3h ago',
+        id: 'WR-014', name: 'Michael Thompson', businessName: 'Summit Realty', manager: 'Sarah White', tl: 'Elena Vasquez', agent: 'Sophie Tan', stage: 'won', progress: 100, lastActive: '3h ago',
         leadDetails: {
             phone: '+1 (555) 333-1111', email: 'ops@summitrealty.com', source: 'Cold Outreach',
             amount: '$750,000', purpose: 'Bridge Loan', nic: '331029384-FL',
@@ -426,9 +426,9 @@ export const SA_ACTIVITIES = [
 ];
 
 export const SA_DONUT_DATA = [
-    { label: 'Active', value: 45, color: '#2447d7' },
-    { label: 'Pending', value: 25, color: '#f59e0b' },
-    { label: 'Qualified', value: 20, color: '#10b981' },
-    { label: 'Rejected', value: 10, color: '#dc2626' },
+    { label: 'Active', pct: 40, color: '#2447d7' },
+    { label: 'Pending', pct: 30, color: '#f59e0b' },
+    { label: 'Qualified', pct: 20, color: '#10b981' },
+    { label: 'Rejected', pct: 10, color: '#dc2626' },
 ];
 
