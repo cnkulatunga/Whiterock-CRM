@@ -171,15 +171,25 @@ const AuditLogs = () => {
                                 </div>
                             </div>
                             {/* Action */}
-                            <div className="flex items-center gap-3 bg-[#f8fafc] rounded-xl px-4 py-3 border border-transparent hover:bg-white hover:border-[#edf2f7] transition-all">
-                                <ActionIcon type={entry.actionIcon} />
-                                <span className="text-[13px] text-[#4a5568]">
-                                    {entry.actionText}{' '}
-                                    {entry.autoApproved
-                                        ? <><em className="text-[#059669] font-semibold not-italic bg-[#ecfdf5] px-1.5 py-0.5 rounded text-[10px]">Auto-Approved</em>{' '}for <strong className="text-[#2447d7] font-medium">{entry.refId}</strong></>
-                                        : <strong className="text-[#2447d7] font-medium">{entry.refId}</strong>
-                                    }
-                                </span>
+                            <div className="flex flex-col gap-1.5 bg-[#f8fafc] rounded-xl px-4 py-3 border border-transparent hover:bg-white hover:border-[#edf2f7] transition-all">
+                                <div className="flex items-center gap-3">
+                                    <ActionIcon type={entry.actionIcon} />
+                                    <span className="text-[13px] text-[#4a5568]">
+                                        {entry.actionText}{' '}
+                                        {entry.autoApproved
+                                            ? <><em className="text-[#059669] font-semibold not-italic bg-[#ecfdf5] px-1.5 py-0.5 rounded text-[10px]">Auto-Approved</em>{' '}for <strong className="text-[#2447d7] font-medium">{entry.refId}</strong></>
+                                            : <strong className="text-[#2447d7] font-medium">{entry.refId}</strong>
+                                        }
+                                    </span>
+                                </div>
+                                {(entry.turnover || entry.purpose || entry.bank) && (
+                                    <div className="flex items-center gap-2 mt-1 ml-11 flex-wrap">
+                                        {entry.turnover && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#ecfdf5] text-[#059669]">Turnover: {entry.turnover}</span>}
+                                        {entry.purpose && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#eff6ff] text-[#2447d7]">Purpose: {entry.purpose}</span>}
+                                        {entry.bank && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f1f5f9] text-[#64748b]">Bank: {entry.bank}</span>}
+                                        {entry.homeowner && <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${entry.homeowner === 'YES' ? 'bg-[#ecfdf5] text-[#059669]' : 'bg-[#f1f5f9] text-[#94a3b8]'}`}>Homeowner: {entry.homeowner}</span>}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}

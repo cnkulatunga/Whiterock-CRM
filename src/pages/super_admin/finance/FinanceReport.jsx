@@ -363,30 +363,41 @@ const FinanceReport = () => {
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className="bg-[#f8fafc]">
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">REF ID</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD #</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">CUSTOMER NAME</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">AMOUNT</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">DATE</th>
-                                <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">STATUS</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">REF ID</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">LEAD #</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">CUSTOMER NAME</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">LOAN AMOUNT</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">EST. COMMISSION</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">LENDER</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">TERM</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">MANAGER</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">PAYOUT DATE</th>
+                                <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">STATUS</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f7fafc]">
-                            {filteredTransactions.map((t, i) => (
+                            {filteredTransactions.map((t, i) => {
+                                const commission = '$' + (parseFloat(t.amount.replace(/[^0-9.-]+/g,"")) * 0.02).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                return (
                                 <tr key={t.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${550 + i * 55}ms`, animationFillMode: 'both' }}>
-                                    <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{t.id}</span></td>
-                                    <td className="px-6 py-4"><span className="text-[12px] font-medium text-[#1a202c] bg-[#f1f5f9] px-2 py-0.5 rounded-md">{t.lead}</span></td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: t.bg, color: t.tc }}>{t.initials}</div>
-                                            <span className="text-[13px] font-medium text-[#1a202c]">{t.name}</span>
+                                    <td className="px-4 py-3"><span className="text-[11px] font-medium text-[#2447d7] cursor-pointer hover:underline">{t.id}</span></td>
+                                    <td className="px-4 py-3"><span className="text-[10px] font-medium text-[#1a202c] bg-[#f1f5f9] px-1.5 py-0.5 rounded-md">{t.lead}</span></td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-bold shrink-0" style={{ background: t.bg, color: t.tc }}>{t.initials}</div>
+                                            <span className="text-[11px] font-medium text-[#1a202c]">{t.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4"><span className="text-[14px] font-semibold text-[#1a202c]">{t.amount}</span></td>
-                                    <td className="px-6 py-4"><span className="text-[12px] text-[#718096]">{t.date}</span></td>
-                                    <td className="px-6 py-4"><StatusBadge status={t.status} /></td>
+                                    <td className="px-4 py-3"><span className="text-[11px] font-semibold text-[#1a202c]">{t.amount}</span></td>
+                                    <td className="px-4 py-3"><span className="text-[11px] font-bold text-[#10b981]">{commission}</span></td>
+                                    <td className="px-4 py-3"><span className="text-[11px] font-medium text-[#4a5568]">{t.bank || '—'}</span></td>
+                                    <td className="px-4 py-3"><span className="text-[11px] font-medium text-[#4a5568]">{t.term || '—'}</span></td>
+                                    <td className="px-4 py-3"><span className="text-[11px] font-medium text-[#4a5568]">{t.manager || '—'}</span></td>
+                                    <td className="px-4 py-3"><span className="text-[11px] text-[#718096]">{t.date}</span></td>
+                                    <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
                                 </tr>
-                            ))}
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>

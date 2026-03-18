@@ -251,30 +251,48 @@ const ClientDetailModal = ({ client, onClose, isDark }) => {
 
                     {activeTab === 'lead' && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
-                                {[
-                                    { label: 'NIC / National ID', value: client.leadDetails.nic, icon: '🪪' },
-                                    { label: 'Contact Number', value: client.leadDetails.phone, icon: '📞' },
-                                    { label: 'Email Address', value: client.leadDetails.email, icon: '✉️' },
-                                    { label: 'Residential Address', value: client.leadDetails.residentialAddress, icon: '🏠' },
-                                    { label: 'Requested Amount', value: client.leadDetails.amount, icon: '💰' },
-                                    { label: 'Loan Purpose', value: client.leadDetails.purpose, icon: '📋' },
-                                    { label: 'Submission Date', value: 'Oct 24, 2023', icon: '📅' }
-                                ].map((item, i) => (
-                                    <div key={i} style={{ 
-                                        padding: '20px', borderRadius: '16px', 
-                                        background: isDark ? '#161a35' : '#f8faff',
-                                        border: `1px solid ${isDark ? '#2c3568' : '#eff2ff'}`,
-                                        display: 'flex', gap: '16px', alignItems: 'center',
-                                        gridColumn: item.label === 'Residential Address' ? 'span 2' : 'span 1'
-                                    }}>
-                                        <div style={{ fontSize: '20px' }}>{item.icon}</div>
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.05em' }}>{item.label}</div>
-                                            <div style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{item.value}</div>
-                                        </div>
-                                    </div>
-                                ))}
+                            <table className="of-table" style={{ marginTop: '-8px' }}>
+                                <tbody>
+                                    {[
+                                        { label: 'NIC / National ID', value: client.leadDetails.nic, icon: '🪪' },
+                                        { label: 'Contact Number', value: client.leadDetails.phone, icon: '📞' },
+                                        { label: 'Email Address', value: client.leadDetails.email, icon: '✉️' },
+                                        { label: 'Residential Address', value: client.leadDetails.residentialAddress, icon: '🏠' },
+                                        { label: 'Requested Amount', value: client.leadDetails.amount, icon: '💰' },
+                                        { label: 'Loan Purpose', value: client.leadDetails.purpose, icon: '📋' },
+                                        { label: 'Submission Date', value: 'Oct 24, 2023', icon: '📅' }
+                                    ].map((item, i) => (
+                                        <tr key={i}>
+                                            <td style={{ width: '48px', textAlign: 'center', fontSize: '18px', padding: '12px 0 12px 20px' }}>{item.icon}</td>
+                                            <td style={{ width: '220px', fontSize: '12px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</td>
+                                            <td style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{item.value}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+
+                            {/* New Gathered Details */}
+                            <div>
+                                <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px', paddingLeft: '8px' }}>📊 Gathered Details</h4>
+                                <table className="of-table">
+                                    <tbody>
+                                        {[
+                                            { label: 'Turnover', value: client.leadDetails.turnover, icon: '📈' },
+                                            { label: 'Homeowner', value: client.leadDetails.homeowner, icon: '🏡' },
+                                            { label: 'Bank', value: client.leadDetails.bank, icon: '🏦' },
+                                            { label: 'Overdraft', value: client.leadDetails.overdraft, icon: '💳' },
+                                            { label: 'Term', value: client.leadDetails.term, icon: '📆' },
+                                            { label: 'Funding Timeline', value: client.leadDetails.fundingTimeline, icon: '⏱️' },
+                                            { label: 'Existing Loan', value: client.leadDetails.existingLoan, icon: '🔗' },
+                                        ].map((item, i) => (
+                                            <tr key={i}>
+                                                <td style={{ width: '48px', textAlign: 'center', fontSize: '16px', padding: '12px 0 12px 20px' }}>{item.icon}</td>
+                                                <td style={{ width: '220px', fontSize: '12px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</td>
+                                                <td style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{item.value || 'N/A'}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
 
                             {/* Notes Section */}
@@ -296,6 +314,7 @@ const ClientDetailModal = ({ client, onClose, isDark }) => {
                             </div>
                         </div>
                     )}
+
 
                     {activeTab === 'lender' && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

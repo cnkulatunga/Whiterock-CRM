@@ -165,6 +165,8 @@ export const OPERATIONAL_FLOW_LEADS = [
             phone: '+1 (555) 012-3456', email: 'corp@globaltech.com', source: 'Direct Website',
             amount: '$250,000', purpose: 'Working Capital', nic: '772910293-TX',
             residentialAddress: '88 Tech Plaza, Austin, TX 78701',
+            turnover: '£1,200,000', homeowner: 'YES', bank: 'Barclays', overdraft: '£10,000',
+            existingLoan: 'NA', term: '24 months', fundingTimeline: 'Within 1 month',
             notes: 'Lead is looking for rapid funding to cover a sudden Q3 inventory spike. High priority.'
         },
         lenderDetails: { partner: 'Pending', rate: 'N/A', status: 'Analysis Stage', terms: 'N/A' }
@@ -175,6 +177,8 @@ export const OPERATIONAL_FLOW_LEADS = [
             phone: '+1 (555) 987-6543', email: 'fin@apexind.io', source: 'Premium Referral',
             amount: '$1.2M', purpose: 'Equipment Finance', nic: '992010294-NY',
             residentialAddress: '15 Industrial Blvd, Rochester, NY 14623',
+            turnover: '£3,500,000', homeowner: 'YES', bank: 'HSBC', overdraft: '£25,000',
+            existingLoan: 'HSBC – £180,000 @ 4.5% / £4,200/mo / 36mo', term: '48 months', fundingTimeline: 'Immediately',
             notes: 'Requires heavy machinery leasing. Documents are partially submitted.'
         },
         lenderDetails: { partner: 'Pending', rate: 'N/A', status: 'Document Verification', terms: 'N/A' }
@@ -185,6 +189,8 @@ export const OPERATIONAL_FLOW_LEADS = [
             phone: '+1 (555) 444-2222', email: 'hello@bluesky.vc', source: 'LinkedIn Campaign',
             amount: '$500,000', purpose: 'Expansion Loan', nic: '448291039-SF',
             residentialAddress: '22 Venture Way, San Francisco, CA 94105',
+            turnover: '£900,000', homeowner: 'NO', bank: 'Lloyds', overdraft: 'NA',
+            existingLoan: 'NA', term: '36 months', fundingTimeline: 'Within 3 months',
             notes: 'Seed-stage startup looking for non-dilutive capital. Financials look strong.'
         },
         lenderDetails: { partner: 'Capital One', rate: '4.2%', status: 'Offer Received', terms: '60 Months' }
@@ -195,11 +201,14 @@ export const OPERATIONAL_FLOW_LEADS = [
             phone: '+1 (555) 333-1111', email: 'ops@summitrealty.com', source: 'Cold Outreach',
             amount: '$750,000', purpose: 'Bridge Loan', nic: '331029384-FL',
             residentialAddress: '55 Ocean Dr, Miami, FL 33139',
+            turnover: '£5,200,000', homeowner: 'YES', bank: 'Santander', overdraft: '£50,000',
+            existingLoan: 'Barclays – £300,000 @ 3.9% / £6,800/mo / 60mo', term: '60 months', fundingTimeline: 'Within 2 weeks',
             notes: 'Urgent bridge loan for a real estate acquisition closing in 2 weeks.'
         },
         lenderDetails: { partner: 'Commonwealth Bank', rate: '3.8%', status: 'Funded', terms: '48 Months' }
     },
 ];
+
 
 /**
  * Team Leader Dashboard Data
@@ -311,10 +320,10 @@ export const MOCK_LEADS = [
  * Super Admin Lead Performance
  */
 export const SA_RECENT_LEADS = [
-    { id: 'WR-001', name: 'Robert Miller',  businessName: 'Miller Logistics Co.', initials: 'RM', bg: LEAD_AVATAR_COLORS['Robert Miller'].bg, tc: LEAD_AVATAR_COLORS['Robert Miller'].tc, stage: 'Document Collection', stageCls: 'bg-[#1a202c] text-white',        status: 'Active',    statusCls: 'text-[#059669]', dot: STATUS_COLORS.active.dot, agent: 'Cody Lane',      date: 'Oct 24, 2023' },
-    { id: 'WR-002', name: 'Alice Huang',    businessName: 'Huang Tech Solutions', initials: 'AH', bg: LEAD_AVATAR_COLORS['Alice Huang'].bg, tc: LEAD_AVATAR_COLORS['Alice Huang'].tc, stage: 'Document Verification Done', stageCls: 'bg-[#fef9c3] text-[#a16207]',    status: 'Active',    statusCls: 'text-[#059669]', dot: STATUS_COLORS.active.dot, agent: 'Leo Kumar',      date: 'Oct 24, 2023' },
-    { id: 'WR-008', name: 'Marcus Aurelius', businessName: 'Aurelius Consulting', initials: 'MA', bg: LEAD_AVATAR_COLORS['Marcus Aurelius'].bg, tc: LEAD_AVATAR_COLORS['Marcus Aurelius'].tc, stage: 'Completed', stageCls: 'bg-[#ecfdf5] text-[#059669]', status: 'Completed', statusCls: 'text-[#a0aec0]', dot: 'bg-[#a0aec0]', agent: 'Cody Lane',      date: 'Oct 23, 2023' },
-    { id: 'WR-004', name: 'Sarah Connor',   businessName: 'Connor Security Group', initials: 'SC', bg: LEAD_AVATAR_COLORS['Sarah Connor'].bg, tc: LEAD_AVATAR_COLORS['Sarah Connor'].tc, stage: 'Rejected', stageCls: 'bg-[#f1f5f9] text-[#64748b]',    status: 'Urgent',    statusCls: 'text-[#dc2626]', dot: STATUS_COLORS.urgent.dot, agent: 'Jake Morrison', date: 'Oct 23, 2023' },
+    { id: 'WR-001', name: 'Robert Miller',  businessName: 'Miller Logistics Co.', initials: 'RM', bg: LEAD_AVATAR_COLORS['Robert Miller'].bg, tc: LEAD_AVATAR_COLORS['Robert Miller'].tc, stage: 'Document Collection', stageCls: 'bg-[#1a202c] text-white',        status: 'Active',    statusCls: 'text-[#059669]', dot: STATUS_COLORS.active.dot, agent: 'Cody Lane',      date: 'Oct 24, 2023', amount: '$250,000', purpose: 'Working Capital', homeowner: 'YES', bank: 'Barclays', term: '12 months' },
+    { id: 'WR-002', name: 'Alice Huang',    businessName: 'Huang Tech Solutions', initials: 'AH', bg: LEAD_AVATAR_COLORS['Alice Huang'].bg, tc: LEAD_AVATAR_COLORS['Alice Huang'].tc, stage: 'Document Verification Done', stageCls: 'bg-[#fef9c3] text-[#a16207]',    status: 'Active',    statusCls: 'text-[#059669]', dot: STATUS_COLORS.active.dot, agent: 'Leo Kumar',      date: 'Oct 24, 2023', amount: '$1,200,000', purpose: 'Equipment Finance', homeowner: 'YES', bank: 'HSBC', term: '36 months' },
+    { id: 'WR-008', name: 'Marcus Aurelius', businessName: 'Aurelius Consulting', initials: 'MA', bg: LEAD_AVATAR_COLORS['Marcus Aurelius'].bg, tc: LEAD_AVATAR_COLORS['Marcus Aurelius'].tc, stage: 'Completed', stageCls: 'bg-[#ecfdf5] text-[#059669]', status: 'Completed', statusCls: 'text-[#a0aec0]', dot: 'bg-[#a0aec0]', agent: 'Cody Lane',      date: 'Oct 23, 2023', amount: '$75,000', purpose: 'Expansion Loan', homeowner: 'NO', bank: 'Lloyds', term: '24 months' },
+    { id: 'WR-004', name: 'Sarah Connor',   businessName: 'Connor Security Group', initials: 'SC', bg: LEAD_AVATAR_COLORS['Sarah Connor'].bg, tc: LEAD_AVATAR_COLORS['Sarah Connor'].tc, stage: 'Rejected', stageCls: 'bg-[#f1f5f9] text-[#64748b]',    status: 'Urgent',    statusCls: 'text-[#dc2626]', dot: STATUS_COLORS.urgent.dot, agent: 'Jake Morrison', date: 'Oct 23, 2023', amount: '$540,000', purpose: 'Bridge Loan', homeowner: 'NO', bank: 'Santander', term: '18 months' },
 ];
 
 export const SA_STATS = {
@@ -372,11 +381,11 @@ export const AUDIT_STATS = {
 };
 
 export const AUDIT_LOG_ENTRIES = [
-    { id: 1, date: 'Oct 24, 2023', time: '14:24:08', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'verify', actionText: 'Verified compliance docs for', refId: 'WR-001' },
-    { id: 2, date: 'Oct 24, 2023', time: '13:15:22', name: 'Marcus Smith', initials: 'MS', bg: ROLE_COLORS['Team Leader'].bg, role: 'Team Leader', roleCls: ROLE_COLORS['Team Leader'].roleCls, actionIcon: 'edit',   actionText: 'Modified status of', refId: 'WR-002' },
-    { id: 3, date: 'Oct 24, 2023', time: '11:05:44', name: 'Sarah White', initials: 'SW', bg: ROLE_COLORS['Accounts Manager'].bg, role: 'Accounts Manager', roleCls: ROLE_COLORS['Accounts Manager'].roleCls, actionIcon: 'payment', actionText: 'Confirmed payment for', refId: 'WR-008' },
+    { id: 1, date: 'Oct 24, 2023', time: '14:24:08', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'verify', actionText: 'Verified compliance docs for', refId: 'WR-001', turnover: '£1,200,000', purpose: 'Working Capital', bank: 'Barclays', homeowner: 'YES' },
+    { id: 2, date: 'Oct 24, 2023', time: '13:15:22', name: 'Marcus Smith', initials: 'MS', bg: ROLE_COLORS['Team Leader'].bg, role: 'Team Leader', roleCls: ROLE_COLORS['Team Leader'].roleCls, actionIcon: 'edit',   actionText: 'Modified status of', refId: 'WR-002', turnover: '£3,500,000', purpose: 'Equipment Finance', bank: 'HSBC', homeowner: 'YES' },
+    { id: 3, date: 'Oct 24, 2023', time: '11:05:44', name: 'Sarah White', initials: 'SW', bg: ROLE_COLORS['Accounts Manager'].bg, role: 'Accounts Manager', roleCls: ROLE_COLORS['Accounts Manager'].roleCls, actionIcon: 'payment', actionText: 'Confirmed payment for', refId: 'WR-008', turnover: '£900,000', purpose: 'Expansion Loan', bank: 'Lloyds', homeowner: 'NO' },
     { id: 4, date: 'Oct 24, 2023', time: '09:42:12', name: 'System', initials: 'SYS', bg: ROLE_COLORS['Automation'].bg, role: 'Automation', roleCls: ROLE_COLORS['Automation'].roleCls, actionIcon: 'auto',    actionText: 'Auto-assigned lead to agent', refId: 'WR-005', autoApproved: true },
-    { id: 5, date: 'Oct 23, 2023', time: '17:30:00', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'reject',  actionText: 'Flagged suspicious activity on', refId: 'WR-004' },
+    { id: 5, date: 'Oct 23, 2023', time: '17:30:00', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'reject',  actionText: 'Flagged suspicious activity on', refId: 'WR-004', turnover: '£5,200,000', purpose: 'Bridge Loan', bank: 'Santander', homeowner: 'YES' },
 ];
 
 /**
@@ -393,11 +402,11 @@ export const FINANCE_STATS = {
 };
 
 export const FINANCE_TRANSACTIONS = [
-    { id: 'TX-2023-001', lead: 'WR-001', name: 'Robert Miller',  initials: 'RM', bg: LEAD_AVATAR_COLORS['Robert Miller'].bg, tc: LEAD_AVATAR_COLORS['Robert Miller'].tc, amount: '$25,000.00', date: 'Oct 24, 2023', status: 'Approved', manager: 'Sarah White' },
-    { id: 'TX-2023-002', lead: 'WR-002', name: 'Alice Huang',    initials: 'AH', bg: LEAD_AVATAR_COLORS['Alice Huang'].bg, tc: LEAD_AVATAR_COLORS['Alice Huang'].tc, amount: '$120,500.00', date: 'Oct 24, 2023', status: 'Pending', manager: 'Sarah White' },
-    { id: 'TX-2023-003', lead: 'WR-008', name: 'Marcus Aurelius', initials: 'MA', bg: LEAD_AVATAR_COLORS['Marcus Aurelius'].bg, tc: LEAD_AVATAR_COLORS['Marcus Aurelius'].tc, amount: '$7,500.00',  date: 'Oct 23, 2023', status: 'Approved', manager: 'Sarah White' },
-    { id: 'TX-2023-004', lead: 'WR-004', name: 'Sarah Connor',   initials: 'SC', bg: LEAD_AVATAR_COLORS['Sarah Connor'].bg, tc: LEAD_AVATAR_COLORS['Sarah Connor'].tc, amount: '$54,200.00', date: 'Oct 23, 2023', status: 'Rejected', manager: 'Sarah White' },
-    { id: 'TX-2023-005', lead: 'WR-005', name: 'Michael Chen',   initials: 'MC', bg: LEAD_AVATAR_COLORS['Michael Chen'].bg, tc: LEAD_AVATAR_COLORS['Michael Chen'].tc, amount: '$75,000.00', date: 'Oct 22, 2023', status: 'Approved', manager: 'Sarah White' },
+    { id: 'TX-2023-001', lead: 'WR-001', name: 'Robert Miller',  initials: 'RM', bg: LEAD_AVATAR_COLORS['Robert Miller'].bg, tc: LEAD_AVATAR_COLORS['Robert Miller'].tc, amount: '$25,000.00', date: 'Oct 24, 2023', status: 'Approved', manager: 'Sarah White', turnover: '£480,000', purpose: 'Working Capital', bank: 'Barclays', homeowner: 'YES', term: '12 months' },
+    { id: 'TX-2023-002', lead: 'WR-002', name: 'Alice Huang',    initials: 'AH', bg: LEAD_AVATAR_COLORS['Alice Huang'].bg, tc: LEAD_AVATAR_COLORS['Alice Huang'].tc, amount: '$120,500.00', date: 'Oct 24, 2023', status: 'Pending', manager: 'Sarah White', turnover: '£2,100,000', purpose: 'Equipment Finance', bank: 'HSBC', homeowner: 'YES', term: '36 months' },
+    { id: 'TX-2023-003', lead: 'WR-008', name: 'Marcus Aurelius', initials: 'MA', bg: LEAD_AVATAR_COLORS['Marcus Aurelius'].bg, tc: LEAD_AVATAR_COLORS['Marcus Aurelius'].tc, amount: '$7,500.00',  date: 'Oct 23, 2023', status: 'Approved', manager: 'Sarah White', turnover: '£750,000', purpose: 'Expansion Loan', bank: 'Lloyds', homeowner: 'NO', term: '24 months' },
+    { id: 'TX-2023-004', lead: 'WR-004', name: 'Sarah Connor',   initials: 'SC', bg: LEAD_AVATAR_COLORS['Sarah Connor'].bg, tc: LEAD_AVATAR_COLORS['Sarah Connor'].tc, amount: '$54,200.00', date: 'Oct 23, 2023', status: 'Rejected', manager: 'Sarah White', turnover: '£320,000', purpose: 'Bridge Loan', bank: 'Santander', homeowner: 'NO', term: '18 months' },
+    { id: 'TX-2023-005', lead: 'WR-005', name: 'Michael Chen',   initials: 'MC', bg: LEAD_AVATAR_COLORS['Michael Chen'].bg, tc: LEAD_AVATAR_COLORS['Michael Chen'].tc, amount: '$75,000.00', date: 'Oct 22, 2023', status: 'Approved', manager: 'Sarah White', turnover: '£1,850,000', purpose: 'Property Purchase', bank: 'NatWest', homeowner: 'YES', term: '48 months' },
 ];
 
 export const REVENUE_BAR_DATA = [
