@@ -6,6 +6,8 @@ import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS, RECENT_LENDERS, AM_STAT_CARDS as
 // TYPE_COLORS removed, using LENDER_TYPE_COLORS from dummyData
 
 
+import { useTasks } from '../../../context/TasksContext';
+
 const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
@@ -18,8 +20,8 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
 
     // Calendar state
     const [viewDate, setViewDate] = useState(new Date());
-    const today = new Date();
-    const todayStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+    const todayStr = new Date().toISOString().split('T')[0];
+    const { addTask, updateTask } = useTasks();
     const [selectedDate, setSelectedDate] = useState(todayStr);
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [newTask, setNewTask] = useState({
@@ -41,31 +43,31 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
     const nextMonth = () => setViewDate(new Date(currentYear, currentMonth + 1, 1));
 
     const isToday = (day) =>
-        day === today.getDate() &&
-        currentMonth === today.getMonth() &&
-        currentYear === today.getFullYear();
+        day === new Date().getDate() &&
+        currentMonth === new Date().getMonth() &&
+        currentYear === new Date().getFullYear();
 
     const updateTaskStatus = (id, newStatus) => {
-        if (!setTasks) return;
-        setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
+        updateTask({ ...tasks.find(t => t.id === id), status: newStatus });
     };
 
     const updateTaskReminder = (id, newReminder) => {
-        if (!setTasks) return;
-        setTasks(tasks.map(t => {
-            if (t.id === id) {
-                const updated = { ...t, reminder: newReminder };
-                if (notifyReminderSet && newReminder !== 'none') notifyReminderSet(updated);
-                return updated;
-            }
-            return t;
-        }));
+        const updatedTask = { ...tasks.find(t => t.id === id), reminder: newReminder };
+        updateTask(updatedTask);
+        if (notifyReminderSet && newReminder !== 'none') notifyReminderSet(updatedTask);
     };
 
     const handleAddTask = (e) => {
         e.preventDefault();
-        const taskToAdd = { ...newTask, id: Date.now(), status: 'Pending', createdBy: 'Accounts Manager' };
-        if (setTasks) setTasks([taskToAdd, ...tasks]);
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const taskToAdd = {
+            ...newTask,
+            id: Date.now(),
+            status: 'Pending',
+            createdBy: user.role || 'Accounts Manager',
+            assignedTo: user.id?.toString() || 'Self'
+        };
+        addTask(taskToAdd);
         if (notifyReminderSet) notifyReminderSet(taskToAdd);
         setIsAddingTask(false);
         setNewTask({ title: '', lead: '', date: todayStr, time: '12:00', type: 'Call', reminder: 'none', assignedTo: 'Self', message: '' });
