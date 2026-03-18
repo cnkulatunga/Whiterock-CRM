@@ -109,14 +109,16 @@ const StaffHierarchy = () => {
 
     // 2. State
     const [selectedAm, setSelectedAm] = useState(amList[0]?.id || null);
-    
+
     // Derived selected AM's TLs
     const currentTlIds = selectedAm ? (AM_MEMBERSHIPS[selectedAm] || []) : [];
     const currentTls = currentTlIds.map(id => tlList.find(tl => tl.id === id)).filter(Boolean);
 
-    // Automatically select the first TL for the AM to make UI lively, or null to wait for click
-    // Adjust when selectedAm changes
-    const [selectedTl, setSelectedTl] = useState(null);
+    // Auto-select first TL of the first AM on load
+    const [selectedTl, setSelectedTl] = useState(() => {
+        const firstAmId = amList[0]?.id;
+        return firstAmId ? (AM_MEMBERSHIPS[firstAmId] || [])[0] || null : null;
+    });
 
     // Get Agents for selected TL
     const rawAgents = selectedTl ? (INITIAL_MEMBERSHIPS[selectedTl] || []) : [];
@@ -133,7 +135,9 @@ const StaffHierarchy = () => {
     // 4. Handlers
     const handleAmSelect = (id) => {
         setSelectedAm(id);
-        setSelectedTl(null); // reset TL when AM changes
+        // Auto-select first TL so agents are always visible
+        const firstTlId = (AM_MEMBERSHIPS[id] || [])[0] || null;
+        setSelectedTl(firstTlId);
     };
 
     const handleTlSelect = (id) => {
