@@ -5,6 +5,7 @@ import { canManageTask } from '../../../utils/permissionUtils';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconDocs, IconCheck, IconAlert, IconEye, IconPencil } from '../../../components/DocumentManagement/Icons';
 import EditLeadModal from './EditLeadModal';
+import { useTasks } from '../../../context/TasksContext';
 
 const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const { theme } = useTheme();
@@ -34,6 +35,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const [uploadingDocs, setUploadingDocs] = useState({});
     const [previewDoc, setPreviewDoc] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
+    const { addTask, updateTask } = useTasks();
 
     const handleUpload = (leadId, docId, docName, file) => {
         const targetDocId = docId || Date.now();
@@ -80,13 +82,13 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
             id: Date.now(),
             status: 'Pending',
             lead: lead.name,
-            assignedTo: 'Self',
+            leadId: leadId,
+            assignedTo: currentUser.id?.toString() || 'Self',
             createdBy: currentUser.role || 'System',
             creatorId: currentUser.id
         };
-        if (typeof setTasks === 'function') {
-            setTasks([taskToAdd, ...tasks]);
-        }
+        
+        addTask(taskToAdd);
         setIsAddingTask(false);
         setNewTask({
             title: '',
@@ -100,15 +102,11 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     };
 
     const updateTaskStatus = (id, newStatus) => {
-        if (typeof setTasks === 'function') {
-            setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
-        }
+        updateTask({ ...tasks.find(t => t.id === id), status: newStatus });
     };
 
     const updateTaskReminder = (id, newReminder) => {
-        if (typeof setTasks === 'function') {
-            setTasks(tasks.map(t => t.id === id ? { ...t, reminder: newReminder } : t));
-        }
+        updateTask({ ...tasks.find(t => t.id === id), reminder: newReminder });
     };
 
     return (

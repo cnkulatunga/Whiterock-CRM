@@ -4,6 +4,7 @@ import { useTheme } from '../../../context/ThemeContext';
 
 import { useUsers } from '../../../context/UsersContext';
 import { canManageTask } from '../../../utils/permissionUtils';
+import { useTasks } from '../../../context/TasksContext';
 
 const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
     const { users } = useUsers();
@@ -12,6 +13,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
 
     // Leaders (Team Leaders) + Members (Tele Agents)
     const assignableUsers = users.filter(u => u.role === 'Team Leader' || u.role === 'Tele Agent');
+    const { addTask, updateTask, deleteTask } = useTasks();
 
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All'); // All, Personal, Team
@@ -79,7 +81,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                 ...editingTask,
                 ...newTask
             };
-            setTasks(tasks.map(t => t.id === taskToUpdate.id ? taskToUpdate : t));
+            updateTask(taskToUpdate);
             setIsEditingTask(false);
             setEditingTask(null);
         } else {
@@ -89,9 +91,10 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                 id: Date.now(),
                 status: 'Pending',
                 createdBy: 'Accounts Manager',
+                assignedTo: currentUser.id?.toString() || newTask.assignedTo || 'Self',
                 creatorId: currentUser.id
             };
-            setTasks([taskToAdd, ...tasks]);
+            addTask(taskToAdd);
             if (notifyReminderSet) notifyReminderSet(taskToAdd);
             
             if (addToOutlook) {
@@ -150,24 +153,18 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
 
     const handleDeleteTask = (id) => {
         if (window.confirm('Are you sure you want to delete this task?')) {
-            setTasks(tasks.filter(t => t.id !== id));
+            deleteTask(id);
         }
     };
 
-
     const updateTaskStatus = (id, newStatus) => {
-        setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
+        updateTask({ ...tasks.find(t => t.id === id), status: newStatus });
     };
 
     const updateTaskReminder = (id, newReminder) => {
-        setTasks(tasks.map(t => {
-            if (t.id === id) {
-                const updatedTask = { ...t, reminder: newReminder };
-                if (notifyReminderSet && newReminder !== 'none') notifyReminderSet(updatedTask);
-                return updatedTask;
-            }
-            return t;
-        }));
+        const updatedTask = { ...tasks.find(t => t.id === id), reminder: newReminder };
+        updateTask(updatedTask);
+        if (notifyReminderSet && newReminder !== 'none') notifyReminderSet(updatedTask);
     };
 
     const [showNotifications, setShowNotifications] = useState(false);
