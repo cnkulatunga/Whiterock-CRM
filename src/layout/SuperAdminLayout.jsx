@@ -11,7 +11,6 @@ import TeamLeaders from '../pages/super_admin/team_leaders/TeamLeaders';
 import Lenders from '../pages/super_admin/lenders/Lenders';
 import OperationalFlow from '../pages/super_admin/operational_flow/OperationalFlow';
 import SuperAdminTasks from '../pages/super_admin/tasks/SuperAdminTasks';
-import LeaveApprovals from '../components/leaves/LeaveApprovals';
 import { useReminders } from '../hooks/useReminders';
 import { useTasks } from '../context/TasksContext';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
@@ -81,7 +80,6 @@ const AppLayout = ({ onLogout }) => {
             case 'lenders': navigate('/super-admin/lenders'); break;
             case 'tasks': navigate('/super-admin/tasks'); break;
             case 'operational-flow': navigate('/super-admin/operational-flow'); break;
-            case 'leaves': navigate('/super-admin/leaves'); break;
             default: navigate('/super-admin/dashboard');
         }
     };
@@ -199,7 +197,6 @@ const AppLayout = ({ onLogout }) => {
                         <Route path="lenders" element={<Lenders readOnly={false} />} />
                         <Route path="tasks" element={<SuperAdminTasks tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="operational-flow" element={<OperationalFlow />} />
-                        <Route path="leaves" element={<LeaveApprovals />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>

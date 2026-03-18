@@ -16,7 +16,6 @@ import Lenders from '../pages/super_admin/lenders/Lenders';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
 import ManageLeads from '../pages/tele_agent/leads/ManageLeads';
 import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
-import LeaveApprovals from '../components/leaves/LeaveApprovals';
 
 import { useTheme } from '../context/ThemeContext';
 import ThemeToggle from '../components/theme/ThemeToggle';
@@ -77,7 +76,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
             case 'create_lead': navigate('/accounts-manager/create-lead'); break;
             case 'manage_leads': navigate('/accounts-manager/manage-leads'); break;
             case 'lead_details': navigate('/accounts-manager/lead-details'); break;
-            case 'leaves': navigate('/accounts-manager/leaves'); break;
 
             case 'tasks_followups': navigate('/accounts-manager/tasks-followups'); break;
             default: navigate('/accounts-manager/dashboard');
@@ -199,7 +197,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="create-lead" element={<CreateLead onBack={() => handleNavigate('accounts_manager_dashboard')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="manage-leads" element={<ManageLeads onViewDetails={(lead) => handleNavigate('lead_details', lead)} isAccountsManager={true} />} />
                         <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => handleNavigate('manage_leads')} />} />
-                        <Route path="leaves" element={<LeaveApprovals />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>

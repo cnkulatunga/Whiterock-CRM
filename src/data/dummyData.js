@@ -427,18 +427,3 @@ export const SA_DONUT_DATA = [
     { label: 'Rejected', pct: 10, color: CHART_COLORS.danger },
 ];
 
-/**
- * Leaves & Leave Requests Dummy Data
- */
-export const INITIAL_LEAVES = [
-    { id: 'LR-001', agentId: 3, agentName: 'Cody Lane', startDate: '2026-03-25', endDate: '2026-03-26', reason: 'Personal Leave', status: 'Pending', type: 'Annual' },
-    { id: 'LR-002', agentId: 11, agentName: 'Priya Sharma', startDate: '2026-03-18', endDate: '2026-03-19', reason: 'Sick Leave', status: 'Approved', type: 'Sick' },
-    { id: 'LR-003', agentId: 6, agentName: 'Leo Kumar', startDate: '2026-04-01', endDate: '2026-04-03', reason: 'Vacation', status: 'Pending', type: 'Annual' },
-];
-
-export const INITIAL_LEAVE_BALANCES = {
-    3: { agentId: 3, annualUsed: 2, annualPending: 2, casualUsed: 0, casualPending: 0, sickUsed: 1, sickPending: 0, casualTotal: 7, sickTotal: 7 },
-    11: { agentId: 11, annualUsed: 5, annualPending: 0, casualUsed: 1, casualPending: 0, sickUsed: 2, sickPending: 0, casualTotal: 7, sickTotal: 7 },
-    6: { agentId: 6, annualUsed: 1, annualPending: 3, casualUsed: 0, casualPending: 0, sickUsed: 0, sickPending: 0, casualTotal: 7, sickTotal: 7 },
-};
-

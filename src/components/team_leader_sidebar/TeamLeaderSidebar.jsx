@@ -10,7 +10,6 @@ const NAV_GROUPS = [
             { id: 'document-verification', path: '/team-leader/document-verification', label: 'Document Verification', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="20 6 9 17 4 12" /><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" /></svg> },
             { id: 'lead-monitoring', path: '/team-leader/lead-monitoring', label: 'Lead Monitoring', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M21 12h-4l-3 9L9 3l-3 9H2" /></svg> },
             { id: 'calendar', path: '/team-leader/calendar', label: 'Tasks and Followups', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> },
-            { id: 'leaves', path: '/team-leader/leaves', label: 'Leave Approvals', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> },
         ],
     },
 ];
