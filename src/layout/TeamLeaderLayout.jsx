@@ -5,6 +5,7 @@ import TeamLeaderDashboard from '../pages/team_leader/dashboard/TeamLeaderDashbo
 import LeadMonitoring from '../pages/team_leader/lead_monitoring/LeadMonitoring';
 import DocumentVerification from '../pages/team_leader/document_verification/DocumentVerification';
 import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar';
+import LeaveApprovals from '../components/leaves/LeaveApprovals';
 import { useReminders } from '../hooks/useReminders';
 import { useTasks } from '../context/TasksContext';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
@@ -61,6 +62,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
             case 'lead-monitoring': navigate('/team-leader/lead-monitoring'); break;
             case 'document-verification': navigate('/team-leader/document-verification'); break;
             case 'calendar': navigate('/team-leader/calendar'); break;
+            case 'leaves': navigate('/team-leader/leaves'); break;
             default: navigate('/team-leader/dashboard');
         }
     };
@@ -170,6 +172,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
                         <Route path="lead-monitoring" element={<LeadMonitoring />} />
                         <Route path="document-verification" element={<DocumentVerification />} />
                         <Route path="calendar" element={<TeamLeaderCalendar tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="leaves" element={<LeaveApprovals />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
