@@ -67,26 +67,26 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
     useEffect(() => {
         if (lead && isOpen) {
             setFormData({
-                title: '',
+                title: lead.title || '',
                 fullName: lead.name || '',
                 companyName: lead.businessName || '',
-                companyHouseNumber: '',
-                businessAnnualTurnover: lead.amount ? lead.amount.replace(/[^0-9.]/g, '') : '',
-                jobTitle: '',
+                companyHouseNumber: lead.companyHouseNumber || '',
+                businessAnnualTurnover: lead.businessAnnualTurnover || '',
+                jobTitle: lead.jobTitle || '',
                 emailAddress: lead.email || '',
                 phoneNumber: lead.phone || '',
-                preferredContactMethod: ['Email', 'Phone'],
-                homeOwner: 'No',
+                preferredContactMethod: lead.preferredContactMethod || ['Email', 'Phone'],
+                homeOwner: lead.homeOwner || 'No',
                 loanAmount: lead.amount ? lead.amount.replace(/[^0-9.]/g, '') : '',
-                loanPurpose: '',
-                existingLoan: 'No',
-                existingLoanAmount: '',
-                overdraftFacility: 'No',
-                companyBank: '',
-                leadSource: '',
-                fundingTimeline: '',
-                industry: '',
-                previousAlphaFundingLoan: 'No',
+                loanPurpose: lead.loanPurpose || '',
+                existingLoan: lead.existingLoan || 'No',
+                existingLoanAmount: lead.existingLoanAmount || '',
+                overdraftFacility: lead.overdraftFacility || 'No',
+                companyBank: lead.companyBank || '',
+                leadSource: lead.leadSource || '',
+                fundingTimeline: lead.fundingTimeline || '',
+                industry: lead.industry || '',
+                previousAlphaFundingLoan: lead.previousAlphaFundingLoan || 'No',
                 additionalComments: lead.notes || '',
                 assignedAgent: lead.staff || 'Unassigned'
             });
@@ -115,12 +115,28 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
     const handleSubmit = () => {
         const updatedLead = {
             ...lead,
+            title: formData.title,
             name: formData.fullName,
             businessName: formData.companyName,
+            companyHouseNumber: formData.companyHouseNumber,
+            businessAnnualTurnover: formData.businessAnnualTurnover,
+            jobTitle: formData.jobTitle,
             email: formData.emailAddress,
             phone: formData.phoneNumber,
+            preferredContactMethod: formData.preferredContactMethod,
+            homeOwner: formData.homeOwner,
             amount: formData.loanAmount ? `£${Number(formData.loanAmount).toLocaleString()}` : lead.amount,
-            notes: formData.additionalComments
+            loanPurpose: formData.loanPurpose,
+            existingLoan: formData.existingLoan,
+            existingLoanAmount: formData.existingLoanAmount,
+            overdraftFacility: formData.overdraftFacility,
+            companyBank: formData.companyBank,
+            leadSource: formData.leadSource,
+            fundingTimeline: formData.fundingTimeline,
+            industry: formData.industry,
+            previousAlphaFundingLoan: formData.previousAlphaFundingLoan,
+            notes: formData.additionalComments,
+            staff: formData.assignedAgent
         };
         onSave(updatedLead);
     };

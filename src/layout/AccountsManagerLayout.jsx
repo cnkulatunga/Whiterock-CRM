@@ -196,7 +196,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="tasks-followups" element={<AMTasksFollowups tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => handleNavigate('accounts_manager_dashboard')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="manage-leads" element={<ManageLeads onViewDetails={(lead) => handleNavigate('lead_details', lead)} isAccountsManager={true} />} />
-                        <Route path="lead-details" element={<LeadDetails lead={selectedLead} onBack={() => handleNavigate('manage_leads')} />} />
+                        <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => handleNavigate('manage_leads')} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
