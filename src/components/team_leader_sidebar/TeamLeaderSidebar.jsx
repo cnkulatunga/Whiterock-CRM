@@ -10,6 +10,7 @@ const NAV_GROUPS = [
             { id: 'document-verification', path: '/team-leader/document-verification', label: 'Document Verification', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="20 6 9 17 4 12" /><path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z" /></svg> },
             { id: 'lead-monitoring', path: '/team-leader/lead-monitoring', label: 'Lead Monitoring', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M21 12h-4l-3 9L9 3l-3 9H2" /></svg> },
             { id: 'calendar', path: '/team-leader/calendar', label: 'Tasks and Followups', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg> },
+            { id: 'create-lead', path: '/team-leader/create-lead', label: 'Create Lead', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg> },
         ],
     },
 ];
