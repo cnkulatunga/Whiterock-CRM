@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
+import StaffHierarchy from './StaffHierarchy';
 
 /* ─── ICONS ─────────────────────────────────── */
 const IcoTrendUp = () => (
@@ -302,6 +303,9 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                     <DonutChart />
                 </section>
             </div>
+
+            {/* ── STAFF HIERARCHY ── */}
+            <StaffHierarchy />
 
         </div>
     );

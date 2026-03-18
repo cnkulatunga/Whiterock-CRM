@@ -33,6 +33,7 @@ export const SHARED_INITIAL_USERS = [
     { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@whiterock.crm', initials: 'EV', ...USER_COLORS[13], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
     { id: 14, name: 'Omar Khalil', email: 'o.khalil@whiterock.crm', initials: 'OK', ...USER_COLORS[14], role: 'Tele Agent', roleColor: 'role--agent', status: 'Inactive' },
     { id: 15, name: 'Sophie Tan', email: 's.tan@whiterock.crm', initials: 'ST', ...USER_COLORS[15], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
+    { id: 16, name: 'Alex Johnson', email: 'a.johnson@whiterock.crm', initials: 'AJ', color: '#8b5cf6', textColor: '#ffffff', role: 'Accounts Manager', roleColor: 'role--accounts', status: 'Active' },
 ];
 
 /**
@@ -116,6 +117,11 @@ export const INITIAL_MEMBERSHIPS = {
         { id: 14, name: 'Omar Khalil', email: 'o.khalil@whiterock.crm', role: 'Tele Agent', initials: 'OK', ...USER_COLORS[14], status: 'Inactive' },
     ],
     10: [], // Tom Brennan
+};
+
+export const AM_MEMBERSHIPS = {
+    4: [2, 5, 8], // Sarah White -> Marcus, Diana, Ryan
+    16: [9, 10],  // Alex Johnson -> Aisha, Tom
 };
 
 /**
