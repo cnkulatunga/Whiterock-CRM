@@ -3,11 +3,17 @@ import { useTheme } from '../../../context/ThemeContext';
 import { useReminders } from '../../../hooks/useReminders';
 import { canManageTask } from '../../../utils/permissionUtils';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
-import { IconDocs, IconCheck, IconAlert, IconEye } from '../../../components/DocumentManagement/Icons';
+import { IconDocs, IconCheck, IconAlert, IconEye, IconPencil } from '../../../components/DocumentManagement/Icons';
+import EditLeadModal from './EditLeadModal';
 
 const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const safeRole = (currentUser.role || '').toLowerCase();
+    const isManagerOrAbove = safeRole.includes('manager') || safeRole.includes('admin');
+    const isTeamLeader = safeRole.includes('leader');
+    const canApproveReject = isManagerOrAbove || isTeamLeader;
     
     // Use initialLead or a fallback
     const [lead, setLead] = useState(initialLead || { 
@@ -27,10 +33,12 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const [showModal, setShowModal] = useState(false);
     const [uploadingDocs, setUploadingDocs] = useState({});
     const [previewDoc, setPreviewDoc] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
 
-    const handleUpload = (leadId, docId, docName) => {
+    const handleUpload = (leadId, docId, docName, file) => {
         const targetDocId = docId || Date.now();
-        setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0 } }));
+        const previewUrl = file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0, file, previewUrl } }));
         
         let progress = 0;
         const interval = setInterval(() => {
@@ -40,8 +48,8 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                 setLead(prev => {
                     const exists = prev.documents.find(d => d.id === targetDocId);
                     const newDocs = exists 
-                        ? prev.documents.map(d => d.id === targetDocId ? { ...d, status: 'Pending', date: new Date().toISOString().split('T')[0] } : d)
-                        : [...prev.documents, { id: targetDocId, type: docName, status: 'Pending', date: new Date().toISOString().split('T')[0] }];
+                        ? prev.documents.map(d => d.id === targetDocId ? { ...d, status: 'Pending', date: new Date().toISOString().split('T')[0], url: previewUrl, fileName: file?.name } : d)
+                        : [...prev.documents, { id: targetDocId, type: docName, status: 'Pending', date: new Date().toISOString().split('T')[0], url: previewUrl, fileName: file?.name }];
                     return { ...prev, documents: newDocs };
                 });
                 setUploadingDocs(prev => {
@@ -73,10 +81,12 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
             status: 'Pending',
             lead: lead.name,
             assignedTo: 'Self',
-            createdBy: 'Tele Agent',
+            createdBy: currentUser.role || 'System',
             creatorId: currentUser.id
         };
-        setTasks([taskToAdd, ...tasks]);
+        if (typeof setTasks === 'function') {
+            setTasks([taskToAdd, ...tasks]);
+        }
         setIsAddingTask(false);
         setNewTask({
             title: '',
@@ -90,11 +100,15 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     };
 
     const updateTaskStatus = (id, newStatus) => {
-        setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
+        if (typeof setTasks === 'function') {
+            setTasks(tasks.map(t => t.id === id ? { ...t, status: newStatus } : t));
+        }
     };
 
     const updateTaskReminder = (id, newReminder) => {
-        setTasks(tasks.map(t => t.id === id ? { ...t, reminder: newReminder } : t));
+        if (typeof setTasks === 'function') {
+            setTasks(tasks.map(t => t.id === id ? { ...t, reminder: newReminder } : t));
+        }
     };
 
     return (
@@ -159,9 +173,19 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                 <div className="flex flex-col gap-6">
                     {/* Lead Details Info */}
                     <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
-                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
-                            <span className="w-8 h-8 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center flex-shrink-0"><IconInfo /></span>
-                            <h3 className="text-base font-bold text-[#1a202c]">Lead Details</h3>
+                        <div className="flex items-center justify-between p-5 border-b border-[#f7fafc]">
+                            <div className="flex items-center gap-3">
+                                <span className="w-8 h-8 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center flex-shrink-0"><IconInfo /></span>
+                                <h3 className="text-base font-bold text-[#1a202c]">Lead Details</h3>
+                            </div>
+                            {isManagerOrAbove && (
+                                <button 
+                                    onClick={() => setShowEditModal(true)}
+                                    className="bg-[#f0f4ff] text-[#2447d7] p-1.5 px-3 rounded-lg text-xs font-bold hover:bg-[#2447d7] hover:text-white transition-all flex items-center gap-1.5"
+                                >
+                                    <IconPencil size={14} /> Edit
+                                </button>
+                            )}
                         </div>
                         <div className="p-6">
                             <div className="grid grid-cols-2 gap-5 sm:grid-cols-1">
@@ -184,6 +208,66 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                         <div className="text-base font-bold text-[#2447d7]">{lead.businessName}</div>
                                     </div>
                                 )}
+                                
+                                <div className="flex flex-col gap-2 md:col-span-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">AMOUNT NEEDED</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.amount || 'N/A'}</div>
+                                </div>
+                                
+                                <div className="flex flex-col gap-2 md:col-span-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LOAN PURPOSE</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.loanPurpose || 'N/A'}</div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">INDUSTRY</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.industry || 'N/A'}</div>
+                                </div>
+                                
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LEAD SOURCE</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.leadSource || 'N/A'}</div>
+                                </div>
+                                
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">FUNDING TIMELINE</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.fundingTimeline || 'N/A'}</div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">JOB TITLE</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.jobTitle || 'N/A'}</div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">COMPANY HOUSE NO.</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.companyHouseNumber || 'N/A'}</div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ANNUAL TURNOVER</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.businessAnnualTurnover ? `£${lead.businessAnnualTurnover}` : 'N/A'}</div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">EXISTING LOAN</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.existingLoan === 'Yes' ? `Yes (${lead.existingLoanAmount ? '£' + lead.existingLoanAmount : 'Amount Unspecified'})` : 'No'}</div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">COMPANY BANK</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.companyBank || 'N/A'}</div>
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">PREF. CONTACT</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.preferredContactMethod?.length > 0 ? lead.preferredContactMethod.join(', ') : 'N/A'}</div>
+                                </div>
+                                
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">HOME OWNER</label>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.homeOwner || 'N/A'}</div>
+                                </div>
 
                                 <div className="flex flex-col gap-2 md:col-span-2">
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">EMAIL ADDRESS</label>
@@ -317,7 +401,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                                         </span>
                                                     </div>
                                                 </div>
-                                                {doc.status !== 'Approved' && (
+                                                {!(doc.status === 'Approved' && !canApproveReject) && (
                                                     <button 
                                                         onClick={() => setPreviewDoc(doc)}
                                                         className="p-1.5 text-[#2447d7] hover:bg-[#2447d7]/10 rounded-lg transition-colors border border-[#2447d7]/10"
@@ -452,19 +536,40 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                 </div>
             )}
 
-            {showModal && (
-                <UploadModal
-                    isOpen={showModal}
-                    onClose={() => setShowModal(false)}
-                    client={lead}
-                    onUpload={handleUpload}
-                    onDelete={(leadId, docId) => {
-                        setLead(prev => ({ ...prev, documents: prev.documents.filter(d => d.id !== docId) }));
-                    }}
-                    uploadingDocs={uploadingDocs}
-                    isDark={isDark}
-                />
-            )}
+            {showModal && (() => {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                return (
+                    <UploadModal
+                        isOpen={showModal}
+                        onClose={() => setShowModal(false)}
+                        client={lead}
+                        onUpload={handleUpload}
+                        onDelete={(leadId, docId) => {
+                            setLead(prev => ({ ...prev, documents: prev.documents.filter(d => d.id !== docId) }));
+                        }}
+                        onApprove={(leadId, docId) => {
+                            setLead(prev => ({ ...prev, documents: prev.documents.map(d => d.id === docId ? { ...d, status: 'Approved' } : d) }));
+                        }}
+                        onReject={(leadId, docId, reason) => {
+                            setLead(prev => ({ ...prev, documents: prev.documents.map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d) }));
+                        }}
+                        uploadingDocs={uploadingDocs}
+                        isDark={isDark}
+                        isAccountsManager={isManagerOrAbove}
+                        isTeamLeader={isTeamLeader}
+                    />
+                );
+            })()}
+
+            <EditLeadModal 
+                isOpen={showEditModal} 
+                onClose={() => setShowEditModal(false)} 
+                lead={lead} 
+                onSave={(updatedLead) => {
+                    setLead(updatedLead);
+                    setShowEditModal(false);
+                }} 
+            />
 
             {/* Document Preview Overlay */}
             {previewDoc && (

@@ -13,7 +13,6 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { users } = useUsers() || {};
-    const fileInputRef = useRef(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [leads, setLeads] = useState(MOCK_LEADS);
@@ -45,16 +44,8 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
         setShowModal(true);
     };
 
-    const handleUploadClick = (leadId, docId, docName) => {
-        setUploadContext({ leadId, docId, docName });
-        fileInputRef.current.click();
-    };
-
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (!file || !uploadContext) return;
-
-        const { leadId, docId, docName } = uploadContext;
+    const handleUploadClick = (leadId, docId, docName, file) => {
+        if (!file) return;
         const targetDocId = docId || Date.now();
         const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
 
@@ -70,9 +61,6 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                 setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress } }));
             }
         }, 150);
-
-        setUploadContext(null);
-        e.target.value = '';
     };
 
     const finishUpload = (leadId, targetDocId, docName) => {
@@ -134,7 +122,6 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
 
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>
-            <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept=".pdf,.jpg,.png,.doc,.docx" />
             <div className="mb-8 animate-headerDrop">
                 <div className="flex flex-col">
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Manage Leads</h1>
@@ -290,7 +277,7 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                             >
                                                 Details
                                             </button>
-                                            {!(lead.status === 'Document Verifications' && lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
+                                            {!(lead.status === 'Document Verifications' && lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && !isAccountsManager && (
                                                 <button 
                                                     className="p-1 sm:p-1 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
                                                     title="Upload/Manage Documents"
@@ -310,13 +297,6 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                                         }}
                                                     >
                                                         <IconUsers size={16} />
-                                                    </button>
-                                                    <button 
-                                                        className="p-1 sm:p-0.5 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
-                                                        title="Edit Lead"
-                                                        onClick={() => handleEditLead(lead)}
-                                                    >
-                                                        <IconPencil size={16} />
                                                     </button>
                                                     <button 
                                                         className="p-1 sm:p-0.5 border border-[#fee2e2] bg-[#fef2f2] rounded-lg text-[#ef4444] hover:bg-[#ef4444] hover:text-white transition-all duration-200"
@@ -364,6 +344,14 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                     onClose={() => setShowModal(false)}
                     onUpload={handleUploadClick}
                     onDelete={handleDeleteDocument}
+                    onApprove={(leadId, docId) => {
+                        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, documents: (l.documents || []).map(d => d.id === docId ? { ...d, status: 'Approved' } : d) } : l));
+                        setSelectedLead(prev => prev && prev.id === leadId ? { ...prev, documents: (prev.documents || []).map(d => d.id === docId ? { ...d, status: 'Approved' } : d) } : prev);
+                    }}
+                    onReject={(leadId, docId, reason) => {
+                        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, documents: (l.documents || []).map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d) } : l));
+                        setSelectedLead(prev => prev && prev.id === leadId ? { ...prev, documents: (prev.documents || []).map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d) } : prev);
+                    }}
                     uploadingDocs={uploadingDocs}
                     isDark={isDark}
                     isAccountsManager={isAccountsManager}

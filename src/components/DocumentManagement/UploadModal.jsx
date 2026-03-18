@@ -1,12 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { IconUpload, IconCheck, IconAlert, IconFile, IconClose, IconTrash, IconEye } from './Icons';
 
 const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject, uploadingDocs, isDark, isTeamLeader, isAccountsManager }) => {
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const safeRole = (currentUser.role || '').toLowerCase();
+    
+    const isTL = isTeamLeader || safeRole.includes('leader');
+    const isAM = isAccountsManager || safeRole.includes('manager') || safeRole.includes('admin');
+    
+    const canUpload = true; 
+    const canApproveReject = isTL || isAM;
+    const canDelete = isAM;
+
     const [customName, setCustomName] = useState('');
     const [previewDoc, setPreviewDoc] = useState(null);
     const [rejectionDocId, setRejectionDocId] = useState(null);
     const [rejectionReason, setRejectionReason] = useState('');
+    const fileInputRef = useRef(null);
+    const [pendingUpload, setPendingUpload] = useState(null);
+
     if (!client) return null;
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file && pendingUpload) {
+            onUpload(pendingUpload.clientId, pendingUpload.docId, pendingUpload.docName, file);
+            setCustomName('');
+        }
+        setPendingUpload(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+    };
 
     const getStatusStyles = (status) => {
         switch (status) {
@@ -19,6 +42,7 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
 
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-fadeIn">
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
             <div 
                 className="w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-scaleIn"
                 style={{ 
@@ -47,8 +71,8 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
 
                 {/* Modal Body */}
                 <div className="p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
-                    {/* New Custom Upload Section - Hidden for Team Leader */}
-                    {!isTeamLeader && (
+                    {/* New Custom Upload Section */}
+                    {canUpload && (
                         <div className="mb-8 p-6 rounded-3xl border-2 border-dashed flex flex-col gap-4" style={{ borderColor: isDark ? '#36407a' : '#eef2ff', background: isDark ? 'rgba(36,71,215,0.05)' : '#fcfdff' }}>
                             <div className="flex flex-col gap-1">
                                 <h4 className="text-[13px] font-black uppercase tracking-widest text-[#2447d7]">Add New Document</h4>
@@ -66,8 +90,8 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                 <button 
                                     onClick={() => { 
                                         const finalName = customName.trim() || `Document ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
-                                        onUpload(client.id, null, finalName); 
-                                        setCustomName(''); 
+                                        setPendingUpload({ clientId: client.id, docId: null, docName: finalName });
+                                        fileInputRef.current?.click();
                                     }}
                                     className="px-6 rounded-xl bg-[#2447d7] text-white text-[13px] font-bold shadow-lg shadow-[#2447d7]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                                 >
@@ -113,7 +137,7 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                         
                                         {!uploading && (
                                             <div className="flex items-center gap-2">
-                                                {!(doc.status === 'Approved' && !isTeamLeader && !isAccountsManager) && (
+                                                {!(doc.status === 'Approved' && !canApproveReject) && (
                                                     <button 
                                                         onClick={() => setPreviewDoc(doc)}
                                                         className="p-2.5 rounded-xl border border-[#2447d7]/20 text-[#2447d7] hover:bg-[#2447d7]/10 active:scale-95 transition-all"
@@ -123,31 +147,31 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                                     </button>
                                                 )}
                                                 
-                                                {!isTeamLeader ? (
-                                                    <>
-                                                        <button 
-                                                            onClick={() => onUpload(client.id, doc.id, doc.type)}
-                                                            disabled={!isAccountsManager && (doc.status === 'Approved' || doc.status === 'Pending')}
-                                                            className={`p-2.5 rounded-xl transition-all ${
-                                                                (!isAccountsManager && (doc.status === 'Approved' || doc.status === 'Pending'))
-                                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60' 
-                                                                    : 'bg-[#2447d7] text-white shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:scale-105 active:scale-95'
-                                                            }`}
-                                                            title={(!isAccountsManager && (doc.status === 'Approved' || doc.status === 'Pending')) ? `Cannot re-upload ${doc.status.toLowerCase()} document` : "Re-upload Document"}
-                                                        >
-                                                            <IconUpload size={16} />
-                                                        </button>
-                                                        {isAccountsManager && (
-                                                            <button 
-                                                                onClick={() => onDelete?.(client.id, doc.id)}
-                                                                className="p-2.5 rounded-xl bg-white border border-[#fee2e2] text-[#ef4444] hover:bg-[#ef4444] hover:text-white hover:scale-105 active:scale-95 transition-all shadow-sm"
-                                                                title="Delete Document"
-                                                            >
-                                                                <IconTrash size={16} />
-                                                            </button>
-                                                        )}
-                                                    </>
-                                                ) : (
+                                                {canUpload && (
+                                                    <button 
+                                                        onClick={() => {
+                                                            setPendingUpload({ clientId: client.id, docId: doc.id, docName: doc.type });
+                                                            fileInputRef.current?.click();
+                                                        }}
+                                                        disabled={doc.status === 'Approved' && !isAM}
+                                                        className={`p-2.5 rounded-xl transition-all ${doc.status === 'Approved' && !isAM ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60' : 'bg-[#2447d7] text-white shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:scale-105 active:scale-95'}`}
+                                                        title={doc.status === 'Approved' && !isAM ? "Cannot re-upload approved document" : "Re-upload Document (Admin Override)"}
+                                                    >
+                                                        <IconUpload size={16} />
+                                                    </button>
+                                                )}
+                                                
+                                                {canDelete && (
+                                                    <button 
+                                                        onClick={() => onDelete?.(client.id, doc.id)}
+                                                        className="p-2.5 rounded-xl bg-white border border-[#fee2e2] text-[#ef4444] hover:bg-[#ef4444] hover:text-white hover:scale-105 active:scale-95 transition-all shadow-sm"
+                                                        title="Delete Document"
+                                                    >
+                                                        <IconTrash size={16} />
+                                                    </button>
+                                                )}
+                                                
+                                                {canApproveReject && (
                                                     <div className="flex items-center gap-2">
                                                         {doc.status !== 'Approved' && (
                                                             <button 
@@ -198,8 +222,8 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                         </div>
                                     )}
 
-                                    {/* Inline Rejection Reason Input for TL */}
-                                    {isTeamLeader && rejectionDocId === doc.id && (
+                                    {/* Inline Rejection Reason Input */}
+                                    {canApproveReject && rejectionDocId === doc.id && (
                                         <div className="mt-4 p-4 rounded-2xl border animate-fadeIn" style={{ background: isDark ? 'rgba(239,68,68,0.05)' : '#fffafa', borderColor: isDark ? 'rgba(239,68,68,0.2)' : '#ffeaea' }}>
                                             <div className="flex flex-col gap-3">
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-[#ef4444]">Reason for rejection</label>
