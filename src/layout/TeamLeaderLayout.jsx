@@ -6,6 +6,7 @@ import LeadMonitoring from '../pages/team_leader/lead_monitoring/LeadMonitoring'
 import DocumentVerification from '../pages/team_leader/document_verification/DocumentVerification';
 import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
+import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
 import { useReminders } from '../hooks/useReminders';
 import { useTasks } from '../context/TasksContext';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
@@ -21,6 +22,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
+    const [selectedLead, setSelectedLead] = useState(null);
     const { tasks: allTasks, setTasks: setAllTasks } = useTasks();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
@@ -55,14 +57,16 @@ const TeamLeaderLayout = ({ onLogout }) => {
     const hasReminders = tasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed');
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-    const handleNavigate = (page) => {
+    const handleNavigate = (page, lead = null) => {
         setIsSidebarOpen(false);
+        if (lead) setSelectedLead(lead);
         switch (page) {
             case 'dashboard': navigate('/team-leader/dashboard'); break;
             case 'lead-monitoring': navigate('/team-leader/lead-monitoring'); break;
             case 'document-verification': navigate('/team-leader/document-verification'); break;
             case 'calendar': navigate('/team-leader/calendar'); break;
             case 'create-lead': navigate('/team-leader/create-lead'); break;
+            case 'lead-details': navigate('/team-leader/lead-details'); break;
             default: navigate('/team-leader/dashboard');
         }
     };
@@ -163,16 +167,43 @@ const TeamLeaderLayout = ({ onLogout }) => {
                             )}
                         </div>
                         <ThemeToggle compact={isMobile} />
+                        <button
+                            className="text-white border-none h-10 px-4 rounded-xl text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
+                            style={{
+                                background: isDark ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #10b981, #059669)',
+                                boxShadow: '0 6px 16px rgba(16,185,129,0.3)',
+                            }}
+                            onClick={() => navigate('/leave-management/login')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            <span className="lg:hidden">Leave Mgmt</span>
+                        </button>
+                        <button
+                            className="text-white border-none h-10 px-4 rounded-xl text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
+                            style={{
+                                background: isDark ? 'linear-gradient(135deg, #1d4ed8, #1e40af)' : 'linear-gradient(135deg, #2447d7, #1d4ed8)',
+                                boxShadow: '0 6px 16px rgba(36,71,215,0.3)',
+                            }}
+                            onClick={() => handleNavigate('create-lead')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/>
+                            </svg>
+                            <span className="lg:hidden">Create Lead</span>
+                        </button>
                     </div>
                 </div>
 
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
                     <Routes>
                         <Route path="dashboard" element={<TeamLeaderDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
-                        <Route path="lead-monitoring" element={<LeadMonitoring />} />
+                        <Route path="lead-monitoring" element={<LeadMonitoring onViewDetails={(lead) => handleNavigate('lead-details', lead)} />} />
                         <Route path="document-verification" element={<DocumentVerification />} />
                         <Route path="calendar" element={<TeamLeaderCalendar tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => handleNavigate('dashboard')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => handleNavigate('lead-monitoring')} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>

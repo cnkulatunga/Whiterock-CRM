@@ -81,7 +81,7 @@ const AgentAvatar = ({ name }) => {
 };
 
 /* ─── MAIN COMPONENT ─── */
-const LeadMonitoring = () => {
+const LeadMonitoring = ({ onViewDetails }) => {
   const [search, setSearch] = useState('');
   const [agentFilter, setAgentFilter] = useState('All Agents');
   const [stageFilter, setStageFilter] = useState('All Stages');
@@ -241,7 +241,7 @@ const LeadMonitoring = () => {
           <table className="w-full">
             <thead>
               <tr className="border-b border-[#f1f5f9]">
-                {['Lead ID / Client', 'Business Name', 'Agent', 'Progress', 'Stage'].map(h => (
+                {['Lead ID / Client', 'Business Name', 'Agent', 'Progress', 'Stage', ''].map(h => (
                   <th key={h} className="text-left py-3.5 px-5 text-[10px] font-black text-[#a0aec0] uppercase tracking-widest whitespace-nowrap">
                     {h}
                   </th>
@@ -287,10 +287,23 @@ const LeadMonitoring = () => {
                   <td className="py-4 px-5">
                     <StageBadge stage={lead.stage} />
                   </td>
+
+                  {/* Details */}
+                  <td className="py-4 px-5">
+                    {onViewDetails && (
+                      <button
+                        onClick={() => onViewDetails(lead)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold text-[#2447d7] bg-[#eef2ff] border border-[#c7d2fe] hover:bg-[#e0e7ff] transition-all whitespace-nowrap"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        Details
+                      </button>
+                    )}
+                  </td>
                 </tr>
               )) : (
                 <tr>
-                  <td colSpan="5" className="py-16 text-center">
+                  <td colSpan="6" className="py-16 text-center">
                     <div className="flex flex-col items-center gap-3 text-[#94a3b8]">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="40" height="40">
                         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>

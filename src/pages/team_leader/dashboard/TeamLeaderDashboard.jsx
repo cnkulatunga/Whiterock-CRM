@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
-import { TL_STATS as stats, TL_AGENT_PERFORMANCE as agentPerformance, TL_DOCUMENT_COLLECTION as documentCollection, TL_PIPELINE_DATA as pipelineData } from '../../../data/dummyData';
+import { TL_STATS as stats, TL_AGENT_PERFORMANCE as agentPerformance, TL_DOCUMENT_COLLECTION as documentCollection, TL_PIPELINE_DATA as pipelineData, MOCK_LEADS } from '../../../data/dummyData';
 
 const DONUT_GAP_DEG = 3;
 
@@ -156,6 +156,9 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
 
     const [agentSearch, setAgentSearch] = useState('');
     const filteredAgents = agentPerformance.filter(agent => agent.name.toLowerCase().includes(agentSearch.toLowerCase()) || agent.initials.toLowerCase().includes(agentSearch.toLowerCase()));
+
+    const [selectedAgent, setSelectedAgent] = useState(null);
+    const agentLeads = selectedAgent ? MOCK_LEADS.filter(l => l.agentName === selectedAgent.name) : [];
 
     useEffect(() => {
         const acc = getAccount();
@@ -336,16 +339,25 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                     </thead>
                                     <tbody className="divide-y divide-[#f7fafc] table-row-group md:flex md:flex-col">
                                         {filteredAgents.length > 0 ? filteredAgents.map((agent, idx) => (
-                                            <tr key={idx} className="hover:bg-[#f8fafc]/50 transition-colors group animate-rowIn table-row md:flex md:flex-col border-b md:border-b-0 border-[#f7fafc]" style={{ animationDelay: `${450 + idx * 60}ms`, animationFillMode: 'both' }}>
+                                            <tr
+                                                key={idx}
+                                                className="hover:bg-[#f8fafc] transition-colors group animate-rowIn table-row md:flex md:flex-col border-b md:border-b-0 border-[#f7fafc] cursor-pointer"
+                                                style={{ animationDelay: `${450 + idx * 60}ms`, animationFillMode: 'both' }}
+                                                onClick={() => setSelectedAgent(agent)}
+                                                title={`View ${agent.name}'s leads`}
+                                            >
                                                 <td className="p-5 px-6 table-cell md:flex md:items-center md:gap-3">
                                                     <div className="flex items-center gap-3">
                                                         <div
                                                             className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-black transition-transform duration-300 group-hover:scale-110 shadow-lg text-white"
-                                                            style={{ backgroundColor: agent.color, shadowColor: `${agent.color}33` }}
+                                                            style={{ backgroundColor: agent.color }}
                                                         >
                                                             <span>{agent.initials}</span>
                                                         </div>
-                                                        <span className="text-[14px] font-bold tracking-tight" style={{ color: isDark ? agent.color : '#2d3748' }}>{agent.name}</span>
+                                                        <div className="flex flex-col gap-0.5">
+                                                            <span className="text-[14px] font-bold tracking-tight" style={{ color: isDark ? agent.color : '#2d3748' }}>{agent.name}</span>
+                                                            <span className="text-[10px] font-semibold text-[#a0aec0] group-hover:text-[#2447d7] transition-colors">View leads →</span>
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td className="p-5 px-6 table-cell md:flex md:items-center md:justify-between md:border-t md:border-t-[#f1f5f9] md:py-3.5">
@@ -660,6 +672,83 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                     </section>
                 </div>
             </div>
+
+            {/* ── Agent Leads Modal ─────────────────────────────── */}
+            {selectedAgent && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[999] flex items-center justify-center p-4" onClick={() => setSelectedAgent(null)}>
+                    <div
+                        className="w-full max-w-[680px] rounded-[22px] overflow-hidden shadow-2xl"
+                        style={{ background: isDark ? '#1e2347' : '#ffffff', border: `1px solid ${isDark ? '#2c3568' : '#e1e8f5'}`, maxHeight: '85vh', display: 'flex', flexDirection: 'column' }}
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="flex items-center gap-4 px-6 py-5" style={{ borderBottom: `1px solid ${isDark ? '#2c3568' : '#f0f3fb'}` }}>
+                            <div className="w-11 h-11 rounded-xl flex items-center justify-center text-[14px] font-black text-white shadow-lg shrink-0" style={{ backgroundColor: selectedAgent.color }}>
+                                {selectedAgent.initials}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-base font-bold" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>{selectedAgent.name}</h3>
+                                <p className="text-xs" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>
+                                    {agentLeads.length} lead{agentLeads.length !== 1 ? 's' : ''} · {selectedAgent.activeLeads} active · {selectedAgent.closedDeals} closed
+                                </p>
+                            </div>
+                            <button onClick={() => setSelectedAgent(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isDark ? '#546298' : '#a0aec0' }}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            </button>
+                        </div>
+
+                        {/* Leads List */}
+                        <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-3">
+                            {agentLeads.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: isDark ? '#242b58' : '#f0f3ff' }}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#6080f8' : '#2447d7'} strokeWidth="1.5" width="24" height="24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                                    </div>
+                                    <p className="text-sm" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>No leads in the system for this agent yet.</p>
+                                </div>
+                            ) : agentLeads.map(lead => {
+                                const stageMeta = {
+                                    'Document Collection':        { color: '#2447d7', bg: isDark ? 'rgba(36,71,215,0.15)' : '#eef2ff' },
+                                    'Document Verification Done': { color: '#f59e0b', bg: isDark ? 'rgba(245,158,11,0.15)' : '#fffbeb' },
+                                    'Lender Selection':           { color: '#8b5cf6', bg: isDark ? 'rgba(139,92,246,0.15)' : '#f5f3ff' },
+                                    'Final Review':               { color: '#06b6d4', bg: isDark ? 'rgba(6,182,212,0.15)' : '#ecfeff' },
+                                    'Completed':                  { color: '#10b981', bg: isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5' },
+                                    'Rejected':                   { color: '#ef4444', bg: isDark ? 'rgba(239,68,68,0.15)' : '#fef2f2' },
+                                }[lead.stage] || { color: '#64748b', bg: '#f1f5f9' };
+                                return (
+                                    <div key={lead.id} className="rounded-xl p-4 flex items-center gap-4"
+                                        style={{ background: isDark ? '#242b58' : '#f8fafc', border: `1px solid ${isDark ? '#2c3568' : '#e6ebf5'}` }}>
+                                        <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="font-mono text-[0.65rem] font-bold" style={{ color: isDark ? '#6080f8' : '#2447d7' }}>{lead.leadId}</span>
+                                                <span className="font-bold text-sm" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>{lead.name}</span>
+                                            </div>
+                                            {lead.businessName && (
+                                                <span className="text-[0.65rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md w-fit"
+                                                    style={{ background: isDark ? '#1e2347' : '#f0f3ff', color: isDark ? '#8ea0d4' : '#4b5a8a' }}>
+                                                    {lead.businessName}
+                                                </span>
+                                            )}
+                                            <div className="flex items-center gap-3 mt-1">
+                                                <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: isDark ? '#2c3568' : '#e2e8f0' }}>
+                                                    <div className="h-full rounded-full transition-all" style={{ width: `${lead.progress}%`, background: stageMeta.color }} />
+                                                </div>
+                                                <span className="text-xs font-bold shrink-0" style={{ color: stageMeta.color }}>{lead.progress}%</span>
+                                            </div>
+                                        </div>
+                                        <div className="shrink-0">
+                                            <span className="px-2.5 py-1 rounded-full text-[0.65rem] font-bold whitespace-nowrap"
+                                                style={{ background: stageMeta.bg, color: stageMeta.color }}>
+                                                {lead.stage}
+                                            </span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

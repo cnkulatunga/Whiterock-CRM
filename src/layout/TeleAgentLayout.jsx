@@ -172,10 +172,23 @@ const TeleAgentLayout = ({ onLogout }) => {
                         </div>
                         <ThemeToggle compact={isMobile} />
                         <button
+                            className="text-white border-none h-11 sm:h-10 px-4 sm:px-3 rounded-xl text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
+                            style={{
+                                background: isDark ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #10b981, #059669)',
+                                boxShadow: '0 8px 20px rgba(16,185,129,0.3)',
+                            }}
+                            onClick={() => navigate('/leave-management/login')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            <span className="md:hidden lg:inline-block">Leave</span>
+                        </button>
+                        <button
                             className="text-white border-none h-11 sm:h-10 px-6 sm:px-3 rounded-xl text-sm font-extrabold flex items-center gap-2.5 sm:gap-1 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
                             style={{
-                                background: isDark 
-                                    ? 'linear-gradient(135deg, #3b82f6, #2563eb)' 
+                                background: isDark
+                                    ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
                                     : 'linear-gradient(135deg, #2447d7, #1a38b8)',
                                 boxShadow: isDark
                                     ? '0 8px 20px rgba(59,130,246,0.3)'

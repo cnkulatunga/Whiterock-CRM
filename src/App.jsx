@@ -7,6 +7,8 @@ import SuperAdminLayout from './layout/SuperAdminLayout';
 import TeleAgentLayout from './layout/TeleAgentLayout';
 import AccountsManagerLayout from './layout/AccountsManagerLayout';
 import TeamLeaderLayout from './layout/TeamLeaderLayout';
+import LeaveLogin from './pages/leave_management/LeaveLogin';
+import LeaveApp from './pages/leave_management/LeaveApp';
 
 const ProtectedRoute = ({ children, allowedRoles, isLoggedIn }) => {
     const userString = localStorage.getItem('user');
@@ -142,6 +144,11 @@ function App() {
                         <TeamLeaderLayout onLogout={handleLogoutTrigger} />
                     </ProtectedRoute>
                 } />
+
+                {/* Leave Management — Separate Portal */}
+                <Route path="/leave-management/login" element={<LeaveLogin />} />
+                <Route path="/leave-management/dashboard" element={<LeaveApp />} />
+                <Route path="/leave-management" element={<Navigate to="/leave-management/login" replace />} />
 
                 {/* Root Redirection */}
                 <Route path="/" element={<DashboardHome isLoggedIn={isLoggedIn} />} />
