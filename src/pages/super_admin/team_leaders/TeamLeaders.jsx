@@ -90,7 +90,19 @@ const AnimatedNumber = ({ value }) => {
     return <>{display}</>;
 };
 import { useUsers } from '../../../context/UsersContext';
-import { INITIAL_MEMBERSHIPS, ALL_STATUSES as TABS, AVATAR_COLORS } from '../../../data/dummyData';
+import { INITIAL_MEMBERSHIPS, ALL_STATUSES as TABS } from '../../../data/dummyData';
+
+/* ─── AVATAR COLORS ───────────────────────────── */
+const AVATAR_COLORS = [
+    { bg: '#6366f1', text: '#ffffff', grad: 'linear-gradient(135deg,#6366f1,#4f46e5)' },
+    { bg: '#8b5cf6', text: '#ffffff', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)' },
+    { bg: '#10b981', text: '#ffffff', grad: 'linear-gradient(135deg,#10b981,#059669)' },
+    { bg: '#f59e0b', text: '#ffffff', grad: 'linear-gradient(135deg,#f59e0b,#d97706)' },
+    { bg: '#14b8a6', text: '#ffffff', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)' },
+    { bg: '#ef4444', text: '#ffffff', grad: 'linear-gradient(135deg,#ef4444,#dc2626)' },
+    { bg: '#0ea5e9', text: '#ffffff', grad: 'linear-gradient(135deg,#0ea5e9,#0284c7)' },
+    { bg: '#ec4899', text: '#ffffff', grad: 'linear-gradient(135deg,#ec4899,#db2777)' },
+];
 
 const getInitials = (name) =>
     name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -98,7 +110,7 @@ const getInitials = (name) =>
 
 const getAvatarColor = (id) => {
     const color = AVATAR_COLORS[id % AVATAR_COLORS.length];
-    return { bg: color.grad, text: color.text };
+    return { bg: color.bg, text: color.text };
 };
 
 /* ─── ICONS ───────────────────────────────────── */
@@ -370,7 +382,6 @@ const StatPill = ({ label, value, accent, isDark }) => (
 const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemoveAgent, isDark }) => {
     const [expanded, setExpanded] = useState(false);
     const [showAddAgent, setShowAddAgent] = useState(false);
-    const av = getAvatarColor(leader.id);
     const activeMembers = leader.members.filter(m => m.status === 'Active').length;
     const totalMembers = leader.members.length;
     const fillPct = totalMembers > 0 ? Math.round((activeMembers / totalMembers) * 100) : 0;
@@ -404,7 +415,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                 {/* Main content */}
                 <div className="tl-card-body">
                     {/* Avatar */}
-                    <div style={{ width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '20px', color: av.text, background: av.bg, flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.2)', animation: 'avatarPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both', transition: 'box-shadow 0.25s' }}
+                    <div style={{ width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '20px', color: leader.textColor, background: leader.color, flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.2)', animation: 'avatarPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both', transition: 'box-shadow 0.25s' }}
                     onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99,102,241,0.25), 0 4px 16px rgba(99,102,241,0.3)'; }}
                     onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.2)'; }}
                     >
@@ -511,7 +522,6 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                         ) : (
                             <div className="tl-members-list" style={{ padding: '0 28px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 {leader.members.map((member, mi) => {
-                                    const mav = getAvatarColor(member.id);
                                     const mActive = member.status === 'Active';
                                     return (
                                         <div key={member.id} className="tl-member-row" style={{
@@ -533,7 +543,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                         }}
                                         >
                                             {/* Avatar */}
-                                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', background: mav.bg, color: mav.text, flexShrink: 0 }}>
+                                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', background: member.color, color: member.textColor || '#ffffff', flexShrink: 0 }}>
                                                 {getInitials(member.name)}
                                             </div>
                                             {/* Info */}

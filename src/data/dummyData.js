@@ -1,25 +1,38 @@
 /* ─── CENTRAL DUMMY DATA REPOSITORY ────────────────────── */
 
+import { 
+    USER_COLORS, 
+    LENDER_TYPE_COLORS, 
+    WORKFLOW_STAGE_COLORS,
+    CHART_COLORS,
+    ICON_BG_COLORS,
+    LEAD_AVATAR_COLORS,
+    QUALIFIED_LENDER_COLORS,
+    DOCUMENT_COLORS,
+    STATUS_COLORS,
+    ROLE_COLORS
+} from '../utils/colorSystem';
+
 /**
  * SHARED_INITIAL_USERS
  * Centralized user data used across Context Providers and Dashboards.
  */
 export const SHARED_INITIAL_USERS = [
-    { id: 1, name: 'Jane Doe', email: 'jane.doe@whiterock.crm', initials: 'JD', color: '#dbeafe', textColor: '#1d4ed8', role: 'Super Admin', roleColor: 'role--super', status: 'Active' },
-    { id: 2, name: 'Marcus Smith', email: 'm.smith@whiterock.crm', initials: 'MS', color: '#f3e8ff', textColor: '#7c3aed', role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', initials: 'CL', color: '#f1f5f9', textColor: '#64748b', role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 4, name: 'Sarah White', email: 'sarah.w@whiterock.crm', initials: 'SW', color: '#fef9c3', textColor: '#a16207', role: 'Accounts Manager', roleColor: 'role--accounts', status: 'Active' },
-    { id: 5, name: 'Diana Fernandez', email: 'd.fernandez@whiterock.crm', initials: 'DF', color: '#dcfce7', textColor: '#15803d', role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 6, name: 'Leo Kumar', email: 'leo.k@whiterock.crm', initials: 'LK', color: '#e0f2fe', textColor: '#0369a1', role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 7, name: 'Nina Hassan', email: 'nina.h@whiterock.crm', initials: 'NH', color: '#fce7f3', textColor: '#be185d', role: 'Tele Agent', roleColor: 'role--agent', status: 'Inactive' },
-    { id: 8, name: 'Ryan Patel', email: 'r.patel@whiterock.crm', initials: 'RP', color: '#fef3c7', textColor: '#b45309', role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 9, name: 'Aisha Nkosi', email: 'a.nkosi@whiterock.crm', initials: 'AN', color: '#ede9fe', textColor: '#6d28d9', role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 10, name: 'Tom Brennan', email: 't.brennan@whiterock.crm', initials: 'TB', color: '#fee2e2', textColor: '#b91c1c', role: 'Team Leader', roleColor: 'role--leader', status: 'Inactive' },
-    { id: 11, name: 'Priya Sharma', email: 'p.sharma@whiterock.crm', initials: 'PS', color: '#f0fdf4', textColor: '#166534', role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 12, name: 'Jake Morrison', email: 'j.morrison@whiterock.crm', initials: 'JM', color: '#f0f9ff', textColor: '#0c4a6e', role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@whiterock.crm', initials: 'EV', color: '#fff1f2', textColor: '#9f1239', role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 14, name: 'Omar Khalil', email: 'o.khalil@whiterock.crm', initials: 'OK', color: '#ecfdf5', textColor: '#065f46', role: 'Tele Agent', roleColor: 'role--agent', status: 'Inactive' },
-    { id: 15, name: 'Sophie Tan', email: 's.tan@whiterock.crm', initials: 'ST', color: '#f5f3ff', textColor: '#4c1d95', role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
+    { id: 1, name: 'Jane Doe', email: 'jane.doe@whiterock.crm', initials: 'JD', ...USER_COLORS[1], role: 'Super Admin', roleColor: 'role--super', status: 'Active' },
+    { id: 2, name: 'Marcus Smith', email: 'm.smith@whiterock.crm', initials: 'MS', ...USER_COLORS[2], role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
+    { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', initials: 'CL', ...USER_COLORS[3], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
+    { id: 4, name: 'Sarah White', email: 'sarah.w@whiterock.crm', initials: 'SW', ...USER_COLORS[4], role: 'Accounts Manager', roleColor: 'role--accounts', status: 'Active' },
+    { id: 5, name: 'Diana Fernandez', email: 'd.fernandez@whiterock.crm', initials: 'DF', ...USER_COLORS[5], role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
+    { id: 6, name: 'Leo Kumar', email: 'leo.k@whiterock.crm', initials: 'LK', ...USER_COLORS[6], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
+    { id: 7, name: 'Nina Hassan', email: 'nina.h@whiterock.crm', initials: 'NH', ...USER_COLORS[7], role: 'Tele Agent', roleColor: 'role--agent', status: 'Inactive' },
+    { id: 8, name: 'Ryan Patel', email: 'r.patel@whiterock.crm', initials: 'RP', ...USER_COLORS[8], role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
+    { id: 9, name: 'Aisha Nkosi', email: 'a.nkosi@whiterock.crm', initials: 'AN', ...USER_COLORS[9], role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
+    { id: 10, name: 'Tom Brennan', email: 't.brennan@whiterock.crm', initials: 'TB', ...USER_COLORS[10], role: 'Team Leader', roleColor: 'role--leader', status: 'Inactive' },
+    { id: 11, name: 'Priya Sharma', email: 'p.sharma@whiterock.crm', initials: 'PS', ...USER_COLORS[11], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
+    { id: 12, name: 'Jake Morrison', email: 'j.morrison@whiterock.crm', initials: 'JM', ...USER_COLORS[12], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
+    { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@whiterock.crm', initials: 'EV', ...USER_COLORS[13], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
+    { id: 14, name: 'Omar Khalil', email: 'o.khalil@whiterock.crm', initials: 'OK', ...USER_COLORS[14], role: 'Tele Agent', roleColor: 'role--agent', status: 'Inactive' },
+    { id: 15, name: 'Sophie Tan', email: 's.tan@whiterock.crm', initials: 'ST', ...USER_COLORS[15], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
 ];
 
 /**
@@ -44,13 +57,7 @@ export const PERFORMANCE_LEAD_STATUSES = ['All', 'Active', 'Completed', 'Urgent'
 
 export const LENDER_TYPES = ['Major Bank', 'Non-Bank', 'Credit Union', 'Building Society', 'Specialist'];
 
-export const LENDER_TYPE_COLORS = {
-    'Major Bank': { bg: 'rgba(36,71,215,0.08)', color: '#2447d7', border: 'rgba(36,71,215,0.18)' },
-    'Non-Bank': { bg: 'rgba(139,92,246,0.08)', color: '#8b5cf6', border: 'rgba(139,92,246,0.2)' },
-    'Credit Union': { bg: 'rgba(6,182,212,0.08)', color: '#06b6d4', border: 'rgba(6,182,212,0.2)' },
-    'Building Society': { bg: 'rgba(245,158,11,0.08)', color: '#f59e0b', border: 'rgba(245,158,11,0.2)' },
-    'Specialist': { bg: 'rgba(16,185,129,0.08)', color: '#10b981', border: 'rgba(16,185,129,0.2)' },
-};
+export { LENDER_TYPE_COLORS } from '../utils/colorSystem';
 
 export const FULL_LENDERS_LIST = [
     { id: 1, name: 'ANZ Bank', type: 'Major Bank', interestRate: '5.89%', maxLoan: '$2,000,000', minDeposit: '10%', contact: 'lending@anz.com', status: 'Active' },
@@ -61,18 +68,6 @@ export const FULL_LENDERS_LIST = [
     { id: 6, name: 'NAB', type: 'Major Bank', interestRate: '5.85%', maxLoan: '$2,200,000', minDeposit: '5%', contact: 'business@nab.com.au', status: 'Active' },
     { id: 7, name: 'Suncorp', type: 'Major Bank', interestRate: '6.12%', maxLoan: '$1,800,000', minDeposit: '15%', contact: 'info@suncorp.com.au', status: 'Active' },
     { id: 8, name: 'Heritage Bank', type: 'Credit Union', interestRate: '5.45%', maxLoan: '$1,200,000', minDeposit: '10%', contact: 'apply@heritage.com.au', status: 'Active' },
-];
-
-
-export const AVATAR_COLORS = [
-    { bg: '#ebf0ff', text: '#2447d7', grad: 'linear-gradient(135deg,#6366f1,#4f46e5)' },
-    { bg: '#f3e8ff', text: '#7c3aed', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)' },
-    { bg: '#f1f5f9', text: '#475569', grad: 'linear-gradient(135deg,#10b981,#059669)' },
-    { bg: '#fffbeb', text: '#d97706', grad: 'linear-gradient(135deg,#f59e0b,#d97706)' },
-    { bg: '#ecfdf5', text: '#059669', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)' },
-    { bg: '#fef2f2', text: '#dc2626', grad: 'linear-gradient(135deg,#ef4444,#dc2626)' },
-    { bg: '#e0f2fe', text: '#0369a1', grad: 'linear-gradient(135deg,#0ea5e9,#0284c7)' },
-    { bg: '#fce7f3', text: '#be185d', grad: 'linear-gradient(135deg,#ec4899,#db2777)' },
 ];
 
 /**
@@ -105,20 +100,20 @@ export const INITIAL_TASKS = [
  */
 export const INITIAL_MEMBERSHIPS = {
     2: [ // Marcus Smith
-        { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', role: 'Tele Agent', initials: 'CL', color: '#f1f5f9', status: 'Active' },
-        { id: 11, name: 'Priya Sharma', email: 'p.sharma@whiterock.crm', role: 'Tele Agent', initials: 'PS', color: '#f0fdf4', status: 'Active' },
+        { id: 3, name: 'Cody Lane', email: 'cody.l@whiterock.crm', role: 'Tele Agent', initials: 'CL', ...USER_COLORS[3], status: 'Active' },
+        { id: 11, name: 'Priya Sharma', email: 'p.sharma@whiterock.crm', role: 'Tele Agent', initials: 'PS', ...USER_COLORS[11], status: 'Active' },
     ],
     5: [ // Diana Fernandez
-        { id: 6, name: 'Leo Kumar', email: 'leo.k@whiterock.crm', role: 'Tele Agent', initials: 'LK', color: '#e0f2fe', status: 'Active' },
-        { id: 7, name: 'Nina Hassan', email: 'nina.h@whiterock.crm', role: 'Tele Agent', initials: 'NH', color: '#fce7f3', status: 'Inactive' },
-        { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@whiterock.crm', role: 'Tele Agent', initials: 'EV', color: '#fff1f2', status: 'Active' },
+        { id: 6, name: 'Leo Kumar', email: 'leo.k@whiterock.crm', role: 'Tele Agent', initials: 'LK', ...USER_COLORS[6], status: 'Active' },
+        { id: 7, name: 'Nina Hassan', email: 'nina.h@whiterock.crm', role: 'Tele Agent', initials: 'NH', ...USER_COLORS[7], status: 'Inactive' },
+        { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@whiterock.crm', role: 'Tele Agent', initials: 'EV', ...USER_COLORS[13], status: 'Active' },
     ],
     8: [ // Ryan Patel
-        { id: 12, name: 'Jake Morrison', email: 'j.morrison@whiterock.crm', role: 'Tele Agent', initials: 'JM', color: '#f0f9ff', status: 'Active' },
-        { id: 15, name: 'Sophie Tan', email: 's.tan@whiterock.crm', role: 'Tele Agent', initials: 'ST', color: '#f5f3ff', status: 'Active' },
+        { id: 12, name: 'Jake Morrison', email: 'j.morrison@whiterock.crm', role: 'Tele Agent', initials: 'JM', ...USER_COLORS[12], status: 'Active' },
+        { id: 15, name: 'Sophie Tan', email: 's.tan@whiterock.crm', role: 'Tele Agent', initials: 'ST', ...USER_COLORS[15], status: 'Active' },
     ],
     9: [ // Aisha Nkosi
-        { id: 14, name: 'Omar Khalil', email: 'o.khalil@whiterock.crm', role: 'Tele Agent', initials: 'OK', color: '#ecfdf5', status: 'Inactive' },
+        { id: 14, name: 'Omar Khalil', email: 'o.khalil@whiterock.crm', role: 'Tele Agent', initials: 'OK', ...USER_COLORS[14], status: 'Inactive' },
     ],
     10: [], // Tom Brennan
 };
@@ -151,10 +146,10 @@ export const LEADS_BY_STAGE = [
  * Detailed flow data for Super Admin Operational Flow.
  */
 export const WORKFLOW_STAGES = [
-    { id: 'lead_gather', label: 'Lead Detail Gather', color: '#6366f1', description: 'Tele Agent gathering core info' },
-    { id: 'doc_collect', label: 'Collect Document', color: '#8b5cf6', description: 'Team Leader collecting records' },
-    { id: 'lender_select', label: 'Lender Selection', color: '#ec4899', description: 'Manager selecting best partner' },
-    { id: 'closed', label: 'Won / Rejected', color: '#10b981', description: 'Final process outcome' },
+    { id: 'lead_gather', label: 'Lead Detail Gather', color: WORKFLOW_STAGE_COLORS.lead_gather.color, description: 'Tele Agent gathering core info' },
+    { id: 'doc_collect', label: 'Collect Document', color: WORKFLOW_STAGE_COLORS.doc_collect.color, description: 'Team Leader collecting records' },
+    { id: 'lender_select', label: 'Lender Selection', color: WORKFLOW_STAGE_COLORS.lender_select.color, description: 'Manager selecting best partner' },
+    { id: 'closed', label: 'Won / Rejected', color: WORKFLOW_STAGE_COLORS.closed.color, description: 'Final process outcome' },
 ];
 
 export const OPERATIONAL_FLOW_LEADS = [
@@ -209,22 +204,22 @@ export const TL_STATS = [
 ];
 
 export const TL_AGENT_PERFORMANCE = [
-    { name: 'Cody Lane', initials: 'CL', activeLeads: 156, closedDeals: 24, color: '#64748b' },
-    { name: 'Leo Kumar', initials: 'LK', activeLeads: 132, closedDeals: 19, color: '#0369a1' },
-    { name: 'Priya Sharma', initials: 'PS', activeLeads: 145, closedDeals: 21, color: '#166534' },
-    { name: 'Jake Morrison', initials: 'JM', activeLeads: 142, closedDeals: 18, color: '#0c4a6e' },
-    { name: 'Elena Vasquez', initials: 'EV', activeLeads: 98, closedDeals: 22, color: '#9f1239' },
-    { name: 'Sophie Tan', initials: 'ST', activeLeads: 115, closedDeals: 12, color: '#4c1d95' },
+    { name: 'Cody Lane', initials: 'CL', activeLeads: 156, closedDeals: 24, color: USER_COLORS[3].color },
+    { name: 'Leo Kumar', initials: 'LK', activeLeads: 132, closedDeals: 19, color: USER_COLORS[6].color },
+    { name: 'Priya Sharma', initials: 'PS', activeLeads: 145, closedDeals: 21, color: USER_COLORS[11].color },
+    { name: 'Jake Morrison', initials: 'JM', activeLeads: 142, closedDeals: 18, color: USER_COLORS[12].color },
+    { name: 'Elena Vasquez', initials: 'EV', activeLeads: 98, closedDeals: 22, color: USER_COLORS[13].color },
+    { name: 'Sophie Tan', initials: 'ST', activeLeads: 115, closedDeals: 12, color: USER_COLORS[15].color },
 ];
 
 export const TL_DOCUMENT_COLLECTION = [
-    { label: 'BANK STATEMENTS', progress: 78, color: '#2447d7' },
+    { label: 'BANK STATEMENTS', progress: 78, color: CHART_COLORS.primary },
 ];
 
 export const TL_PIPELINE_DATA = [
-    { label: 'Pending Documents', value: 35, color: '#f59e0b' },
-    { label: 'Approved Documents', value: 55, color: '#10b981' },
-    { label: 'Rejected Documents', value: 10, color: '#e53e3e' },
+    { label: 'Pending Documents', value: 35, color: CHART_COLORS.warning },
+    { label: 'Approved Documents', value: 55, color: CHART_COLORS.success },
+    { label: 'Rejected Documents', value: 10, color: CHART_COLORS.danger },
 ];
 
 /**
@@ -241,9 +236,9 @@ export const MOCK_LEAD_COUNTS = {
 };
 
 export const AM_STAT_CARDS = [
-    { label: 'Verified Clients', value: MOCK_LEAD_COUNTS.total.toLocaleString(), change: '+12%', changeLabel: 'vs last month', iconBg: '#ebf0ff' },
-    { label: 'Pending Loans', value: '42', change: '+8%', changeLabel: 'vs last week', iconBg: '#fff7ed' },
-    { label: 'Approved vs Rejected', value: '85% / 15%', change: '+3%', changeLabel: 'approval rate', iconBg: '#f0fdf4' },
+    { label: 'Verified Clients', value: MOCK_LEAD_COUNTS.total.toLocaleString(), change: '+12%', changeLabel: 'vs last month', iconBg: ICON_BG_COLORS.blue },
+    { label: 'Pending Loans', value: '42', change: '+8%', changeLabel: 'vs last week', iconBg: ICON_BG_COLORS.orange },
+    { label: 'Approved vs Rejected', value: '85% / 15%', change: '+3%', changeLabel: 'approval rate', iconBg: ICON_BG_COLORS.green },
 ];
 
 export const AM_RECENT_LEADS = [
@@ -310,10 +305,10 @@ export const MOCK_LEADS = [
  * Super Admin Lead Performance
  */
 export const SA_RECENT_LEADS = [
-    { id: 'WR-001', name: 'Robert Miller',  businessName: 'Miller Logistics Co.', initials: 'RM', bg: '#ebf0ff', tc: '#2447d7', stage: 'Document Collection', stageCls: 'bg-[#1a202c] text-white',        status: 'Active',    statusCls: 'text-[#059669]', dot: 'bg-[#059669]', agent: 'Cody Lane',      date: 'Oct 24, 2023' },
-    { id: 'WR-002', name: 'Alice Huang',    businessName: 'Huang Tech Solutions', initials: 'AH', bg: '#ecfdf5', tc: '#059669', stage: 'Document Verification Done', stageCls: 'bg-[#fef9c3] text-[#a16207]',    status: 'Active',    statusCls: 'text-[#059669]', dot: 'bg-[#059669]', agent: 'Leo Kumar',      date: 'Oct 24, 2023' },
-    { id: 'WR-008', name: 'Marcus Aurelius', businessName: 'Aurelius Consulting', initials: 'MA', bg: '#f3e8ff', tc: '#7c3aed', stage: 'Completed', stageCls: 'bg-[#ecfdf5] text-[#059669]', status: 'Completed', statusCls: 'text-[#a0aec0]', dot: 'bg-[#a0aec0]', agent: 'Cody Lane',      date: 'Oct 23, 2023' },
-    { id: 'WR-004', name: 'Sarah Connor',   businessName: 'Connor Security Group', initials: 'SC', bg: '#fff7ed', tc: '#ea580c', stage: 'Rejected', stageCls: 'bg-[#f1f5f9] text-[#64748b]',    status: 'Urgent',    statusCls: 'text-[#dc2626]', dot: 'bg-[#dc2626]', agent: 'Jake Morrison', date: 'Oct 23, 2023' },
+    { id: 'WR-001', name: 'Robert Miller',  businessName: 'Miller Logistics Co.', initials: 'RM', bg: LEAD_AVATAR_COLORS['Robert Miller'].bg, tc: LEAD_AVATAR_COLORS['Robert Miller'].tc, stage: 'Document Collection', stageCls: 'bg-[#1a202c] text-white',        status: 'Active',    statusCls: 'text-[#059669]', dot: STATUS_COLORS.active.dot, agent: 'Cody Lane',      date: 'Oct 24, 2023' },
+    { id: 'WR-002', name: 'Alice Huang',    businessName: 'Huang Tech Solutions', initials: 'AH', bg: LEAD_AVATAR_COLORS['Alice Huang'].bg, tc: LEAD_AVATAR_COLORS['Alice Huang'].tc, stage: 'Document Verification Done', stageCls: 'bg-[#fef9c3] text-[#a16207]',    status: 'Active',    statusCls: 'text-[#059669]', dot: STATUS_COLORS.active.dot, agent: 'Leo Kumar',      date: 'Oct 24, 2023' },
+    { id: 'WR-008', name: 'Marcus Aurelius', businessName: 'Aurelius Consulting', initials: 'MA', bg: LEAD_AVATAR_COLORS['Marcus Aurelius'].bg, tc: LEAD_AVATAR_COLORS['Marcus Aurelius'].tc, stage: 'Completed', stageCls: 'bg-[#ecfdf5] text-[#059669]', status: 'Completed', statusCls: 'text-[#a0aec0]', dot: 'bg-[#a0aec0]', agent: 'Cody Lane',      date: 'Oct 23, 2023' },
+    { id: 'WR-004', name: 'Sarah Connor',   businessName: 'Connor Security Group', initials: 'SC', bg: LEAD_AVATAR_COLORS['Sarah Connor'].bg, tc: LEAD_AVATAR_COLORS['Sarah Connor'].tc, stage: 'Rejected', stageCls: 'bg-[#f1f5f9] text-[#64748b]',    status: 'Urgent',    statusCls: 'text-[#dc2626]', dot: STATUS_COLORS.urgent.dot, agent: 'Jake Morrison', date: 'Oct 23, 2023' },
 ];
 
 export const SA_STATS = {
@@ -351,10 +346,10 @@ export const AM_LENDER_OPTIONS = [
 ];
 
 export const QUALIFIED_LENDERS = [
-    { id: 'anz_bank', name: 'ANZ Bank', tier: 'Tier 1 • Trusted Partner', match: 98, color: '#2447d7', bg: '#ebf0ff' },
-    { id: 'cba', name: 'Commonwealth Bank', tier: 'Tier 1 • International', match: 92, color: '#2447d7', bg: '#ebf0ff' },
-    { id: 'macquarie', name: 'Macquarie Bank', tier: 'Tier 2 • Private Equity', match: 85, color: '#16a34a', bg: '#ecfdf5' },
-    { id: 'westpac', name: 'Westpac', tier: 'Tier 1 • High Net Worth', match: 78, color: '#ea580c', bg: '#fff7ed' },
+    { id: 'anz_bank', name: 'ANZ Bank', tier: 'Tier 1 • Trusted Partner', match: 98, color: QUALIFIED_LENDER_COLORS.tier1.color, bg: QUALIFIED_LENDER_COLORS.tier1.bg },
+    { id: 'cba', name: 'Commonwealth Bank', tier: 'Tier 1 • International', match: 92, color: QUALIFIED_LENDER_COLORS.tier1.color, bg: QUALIFIED_LENDER_COLORS.tier1.bg },
+    { id: 'macquarie', name: 'Macquarie Bank', tier: 'Tier 2 • Private Equity', match: 85, color: QUALIFIED_LENDER_COLORS.tier2.color, bg: QUALIFIED_LENDER_COLORS.tier2.bg },
+    { id: 'westpac', name: 'Westpac', tier: 'Tier 1 • High Net Worth', match: 78, color: QUALIFIED_LENDER_COLORS.tier3.color, bg: QUALIFIED_LENDER_COLORS.tier3.bg },
 ];
 
 export const AM_APPROVED_STATS = {
@@ -371,11 +366,11 @@ export const AUDIT_STATS = {
 };
 
 export const AUDIT_LOG_ENTRIES = [
-    { id: 1, date: 'Oct 24, 2023', time: '14:24:08', name: 'Jane Doe', initials: 'JD', bg: '#2447d7', role: 'Super Admin', roleCls: 'bg-[#ebf0ff] text-[#2447d7]', actionIcon: 'verify', actionText: 'Verified compliance docs for', refId: 'WR-001' },
-    { id: 2, date: 'Oct 24, 2023', time: '13:15:22', name: 'Marcus Smith', initials: 'MS', bg: '#8b5cf6', role: 'Team Leader', roleCls: 'bg-[#f5f3ff] text-[#8b5cf6]', actionIcon: 'edit',   actionText: 'Modified status of', refId: 'WR-002' },
-    { id: 3, date: 'Oct 24, 2023', time: '11:05:44', name: 'Sarah White', initials: 'SW', bg: '#f59e0b', role: 'Accounts Manager', roleCls: 'bg-[#fffbeb] text-[#f59e0b]', actionIcon: 'payment', actionText: 'Confirmed payment for', refId: 'WR-008' },
-    { id: 4, date: 'Oct 24, 2023', time: '09:42:12', name: 'System', initials: 'SYS', bg: '#64748b', role: 'Automation', roleCls: 'bg-[#f1f5f9] text-[#64748b]', actionIcon: 'auto',    actionText: 'Auto-assigned lead to agent', refId: 'WR-005', autoApproved: true },
-    { id: 5, date: 'Oct 23, 2023', time: '17:30:00', name: 'Jane Doe', initials: 'JD', bg: '#2447d7', role: 'Super Admin', roleCls: 'bg-[#ebf0ff] text-[#2447d7]', actionIcon: 'reject',  actionText: 'Flagged suspicious activity on', refId: 'WR-004' },
+    { id: 1, date: 'Oct 24, 2023', time: '14:24:08', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'verify', actionText: 'Verified compliance docs for', refId: 'WR-001' },
+    { id: 2, date: 'Oct 24, 2023', time: '13:15:22', name: 'Marcus Smith', initials: 'MS', bg: ROLE_COLORS['Team Leader'].bg, role: 'Team Leader', roleCls: ROLE_COLORS['Team Leader'].roleCls, actionIcon: 'edit',   actionText: 'Modified status of', refId: 'WR-002' },
+    { id: 3, date: 'Oct 24, 2023', time: '11:05:44', name: 'Sarah White', initials: 'SW', bg: ROLE_COLORS['Accounts Manager'].bg, role: 'Accounts Manager', roleCls: ROLE_COLORS['Accounts Manager'].roleCls, actionIcon: 'payment', actionText: 'Confirmed payment for', refId: 'WR-008' },
+    { id: 4, date: 'Oct 24, 2023', time: '09:42:12', name: 'System', initials: 'SYS', bg: ROLE_COLORS['Automation'].bg, role: 'Automation', roleCls: ROLE_COLORS['Automation'].roleCls, actionIcon: 'auto',    actionText: 'Auto-assigned lead to agent', refId: 'WR-005', autoApproved: true },
+    { id: 5, date: 'Oct 23, 2023', time: '17:30:00', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'reject',  actionText: 'Flagged suspicious activity on', refId: 'WR-004' },
 ];
 
 /**
@@ -392,11 +387,11 @@ export const FINANCE_STATS = {
 };
 
 export const FINANCE_TRANSACTIONS = [
-    { id: 'TX-2023-001', lead: 'WR-001', name: 'Robert Miller',  initials: 'RM', bg: '#ebf0ff', tc: '#2447d7', amount: '$25,000.00', date: 'Oct 24, 2023', status: 'Approved', manager: 'Sarah White' },
-    { id: 'TX-2023-002', lead: 'WR-002', name: 'Alice Huang',    initials: 'AH', bg: '#ecfdf5', tc: '#059669', amount: '$120,500.00', date: 'Oct 24, 2023', status: 'Pending', manager: 'Sarah White' },
-    { id: 'TX-2023-003', lead: 'WR-008', name: 'Marcus Aurelius', initials: 'MA', bg: '#f3e8ff', tc: '#7c3aed', amount: '$7,500.00',  date: 'Oct 23, 2023', status: 'Approved', manager: 'Sarah White' },
-    { id: 'TX-2023-004', lead: 'WR-004', name: 'Sarah Connor',   initials: 'SC', bg: '#fff7ed', tc: '#ea580c', amount: '$54,200.00', date: 'Oct 23, 2023', status: 'Rejected', manager: 'Sarah White' },
-    { id: 'TX-2023-005', lead: 'WR-005', name: 'Michael Chen',   initials: 'MC', bg: '#e0f2fe', tc: '#0369a1', amount: '$75,000.00', date: 'Oct 22, 2023', status: 'Approved', manager: 'Sarah White' },
+    { id: 'TX-2023-001', lead: 'WR-001', name: 'Robert Miller',  initials: 'RM', bg: LEAD_AVATAR_COLORS['Robert Miller'].bg, tc: LEAD_AVATAR_COLORS['Robert Miller'].tc, amount: '$25,000.00', date: 'Oct 24, 2023', status: 'Approved', manager: 'Sarah White' },
+    { id: 'TX-2023-002', lead: 'WR-002', name: 'Alice Huang',    initials: 'AH', bg: LEAD_AVATAR_COLORS['Alice Huang'].bg, tc: LEAD_AVATAR_COLORS['Alice Huang'].tc, amount: '$120,500.00', date: 'Oct 24, 2023', status: 'Pending', manager: 'Sarah White' },
+    { id: 'TX-2023-003', lead: 'WR-008', name: 'Marcus Aurelius', initials: 'MA', bg: LEAD_AVATAR_COLORS['Marcus Aurelius'].bg, tc: LEAD_AVATAR_COLORS['Marcus Aurelius'].tc, amount: '$7,500.00',  date: 'Oct 23, 2023', status: 'Approved', manager: 'Sarah White' },
+    { id: 'TX-2023-004', lead: 'WR-004', name: 'Sarah Connor',   initials: 'SC', bg: LEAD_AVATAR_COLORS['Sarah Connor'].bg, tc: LEAD_AVATAR_COLORS['Sarah Connor'].tc, amount: '$54,200.00', date: 'Oct 23, 2023', status: 'Rejected', manager: 'Sarah White' },
+    { id: 'TX-2023-005', lead: 'WR-005', name: 'Michael Chen',   initials: 'MC', bg: LEAD_AVATAR_COLORS['Michael Chen'].bg, tc: LEAD_AVATAR_COLORS['Michael Chen'].tc, amount: '$75,000.00', date: 'Oct 22, 2023', status: 'Approved', manager: 'Sarah White' },
 ];
 
 export const REVENUE_BAR_DATA = [
@@ -409,26 +404,26 @@ export const REVENUE_BAR_DATA = [
 ];
 
 export const PAYMENT_STATUS_DONUT = [
-    { label: 'Completed', pct: 64, color: '#10b981' },
-    { label: 'Pending',   pct: 22, color: '#f59e0b' },
-    { label: 'Rejected',  pct: 14, color: '#ef4444' },
+    { label: 'Completed', pct: 64, color: CHART_COLORS.success },
+    { label: 'Pending',   pct: 22, color: CHART_COLORS.warning },
+    { label: 'Rejected',  pct: 14, color: CHART_COLORS.danger },
 ];
 
 /**
  * Super Admin Activity Feed
  */
 export const SA_ACTIVITIES = [
-    { label: 'Lead Assigned', detail: 'Jane Doe assigned WR-001 to Cody Lane', time: '2 mins ago', color: '#2447d7' },
-    { label: 'Document Approved', detail: 'Marcus Smith approved Bank Statement for ALice Huang', time: '15 mins ago', color: '#10b981' },
-    { label: 'Loan Rejected', detail: 'Sarah White rejected loan for Sarah Connor', time: '1 hour ago', color: '#dc2626' },
-    { label: 'System Update', detail: 'System auto-assigned 5 new leads to active agents', time: '2 hours ago', color: '#64748b' },
-    { label: 'New Lead', detail: 'New lead Liam Neeson entered the pipeline', time: '3 hours ago', color: '#7c3aed' },
+    { label: 'Lead Assigned', detail: 'Jane Doe assigned WR-001 to Cody Lane', time: '2 mins ago', color: CHART_COLORS.primary },
+    { label: 'Document Approved', detail: 'Marcus Smith approved Bank Statement for ALice Huang', time: '15 mins ago', color: CHART_COLORS.success },
+    { label: 'Loan Rejected', detail: 'Sarah White rejected loan for Sarah Connor', time: '1 hour ago', color: CHART_COLORS.danger },
+    { label: 'System Update', detail: 'System auto-assigned 5 new leads to active agents', time: '2 hours ago', color: CHART_COLORS.gray },
+    { label: 'New Lead', detail: 'New lead Liam Neeson entered the pipeline', time: '3 hours ago', color: CHART_COLORS.purple },
 ];
 
 export const SA_DONUT_DATA = [
-    { label: 'Active', pct: 40, color: '#2447d7' },
-    { label: 'Pending', pct: 30, color: '#f59e0b' },
-    { label: 'Qualified', pct: 20, color: '#10b981' },
-    { label: 'Rejected', pct: 10, color: '#dc2626' },
+    { label: 'Active', pct: 40, color: CHART_COLORS.primary },
+    { label: 'Pending', pct: 30, color: CHART_COLORS.warning },
+    { label: 'Qualified', pct: 20, color: CHART_COLORS.success },
+    { label: 'Rejected', pct: 10, color: CHART_COLORS.danger },
 ];
 

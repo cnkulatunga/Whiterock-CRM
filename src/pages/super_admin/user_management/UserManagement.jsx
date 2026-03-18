@@ -1,7 +1,20 @@
 import React, { useState } from 'react';
 import { useUsers } from '../../../context/UsersContext';
 
-import { ALL_ROLES, ALL_STATUSES, AVATAR_COLORS } from '../../../data/dummyData';
+import { ALL_ROLES, ALL_STATUSES } from '../../../data/dummyData';
+
+/* ─── AVATAR COLORS ───────────────────────────── */
+const AVATAR_COLORS = [
+    { bg: '#6366f1', text: '#ffffff', grad: 'linear-gradient(135deg,#6366f1,#4f46e5)' },
+    { bg: '#8b5cf6', text: '#ffffff', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)' },
+    { bg: '#10b981', text: '#ffffff', grad: 'linear-gradient(135deg,#10b981,#059669)' },
+    { bg: '#f59e0b', text: '#ffffff', grad: 'linear-gradient(135deg,#f59e0b,#d97706)' },
+    { bg: '#14b8a6', text: '#ffffff', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)' },
+    { bg: '#ef4444', text: '#ffffff', grad: 'linear-gradient(135deg,#ef4444,#dc2626)' },
+    { bg: '#0ea5e9', text: '#ffffff', grad: 'linear-gradient(135deg,#0ea5e9,#0284c7)' },
+    { bg: '#ec4899', text: '#ffffff', grad: 'linear-gradient(135deg,#ec4899,#db2777)' },
+];
+
 const TOTAL_USERS = 24;
 
 /* ─── ICONS ────────────────────────────────────── */
@@ -18,11 +31,13 @@ const IconEdit = () => (
         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
     </svg>
 );
-const IconHistory = () => (
+const IconTrash = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
         strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-        <polyline points="1 4 1 10 7 10" />
-        <path d="M3.51 15a9 9 0 1 0 .49-4.95" />
+        <polyline points="3 6 5 6 21 6" />
+        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+        <line x1="10" y1="11" x2="10" y2="17" />
+        <line x1="14" y1="11" x2="14" y2="17" />
     </svg>
 );
 const IconBan = () => (
@@ -212,6 +227,49 @@ const CreateUserModal = ({ onClose, onCreate }) => {
     );
 };
 
+/* ─── DELETE CONFIRMATION MODAL ───────────────── */
+const DeleteConfirmModal = ({ user, onClose, onConfirm }) => (
+    <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-sm z-[9999] flex items-center justify-center animate-fadeIn p-6" onClick={onClose}>
+        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[420px] overflow-hidden animate-slideUp" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-5 border-b border-[#f1f5f9]">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-[#fef2f2] flex items-center justify-center flex-shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" width="24" height="24">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 className="text-[16px] font-bold text-[#1a202c]">Delete User</h3>
+                        <p className="text-[13px] text-[#718096] mt-1">This action cannot be undone</p>
+                    </div>
+                </div>
+            </div>
+            <div className="p-6">
+                <p className="text-[14px] text-[#4a5568] leading-relaxed">
+                    Are you sure you want to delete <span className="font-bold text-[#1a202c]">{user.name}</span>? 
+                    All data associated with this user will be permanently removed.
+                </p>
+            </div>
+            <div className="px-6 pb-6 flex gap-3">
+                <button 
+                    className="flex-1 py-2.5 bg-white border border-[#edf2f7] rounded-xl text-[13px] font-medium text-[#718096] hover:bg-[#f8fafc] transition-all" 
+                    onClick={onClose}
+                >
+                    Cancel
+                </button>
+                <button 
+                    className="flex-1 py-2.5 bg-[#dc2626] rounded-xl text-[13px] font-semibold text-white hover:bg-[#b91c1c] transition-all shadow-sm"
+                    onClick={onConfirm}
+                >
+                    Delete User
+                </button>
+            </div>
+        </div>
+    </div>
+);
+
 /* ─── MAIN COMPONENT ──────────────────────────── */
 const UserManagement = () => {
     const { users, setUsers } = useUsers();
@@ -222,6 +280,7 @@ const UserManagement = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [showModal, setShowModal] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
+    const [deletingUser, setDeletingUser] = useState(null);
     const totalPages = 3;
 
     const roleColorMap = {
@@ -232,6 +291,17 @@ const UserManagement = () => {
     };
     const avatarColors = AVATAR_COLORS;
     const getInitials = (name) => (name || '').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+    const handleDelete = (user) => {
+        setDeletingUser(user);
+    };
+
+    const confirmDelete = () => {
+        if (deletingUser) {
+            setUsers(prev => prev.filter(u => u.id !== deletingUser.id));
+            setDeletingUser(null);
+        }
+    };
 
     React.useEffect(() => { fetchUsers(); }, []);
 
@@ -392,7 +462,7 @@ const UserManagement = () => {
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-2">
                                                     <button className="w-8 h-8 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#2447d7] hover:text-white hover:border-[#2447d7] transition-all" title="Edit user" onClick={() => setEditingUser(user)}><IconEdit /></button>
-                                                    <button className="w-8 h-8 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#1a202c] hover:text-white hover:border-[#1a202c] transition-all" title="View history"><IconHistory /></button>
+                                                    <button className="w-8 h-8 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#dc2626] hover:text-white hover:border-[#dc2626] transition-all" title="Delete user" onClick={() => handleDelete(user)}><IconTrash /></button>
                                                     <button
                                                         className={`w-8 h-8 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
                                                         title={user.status === 'Active' ? 'Deactivate' : 'Activate'}
@@ -457,7 +527,7 @@ const UserManagement = () => {
                                 <div className="w-full h-px bg-[#f1f5f9]" />
                                 <div className="flex items-center gap-2">
                                     <button className="w-8 h-8 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#2447d7] hover:text-white transition-all" title="Edit" onClick={() => setEditingUser(user)}><IconEdit /></button>
-                                    <button className="w-8 h-8 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#1a202c] hover:text-white transition-all" title="History"><IconHistory /></button>
+                                    <button className="w-8 h-8 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#dc2626] hover:text-white transition-all" title="Delete" onClick={() => handleDelete(user)}><IconTrash /></button>
                                     <button className={`w-8 h-8 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
                                         title={user.status === 'Active' ? 'Deactivate' : 'Activate'} onClick={() => toggleStatus(user.id)}>
                                         {user.status === 'Active' ? <IconBan /> : <IconActivate />}
@@ -471,6 +541,7 @@ const UserManagement = () => {
 
             {showModal && <CreateUserModal onClose={() => setShowModal(false)} onCreate={handleCreate} />}
             {editingUser && <EditUserModal user={editingUser} onClose={() => setEditingUser(null)} onEdit={handleEdit} />}
+            {deletingUser && <DeleteConfirmModal user={deletingUser} onClose={() => setDeletingUser(null)} onConfirm={confirmDelete} />}
         </div>
     );
 };

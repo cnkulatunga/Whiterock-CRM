@@ -1,0 +1,169 @@
+/* ─── CENTRALIZED COLOR SYSTEM ───────────────────────── */
+
+/**
+ * All color definitions for the application
+ * Single source of truth for consistent theming
+ */
+
+/* ─── AVATAR COLORS ───────────────────────────────────── */
+
+export const AVATAR_COLORS = [
+    { bg: '#6366f1', text: '#ffffff', grad: 'linear-gradient(135deg,#6366f1,#4f46e5)' },
+    { bg: '#8b5cf6', text: '#ffffff', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)' },
+    { bg: '#10b981', text: '#ffffff', grad: 'linear-gradient(135deg,#10b981,#059669)' },
+    { bg: '#f59e0b', text: '#ffffff', grad: 'linear-gradient(135deg,#f59e0b,#d97706)' },
+    { bg: '#14b8a6', text: '#ffffff', grad: 'linear-gradient(135deg,#14b8a6,#0d9488)' },
+    { bg: '#ef4444', text: '#ffffff', grad: 'linear-gradient(135deg,#ef4444,#dc2626)' },
+    { bg: '#0ea5e9', text: '#ffffff', grad: 'linear-gradient(135deg,#0ea5e9,#0284c7)' },
+    { bg: '#ec4899', text: '#ffffff', grad: 'linear-gradient(135deg,#ec4899,#db2777)' },
+];
+
+/**
+ * User-specific color assignments
+ * Maps user IDs to their designated colors
+ */
+export const USER_COLORS = {
+    1: { color: '#6366f1', textColor: '#ffffff' },  // Jane Doe
+    2: { color: '#10b981', textColor: '#ffffff' },  // Marcus Smith
+    3: { color: '#64748b', textColor: '#ffffff' },  // Cody Lane
+    4: { color: '#f59e0b', textColor: '#ffffff' },  // Sarah White
+    5: { color: '#ef4444', textColor: '#ffffff' },  // Diana Fernandez
+    6: { color: '#0ea5e9', textColor: '#ffffff' },  // Leo Kumar
+    7: { color: '#ec4899', textColor: '#ffffff' },  // Nina Hassan
+    8: { color: '#6366f1', textColor: '#ffffff' },  // Ryan Patel
+    9: { color: '#8b5cf6', textColor: '#ffffff' },  // Aisha Nkosi
+    10: { color: '#f97316', textColor: '#ffffff' }, // Tom Brennan
+    11: { color: '#22c55e', textColor: '#ffffff' }, // Priya Sharma
+    12: { color: '#06b6d4', textColor: '#ffffff' }, // Jake Morrison
+    13: { color: '#f43f5e', textColor: '#ffffff' }, // Elena Vasquez
+    14: { color: '#14b8a6', textColor: '#ffffff' }, // Omar Khalil
+    15: { color: '#a855f7', textColor: '#ffffff' }, // Sophie Tan
+};
+
+/* ─── LENDER TYPE COLORS ──────────────────────────────── */
+
+export const LENDER_TYPE_COLORS = {
+    'Major Bank': { bg: 'rgba(36,71,215,0.08)', color: '#2447d7', border: 'rgba(36,71,215,0.18)' },
+    'Non-Bank': { bg: 'rgba(139,92,246,0.08)', color: '#8b5cf6', border: 'rgba(139,92,246,0.2)' },
+    'Credit Union': { bg: 'rgba(6,182,212,0.08)', color: '#06b6d4', border: 'rgba(6,182,212,0.2)' },
+    'Building Society': { bg: 'rgba(245,158,11,0.08)', color: '#f59e0b', border: 'rgba(245,158,11,0.2)' },
+    'Specialist': { bg: 'rgba(16,185,129,0.08)', color: '#10b981', border: 'rgba(16,185,129,0.2)' },
+};
+
+/* ─── WORKFLOW STAGE COLORS ───────────────────────────── */
+
+export const WORKFLOW_STAGE_COLORS = {
+    'lead_gather': { color: '#6366f1', label: 'Lead Detail Gather' },
+    'doc_collect': { color: '#8b5cf6', label: 'Collect Document' },
+    'lender_select': { color: '#ec4899', label: 'Lender Selection' },
+    'closed': { color: '#10b981', label: 'Won / Rejected' },
+};
+
+/* ─── CHART & VISUALIZATION COLORS ────────────────────── */
+
+export const CHART_COLORS = {
+    primary: '#2447d7',
+    success: '#10b981',
+    warning: '#f59e0b',
+    danger: '#ef4444',
+    info: '#0ea5e9',
+    purple: '#8b5cf6',
+    pink: '#ec4899',
+    gray: '#64748b',
+};
+
+/* ─── STATUS COLORS ────────────────────────────────────── */
+
+export const STATUS_COLORS = {
+    active: { bg: '#dcfce7', color: '#16a34a', border: '#bbf7d0', dot: '#059669' },
+    inactive: { bg: '#f1f5f9', color: '#64748b', border: '#e2e8f0', dot: '#94a3b8' },
+    pending: { bg: '#fff7ed', color: '#f59e0b', border: '#fed7aa', dot: '#f59e0b' },
+    completed: { bg: '#ecfdf5', color: '#059669', border: '#d1fae5', dot: '#10b981' },
+    rejected: { bg: '#fef2f2', color: '#dc2626', border: '#fee2e2', dot: '#ef4444' },
+    urgent: { bg: '#fef2f2', color: '#dc2626', border: '#fee2e2', dot: '#dc2626' },
+};
+
+/* ─── DOCUMENT STATUS COLORS ───────────────────────────── */
+
+export const DOCUMENT_COLORS = {
+    pending: { color: '#f59e0b', bg: '#fff7ed' },
+    approved: { color: '#10b981', bg: '#ecfdf5' },
+    rejected: { color: '#e53e3e', bg: '#fef2f2' },
+};
+
+/* ─── ICON BACKGROUND COLORS ───────────────────────────── */
+
+export const ICON_BG_COLORS = {
+    blue: '#ebf0ff',
+    orange: '#fff7ed',
+    green: '#f0fdf4',
+    red: '#fef2f2',
+    purple: '#f3e8ff',
+    cyan: '#ecfeff',
+    pink: '#fce7f3',
+};
+
+/* ─── LEAD AVATAR COLORS (for SA_RECENT_LEADS) ─────────── */
+
+export const LEAD_AVATAR_COLORS = {
+    'Robert Miller': { bg: '#ebf0ff', tc: '#2447d7' },
+    'Alice Huang': { bg: '#ecfdf5', tc: '#059669' },
+    'Marcus Aurelius': { bg: '#f3e8ff', tc: '#7c3aed' },
+    'Sarah Connor': { bg: '#fff7ed', tc: '#ea580c' },
+    'Michael Chen': { bg: '#e0f2fe', tc: '#0369a1' },
+};
+
+/* ─── ROLE COLORS (for audit logs) ──────────────────────── */
+
+export const ROLE_COLORS = {
+    'Super Admin': { bg: '#2447d7', roleCls: 'bg-[#ebf0ff] text-[#2447d7]' },
+    'Team Leader': { bg: '#8b5cf6', roleCls: 'bg-[#f5f3ff] text-[#8b5cf6]' },
+    'Accounts Manager': { bg: '#f59e0b', roleCls: 'bg-[#fffbeb] text-[#f59e0b]' },
+    'Automation': { bg: '#64748b', roleCls: 'bg-[#f1f5f9] text-[#64748b]' },
+};
+
+/* ─── QUALIFIED LENDER COLORS ──────────────────────────── */
+
+export const QUALIFIED_LENDER_COLORS = {
+    tier1: { color: '#2447d7', bg: '#ebf0ff' },
+    tier2: { color: '#16a34a', bg: '#ecfdf5' },
+    tier3: { color: '#ea580c', bg: '#fff7ed' },
+};
+
+/* ─── HELPER FUNCTIONS ──────────────────────────────────── */
+
+/**
+ * Get avatar color for a user by ID
+ * Falls back to AVATAR_COLORS array if user ID not found
+ */
+export const getAvatarColorById = (id) => {
+    if (USER_COLORS[id]) {
+        return USER_COLORS[id];
+    }
+    // Fallback to array-based color assignment
+    const color = AVATAR_COLORS[id % AVATAR_COLORS.length];
+    return { color: color.bg, textColor: color.text };
+};
+
+/**
+ * Get avatar color by index (for new users or dynamic assignment)
+ */
+export const getAvatarColorByIndex = (index) => {
+    const color = AVATAR_COLORS[index % AVATAR_COLORS.length];
+    return { color: color.bg, textColor: color.text };
+};
+
+/**
+ * Get workflow stage color
+ */
+export const getWorkflowStageColor = (stageId) => {
+    return WORKFLOW_STAGE_COLORS[stageId]?.color || CHART_COLORS.gray;
+};
+
+/**
+ * Get status color
+ */
+export const getStatusColor = (status) => {
+    const statusKey = status.toLowerCase();
+    return STATUS_COLORS[statusKey] || STATUS_COLORS.inactive;
+};
