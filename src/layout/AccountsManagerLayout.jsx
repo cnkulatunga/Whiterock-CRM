@@ -32,9 +32,9 @@ const AccountsManagerLayout = ({ onLogout }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     // Filter tasks for this manager
-    const tasks = allTasks.filter(t => 
-        t.assignedTo?.toString() === user.id?.toString() || 
-        t.createdBy === 'Accounts Manager' || 
+    const tasks = allTasks.filter(t =>
+        t.assignedTo?.toString() === user.id?.toString() ||
+        t.createdBy === 'Accounts Manager' ||
         (t.assignedTo === 'Self' && user.role === 'Accounts Manager')
     );
 
@@ -127,11 +127,10 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         {/* Notification Bell */}
                         <div className="relative">
                             <button
-                                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 relative border shadow-sm ${
-                                    isDark
+                                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 relative border shadow-sm ${isDark
                                         ? 'bg-[#1e2347] border-[#2c3568] text-[#8ea0d4] hover:bg-[#242b58] hover:text-[#e4ecff]'
                                         : 'bg-white border-[#edf2f7] text-[#718096] hover:bg-[#f7fafc] hover:text-[#2447d7]'
-                                } ${hasReminders ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:rounded-full after:border-white' : ''}`}
+                                    } ${hasReminders ? 'after:content-[""] after:absolute after:top-2.5 after:right-2.5 after:w-2 after:h-2 after:bg-red-500 after:border-2 after:rounded-full after:border-white' : ''}`}
                                 onClick={() => setShowNotifications(!showNotifications)}
                                 title="Reminders"
                             >
@@ -140,21 +139,17 @@ const AccountsManagerLayout = ({ onLogout }) => {
                                 </svg>
                             </button>
                             {showNotifications && (
-                                <div className={`absolute top-14 right-0 w-[300px] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${
-                                    isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'
-                                }`}>
-                                    <div className={`p-4 border-b text-sm font-bold ${
-                                        isDark ? 'bg-[#141829] border-[#2c3568] text-[#e4ecff]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#1a202c]'
-                                    }`}>Reminders &amp; Alerts</div>
+                                <div className={`absolute top-14 right-0 w-[300px] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'
+                                    }`}>
+                                    <div className={`p-4 border-b text-sm font-bold ${isDark ? 'bg-[#141829] border-[#2c3568] text-[#e4ecff]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#1a202c]'
+                                        }`}>Reminders &amp; Alerts</div>
                                     <div className="max-h-[300px] overflow-y-auto">
                                         {tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').length > 0 ? (
                                             tasks.filter(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed').map(t => (
-                                                <div key={t.id} className={`p-3 px-4 flex items-center gap-3 border-b transition-colors ${
-                                                    isDark ? 'border-[#2c3568] hover:bg-[#242b58]' : 'border-[#f7fafc] hover:bg-[#f8fafc]'
-                                                }`}>
-                                                    <div className={`w-8 h-8 rounded-lg text-red-500 flex items-center justify-center shrink-0 ${
-                                                        isDark ? 'bg-red-500/15' : 'bg-red-50'
+                                                <div key={t.id} className={`p-3 px-4 flex items-center gap-3 border-b transition-colors ${isDark ? 'border-[#2c3568] hover:bg-[#242b58]' : 'border-[#f7fafc] hover:bg-[#f8fafc]'
                                                     }`}>
+                                                    <div className={`w-8 h-8 rounded-lg text-red-500 flex items-center justify-center shrink-0 ${isDark ? 'bg-red-500/15' : 'bg-red-50'
+                                                        }`}>
                                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
                                                             <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3L2 6" /><path d="M22 6l-3-3" />
                                                         </svg>
@@ -191,7 +186,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                             <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
                             </svg>
-                            <span className="lg:hidden">Leave Mgmt</span>
+                            <span className="lg:hidden">Leave</span>
                         </button>
                         <button
                             className="text-white border-none h-10 px-4 rounded-xl text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
