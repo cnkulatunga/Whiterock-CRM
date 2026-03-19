@@ -98,65 +98,10 @@ const ReviewModal = ({ request, onClose, onSubmit, isDark }) => {
     );
 };
 
-const HOLIDAY_TYPE_OPTIONS = ['Public Holiday', 'Company Day', 'Other'];
-
-const AddHolidayModal = ({ onClose, onSave, isDark, addedByName }) => {
-    const [form, setForm] = useState({ name: '', date: '', type: 'Public Holiday' });
-    const [error, setError] = useState('');
-    const handleSave = () => {
-        if (!form.name.trim()) { setError('Holiday name is required.'); return; }
-        if (!form.date) { setError('Date is required.'); return; }
-        onSave({ ...form, name: form.name.trim(), addedBy: addedByName, addedByRole: 'accounts_manager' });
-    };
-    return (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[999] p-4">
-            <div className="w-full max-w-[420px] rounded-[22px] overflow-hidden shadow-2xl"
-                style={{ background: isDark ? '#1e2347' : '#ffffff', border: `1px solid ${isDark ? '#2c3568' : '#e1e8f5'}` }}>
-                <div className="flex items-center justify-between px-6 py-5" style={{ borderBottom: `1px solid ${isDark ? '#2c3568' : '#f0f3fb'}` }}>
-                    <h3 className="font-bold text-base" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>Add Holiday</h3>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: isDark ? '#546298' : '#a0aec0' }}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                    </button>
-                </div>
-                <div className="p-6 flex flex-col gap-4">
-                    <div>
-                        <label className="block text-[0.7rem] font-bold mb-1.5 uppercase tracking-wider" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>Holiday Name</label>
-                        <input type="text" value={form.name} onChange={e => { setForm(p => ({ ...p, name: e.target.value })); setError(''); }}
-                            placeholder="e.g. Easter Monday"
-                            className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
-                            style={{ background: isDark ? '#242b58' : '#f5f7ff', border: `1.5px solid ${isDark ? '#2c3568' : '#e1e8f5'}`, color: isDark ? '#e4ecff' : '#090e28' }} />
-                    </div>
-                    <div>
-                        <label className="block text-[0.7rem] font-bold mb-1.5 uppercase tracking-wider" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>Date</label>
-                        <input type="date" value={form.date} onChange={e => { setForm(p => ({ ...p, date: e.target.value })); setError(''); }}
-                            className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
-                            style={{ background: isDark ? '#242b58' : '#f5f7ff', border: `1.5px solid ${isDark ? '#2c3568' : '#e1e8f5'}`, color: isDark ? '#e4ecff' : '#090e28' }} />
-                    </div>
-                    <div>
-                        <label className="block text-[0.7rem] font-bold mb-1.5 uppercase tracking-wider" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>Type</label>
-                        <select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}
-                            className="w-full px-4 py-2.5 rounded-xl text-sm outline-none"
-                            style={{ background: isDark ? '#242b58' : '#f5f7ff', border: `1.5px solid ${isDark ? '#2c3568' : '#e1e8f5'}`, color: isDark ? '#e4ecff' : '#090e28' }}>
-                            {HOLIDAY_TYPE_OPTIONS.map(o => <option key={o} value={o}>{o}</option>)}
-                        </select>
-                    </div>
-                    {error && <div className="px-4 py-2.5 rounded-xl text-sm" style={{ background: 'rgba(229,62,62,0.1)', color: '#e53e3e', border: '1px solid rgba(229,62,62,0.2)' }}>{error}</div>}
-                    <div className="flex gap-3 pt-1">
-                        <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl font-semibold text-sm cursor-pointer"
-                            style={{ background: isDark ? '#313a6e' : '#f7f8ff', border: `1px solid ${isDark ? '#3e4a88' : '#e1e6f5'}`, color: isDark ? '#94abda' : '#4b5681' }}>Cancel</button>
-                        <button type="button" onClick={handleSave} className="flex-1 py-3 rounded-xl font-bold text-sm text-white cursor-pointer hover:-translate-y-0.5 transition-all"
-                            style={{ background: 'linear-gradient(135deg, #2447d7, #1a38b8)', border: 'none', boxShadow: '0 4px 12px rgba(36,71,215,0.3)' }}>Save Holiday</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
 const AccountsManagerLeaveDashboard = ({ user }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const { leaveRequests, reviewLeaveRequest, holidays, addHoliday, deleteHoliday } = useLeave();
+    const { leaveRequests, reviewLeaveRequest } = useLeave();
 
     // Find all agents under this AM's TLs
     const myTlIds = AM_MEMBERSHIPS[user.id] || [];
@@ -177,7 +122,6 @@ const AccountsManagerLeaveDashboard = ({ user }) => {
     const [successMsg, setSuccessMsg] = useState('');
     const [activeTab, setActiveTab] = useState('pending');
     const [filterTl, setFilterTl] = useState('All');
-    const [showAddHoliday, setShowAddHoliday] = useState(false);
 
     const handleReview = (status, note) => {
         reviewLeaveRequest(reviewTarget.id, status, note, user.name);
@@ -279,7 +223,7 @@ const AccountsManagerLeaveDashboard = ({ user }) => {
             {/* Tabs + Filter */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex gap-1 p-1 rounded-xl w-fit" style={{ background: isDark ? '#242b58' : '#f0f3ff' }}>
-                    {[['pending', `Pending (${pending.length})`], ['history', `History (${reviewed.length})`], ['holidays', `Holidays (${holidays.length})`]].map(([tab, label]) => (
+                    {[['pending', `Pending (${pending.length})`], ['history', `History (${reviewed.length})`]].map(([tab, label]) => (
                         <button key={tab} onClick={() => setActiveTab(tab)}
                             className="px-5 py-2 rounded-lg text-sm font-bold transition-all"
                             style={{
@@ -337,79 +281,8 @@ const AccountsManagerLeaveDashboard = ({ user }) => {
                 )}
             </div>
 
-            {activeTab === 'holidays' && (
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center justify-between">
-                        <p className="text-sm" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>
-                            Manage company holidays and special dates visible to all agents.
-                        </p>
-                        <button
-                            onClick={() => setShowAddHoliday(true)}
-                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:-translate-y-0.5"
-                            style={{ background: 'linear-gradient(135deg, #2447d7, #1a38b8)', border: 'none', cursor: 'pointer', boxShadow: '0 4px 10px rgba(36,71,215,0.25)', whiteSpace: 'nowrap' }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                            Add Holiday
-                        </button>
-                    </div>
-                    {holidays.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-20 gap-3 rounded-2xl"
-                            style={{ background: isDark ? '#1e2347' : '#ffffff', border: `1px solid ${isDark ? '#2c3568' : '#e6ebf5'}` }}>
-                            <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: isDark ? '#242b58' : '#f0f3ff' }}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#6080f8' : '#2447d7'} strokeWidth="1.5" width="28" height="28">
-                                    <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-                                </svg>
-                            </div>
-                            <p className="text-sm font-medium" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>No holidays added yet.</p>
-                        </div>
-                    ) : (
-                        <div className="rounded-2xl overflow-hidden"
-                            style={{ background: isDark ? '#1e2347' : '#ffffff', border: `1px solid ${isDark ? '#2c3568' : '#e6ebf5'}` }}>
-                            {holidays.map((h, idx) => (
-                                <div key={h.id} className="flex items-center gap-4 px-5 py-4"
-                                    style={{ borderTop: idx > 0 ? `1px solid ${isDark ? '#232a52' : '#f0f3fb'}` : 'none' }}>
-                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: isDark ? '#242b58' : '#f0f3ff' }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#6080f8' : '#2447d7'} strokeWidth="2" width="18" height="18">
-                                            <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-                                        </svg>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="font-semibold text-sm" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>{h.name}</div>
-                                        <div className="text-xs mt-0.5 flex items-center gap-2 flex-wrap" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>
-                                            <span>{h.date}</span>
-                                            <span className="opacity-40">·</span>
-                                            <span className="px-2 py-0.5 rounded-full text-[0.62rem] font-bold"
-                                                style={{ background: h.type === 'Public Holiday' ? 'rgba(36,71,215,0.1)' : 'rgba(56,161,105,0.1)', color: h.type === 'Public Holiday' ? '#2447d7' : '#38a169' }}>
-                                                {h.type}
-                                            </span>
-                                            <span className="opacity-40">·</span>
-                                            <span>Added by {h.addedBy}</span>
-                                        </div>
-                                    </div>
-                                    <button onClick={() => deleteHoliday(h.id)}
-                                        className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:scale-110 shrink-0"
-                                        style={{ background: 'rgba(229,62,62,0.1)', border: '1px solid rgba(229,62,62,0.2)', cursor: 'pointer' }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="#e53e3e" strokeWidth="2" width="14" height="14">
-                                            <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4h6v2" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            )}
-
             {reviewTarget && (
                 <ReviewModal request={reviewTarget} isDark={isDark} onClose={() => setReviewTarget(null)} onSubmit={handleReview} />
-            )}
-
-            {showAddHoliday && (
-                <AddHolidayModal
-                    isDark={isDark}
-                    addedByName={user.name}
-                    onClose={() => setShowAddHoliday(false)}
-                    onSave={(data) => { addHoliday(data); setShowAddHoliday(false); }}
-                />
             )}
         </div>
     );
