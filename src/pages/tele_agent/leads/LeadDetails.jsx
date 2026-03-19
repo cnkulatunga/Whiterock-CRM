@@ -336,15 +336,24 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                 const docCount = lead.documents?.length || 0;
                                 const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
 
-                                if (hasRejected || lead.status === 'Loan Rejected') {
+                                if (hasRejected || lead.status === 'Loan Rejected' || lead.stage === 'Rejected' || lead.status === 'Rejected') {
                                     return (
                                         <div className="flex flex-col items-center gap-3">
                                             <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm animate-pulse">
-                                                <IconAlert size={14} /> {lead.status === 'Document Verifications' ? 'Docs Rejected' : lead.status}
+                                                <IconAlert size={14} /> {lead.status === 'Document Verifications' ? 'Docs Rejected' : 'Rejected'}
                                             </span>
                                             <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">
-                                                {lead.status === 'Loan Rejected' ? 'This loan application has been declined.' : 'Some documents were rejected. Please review and re-upload.'}
+                                                {lead.status === 'Loan Rejected' || lead.stage === 'Rejected' || lead.status === 'Rejected' ? 'This loan application has been declined.' : 'Some documents were rejected. Please review and re-upload.'}
                                             </p>
+                                            {lead.rejectionReason && (
+                                                <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-xl max-w-[280px] w-full">
+                                                    <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-1">Rejection Reason</div>
+                                                    <p className="text-[11px] text-[#4a5568] leading-relaxed">{lead.rejectionReason}</p>
+                                                    {lead.rejectionDate && (
+                                                        <div className="text-[9px] text-[#94a3b8] mt-1">Rejected on {lead.rejectionDate}</div>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 }

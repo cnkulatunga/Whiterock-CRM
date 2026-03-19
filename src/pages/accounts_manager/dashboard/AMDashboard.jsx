@@ -84,15 +84,6 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                     <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Accounts Manager Dashboard</h1>
                     <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Real-time overview of financial processing and lender governance.</p>
                 </div>
-                <button
-                    onClick={() => onNavigate && onNavigate('create_lead')}
-                    className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg shadow-[#2447d7]/20 hover:bg-[#1a32a3] hover:translate-y-[-1px] transition-all"
-                >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
-                        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                    Create Lead
-                </button>
             </header>
 
             {/* KPI Cards */}

@@ -193,6 +193,20 @@ const AccountsManagerLayout = ({ onLogout }) => {
                             </svg>
                             <span className="lg:hidden">Leave Mgmt</span>
                         </button>
+                        <button
+                            className="text-white border-none h-10 px-4 rounded-xl text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
+                            style={{
+                                background: isDark ? 'linear-gradient(135deg, #2447d7, #1732a3)' : 'linear-gradient(135deg, #2447d7, #1732a3)',
+                                boxShadow: '0 6px 16px rgba(36,71,215,0.3)',
+                            }}
+                            onClick={() => navigate('/accounts-manager/create-lead')}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            <span className="lg:hidden">Create Lead</span>
+                        </button>
                     </div>
                 </div>
 

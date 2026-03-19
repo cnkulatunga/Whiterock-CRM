@@ -1,23 +1,39 @@
-import React, { useState } from 'react';
-
-import { AM_LOAN_PIPELINE_LEADS as LEADS } from '../../../data/dummyData';
+import React, { useState, useMemo } from 'react';
+import { useLeads } from '../../../context/LeadsContext';
 
 
 const LenderSelector = ({ onNavigate }) => {
+    const { leads: allLeads } = useLeads();
     const [search, setSearch] = useState('');
+
+    // Filter leads that are ready for lender selection (Document Verification Done only)
+    const LEADS = useMemo(() => {
+        return allLeads.filter(lead => {
+            const stage = lead.stage || lead.status;
+            // Only show leads that have completed document verification and are ready for lender selection
+            return stage === 'Document Verification Done';
+        });
+    }, [allLeads]);
 
     const filtered = LEADS.filter(l =>
         l.name.toLowerCase().includes(search.toLowerCase()) ||
-        l.id.toLowerCase().includes(search.toLowerCase()) ||
+        (l.id || l.leadId || '').toLowerCase().includes(search.toLowerCase()) ||
         l.email.toLowerCase().includes(search.toLowerCase())
     );
 
-    const stats = [
-        { label: 'Total Leads', value: LEADS.length, bg: '#ebf0ff', color: '#2447d7', icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
-        { label: 'Qualified',   value: LEADS.filter(l => l.status === 'Qualified').length, bg: '#ecfdf5', color: '#16a34a', icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></> },
-        { label: 'Contacted',  value: LEADS.filter(l => l.status === 'Contacted').length, bg: '#dbeafe', color: '#1d4ed8', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
-        { label: 'New',        value: LEADS.filter(l => l.status === 'New').length, bg: '#fff7ed', color: '#f97316', icon: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></> },
-    ];
+    // Calculate stats based on lead stages
+    const stats = useMemo(() => {
+        const totalLeads = LEADS.length;
+        // Since we only show "Document Verification Done" leads, all are "New" unless they have lenders selected
+        const sentToLenders = LEADS.filter(l => l.selectedLenders?.length > 0).length;
+        const newLeads = LEADS.filter(l => !l.selectedLenders?.length).length;
+
+        return [
+            { label: 'Total Leads', value: totalLeads, bg: '#ebf0ff', color: '#2447d7', icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
+            { label: 'Sent to Lenders',  value: sentToLenders, bg: '#dbeafe', color: '#1d4ed8', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
+            { label: 'New',        value: newLeads, bg: '#fff7ed', color: '#f97316', icon: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></> },
+        ];
+    }, [LEADS]);
 
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
@@ -32,7 +48,7 @@ const LenderSelector = ({ onNavigate }) => {
             </header>
 
             {/* Stats */}
-            <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 sm:grid-cols-1">
+            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex items-center gap-4 animate-kpiPop" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: stat.bg }}>
@@ -74,23 +90,31 @@ const LenderSelector = ({ onNavigate }) => {
                         </thead>
                         <tbody className="divide-y divide-[#f7fafc]">
                             {filtered.map((lead, i) => {
-                                const isSelected = lead.status === 'Qualified';
+                                // Check if lenders have been selected for this lead
+                                const isSelected = lead.selectedLenders?.length > 0;
+                                const displayId = lead.leadId || lead.id;
+                                const displayLoanAmount = lead.loanAmount ? (typeof lead.loanAmount === 'string' ? lead.loanAmount : `£${lead.loanAmount}K`) : 'N/A';
+                                
                                 return (
                                     <tr key={lead.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${450 + i * 60}ms`, animationFillMode: 'both' }}>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">
-                                                <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{lead.id}</span>
+                                                <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{displayId}</span>
                                                 <span className="text-[12px] font-medium text-[#1a202c]">{lead.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{lead.businessName}</span></td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-[13px] text-[#4a5568]">
+                                                {lead.businessName || lead.companyName || <span className="text-[#a0aec0] italic">Personal Lead</span>}
+                                            </span>
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col gap-0.5">
-                                                <span className="text-[12px] text-[#4a5568]">{lead.email}</span>
-                                                <span className="text-[11px] text-[#a0aec0]">{lead.phone}</span>
+                                                <span className="text-[12px] text-[#4a5568]">{lead.email || 'N/A'}</span>
+                                                <span className="text-[11px] text-[#a0aec0]">{lead.phone || lead.phoneNumber || 'N/A'}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#1a202c]">{lead.loanAmount}</span></td>
+                                        <td className="px-6 py-4"><span className="text-[13px] font-medium text-[#1a202c]">{displayLoanAmount}</span></td>
                                         <td className="px-6 py-4">
                                             {isSelected ? (
                                                 <span className="flex items-center gap-1.5 text-[11px] font-semibold text-[#059669] bg-[#ecfdf5] px-3 py-1.5 rounded-lg border border-[#d1fae5] w-fit">
