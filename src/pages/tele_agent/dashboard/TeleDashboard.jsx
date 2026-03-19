@@ -369,21 +369,6 @@ const TeleDashboard = ({ onNavigate, tasks }) => {
                             ))}
                         </div>
                     </div>
-
-                    {/* Productivity Streak */}
-                    <div className="bg-gradient-to-br from-[#2447d7] to-[#1732a3] rounded-2xl p-6 shadow-[0_10px_20px_rgba(36,71,215,0.2)] text-white relative overflow-hidden group animate-slideUp [animation-delay:750ms] [animation-fill-mode:both]">
-                        <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-500"></div>
-                        <div className="relative z-10 flex flex-col gap-4">
-                            <h3 className="text-sm font-bold tracking-wide uppercase opacity-90">Productivity Streak</h3>
-                            <p className="text-sm leading-relaxed font-medium opacity-90">You've reached 85% of your daily call goal. 12 more to hit your target!</p>
-                            <div className="flex items-center gap-3 mt-1">
-                                <div className="flex-1 h-2 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
-                                    <div className="h-full bg-white transition-all duration-700 ease-out" style={{ width: '85%' }}></div>
-                                </div>
-                                <span className="text-xs font-bold">85%</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

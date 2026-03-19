@@ -1,31 +1,143 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom';
+import { useLeads } from '../../../context/LeadsContext';
+import { AM_LENDER_OPTIONS as LENDERS } from '../../../data/dummyData';
 
-import { AM_APPROVED_LOANS as APPROVED, AM_LENDER_OPTIONS as LENDERS, AM_APPROVED_STATS } from '../../../data/dummyData';
+/* Rejection Reason Modal */
+const RejectionModal = ({ lead, onClose, onConfirm }) => {
+    const [reason, setReason] = useState('');
+    const [error, setError] = useState('');
+
+    const handleSubmit = () => {
+        if (!reason.trim()) {
+            setError('Please provide a rejection reason');
+            return;
+        }
+        onConfirm(reason);
+        onClose();
+    };
+
+    return ReactDOM.createPortal(
+        <div
+            style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', backdropFilter: 'blur(6px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', animation: 'fadeIn 0.2s ease' }}
+            onClick={onClose}
+        >
+            <div
+                style={{ background: '#fff', borderRadius: '24px', width: '100%', maxWidth: '480px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(36,71,215,0.18)', animation: 'slideUp 0.25s ease' }}
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div style={{ padding: '28px 28px 20px', borderBottom: '1px solid #f1f5f9' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
+                        <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: 'linear-gradient(135deg,#ef4444,#dc2626)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" width="24" height="24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                        </div>
+                        <div>
+                            <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>Reject Lead</h3>
+                            <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0', fontWeight: 500 }}>{lead?.name} - {lead?.id}</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div style={{ padding: '24px 28px' }}>
+                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                        Rejection Reason *
+                    </label>
+                    <textarea
+                        style={{ width: '100%', background: '#f8fafc', border: '1.5px solid #e2e8f0', padding: '12px 14px', borderRadius: '12px', fontSize: '14px', fontWeight: 600, color: '#0f172a', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s', resize: 'vertical', minHeight: '120px', fontFamily: "'Sora', sans-serif" }}
+                        placeholder="Please provide a detailed reason for rejecting this lead..."
+                        value={reason}
+                        onChange={e => { setReason(e.target.value); setError(''); }}
+                        autoFocus
+                        onFocus={e => e.target.style.borderColor = '#6366f1'}
+                        onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                    />
+                    {error && <div style={{ marginTop: '8px', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626', fontSize: '12px', fontWeight: 700, borderRadius: '10px' }}>{error}</div>}
+                </div>
+
+                {/* Footer */}
+                <div style={{ padding: '16px 28px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '12px' }}>
+                    <button style={{ flex: 1, padding: '12px', background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#64748b', cursor: 'pointer', transition: 'all 0.15s' }} onClick={onClose}>Cancel</button>
+                    <button style={{ flex: 1, padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#fff', border: 'none', cursor: 'pointer', transition: 'all 0.15s', background: 'linear-gradient(135deg,#ef4444,#dc2626)', boxShadow: '0 4px 15px rgba(239,68,68,0.3)' }} onClick={handleSubmit}>
+                        Confirm Rejection
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
 
 const LenderSelectionApproved = () => {
+    const { leads, updateLead } = useLeads();
     const [search, setSearch] = useState('');
-    const [rows, setRows] = useState(
-        APPROVED.map(item => ({ ...item, selectedLender: item.lender, decision: 'pending' }))
-    );
+    const [showRejectionModal, setShowRejectionModal] = useState(false);
+    const [selectedLeadForRejection, setSelectedLeadForRejection] = useState(null);
 
-    const setLender   = (id, lender)   => setRows(prev => prev.map(r => r.id === id ? { ...r, selectedLender: lender }   : r));
-    const setDecision = (id, decision) => setRows(prev => prev.map(r => r.id === id ? { ...r, decision }                  : r));
+    // Filter leads that are in "Lender Selection" or "Final Review" stages
+    const approvedLeads = leads.filter(lead => {
+        const stage = lead.stage || lead.status;
+        return stage === 'Lender Selection' || stage === 'Final Review' || stage === 'Completed';
+    });
 
-    const filtered       = rows.filter(a =>
+    const setLender = (leadId, lender) => {
+        updateLead(leadId, { selectedLender: lender });
+    };
+
+    const handleApprove = (leadId) => {
+        updateLead(leadId, { 
+            decision: 'approved',
+            stage: 'Completed',
+            status: 'Completed',
+            progress: 100
+        });
+    };
+
+    const handleRejectClick = (lead) => {
+        setSelectedLeadForRejection(lead);
+        setShowRejectionModal(true);
+    };
+
+    const handleRejectConfirm = (reason) => {
+        if (selectedLeadForRejection) {
+            updateLead(selectedLeadForRejection.id, { 
+                decision: 'rejected',
+                rejectionReason: reason,
+                rejectionDate: new Date().toISOString().split('T')[0],
+                stage: 'Rejected',
+                status: 'Rejected',
+                progress: 100
+            });
+        }
+    };
+
+    const filtered = approvedLeads.filter(a =>
         a.name.toLowerCase().includes(search.toLowerCase()) ||
-        a.id.toLowerCase().includes(search.toLowerCase()) ||
-        a.selectedLender.toLowerCase().includes(search.toLowerCase())
+        (a.id || a.leadId || '').toLowerCase().includes(search.toLowerCase()) ||
+        (a.selectedLender || '').toLowerCase().includes(search.toLowerCase())
     );
-    const totalApproved  = rows.filter(a => a.decision === 'approved').length;
-    const totalRejected  = rows.filter(a => a.decision === 'rejected').length;
-    const totalPending   = rows.filter(a => a.decision === 'pending').length;
+
+    const totalApproved = approvedLeads.filter(a => a.decision === 'approved').length;
+    const totalRejected = approvedLeads.filter(a => a.decision === 'rejected').length;
+    const totalPending = approvedLeads.filter(a => !a.decision || a.decision === 'pending').length;
+
+    // Calculate total value
+    const totalValue = approvedLeads
+        .filter(a => a.decision === 'approved')
+        .reduce((sum, a) => {
+            const amount = typeof a.loanAmount === 'string' 
+                ? parseFloat(a.loanAmount.replace(/[£$,K]/g, '')) || 0
+                : a.loanAmount || 0;
+            return sum + amount;
+        }, 0);
 
     const stats = [
-        { label: 'Total Leads',  value: rows.length,     bg: '#ebf0ff', color: '#2447d7', icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
+        { label: 'Total Leads',  value: approvedLeads.length,     bg: '#ebf0ff', color: '#2447d7', icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
         { label: 'Approved',     value: totalApproved,   bg: '#ecfdf5', color: '#16a34a', icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></> },
         { label: 'Rejected',     value: totalRejected,   bg: '#fff1f2', color: '#e11d48', icon: <><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></> },
         { label: 'Pending',      value: totalPending,    bg: '#fff7ed', color: '#f97316', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
-        { label: 'Total Value',  value: AM_APPROVED_STATS.totalValue, bg: '#f5f3ff', color: '#7c3aed', icon: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></> },
+        { label: 'Total Value',  value: `£${totalValue.toFixed(0)}K`, bg: '#f5f3ff', color: '#7c3aed', icon: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></> },
     ];
 
     return (
@@ -89,58 +201,74 @@ const LenderSelectionApproved = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#f7fafc]">
-                            {filtered.map((row, i) => (
-                                <tr key={row.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${550 + i * 60}ms`, animationFillMode: 'both' }}>
-                                    <td className="px-6 py-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{row.id}</span>
-                                            <span className="text-[12px] font-medium text-[#1a202c]">{row.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{row.businessName}</span></td>
-                                    <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{row.amount}</span></td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2 min-w-[190px]">
-                                            <div className="w-7 h-7 rounded-lg bg-[#ebf0ff] flex items-center justify-center shrink-0 border border-[#d9e8ff]">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                            {filtered.map((row, i) => {
+                                const displayId = row.leadId || row.id;
+                                const displayAmount = row.loanAmount ? (typeof row.loanAmount === 'string' ? row.loanAmount : `£${row.loanAmount}K`) : 'N/A';
+                                const displayLender = row.selectedLender || row.lender || LENDERS[0];
+                                const decision = row.decision || 'pending';
+                                
+                                return (
+                                    <tr key={row.id} className="hover:bg-[#f8faff] transition-colors animate-rowIn" style={{ animationDelay: `${550 + i * 60}ms`, animationFillMode: 'both' }}>
+                                        <td className="px-6 py-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-[13px] font-medium text-[#2447d7] cursor-pointer hover:underline">{displayId}</span>
+                                                <span className="text-[12px] font-medium text-[#1a202c]">{row.name}</span>
                                             </div>
-                                            <select
-                                                className="bg-transparent border-none text-[13px] font-medium text-[#1a202c] outline-none cursor-pointer focus:text-[#2447d7] transition-colors"
-                                                value={row.selectedLender}
-                                                onChange={e => setLender(row.id, e.target.value)}
-                                            >
-                                                {LENDERS.map(lender => (
-                                                    <option key={lender} value={lender}>{lender}</option>
-                                                ))}
-                                            </select>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span className="text-[12px] font-semibold text-[#059669] bg-[#ecfdf5] px-2.5 py-1 rounded-lg border border-[#d1fae5]">{row.interestRate}</span>
-                                    </td>
-                                    <td className="px-6 py-4"><span className="text-[12px] text-[#718096]">{row.tenure}</span></td>
-                                    <td className="px-6 py-4"><span className="text-[12px] text-[#a0aec0]">{row.approvedDate}</span></td>
-                                    <td className="px-6 py-4">
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-bold transition-all ${row.decision === 'approved' ? 'bg-[#10b981] text-white shadow-sm' : 'bg-[#f1f5f9] text-[#94a3b8] hover:bg-[#dcfce7] hover:text-[#16a34a]'}`}
-                                                onClick={() => setDecision(row.id, 'approved')}
-                                            >✓</button>
-                                            <button
-                                                className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-bold transition-all ${row.decision === 'rejected' ? 'bg-[#e11d48] text-white shadow-sm' : 'bg-[#f1f5f9] text-[#94a3b8] hover:bg-[#ffe4e6] hover:text-[#e11d48]'}`}
-                                                onClick={() => setDecision(row.id, 'rejected')}
-                                            >✕</button>
-                                            <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-lg border uppercase tracking-wide whitespace-nowrap ${
-                                                row.decision === 'approved' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' :
-                                                row.decision === 'rejected' ? 'bg-[#fff1f2] text-[#e11d48] border-[#ffe4e6]' :
-                                                'bg-[#f8fafc] text-[#94a3b8] border-[#e2e8f0]'
-                                            }`}>
-                                                {row.decision}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-[13px] text-[#4a5568]">
+                                                {row.businessName || row.companyName || <span className="text-[#a0aec0] italic">Personal Lead</span>}
                                             </span>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
+                                        </td>
+                                        <td className="px-6 py-4"><span className="text-[13px] text-[#4a5568]">{displayAmount}</span></td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2 min-w-[190px]">
+                                                <div className="w-7 h-7 rounded-lg bg-[#ebf0ff] flex items-center justify-center shrink-0 border border-[#d9e8ff]">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                                </div>
+                                                <select
+                                                    className="bg-transparent border-none text-[13px] font-medium text-[#1a202c] outline-none cursor-pointer focus:text-[#2447d7] transition-colors"
+                                                    value={displayLender}
+                                                    onChange={e => setLender(row.id, e.target.value)}
+                                                    disabled={decision !== 'pending'}
+                                                >
+                                                    {LENDERS.map(lender => (
+                                                        <option key={lender} value={lender}>{lender}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-[12px] font-semibold text-[#059669] bg-[#ecfdf5] px-2.5 py-1 rounded-lg border border-[#d1fae5]">
+                                                {row.interestRate || 'TBD'}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4"><span className="text-[12px] text-[#718096]">{row.tenure || row.term || 'N/A'}</span></td>
+                                        <td className="px-6 py-4"><span className="text-[12px] text-[#a0aec0]">{row.approvedDate || row.submissionDate || 'N/A'}</span></td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-bold transition-all ${decision === 'approved' ? 'bg-[#10b981] text-white shadow-sm' : 'bg-[#f1f5f9] text-[#94a3b8] hover:bg-[#dcfce7] hover:text-[#16a34a]'}`}
+                                                    onClick={() => handleApprove(row.id)}
+                                                    disabled={decision !== 'pending'}
+                                                >✓</button>
+                                                <button
+                                                    className={`w-8 h-8 flex items-center justify-center rounded-lg text-[13px] font-bold transition-all ${decision === 'rejected' ? 'bg-[#e11d48] text-white shadow-sm' : 'bg-[#f1f5f9] text-[#94a3b8] hover:bg-[#ffe4e6] hover:text-[#e11d48]'}`}
+                                                    onClick={() => handleRejectClick(row)}
+                                                    disabled={decision !== 'pending'}
+                                                >✕</button>
+                                                <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-lg border uppercase tracking-wide whitespace-nowrap ${
+                                                    decision === 'approved' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' :
+                                                    decision === 'rejected' ? 'bg-[#fff1f2] text-[#e11d48] border-[#ffe4e6]' :
+                                                    'bg-[#f8fafc] text-[#94a3b8] border-[#e2e8f0]'
+                                                }`}>
+                                                    {decision}
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </div>
@@ -152,9 +280,21 @@ const LenderSelectionApproved = () => {
                 )}
 
                 <div className="px-6 py-4 border-t border-[#f7fafc] bg-[#fcfdff]">
-                    <span className="text-[12px] text-[#a0aec0]">Showing <span className="text-[#1a202c] font-medium">{filtered.length}</span> of <span className="text-[#1a202c] font-medium">{APPROVED.length}</span> approved leads</span>
+                    <span className="text-[12px] text-[#a0aec0]">Showing <span className="text-[#1a202c] font-medium">{filtered.length}</span> of <span className="text-[#1a202c] font-medium">{approvedLeads.length}</span> approved leads</span>
                 </div>
             </section>
+
+            {/* Rejection Modal */}
+            {showRejectionModal && selectedLeadForRejection && (
+                <RejectionModal
+                    lead={selectedLeadForRejection}
+                    onClose={() => {
+                        setShowRejectionModal(false);
+                        setSelectedLeadForRejection(null);
+                    }}
+                    onConfirm={handleRejectConfirm}
+                />
+            )}
 
         </div>
     );

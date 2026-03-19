@@ -34,17 +34,6 @@ const NAV_GROUPS = [
                 ),
             },
             {
-                id: 'create_lead',
-                path: '/accounts-manager/create-lead',
-                label: 'Create Lead',
-                icon: (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                        <path d="M12 5v14M5 12h14" />
-                    </svg>
-                ),
-            },
-            {
                 id: 'lender_selector',
                 path: '/accounts-manager/lender-selector',
                 label: 'Loan Pipeline',

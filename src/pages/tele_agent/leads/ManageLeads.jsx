@@ -16,6 +16,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     const { users } = useUsers() || {};
     const { leads, setLeads } = useLeads();
     const [searchTerm, setSearchTerm] = useState('');
+    const [statusFilter, setStatusFilter] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedLead, setSelectedLead] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -28,10 +29,12 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     const [uploadContext, setUploadContext] = useState(null);
     const [uploadingDocs, setUploadingDocs] = useState({});
 
-    const filteredLeads = leads.filter(lead =>
-        lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredLeads = leads.filter(lead => {
+        const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lead.email.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesStatus = statusFilter === 'All' || (lead.stage || lead.status) === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
 
     const totalPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
@@ -152,21 +155,45 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
             <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden animate-slideUp [animation-delay:450ms] [animation-fill-mode:both]">
                 <div className="p-6 flex justify-between items-center border-b border-[#f7fafc] flex-wrap gap-4 md:p-4">
                     <h2 className="text-lg font-bold text-[#1a202c]">Lead Directory</h2>
-                    <div className="flex items-center gap-2.5 bg-[#f7fafc] px-4 py-2 border border-[#edf2f7] rounded-[10px] w-[300px] md:w-full">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="16" height="16">
-                            <circle cx="11" cy="11" r="8" />
-                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
-                        <input
-                            type="text"
-                            className="bg-transparent border-none outline-none text-sm text-[#4a5568] w-full"
-                            placeholder="Search leads..."
-                            value={searchTerm}
-                            onChange={(e) => {
-                                setSearchTerm(e.target.value);
-                                setCurrentPage(1); // Reset to first page on search
-                            }}
-                        />
+                    <div className="flex items-center gap-3 flex-wrap">
+                        {/* Status Filter */}
+                        <div className="relative">
+                            <select
+                                className="bg-[#f7fafc] border border-[#edf2f7] rounded-[10px] px-4 py-2 text-sm font-medium text-[#4a5568] outline-none cursor-pointer appearance-none pr-10"
+                                value={statusFilter}
+                                onChange={(e) => {
+                                    setStatusFilter(e.target.value);
+                                    setCurrentPage(1);
+                                }}
+                            >
+                                <option value="All">All Status</option>
+                                <option value="Document Collection">Document Collection</option>
+                                <option value="Document Verification Done">Document Verification Done</option>
+                                <option value="Lender Selection">Lender Selection</option>
+                                <option value="Final Review">Final Review</option>
+                                <option value="Completed">Completed</option>
+                                <option value="Rejected">Rejected</option>
+                            </select>
+                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        
+                        {/* Search Bar */}
+                        <div className="flex items-center gap-2.5 bg-[#f7fafc] px-4 py-2 border border-[#edf2f7] rounded-[10px] w-[300px] md:w-full">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="16" height="16">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            <input
+                                type="text"
+                                className="bg-transparent border-none outline-none text-sm text-[#4a5568] w-full"
+                                placeholder="Search leads..."
+                                value={searchTerm}
+                                onChange={(e) => {
+                                    setSearchTerm(e.target.value);
+                                    setCurrentPage(1); // Reset to first page on search
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
 
@@ -206,9 +233,13 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                             {(() => {
                                                 const staff = users?.find(u => u.id === lead.assignedStaffId);
                                                 if (!staff) return <span className="text-[11px] text-[#a0aec0] italic">Unassigned</span>;
+                                                
+                                                // Use color for background, fallback to a default color
+                                                const bgColor = staff.color || staff.bgColor || '#2447d7';
+                                                
                                                 return (
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm" style={{ backgroundColor: staff.textColor || '#2447d7' }}>
+                                                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm" style={{ backgroundColor: bgColor }}>
                                                             {staff.initials}
                                                         </div>
                                                         <div className="flex flex-col min-w-0">
@@ -399,7 +430,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                     onClick={() => handleReassign(leadToReassign.id, leader.id)}
                                                     className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${leadToReassign.assignedStaffId === leader.id ? 'border-[#2447d7] bg-[#f0f4ff] shadow-sm' : 'border-[#f1f5f9] hover:border-[#2447d7]/30 hover:bg-[#fcfdfe]'}`}
                                                 >
-                                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-black text-white shadow-sm" style={{ backgroundColor: leader.textColor || '#2447d7' }}>
+                                                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-black text-white shadow-sm" style={{ backgroundColor: leader.color || leader.bgColor || '#2447d7' }}>
                                                         {leader.initials}
                                                     </div>
                                                     <div className="flex flex-col min-w-0 flex-1">
