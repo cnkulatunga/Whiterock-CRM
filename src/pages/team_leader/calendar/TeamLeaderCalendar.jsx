@@ -17,6 +17,7 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
     const [addToOutlook, setAddToOutlook] = useState(false);
     const [isSyncingOutlook, setIsSyncingOutlook] = useState(false);
     const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);
+    const [outlookAccount, setOutlookAccount] = useState(null);
     const [outlookEvents, setOutlookEvents] = useState([]);
     const [loadingEvents, setLoadingEvents] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
@@ -449,58 +450,69 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
             )}
 
             {viewMode === 'list' && (
-                <div className="flex justify-between items-center mb-8 gap-5 md:flex-col md:items-stretch">
-                    <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] w-fit sm:w-full overflow-x-auto no-scrollbar">
-                        {['All', 'Personal', 'Team'].map(type => (
+                <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 mb-8 shadow-sm flex justify-between items-center gap-6 lg:flex-col lg:items-stretch">
+                    <div className="flex gap-2 p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0] shrink-0">
+                        {['All', 'Personal', 'Team'].map(f => (
                             <button
-                                key={type}
-                                className={`p-[10px_24px] rounded-xl text-[13px] font-bold transition-all whitespace-nowrap ${assignmentFilter === type ? 'bg-white text-[#2447d7] shadow-sm ring-1 ring-[#2447d7]/10' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                                onClick={() => setAssignmentFilter(type)}
+                                key={f}
+                                className={`p-[6px_14px] rounded-lg text-xs font-bold transition-all ${assignmentFilter === f ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
+                                onClick={() => setAssignmentFilter(f)}
                             >
-                                {type} Views
+                                {f}
                             </button>
                         ))}
                     </div>
-                    <div className="flex items-center gap-4 flex-1 max-w-[500px] md:max-w-full">
-                        <div className="flex-1 bg-white border border-[#edf2f7] p-3 px-4 rounded-2xl flex items-center gap-3 shadow-sm focus-within:ring-4 focus-within:ring-[#2447d7]/5 focus-within:border-[#2447d7] transition-all">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="18" height="18"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-                            <input
-                                type="text"
-                                className="bg-transparent border-none outline-none text-sm w-full text-[#1a202c] placeholder:text-[#a0aec0]"
-                                placeholder="Find tasks, leads or assignees..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
+                    <div className="relative group flex-1 max-w-[400px] lg:max-w-full">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
                         </div>
-                        <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] shrink-0">
-                            {['All', 'Pending', 'In Progress', 'Completed'].map(s => (
-                                <button
-                                    key={s}
-                                    className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${filter === s ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                                    onClick={() => setFilter(s)}
-                                >
-                                    {s}
-                                </button>
-                            ))}
-                        </div>
+                        <input
+                            type="text"
+                            className="bg-[#f8fafc] border border-[#e2e8f0] p-[10px_16px_10px_40px] rounded-xl text-sm font-medium w-full focus:bg-white focus:border-[#2447d7] outline-none transition-all"
+                            placeholder="Search tasks, leads, or assignees..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex gap-2 p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0] shrink-0">
+                        {['All', 'Pending', 'In Progress', 'Completed'].map(status => (
+                            <button
+                                key={status}
+                                className={`p-[6px_14px] rounded-lg text-xs font-bold transition-all ${filter === status ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
+                                onClick={() => setFilter(status)}
+                            >
+                                {status}
+                            </button>
+                        ))}
                     </div>
                 </div>
             )}
 
             {viewMode === 'list' ? (
-                <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 gap-4 animate-fadeIn">
                     {filteredTasks.length > 0 ? (
                         filteredTasks.map(task => (
-                            <div key={task.id} className="bg-white rounded-2xl border border-[#edf2f7] p-6 flex items-center justify-between gap-6 hover:translate-y-[-2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300 group">
-                                <div className="flex items-center gap-5">
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fff7ed] text-[#ea580c]' : 'bg-[#f0fdf4] text-[#16a34a]'}`}>
-                                        {task.type === 'Call' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>}
-                                        {task.type === 'Document' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>}
-                                        {task.type !== 'Call' && task.type !== 'Document' && <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22"><polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>}
+                            <div key={task.id} className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-[0_2px_4px_rgba(0,0,0,0.02)] flex justify-between items-center group hover:border-[#2447d7]/30 transition-all duration-300 md:flex-col md:items-stretch md:gap-5">
+                                <div className="flex items-center gap-6 flex-1">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border-2 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-sm ${
+                                        task.type === 'Call' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' :
+                                        task.type === 'Document' ? 'bg-[#f0f9ff] text-[#0ea5e9] border-[#e0f2fe]' :
+                                        task.type === 'Review' ? 'bg-[#fefce8] text-[#ca8a04] border-[#fef9c3]' :
+                                        task.type === 'Email' ? 'bg-[#fdf2f8] text-[#db2777] border-[#fce7f3]' :
+                                        'bg-[#f5f3ff] text-[#7c3aed] border-[#ede9fe]'
+                                    }`}>
+                                        {task.type === 'Call' && <IconPhone />}
+                                        {task.type === 'Document' && <IconDoc />}
+                                        {task.type === 'Review' && <IconReview />}
+                                        {task.type === 'Email' && <IconMail />}
+                                        {task.type === 'Meeting' && <IconMeeting />}
                                     </div>
-                                    <div className="flex flex-col gap-1.5">
+                                    <div className="flex flex-col gap-1 flex-1">
                                         <div className="flex items-center gap-3">
-                                            <h3 className="text-lg font-bold text-[#1a202c]">{task.title}</h3>
+                                            <h3 className="text-[15px] font-bold text-[#1a202c] leading-tight group-hover:text-[#2447d7] transition-colors">{task.title}</h3>
                                             {task.assignedTo === 'Self' ? (
                                                 <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
                                             ) : (
@@ -511,48 +523,68 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                             {task.createdBy && task.createdBy !== 'Team Leader' && (
                                                 <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-[#ffedd5]">By: {task.createdBy}</span>
                                             )}
-
                                         </div>
                                         <div className="flex items-center gap-4 flex-wrap">
-                                            <span className="flex items-center gap-1.5 text-[13px] font-bold text-[#718096]">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                                                {task.lead || 'Administrative'}
+                                            <span className="text-[12px] font-bold text-[#718096] flex items-center gap-1.5 whitespace-nowrap">
+                                                <IconUser size={12} />
+                                                {task.lead || 'General Task'}
                                             </span>
-                                            <span className="text-[12px] font-bold text-[#a0aec0] uppercase tracking-widest">{task.date} • {task.time}</span>
+                                            <span className="text-[11px] font-bold text-[#cbd5e0] uppercase tracking-widest whitespace-nowrap">
+                                                {task.date} • {task.time}
+                                            </span>
                                         </div>
+                                        {task.message && <p className="text-[12px] text-[#94a3b8] font-medium leading-relaxed mt-1 line-clamp-1 italic">{task.message}</p>}
+                                        {task.reminder && task.reminder !== 'none' && (
+                                            <span className="bg-[#f0f4ff] text-[#2447d7] px-2 py-0.5 rounded-md text-[10px] uppercase font-bold w-fit flex items-center gap-1 mt-1">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10">
+                                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                                </svg>
+                                                Remind {task.reminder === '1d' ? '1 day before' : task.reminder === '1h' ? '1 hour before' : '15 min before'}
+                                            </span>
+                                        )}
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-6">
-                                    {task.reminder !== 'none' && (
-                                        <div className="flex items-center gap-2 text-[#2447d7] bg-[#ebf0ff] p-[6px_14px] rounded-xl">
-                                            <IconBellActive />
-                                            <span className="text-xs font-bold leading-none">{task.reminder === '15m' ? '15m' : task.reminder === '1h' ? '1h' : '1d'} reminder</span>
-                                        </div>
-                                    )}
-                                    <select 
-                                        className={`p-[10px_20px] rounded-xl text-sm font-bold border-2 outline-none transition-all cursor-pointer appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:12px] pr-10
-                                            ${task.status === 'Completed' ? 'bg-[#f0fdf4] text-[#166534] border-[#dcfce7]' : task.status === 'In Progress' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#dbeafe]' : 'bg-[#f8fafc] text-[#718096] border-[#edf2f7]'}
-                                        `}
-                                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22${task.status === 'Completed' ? '%23166534' : task.status === 'In Progress' ? '%231d4ed8' : '%23718096'}%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E")` }}
-                                        value={task.status}
-                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                    >
-                                        <option>Pending</option>
-                                        <option>In Progress</option>
-                                        <option>Completed</option>
-                                    </select>
+                                <div className="shrink-0 flex items-center gap-3 sm:flex-col sm:items-stretch sm:gap-2">
+                                    <div className="flex items-center border border-[#edf2f7] rounded-xl bg-[#f7fafc]">
+                                        <select 
+                                            className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
+                                            value={task.reminder || 'none'}
+                                            onChange={(e) => updateTaskReminder(task.id, e.target.value)}
+                                            title="Update Reminder"
+                                        >
+                                            <option value="none">🔔 Off</option>
+                                            <option value="15m">15m</option>
+                                            <option value="1h">1h</option>
+                                            <option value="1d">1d</option>
+                                        </select>
+                                    </div>
+                                    <div className="flex items-center">
+                                        <select 
+                                            className={`p-[8px_20px] rounded-xl text-xs font-black uppercase tracking-widest border-2 outline-none transition-all cursor-pointer shadow-sm active:scale-95 sm:w-full ${
+                                                task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#d1fae5]' :
+                                                task.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff] hover:bg-[#d9ebff]' :
+                                                'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5] hover:bg-[#ffedd5]'
+                                            }`}
+                                            value={task.status}
+                                            onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                        >
+                                            <option>Pending</option>
+                                            <option>In Progress</option>
+                                            <option>Completed</option>
+                                        </select>
+                                    </div>
                                     {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
                                         <div className="flex items-center gap-2">
                                             <button 
                                                 onClick={() => handleEditClick(task)}
-                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                                className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
                                                 title="Edit Task"
                                             >
                                                 <IconEdit />
                                             </button>
                                             <button 
                                                 onClick={() => handleDeleteTask(task.id)}
-                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                                className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
                                                 title="Delete Task"
                                             >
                                                 <IconTrash />
@@ -560,13 +592,12 @@ const TeamLeaderCalendar = ({ tasks, setTasks, initialDate, notifyReminderSet })
                                         </div>
                                     )}
                                 </div>
-
                             </div>
                         ))
                     ) : (
-                        <div className="py-24 text-center bg-[#fdfdfd] rounded-[32px] border-2 border-dashed border-[#edf2f7]">
-                            <IconCalendar size={48} className="mx-auto text-[#cbd5e0] mb-4" />
-                            <p className="text-lg font-bold text-[#718096]">No tasks found</p>
+                        <div className="bg-white rounded-2xl border-2 border-dashed border-[#edf2f7] py-20 flex flex-col items-center gap-4 grayscale opacity-60">
+                            <IconCalendar size={40} />
+                            <p className="text-sm font-bold text-[#718096]">No tasks found</p>
                             <p className="text-sm text-[#a0aec0] mt-1">Try adjusting your filters or search terms</p>
                         </div>
                     )}
@@ -611,6 +642,47 @@ const IconEdit = () => (
 const IconTrash = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
         <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+);
+
+const IconPhone = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+);
+
+const IconDoc = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+    </svg>
+);
+
+const IconReview = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+        <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+);
+
+const IconMail = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+        <polyline points="22,6 12,13 2,6" />
+    </svg>
+);
+
+const IconMeeting = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
+
+const IconUser = ({ size = 14 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
     </svg>
 );
 

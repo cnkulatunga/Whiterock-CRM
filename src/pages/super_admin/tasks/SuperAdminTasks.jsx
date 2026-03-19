@@ -456,8 +456,8 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
             )}
 
             {viewMode === 'list' && (
-                <div className="flex justify-between items-center mb-8 gap-5 md:flex-col md:items-stretch">
-                    <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] w-fit sm:w-full overflow-x-auto no-scrollbar">
+                <div className="flex flex-wrap justify-between items-center mb-8 gap-5 md:flex-col md:items-stretch">
+                    <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] w-fit shrink-0 sm:w-full overflow-x-auto no-scrollbar">
                         {['All', 'Personal', 'Team'].map(type => (
                             <button
                                 key={type}
@@ -468,8 +468,8 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                             </button>
                         ))}
                     </div>
-                    <div className="flex items-center gap-4 flex-1 max-w-[500px] md:max-w-full">
-                        <div className="flex-1 bg-white border border-[#edf2f7] p-3 px-4 rounded-2xl flex items-center gap-3 shadow-sm focus-within:ring-4 focus-within:ring-[#2447d7]/5 focus-within:border-[#2447d7] transition-all">
+                    <div className="flex flex-wrap items-center gap-4 flex-1 justify-end max-w-[800px] md:max-w-full">
+                        <div className="flex-1 min-w-[200px] bg-white border border-[#edf2f7] p-3 px-4 rounded-2xl flex items-center gap-3 shadow-sm focus-within:ring-4 focus-within:ring-[#2447d7]/5 focus-within:border-[#2447d7] transition-all">
                             <IconSearch />
                             <input
                                 type="text"
@@ -479,7 +479,7 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] shrink-0">
+                        <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] shrink-0 overflow-x-auto no-scrollbar max-w-full">
                             {['All', 'Pending', 'In Progress', 'Completed'].map(s => (
                                 <button
                                     key={s}
