@@ -24,7 +24,7 @@ const calcDays = (startDate, endDate, duration) => {
 const TeleAgentLeaveDashboard = ({ user }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const { leaveRequests, createLeaveRequest, getBalanceForAgent } = useLeave();
+    const { leaveRequests, createLeaveRequest, getBalanceForAgent, holidays } = useLeave();
 
     const myRequests = leaveRequests.filter(r => r.agentId === user.id).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     const balance = getBalanceForAgent(user.id);
@@ -163,6 +163,41 @@ const TeleAgentLeaveDashboard = ({ user }) => {
                     <svg viewBox="0 0 24 24" fill="none" stroke="#805ad5" strokeWidth="2" width="18" height="18"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
                 )}
             </div>
+
+            {/* Company Holidays */}
+            {holidays.length > 0 && (
+                <div className="rounded-2xl overflow-hidden"
+                    style={{ background: isDark ? '#1e2347' : '#ffffff', border: `1px solid ${isDark ? '#2c3568' : '#e6ebf5'}`, boxShadow: isDark ? '0 2px 12px rgba(0,0,0,0.2)' : '0 2px 8px rgba(36,71,215,0.05)' }}>
+                    <div className="flex items-center gap-3 px-6 py-4" style={{ borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf0fb'}` }}>
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: isDark ? '#242b58' : '#f0f3ff' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#6080f8' : '#2447d7'} strokeWidth="2" width="16" height="16">
+                                <rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                        </div>
+                        <h2 className="text-[0.95rem] font-bold" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>Company Holidays</h2>
+                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full ml-auto"
+                            style={{ background: isDark ? '#242b58' : '#f0f3ff', color: isDark ? '#8ea0d4' : '#4b5a8a' }}>
+                            {holidays.length} dates
+                        </span>
+                    </div>
+                    <div>
+                        {holidays.map((h, idx) => (
+                            <div key={h.id} className="flex items-center gap-4 px-6 py-3.5"
+                                style={{ borderTop: idx > 0 ? `1px solid ${isDark ? '#232a52' : '#f0f3fb'}` : 'none' }}>
+                                <div className="w-2 h-2 rounded-full shrink-0" style={{ background: h.type === 'Public Holiday' ? '#2447d7' : '#38a169' }} />
+                                <div className="flex-1 min-w-0">
+                                    <span className="font-semibold text-sm" style={{ color: isDark ? '#e4ecff' : '#090e28' }}>{h.name}</span>
+                                    <span className="ml-3 text-[0.62rem] px-2 py-0.5 rounded-full font-bold"
+                                        style={{ background: h.type === 'Public Holiday' ? 'rgba(36,71,215,0.1)' : 'rgba(56,161,105,0.1)', color: h.type === 'Public Holiday' ? '#2447d7' : '#38a169' }}>
+                                        {h.type}
+                                    </span>
+                                </div>
+                                <span className="text-xs font-medium shrink-0" style={{ color: isDark ? '#8ea0d4' : '#6b7eb8' }}>{h.date}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {/* Leave History Table */}
             <div

@@ -154,6 +154,12 @@ const COMPUTED_INITIAL_BALANCES = BASE_BALANCES.map(b => {
     return { ...b, annualUsed, sickUsed };
 });
 
+const SAMPLE_HOLIDAYS = [
+    { id: 'H-001', name: 'Good Friday', date: '2026-04-03', type: 'Public Holiday', addedBy: 'Marcus Smith', addedByRole: 'team_leader', createdAt: '2026-01-10' },
+    { id: 'H-002', name: 'Easter Monday', date: '2026-04-06', type: 'Public Holiday', addedBy: 'Sarah White', addedByRole: 'accounts_manager', createdAt: '2026-01-10' },
+    { id: 'H-003', name: 'Company Quarterly Day Off', date: '2026-06-30', type: 'Company Day', addedBy: 'Marcus Smith', addedByRole: 'team_leader', createdAt: '2026-03-01' },
+];
+
 export const LeaveProvider = ({ children }) => {
     const [leaveRequests, setLeaveRequests] = useState(() => {
         try {
@@ -169,6 +175,13 @@ export const LeaveProvider = ({ children }) => {
         } catch { return COMPUTED_INITIAL_BALANCES; }
     });
 
+    const [holidays, setHolidays] = useState(() => {
+        try {
+            const saved = localStorage.getItem('leave_holidays');
+            return saved ? JSON.parse(saved) : SAMPLE_HOLIDAYS;
+        } catch { return SAMPLE_HOLIDAYS; }
+    });
+
     useEffect(() => {
         localStorage.setItem('leave_requests', JSON.stringify(leaveRequests));
     }, [leaveRequests]);
@@ -176,6 +189,24 @@ export const LeaveProvider = ({ children }) => {
     useEffect(() => {
         localStorage.setItem('leave_balances', JSON.stringify(leaveBalances));
     }, [leaveBalances]);
+
+    useEffect(() => {
+        localStorage.setItem('leave_holidays', JSON.stringify(holidays));
+    }, [holidays]);
+
+    const addHoliday = (holidayData) => {
+        const newHoliday = {
+            ...holidayData,
+            id: `H-${String(Date.now()).slice(-6)}`,
+            createdAt: new Date().toISOString().split('T')[0],
+        };
+        setHolidays(prev => [...prev, newHoliday].sort((a, b) => a.date.localeCompare(b.date)));
+        return newHoliday;
+    };
+
+    const deleteHoliday = (id) => {
+        setHolidays(prev => prev.filter(h => h.id !== id));
+    };
 
     const getAgentInfo = (agentId) => AGENT_MAPPING[agentId] || {
         teamLeaderId: null,
@@ -227,10 +258,13 @@ export const LeaveProvider = ({ children }) => {
         <LeaveContext.Provider value={{
             leaveRequests,
             leaveBalances,
+            holidays,
             createLeaveRequest,
             reviewLeaveRequest,
             getBalanceForAgent,
             getAgentInfo,
+            addHoliday,
+            deleteHoliday,
             AGENT_MAPPING,
         }}>
             {children}
