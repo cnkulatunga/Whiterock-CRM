@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
-import { TL_STATS as stats, TL_AGENT_PERFORMANCE as agentPerformance, TL_DOCUMENT_COLLECTION as documentCollection, TL_PIPELINE_DATA as pipelineData, MOCK_LEADS } from '../../../data/dummyData';
+import { TL_STATS as stats, TL_AGENT_PERFORMANCE as agentPerformance, TL_DOCUMENT_COLLECTION as documentCollection, TL_PIPELINE_DATA as pipelineData } from '../../../data/dummyData';
+import { useLeads } from '../../../context/LeadsContext';
 
 const DONUT_GAP_DEG = 3;
 
@@ -145,6 +146,7 @@ const DonutChart = ({ data, total }) => {
 const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const { leads } = useLeads();
 
 
     // Calendar & Interaction State
@@ -158,7 +160,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
     const filteredAgents = agentPerformance.filter(agent => agent.name.toLowerCase().includes(agentSearch.toLowerCase()) || agent.initials.toLowerCase().includes(agentSearch.toLowerCase()));
 
     const [selectedAgent, setSelectedAgent] = useState(null);
-    const agentLeads = selectedAgent ? MOCK_LEADS.filter(l => l.agentName === selectedAgent.name) : [];
+    const agentLeads = selectedAgent ? leads.filter(l => l.agentName === selectedAgent.name) : [];
 
     useEffect(() => {
         const acc = getAccount();

@@ -1,45 +1,48 @@
 import React, { useState } from 'react';
 import { QUALIFIED_LENDERS as LENDERS } from '../../../data/dummyData';
+import { useLeads } from '../../../context/LeadsContext';
 
 const LenderSelection = ({ lead, onNavigate }) => {
+    const { updateLead } = useLeads();
     const clientName = lead?.name || 'Jonathan Doe';
     const initials   = clientName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     const leadId     = lead?.id || 'WR-2026-0001';
 
-    // Mock client data (in real app, this comes from lead object)
     const clientDetails = {
-        name: lead?.name || 'Eduard Ceban',
-        businessName: lead?.companyName || 'CES COMMUNICATIONS LTD',
-        dob: '03/01/1989',
-        contactNumber: lead?.phone || '07546516898',
-        email: lead?.email || 'eduard.ceban@cescommunicationsltd.co.uk',
-        residentialAddress: '99 Halbutt Street, Dagenham, RM9 5AR',
-        timeAtAddress: 'NA',
-        previousAddress: '37 Lechmere Avenue, Woodford Green, IG8 8QF (since 05/2020 till 07/2025)',
-        homeowner: lead?.homeOwner || 'NO',
-        companyHouseNumber: lead?.companyHouseNumber || '12345678',
-        businessTurnover: lead?.businessAnnualTurnover || '£250,000',
-        jobTitle: lead?.jobTitle || 'Director'
+        name: lead?.name || '',
+        businessName: lead?.businessName || lead?.companyName || '',
+        dob: lead?.dob || '',
+        contactNumber: lead?.phone || '',
+        email: lead?.email || '',
+        residentialAddress: lead?.residentialAddress || '',
+        timeAtAddress: lead?.timeAtCurrentAddress || '',
+        previousAddress: lead?.previousAddress || '',
+        homeowner: lead?.homeOwner || '',
+        companyHouseNumber: lead?.nic || lead?.companyHouseNumber || '',
+        businessTurnover: lead?.businessAnnualTurnover ? `£${lead.businessAnnualTurnover}` : '',
+        jobTitle: lead?.jobTitle || ''
     };
 
-    const documents = [
-        { name: 'Business Bank Statement (6 months)', status: 'Uploaded', date: '15 Mar 2026' },
-        { name: 'Fulfilled Accounts 2024', status: 'Uploaded', date: '15 Mar 2026' },
-        { name: 'Fulfilled Accounts 2023', status: 'Uploaded', date: '15 Mar 2026' }
-    ];
+    const documents = (lead?.documents || []).map(doc => ({
+        name: doc.type || doc.fileName || 'Document',
+        status: doc.status || 'Uploaded',
+        date: doc.date || '',
+        previewUrl: doc.previewUrl || null,
+        fileName: doc.fileName || null,
+    }));
 
-    // Editable loan fields
-    const [loanAmount, setLoanAmount] = useState('');
-    const [loanPurpose, setLoanPurpose] = useState('');
-    const [overdraft, setOverdraft] = useState('');
+    // Editable loan fields (pre-fill from lead)
+    const [loanAmount, setLoanAmount] = useState(lead?.loanAmount || '');
+    const [loanPurpose, setLoanPurpose] = useState(lead?.loanPurpose || '');
+    const [overdraft, setOverdraft] = useState(lead?.overdraftFacility || '');
     const [businessOverview, setBusinessOverview] = useState('');
 
-    // Existing Loans
-    const [existingLenderName, setExistingLenderName] = useState('');
-    const [existingAmountTaken, setExistingAmountTaken] = useState('');
-    const [existingInterestRate, setExistingInterestRate] = useState('');
-    const [existingMonthlyRepayment, setExistingMonthlyRepayment] = useState('');
-    const [existingTerm, setExistingTerm] = useState('');
+    // Existing Loans (pre-fill from lead)
+    const [existingLenderName, setExistingLenderName] = useState(lead?.existingLoanLenderName || '');
+    const [existingAmountTaken, setExistingAmountTaken] = useState(lead?.existingLoanAmount || '');
+    const [existingInterestRate, setExistingInterestRate] = useState(lead?.existingLoanInterestRate || '');
+    const [existingMonthlyRepayment, setExistingMonthlyRepayment] = useState(lead?.existingLoanMonthlyRepayment || '');
+    const [existingTerm, setExistingTerm] = useState(lead?.existingLoanTerm || '');
 
     // Note & Lender Selection
     const [note, setNote] = useState('');
@@ -375,7 +378,24 @@ const LenderSelection = ({ lead, onNavigate }) => {
                                 Loan details {loanAmount && loanPurpose ? 'completed' : 'pending'}
                             </div>
                         </div>
-                        <button className="w-full py-3 bg-[#2447d7] text-white rounded-xl text-[13px] font-medium hover:bg-[#1732a3] transition-colors shadow-lg flex items-center justify-center gap-2 mb-3">
+                        <button
+                            className="w-full py-3 bg-[#2447d7] text-white rounded-xl text-[13px] font-medium hover:bg-[#1732a3] transition-colors shadow-lg flex items-center justify-center gap-2 mb-3"
+                            disabled={selected.length === 0}
+                            onClick={() => {
+                                if (lead?.id) {
+                                    const selectedLenderNames = LENDERS.filter(l => selected.includes(l.id)).map(l => l.name);
+                                    updateLead(lead.id, {
+                                        stage: 'Lender Selection',
+                                        status: 'Lender Selection',
+                                        progress: 60,
+                                        selectedLenders: selectedLenderNames,
+                                        loanAmount: loanAmount,
+                                        loanPurpose: loanPurpose,
+                                    });
+                                }
+                                if (onNavigate) onNavigate('lender_selection_approved');
+                            }}
+                        >
                             Submit Application
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                         </button>
@@ -400,34 +420,29 @@ const LenderSelection = ({ lead, onNavigate }) => {
                             </button>
                         </div>
                         <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-[400px] p-8 relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-transparent to-purple-50/30 pointer-events-none" />
-                            <div className="relative z-10 text-center space-y-4">
-                                <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-[#fff7ed] to-[#fed7aa] flex items-center justify-center shadow-lg">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="40" height="40"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                </div>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-bold text-gray-700">Document Preview</p>
-                                    <p className="text-xs text-gray-500 max-w-xs mx-auto">This is a mock document. In production, the actual document content would be displayed here.</p>
-                                </div>
-                                <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg max-w-sm mx-auto space-y-2 text-left">
-                                    <div className="flex justify-between border-b pb-2">
-                                        <span className="text-xs text-gray-400">Document Name</span>
-                                        <span className="text-xs font-bold text-gray-700">{previewDoc.name}</span>
+                            {previewDoc.previewUrl ? (
+                                <img src={previewDoc.previewUrl} alt={previewDoc.name} className="max-w-full max-h-[400px] object-contain rounded-xl shadow-lg" />
+                            ) : (
+                                <div className="relative z-10 text-center space-y-4">
+                                    <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-[#fff7ed] to-[#fed7aa] flex items-center justify-center shadow-lg">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="40" height="40"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                                     </div>
-                                    <div className="flex justify-between border-b pb-2">
-                                        <span className="text-xs text-gray-400">Status</span>
-                                        <span className="text-xs font-bold text-[#10b981]">{previewDoc.status}</span>
-                                    </div>
-                                    <div className="flex justify-between border-b pb-2">
-                                        <span className="text-xs text-gray-400">Upload Date</span>
-                                        <span className="text-xs font-bold text-gray-700">{previewDoc.date}</span>
-                                    </div>
-                                    <div className="flex justify-between">
-                                        <span className="text-xs text-gray-400">File Type</span>
-                                        <span className="text-xs font-bold text-gray-700">PDF</span>
+                                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-4 shadow-lg max-w-sm mx-auto space-y-2 text-left">
+                                        <div className="flex justify-between border-b pb-2">
+                                            <span className="text-xs text-gray-400">Document Name</span>
+                                            <span className="text-xs font-bold text-gray-700">{previewDoc.name}</span>
+                                        </div>
+                                        <div className="flex justify-between border-b pb-2">
+                                            <span className="text-xs text-gray-400">Status</span>
+                                            <span className="text-xs font-bold text-[#10b981]">{previewDoc.status}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <span className="text-xs text-gray-400">Upload Date</span>
+                                            <span className="text-xs font-bold text-gray-700">{previewDoc.date}</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                         <div className="p-4 border-t bg-gray-50/50 flex justify-center">
                             <button 

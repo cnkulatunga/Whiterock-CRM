@@ -6,10 +6,12 @@ import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconDocs, IconCheck, IconAlert, IconEye, IconPencil } from '../../../components/DocumentManagement/Icons';
 import EditLeadModal from './EditLeadModal';
 import { useTasks } from '../../../context/TasksContext';
+import { useLeads } from '../../../context/LeadsContext';
 
 const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const { updateLead } = useLeads();
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
     const safeRole = (currentUser.role || '').toLowerCase();
     const isManagerOrAbove = safeRole.includes('manager') || safeRole.includes('admin');
@@ -39,26 +41,30 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
     const handleUpload = (leadId, docId, docName, file) => {
         const targetDocId = docId || Date.now();
+        // Capture locally to avoid stale-closure on state reads
         const previewUrl = file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        const fileName = file?.name || docName;
+        const today = new Date().toISOString().split('T')[0];
+
         setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0, file, previewUrl } }));
-        
+
         let progress = 0;
         const interval = setInterval(() => {
             progress += 10;
             if (progress >= 100) {
                 clearInterval(interval);
+                const newDoc = { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName };
                 setLead(prev => {
                     const exists = prev.documents.find(d => d.id === targetDocId);
-                    const newDocs = exists 
-                        ? prev.documents.map(d => d.id === targetDocId ? { ...d, status: 'Pending', date: new Date().toISOString().split('T')[0], url: previewUrl, fileName: file?.name } : d)
-                        : [...prev.documents, { id: targetDocId, type: docName, status: 'Pending', date: new Date().toISOString().split('T')[0], url: previewUrl, fileName: file?.name }];
-                    return { ...prev, documents: newDocs };
+                    const newDocs = exists
+                        ? prev.documents.map(d => d.id === targetDocId ? { ...newDoc, ...d, status: 'Pending', url: previewUrl, fileName } : d)
+                        : [...prev.documents, newDoc];
+                    const updated = { ...prev, documents: newDocs };
+                    // Sync to global context so Document Verification and Lead Monitoring see the change
+                    updateLead(prev.id, { documents: newDocs });
+                    return updated;
                 });
-                setUploadingDocs(prev => {
-                    const next = { ...prev };
-                    delete next[targetDocId];
-                    return next;
-                });
+                setUploadingDocs(prev => { const n = { ...prev }; delete n[targetDocId]; return n; });
             } else {
                 setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress } }));
             }
@@ -543,13 +549,29 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                         client={lead}
                         onUpload={handleUpload}
                         onDelete={(leadId, docId) => {
-                            setLead(prev => ({ ...prev, documents: prev.documents.filter(d => d.id !== docId) }));
+                            setLead(prev => {
+                                const newDocs = prev.documents.filter(d => d.id !== docId);
+                                updateLead(prev.id, { documents: newDocs });
+                                return { ...prev, documents: newDocs };
+                            });
                         }}
                         onApprove={(leadId, docId) => {
-                            setLead(prev => ({ ...prev, documents: prev.documents.map(d => d.id === docId ? { ...d, status: 'Approved' } : d) }));
+                            setLead(prev => {
+                                const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status: 'Approved' } : d);
+                                const allApproved = newDocs.length > 0 && newDocs.every(d => d.status === 'Approved');
+                                const stageUpdate = allApproved && prev.stage === 'Document Collection'
+                                    ? { stage: 'Document Verification Done', status: 'Document Verification Done', progress: 40 }
+                                    : {};
+                                updateLead(prev.id, { documents: newDocs, ...stageUpdate });
+                                return { ...prev, documents: newDocs, ...stageUpdate };
+                            });
                         }}
                         onReject={(leadId, docId, reason) => {
-                            setLead(prev => ({ ...prev, documents: prev.documents.map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d) }));
+                            setLead(prev => {
+                                const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d);
+                                updateLead(prev.id, { documents: newDocs });
+                                return { ...prev, documents: newDocs };
+                            });
                         }}
                         uploadingDocs={uploadingDocs}
                         isDark={isDark}
@@ -565,6 +587,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                 lead={lead} 
                 onSave={(updatedLead) => {
                     setLead(updatedLead);
+                    updateLead(updatedLead.id, updatedLead);
                     setShowEditModal(false);
                 }} 
             />

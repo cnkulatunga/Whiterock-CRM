@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { MOCK_LEADS, WORKFLOW_STAGES_LIST, SHARED_INITIAL_USERS } from '../../../data/dummyData';
+import { WORKFLOW_STAGES_LIST, SHARED_INITIAL_USERS } from '../../../data/dummyData';
+import { useLeads } from '../../../context/LeadsContext';
 
 /* ─── CONSTANTS ─── */
 const STAGES = WORKFLOW_STAGES_LIST.filter(s => s !== 'All Stages');
@@ -82,32 +83,33 @@ const AgentAvatar = ({ name }) => {
 
 /* ─── MAIN COMPONENT ─── */
 const LeadMonitoring = ({ onViewDetails }) => {
+  const { leads } = useLeads();
   const [search, setSearch] = useState('');
   const [agentFilter, setAgentFilter] = useState('All Agents');
   const [stageFilter, setStageFilter] = useState('All Stages');
   const [page, setPage] = useState(1);
 
-  const agentList = useMemo(() => ['All Agents', ...new Set(MOCK_LEADS.map(l => l.agentName).filter(Boolean))], []);
+  const agentList = useMemo(() => ['All Agents', ...new Set(leads.map(l => l.agentName).filter(Boolean))], [leads]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return MOCK_LEADS.filter(l => {
+    return leads.filter(l => {
       const matchSearch = !q || l.name.toLowerCase().includes(q) || l.leadId.toLowerCase().includes(q) || l.businessName.toLowerCase().includes(q);
       const matchAgent = agentFilter === 'All Agents' || l.agentName === agentFilter;
       const matchStage = stageFilter === 'All Stages' || l.stage === stageFilter;
       return matchSearch && matchAgent && matchStage;
     });
-  }, [search, agentFilter, stageFilter]);
+  }, [leads, search, agentFilter, stageFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const stats = useMemo(() => ({
-    total: MOCK_LEADS.length,
-    inProgress: MOCK_LEADS.filter(l => !['Completed', 'Rejected'].includes(l.stage)).length,
-    completed: MOCK_LEADS.filter(l => l.stage === 'Completed').length,
-    rejected: MOCK_LEADS.filter(l => l.stage === 'Rejected').length,
-  }), []);
+    total: leads.length,
+    inProgress: leads.filter(l => !['Completed', 'Rejected'].includes(l.stage)).length,
+    completed: leads.filter(l => l.stage === 'Completed').length,
+    rejected: leads.filter(l => l.stage === 'Rejected').length,
+  }), [leads]);
 
   const handleFilterChange = (setter) => (e) => { setter(e.target.value); setPage(1); };
 

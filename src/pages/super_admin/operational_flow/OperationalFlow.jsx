@@ -1,7 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
-import { WORKFLOW_STAGES, OPERATIONAL_FLOW_LEADS } from '../../../data/dummyData';
+import { WORKFLOW_STAGES } from '../../../data/dummyData';
+import { useLeads } from '../../../context/LeadsContext';
+
+// Map CRM workflow stages to the 4 operational flow buckets
+const STAGE_TO_OP = {
+    'Document Collection': 'lead_gather',
+    'Document Verification Done': 'doc_collect',
+    'Lender Selection': 'lender_select',
+    'Final Review': 'lender_select',
+    'Completed': 'closed',
+    'Rejected': 'closed',
+};
+
+const mapLeadToOp = (l) => ({
+    id: l.id,
+    name: l.name,
+    businessName: l.businessName || '',
+    agent: l.agentName || '',
+    tl: '',
+    manager: '',
+    stage: STAGE_TO_OP[l.stage] || 'lead_gather',
+    progress: l.progress || 10,
+    lastActive: l.lastContact || 'Recently',
+    leadDetails: {
+        phone: l.phone || '',
+        email: l.email || '',
+        source: l.source || '',
+        amount: l.loanAmount || 'N/A',
+        purpose: l.loanPurpose || 'N/A',
+        nic: l.nic || '',
+        homeowner: l.homeOwner || 'N/A',
+        bank: l.companyBank || 'N/A',
+        turnover: l.businessAnnualTurnover || 'N/A',
+        notes: l.notes || '',
+        residentialAddress: '',
+        existingLoan: l.existingLoan || 'NA',
+        term: 'N/A',
+        fundingTimeline: l.fundingTimeline || 'N/A',
+    },
+    lenderDetails: l.selectedLenders?.length
+        ? { partner: l.selectedLenders[0], rate: 'N/A', status: 'Lenders Assigned', terms: 'N/A' }
+        : { partner: 'Pending', rate: 'N/A', status: 'Analysis Stage', terms: 'N/A' },
+});
 
 /* ─── STYLES & ANIMATIONS ─────────────────────── */
 const STYLES = `
@@ -416,6 +458,8 @@ const FlowArrow = () => (
 const OperationalFlow = () => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const { leads } = useLeads();
+    const OPERATIONAL_FLOW_LEADS = leads.map(mapLeadToOp);
     const [search, setSearch] = useState('');
     const [filterStage, setFilterStage] = useState('All');
     const [viewMode, setViewMode] = useState(window.innerWidth > 768 ? 'table' : 'grid');

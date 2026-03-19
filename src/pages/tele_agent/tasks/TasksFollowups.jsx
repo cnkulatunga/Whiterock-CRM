@@ -36,6 +36,19 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     const [editingTask, setEditingTask] = useState(null);
     const [isEditingTask, setIsEditingTask] = useState(false);
 
+    const todayDate = new Date();
+    const [calYear, setCalYear] = useState(todayDate.getFullYear());
+    const [calMonth, setCalMonth] = useState(todayDate.getMonth());
+
+    const prevMonth = () => {
+        if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); }
+        else setCalMonth(m => m - 1);
+    };
+    const nextMonth = () => {
+        if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); }
+        else setCalMonth(m => m + 1);
+    };
+
 
     useEffect(() => {
         const acc = getAccount();
@@ -162,8 +175,17 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     });
 
     const renderCalendar = () => {
-        const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
         const todayStr = new Date().toISOString().split('T')[0];
+        const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay();
+        const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+        const monthStr = String(calMonth + 1).padStart(2, '0');
+        const cells = [
+            ...Array(firstDayOfWeek).fill(null),
+            ...Array.from({ length: totalDays }, (_, i) => i + 1)
+        ];
+        const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const baseYear = new Date().getFullYear();
+        const YEAR_OPTIONS = Array.from({ length: 10 }, (_, i) => baseYear - 3 + i);
 
         const cardBg = isDark ? '#1e2347' : '#ffffff';
         const cardBgHover = isDark ? '#242b58' : '#f7fafc';
@@ -181,11 +203,32 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         const titleColor = isDark ? '#e4ecff' : '#1a202c';
         const mutedColor = isDark ? '#546298' : '#a0aec0';
         const taskTitleColor = isDark ? '#c8d8ff' : '#2d3748';
+        const navBg = isDark ? '#1e2347' : '#ffffff';
+        const navBorder = isDark ? '#2c3568' : '#e2e8f0';
+        const navColor = isDark ? '#8ea0d4' : '#4a5568';
+        const selectColor = isDark ? '#e4ecff' : '#1a202c';
 
         return (
             <div className="grid grid-cols-[1fr_300px] gap-6 lg:grid-cols-1">
                 {/* Calendar grid */}
                 <div className="rounded-2xl overflow-hidden" style={{ background: isDark ? '#141829' : '#f1f5fb', padding: '16px', gap: '8px', display: 'flex', flexDirection: 'column' }}>
+                    {/* Month/Year Navigation */}
+                    <div className="flex items-center justify-between mb-2 px-1">
+                        <button onClick={prevMonth} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:opacity-75" style={{ background: navBg, color: navColor, border: `1px solid ${navBorder}` }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <div className="flex items-center gap-2">
+                            <select value={calMonth} onChange={e => setCalMonth(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border cursor-pointer" style={{ background: navBg, color: selectColor, borderColor: navBorder }}>
+                                {MONTH_NAMES.map((name, i) => <option key={i} value={i}>{name}</option>)}
+                            </select>
+                            <select value={calYear} onChange={e => setCalYear(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border cursor-pointer" style={{ background: navBg, color: selectColor, borderColor: navBorder }}>
+                                {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
+                            </select>
+                        </div>
+                        <button onClick={nextMonth} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:opacity-75" style={{ background: navBg, color: navColor, border: `1px solid ${navBorder}` }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
                     {/* Day headers */}
                     <div className="grid grid-cols-7 gap-2 mb-1">
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
@@ -194,8 +237,9 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                     </div>
                     {/* Day cells */}
                     <div className="grid grid-cols-7 gap-2">
-                        {daysInMonth.map(day => {
-                            const dateStr = `2026-03-${day.toString().padStart(2, '0')}`;
+                        {cells.map((day, idx) => {
+                            if (day === null) return <div key={`blank-${idx}`} />;
+                            const dateStr = `${calYear}-${monthStr}-${String(day).padStart(2, '0')}`;
                             const dayTasks = tasks.filter(t => t.date === dateStr);
                             const isSelected = selectedDate === dateStr;
                             const isToday = dateStr === todayStr;
@@ -373,22 +417,21 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                 </div>
             )}
 
-            <div className="flex justify-between items-center mb-6 gap-5 md:flex-col md:items-stretch">
-                <div className="flex items-center gap-3 bg-white border border-[#edf2f7] px-4 py-2.5 rounded-2xl w-full max-w-[350px] shadow-sm md:max-w-full">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="16" height="16">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                    </svg>
-                    <input
-                        type="text"
-                        className="bg-transparent border-none outline-none text-sm text-[#4a5568] w-full"
-                        placeholder="Search tasks or leads..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        disabled={useOutlookCalendar}
-                    />
-                </div>
-                {!useOutlookCalendar && (
+            {viewMode === 'list' && (
+                <div className="flex justify-between items-center mb-6 gap-5 md:flex-col md:items-stretch">
+                    <div className="flex items-center gap-3 bg-white border border-[#edf2f7] px-4 py-2.5 rounded-2xl w-full max-w-[350px] shadow-sm md:max-w-full">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="16" height="16">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input
+                            type="text"
+                            className="bg-transparent border-none outline-none text-sm text-[#4a5568] w-full"
+                            placeholder="Search tasks or leads..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                     <div className="flex bg-[#f7fafc] p-1 rounded-2xl border border-[#edf2f7] overflow-x-auto scrollbar-none sm:gap-1">
                         {['All', 'Pending', 'In Progress', 'Completed'].map(status => (
                             <button
@@ -400,8 +443,8 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                             </button>
                         ))}
                     </div>
-                )}
-            </div>
+                </div>
+            )}
 
             {viewMode === 'calendar' ? (
                 <div className="animate-fadeIn flex flex-col gap-6">

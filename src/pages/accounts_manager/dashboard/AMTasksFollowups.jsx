@@ -29,6 +29,12 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
     const [isEditingTask, setIsEditingTask] = useState(false);
     const [addToOutlook, setAddToOutlook] = useState(true);
 
+    const todayDate = new Date();
+    const [calYear, setCalYear] = useState(todayDate.getFullYear());
+    const [calMonth, setCalMonth] = useState(todayDate.getMonth());
+    const prevMonth = () => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); };
+    const nextMonth = () => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); };
+
 
     useEffect(() => {
         const acc = getAccount();
@@ -186,17 +192,42 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
     });
 
     const renderCalendar = () => {
-        const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
         const todayStr = new Date().toISOString().split('T')[0];
+        const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay();
+        const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+        const monthStr = String(calMonth + 1).padStart(2, '0');
+        const cells = [...Array(firstDayOfWeek).fill(null), ...Array.from({ length: totalDays }, (_, i) => i + 1)];
+        const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const baseYear = new Date().getFullYear();
+        const YEAR_OPTIONS = Array.from({ length: 10 }, (_, i) => baseYear - 3 + i);
+
         return (
             <div className="grid grid-cols-[1fr_320px] gap-8 xl:grid-cols-1">
                 <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm">
+                    {/* Month/Year Navigation */}
+                    <div className="flex items-center justify-between mb-4">
+                        <button onClick={prevMonth} className="w-8 h-8 rounded-lg border border-[#edf2f7] bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:border-[#2447d7] hover:text-[#2447d7] transition-all">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <div className="flex items-center gap-2">
+                            <select value={calMonth} onChange={e => setCalMonth(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border border-[#edf2f7] bg-white text-[#1a202c] cursor-pointer focus:border-[#2447d7]">
+                                {MONTH_NAMES.map((name, i) => <option key={i} value={i}>{name}</option>)}
+                            </select>
+                            <select value={calYear} onChange={e => setCalYear(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border border-[#edf2f7] bg-white text-[#1a202c] cursor-pointer focus:border-[#2447d7]">
+                                {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
+                            </select>
+                        </div>
+                        <button onClick={nextMonth} className="w-8 h-8 rounded-lg border border-[#edf2f7] bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:border-[#2447d7] hover:text-[#2447d7] transition-all">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
                     <div className="grid grid-cols-7 gap-2">
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
                             <div key={d} className="text-center text-[10px] font-black text-[#cbd5e0] tracking-widest pb-4 uppercase">{d}</div>
                         ))}
-                        {daysInMonth.map(day => {
-                            const dateStr = `2026-03-${day.toString().padStart(2, '0')}`;
+                        {cells.map((day, idx) => {
+                            if (day === null) return <div key={`blank-${idx}`} />;
+                            const dateStr = `${calYear}-${monthStr}-${String(day).padStart(2, '0')}`;
                             const dayTasks = tasks.filter(t => t.date === dateStr);
                             const isSelected = selectedDate === dateStr;
                             const isToday = dateStr === todayStr;
@@ -214,9 +245,9 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                     `}>{day}</span>
                                     <div className="flex gap-1 mt-1.5 flex-wrap justify-center px-1">
                                         {dayTasks.slice(0, 3).map(t => (
-                                            <div 
-                                                key={t.id} 
-                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' ? 'animate-pulse' : ''}`} 
+                                            <div
+                                                key={t.id}
+                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' ? 'animate-pulse' : ''}`}
                                                 title={t.title}
                                             ></div>
                                         ))}
@@ -457,7 +488,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                 </div>
             )}
 
-            <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 mb-8 shadow-sm flex justify-between items-center lg:flex-col lg:items-stretch lg:gap-6">
+            {viewMode === 'list' && <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 mb-8 shadow-sm flex justify-between items-center lg:flex-col lg:items-stretch lg:gap-6">
                 <div className="flex items-center gap-6 lg:flex-col lg:items-stretch">
                     <div className="relative group min-w-[300px] lg:min-w-0">
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors">
@@ -495,7 +526,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                         </button>
                     ))}
                 </div>
-            </div>
+            </div>}
 
             {viewMode === 'calendar' ? (
                 <div className="animate-fadeIn flex flex-col gap-6">

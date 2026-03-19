@@ -25,6 +25,12 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
     const [editingTask, setEditingTask] = useState(null);
     const [isEditingTask, setIsEditingTask] = useState(false);
 
+    const todayDate = new Date();
+    const [calYear, setCalYear] = useState(todayDate.getFullYear());
+    const [calMonth, setCalMonth] = useState(todayDate.getMonth());
+    const prevMonth = () => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); };
+    const nextMonth = () => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); };
+
 
     useEffect(() => {
         const acc = getAccount();
@@ -184,17 +190,42 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
     });
 
     const renderCalendar = () => {
-        const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
         const todayStr = new Date().toISOString().split('T')[0];
+        const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay();
+        const totalDays = new Date(calYear, calMonth + 1, 0).getDate();
+        const monthStr = String(calMonth + 1).padStart(2, '0');
+        const cells = [...Array(firstDayOfWeek).fill(null), ...Array.from({ length: totalDays }, (_, i) => i + 1)];
+        const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const baseYear = new Date().getFullYear();
+        const YEAR_OPTIONS = Array.from({ length: 10 }, (_, i) => baseYear - 3 + i);
+
         return (
             <div className="grid grid-cols-[1fr_320px] gap-8 xl:grid-cols-1">
                 <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm">
+                    {/* Month/Year Navigation */}
+                    <div className="flex items-center justify-between mb-4">
+                        <button onClick={prevMonth} className="w-8 h-8 rounded-lg border border-[#edf2f7] bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:border-[#2447d7] hover:text-[#2447d7] transition-all">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <div className="flex items-center gap-2">
+                            <select value={calMonth} onChange={e => setCalMonth(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border border-[#edf2f7] bg-white text-[#1a202c] cursor-pointer focus:border-[#2447d7]">
+                                {MONTH_NAMES.map((name, i) => <option key={i} value={i}>{name}</option>)}
+                            </select>
+                            <select value={calYear} onChange={e => setCalYear(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border border-[#edf2f7] bg-white text-[#1a202c] cursor-pointer focus:border-[#2447d7]">
+                                {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
+                            </select>
+                        </div>
+                        <button onClick={nextMonth} className="w-8 h-8 rounded-lg border border-[#edf2f7] bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:border-[#2447d7] hover:text-[#2447d7] transition-all">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
                     <div className="grid grid-cols-7 gap-2">
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
                             <div key={d} className="text-center text-[10px] font-black text-[#cbd5e0] tracking-widest pb-4 uppercase">{d}</div>
                         ))}
-                        {daysInMonth.map(day => {
-                            const dateStr = `2026-03-${day.toString().padStart(2, '0')}`;
+                        {cells.map((day, idx) => {
+                            if (day === null) return <div key={`blank-${idx}`} />;
+                            const dateStr = `${calYear}-${monthStr}-${String(day).padStart(2, '0')}`;
                             const dayTasks = tasks.filter(t => t.date === dateStr);
                             const isSelected = selectedDate === dateStr;
                             const isToday = dateStr === todayStr;
@@ -212,9 +243,9 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                                     `}>{day}</span>
                                     <div className="flex gap-1 mt-1.5 flex-wrap justify-center px-1">
                                         {dayTasks.slice(0, 3).map(t => (
-                                            <div 
-                                                key={t.id} 
-                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' ? 'animate-pulse' : ''}`} 
+                                            <div
+                                                key={t.id}
+                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' ? 'animate-pulse' : ''}`}
                                                 title={t.title}
                                             ></div>
                                         ))}
@@ -424,42 +455,44 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                 </div>
             )}
 
-            <div className="flex justify-between items-center mb-8 gap-5 md:flex-col md:items-stretch">
-                <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] w-fit sm:w-full overflow-x-auto no-scrollbar">
-                    {['All', 'Personal', 'Team'].map(type => (
-                        <button
-                            key={type}
-                            className={`p-[10px_24px] rounded-xl text-[13px] font-bold transition-all whitespace-nowrap ${assignmentFilter === type ? 'bg-white text-[#2447d7] shadow-sm ring-1 ring-[#2447d7]/10' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                            onClick={() => setAssignmentFilter(type)}
-                        >
-                            {type} Views
-                        </button>
-                    ))}
-                </div>
-                <div className="flex items-center gap-4 flex-1 max-w-[500px] md:max-w-full">
-                    <div className="flex-1 bg-white border border-[#edf2f7] p-3 px-4 rounded-2xl flex items-center gap-3 shadow-sm focus-within:ring-4 focus-within:ring-[#2447d7]/5 focus-within:border-[#2447d7] transition-all">
-                        <IconSearch />
-                        <input 
-                            type="text" 
-                            className="bg-transparent border-none outline-none text-sm w-full text-[#1a202c] placeholder:text-[#a0aec0]" 
-                            placeholder="Search all tasks..." 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] shrink-0">
-                        {['All', 'Pending', 'In Progress', 'Completed'].map(s => (
+            {viewMode === 'list' && (
+                <div className="flex justify-between items-center mb-8 gap-5 md:flex-col md:items-stretch">
+                    <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] w-fit sm:w-full overflow-x-auto no-scrollbar">
+                        {['All', 'Personal', 'Team'].map(type => (
                             <button
-                                key={s}
-                                className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${filter === s ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                                onClick={() => setFilter(s)}
+                                key={type}
+                                className={`p-[10px_24px] rounded-xl text-[13px] font-bold transition-all whitespace-nowrap ${assignmentFilter === type ? 'bg-white text-[#2447d7] shadow-sm ring-1 ring-[#2447d7]/10' : 'text-[#718096] hover:text-[#4a5568]'}`}
+                                onClick={() => setAssignmentFilter(type)}
                             >
-                                {s}
+                                {type} Views
                             </button>
                         ))}
                     </div>
+                    <div className="flex items-center gap-4 flex-1 max-w-[500px] md:max-w-full">
+                        <div className="flex-1 bg-white border border-[#edf2f7] p-3 px-4 rounded-2xl flex items-center gap-3 shadow-sm focus-within:ring-4 focus-within:ring-[#2447d7]/5 focus-within:border-[#2447d7] transition-all">
+                            <IconSearch />
+                            <input
+                                type="text"
+                                className="bg-transparent border-none outline-none text-sm w-full text-[#1a202c] placeholder:text-[#a0aec0]"
+                                placeholder="Search all tasks..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                        <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] shrink-0">
+                            {['All', 'Pending', 'In Progress', 'Completed'].map(s => (
+                                <button
+                                    key={s}
+                                    className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${filter === s ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
+                                    onClick={() => setFilter(s)}
+                                >
+                                    {s}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                 </div>
-            </div>
+            )}
 
             {viewMode === 'list' ? (
                 <div className="flex flex-col gap-4">

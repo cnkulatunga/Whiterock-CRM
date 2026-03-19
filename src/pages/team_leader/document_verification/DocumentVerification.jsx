@@ -3,10 +3,10 @@ import { useTheme } from '../../../context/ThemeContext';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconAlert, IconCheck, IconDocs } from '../../../components/DocumentManagement/Icons';
 
-import { MOCK_LEADS } from '../../../data/dummyData';
+import { useLeads } from '../../../context/LeadsContext';
 
 const DocumentVerification = () => {
-    const [leads, setLeads] = useState(MOCK_LEADS);
+    const { leads, setLeads } = useLeads();
     const [selectedLead, setSelectedLead] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -25,33 +25,36 @@ const DocumentVerification = () => {
     };
 
     const handleApproveDoc = (leadId, docId) => {
-        setLeads(prev => {
-            const newLeads = prev.map(lead => {
-                if (lead.id === leadId) {
-                    const newDocs = lead.documents.map(doc => doc.id === docId ? { ...doc, status: 'Approved' } : doc);
-                    const updatedLead = { ...lead, documents: newDocs };
-                    if (selectedLead?.id === leadId) setSelectedLead(updatedLead);
-                    return updatedLead;
-                }
-                return lead;
-            });
-            return newLeads;
-        });
+        setLeads(prev => prev.map(lead => {
+            if (lead.id !== leadId) return lead;
+            const newDocs = lead.documents.map(doc =>
+                doc.id === docId ? { ...doc, status: 'Approved' } : doc
+            );
+            const allApproved = newDocs.length > 0 && newDocs.every(d => d.status === 'Approved');
+            const updatedLead = {
+                ...lead,
+                documents: newDocs,
+                ...(allApproved && lead.stage === 'Document Collection' ? {
+                    stage: 'Document Verification Done',
+                    status: 'Document Verification Done',
+                    progress: 40,
+                } : {}),
+            };
+            if (selectedLead?.id === leadId) setSelectedLead(updatedLead);
+            return updatedLead;
+        }));
     };
 
     const handleRejectDoc = (leadId, docId, reason) => {
-        setLeads(prev => {
-            const newLeads = prev.map(lead => {
-                if (lead.id === leadId) {
-                    const newDocs = lead.documents.map(doc => doc.id === docId ? { ...doc, status: 'Rejected', note: reason } : doc);
-                    const updatedLead = { ...lead, documents: newDocs };
-                    if (selectedLead?.id === leadId) setSelectedLead(updatedLead);
-                    return updatedLead;
-                }
-                return lead;
-            });
-            return newLeads;
-        });
+        setLeads(prev => prev.map(lead => {
+            if (lead.id !== leadId) return lead;
+            const newDocs = lead.documents.map(doc =>
+                doc.id === docId ? { ...doc, status: 'Rejected', note: reason } : doc
+            );
+            const updatedLead = { ...lead, documents: newDocs };
+            if (selectedLead?.id === leadId) setSelectedLead(updatedLead);
+            return updatedLead;
+        }));
     };
 
     const finishUpload = (leadId, targetDocId, docName) => {

@@ -1,6 +1,41 @@
 import React, { useState } from 'react';
 
-import { SA_RECENT_LEADS as RECENT_LEADS, SA_STATS, DATE_RANGE_OPTIONS, PERFORMANCE_AGENT_OPTIONS, PERFORMANCE_LEAD_STATUSES } from '../../../data/dummyData';
+import { SA_STATS, DATE_RANGE_OPTIONS, PERFORMANCE_AGENT_OPTIONS, PERFORMANCE_LEAD_STATUSES } from '../../../data/dummyData';
+import { useLeads } from '../../../context/LeadsContext';
+
+const STAGE_CLS = {
+    'Document Collection':        'bg-[#1a202c] text-white',
+    'Document Verification Done': 'bg-[#fef9c3] text-[#a16207]',
+    'Lender Selection':           'bg-[#fff7ed] text-[#f97316] border-[#ffedd5]',
+    'Final Review':               'bg-[#ecfeff] text-[#0891b2]',
+    'Completed':                  'bg-[#ecfdf5] text-[#059669]',
+    'Rejected':                   'bg-[#f1f5f9] text-[#64748b]',
+};
+const mapLeadToPerf = (l) => {
+    const initials = l.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    const isComplete = l.stage === 'Completed';
+    const isRejected = l.stage === 'Rejected';
+    return {
+        id: l.id,
+        name: l.name,
+        businessName: l.businessName || '',
+        initials,
+        bg: '#e2e8f0',
+        tc: '#1a202c',
+        stage: l.stage,
+        stageCls: STAGE_CLS[l.stage] || 'bg-[#f1f5f9] text-[#64748b]',
+        status: isComplete ? 'Completed' : isRejected ? 'Urgent' : 'Active',
+        statusCls: isComplete ? 'text-[#a0aec0]' : isRejected ? 'text-[#dc2626]' : 'text-[#059669]',
+        dot: isComplete ? 'bg-[#a0aec0]' : isRejected ? 'bg-red-500' : 'bg-green-500',
+        agent: l.agentName || '',
+        date: l.submissionDate || '',
+        amount: l.loanAmount || 'N/A',
+        purpose: l.loanPurpose || 'N/A',
+        homeowner: l.homeOwner || 'N/A',
+        bank: l.companyBank || 'N/A',
+        term: 'N/A',
+    };
+};
 
 const IcoChevron = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
@@ -92,10 +127,12 @@ const BarChart = () => {
 };
 
 const LeadPerformance = () => {
+    const { leads } = useLeads();
+    const RECENT_LEADS = leads.map(mapLeadToPerf);
     const [search, setSearch]         = useState('');
     const [dateRange, setDateRange]   = useState('Last 30 Days');
     const [agent, setAgent]           = useState('All Agents');
-    const [leadStatus, setLeadStatus] = useState('Active');
+    const [leadStatus, setLeadStatus] = useState('All');
 
     const filters = [
         { label: 'DATE RANGE',     value: dateRange,   setter: setDateRange,   opts: DATE_RANGE_OPTIONS.slice(2) }, // Use 30 days, 90 days, Year

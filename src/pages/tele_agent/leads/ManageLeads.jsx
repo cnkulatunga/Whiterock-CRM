@@ -5,17 +5,18 @@ import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import EditLeadModal from './EditLeadModal';
 import { IconUpload, IconAlert, IconCheck, IconDocs, IconPencil, IconTrash, IconUsers } from '../../../components/DocumentManagement/Icons';
 
-import { MOCK_LEADS, INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS } from '../../../data/dummyData';
+import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS } from '../../../data/dummyData';
+import { useLeads } from '../../../context/LeadsContext';
 
 const ITEMS_PER_PAGE = 5;
 
-const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
+const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { users } = useUsers() || {};
+    const { leads, setLeads } = useLeads();
     const [searchTerm, setSearchTerm] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
-    const [leads, setLeads] = useState(MOCK_LEADS);
     const [selectedLead, setSelectedLead] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showReassignModal, setShowReassignModal] = useState(false);
@@ -47,41 +48,47 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
     const handleUploadClick = (leadId, docId, docName, file) => {
         if (!file) return;
         const targetDocId = docId || Date.now();
+        // Capture file info in local variables — avoids stale-closure bug when reading state later
         const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        const fileName = file.name;
 
         setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0, file, previewUrl } }));
-        
+
         let progress = 0;
         const interval = setInterval(() => {
             progress += 10;
             if (progress >= 100) {
                 clearInterval(interval);
-                finishUpload(leadId, targetDocId, docName);
+                // Pass captured values directly — no stale closure on uploadingDocs state
+                finishUpload(leadId, targetDocId, docName, previewUrl, fileName);
             } else {
                 setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress } }));
             }
         }, 150);
     };
 
-    const finishUpload = (leadId, targetDocId, docName) => {
-        const docInfo = uploadingDocs[targetDocId];
-        const updateDocList = (docs) => {
-            const exists = docs.find(d => d.id === targetDocId);
-            if (exists) {
-                return docs.map(d => d.id === targetDocId ? { ...d, status: 'Pending', date: new Date().toISOString().split('T')[0], url: docInfo?.previewUrl, fileName: docInfo?.file?.name } : d);
-            }
-            return [...docs, { id: targetDocId, type: docName, status: 'Pending', note: '', date: new Date().toISOString().split('T')[0], url: docInfo?.previewUrl, fileName: docInfo?.file?.name }];
+    const finishUpload = (leadId, targetDocId, docName, previewUrl, fileName) => {
+        const today = new Date().toISOString().split('T')[0];
+        const buildDoc = (existing) => existing
+            ? { ...existing, status: 'Pending', date: today, url: previewUrl, fileName }
+            : { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName };
+
+        const updateDocList = (docs = []) => {
+            const idx = docs.findIndex(d => d.id === targetDocId);
+            return idx >= 0
+                ? docs.map(d => d.id === targetDocId ? buildDoc(d) : d)
+                : [...docs, buildDoc(null)];
         };
 
-        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, documents: updateDocList(l.documents || []) } : l));
-        setSelectedLead(prev => prev && prev.id === leadId ? { ...prev, documents: updateDocList(prev.documents || []) } : prev);
-        
+        setLeads(prev => prev.map(l =>
+            l.id === leadId ? { ...l, documents: updateDocList(l.documents) } : l
+        ));
+        setSelectedLead(prev =>
+            prev?.id === leadId ? { ...prev, documents: updateDocList(prev.documents) } : prev
+        );
+
         setTimeout(() => {
-            setUploadingDocs(prev => {
-                const next = { ...prev };
-                delete next[targetDocId];
-                return next;
-            });
+            setUploadingDocs(prev => { const n = { ...prev }; delete n[targetDocId]; return n; });
         }, 500);
     };
 
@@ -288,7 +295,16 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                             )}
                                             {isAccountsManager && (
                                                 <>
-                                                    <button 
+                                                    {['Document Verification Done', 'Lender Selection', 'Final Review'].includes(lead.stage) && onSelectLender && (
+                                                        <button
+                                                            className="px-2 py-1 text-[10px] font-semibold border border-[#e9d5ff] bg-[#f5f3ff] rounded-lg text-[#7c3aed] hover:bg-[#7c3aed] hover:text-white transition-all duration-200 whitespace-nowrap"
+                                                            title="Select Lender"
+                                                            onClick={() => onSelectLender(lead)}
+                                                        >
+                                                            Lender
+                                                        </button>
+                                                    )}
+                                                    <button
                                                         className="p-1 sm:p-0.5 border border-[#ebf0ff] bg-[#f0f4ff] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
                                                         title="Reassign Lead"
                                                         onClick={() => {
@@ -298,7 +314,7 @@ const ManageLeads = ({ onViewDetails, isAccountsManager = false }) => {
                                                     >
                                                         <IconUsers size={16} />
                                                     </button>
-                                                    <button 
+                                                    <button
                                                         className="p-1 sm:p-0.5 border border-[#fee2e2] bg-[#fef2f2] rounded-lg text-[#ef4444] hover:bg-[#ef4444] hover:text-white transition-all duration-200"
                                                         title="Delete Lead"
                                                         onClick={() => handleDeleteLead(lead)}

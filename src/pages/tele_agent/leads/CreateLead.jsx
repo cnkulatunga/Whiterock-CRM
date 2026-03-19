@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { IconUpload, IconFile, IconCheck, IconAlert, IconClose, IconTrash, IconDocs, IconEye, IconUsers } from '../../../components/DocumentManagement/Icons';
-import { MOCK_LEADS } from '../../../data/dummyData';
+import { useLeads } from '../../../context/LeadsContext';
 
 const BANKS = [
     'Santander', 'Metro Bank', 'HSBC', 'Lloyds Bank', 'NatWest',
@@ -29,6 +29,7 @@ const LEAD_SOURCES = [
 ];
 
 const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
+    const { leads, addLead } = useLeads();
     const [user, setUser] = useState({});
     const [showCancelConfirm, setShowCancelConfirm] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
@@ -40,6 +41,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
         // Contact Information
         title: '',
         fullName: '',
+        dob: '',
         companyName: '',
         companyHouseNumber: '',
         businessAnnualTurnover: '',
@@ -48,17 +50,25 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
         phoneNumber: '',
         preferredContactMethod: [],
         homeOwner: '',
+        residentialAddress: '',
+        timeAtCurrentAddress: '',
+        previousAddress: '',
         // Loan Details
         loanAmount: '',
         loanPurpose: '',
         existingLoan: '',
+        existingLoanLenderName: '',
         existingLoanAmount: '',
+        existingLoanInterestRate: '',
+        existingLoanMonthlyRepayment: '',
+        existingLoanTerm: '',
         overdraftFacility: '',
         companyBank: '',
         leadSource: '',
         fundingTimeline: '',
         industry: '',
         previousAlphaFundingLoan: '',
+        creditConsent: '',
         additionalComments: '',
         // System
         assignedAgent: '',
@@ -113,12 +123,14 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     React.useEffect(() => {
         if (isSubmitting && Object.keys(uploadingDocs).length === 0) {
             setIsSubmitting(false);
+            // All documents finished uploading — now save the complete lead
+            addLead(formData);
             setShowSuccess(true);
         }
     }, [isSubmitting, uploadingDocs]);
 
     const triggerSaveAndSend = () => {
-        const duplicate = MOCK_LEADS.find(l =>
+        const duplicate = leads.find(l =>
             (formData.emailAddress && l.email?.toLowerCase() === formData.emailAddress.toLowerCase()) ||
             (formData.phoneNumber && l.phone === formData.phoneNumber)
         );
@@ -149,6 +161,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
         }
 
         if (pendingIds.length === 0) {
+            // Save the lead to global state now (documents already in formData)
+            addLead(formData);
             setShowSuccess(true);
             return;
         }
@@ -274,6 +288,12 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 <input type="text" name="fullName" className={inputCls} placeholder="e.g. Jonathan Doe" value={formData.fullName} onChange={handleInputChange} />
                             </div>
 
+                            {/* Date of Birth */}
+                            <div className={fieldCls}>
+                                <label className={labelCls}>Date of Birth <span className="text-[#e11d48]">*</span></label>
+                                <input type="date" name="dob" className={inputCls} value={formData.dob} onChange={handleInputChange} />
+                            </div>
+
                             {/* Company / Organization Name */}
                             <div className={fieldCls}>
                                 <label className={labelCls}>Company / Organization Name <span className="text-[#e11d48]">*</span></label>
@@ -341,6 +361,24 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 <RadioGroup name="homeOwner" options={['Yes', 'No']} value={formData.homeOwner} />
                             </div>
 
+                            {/* Residential Address */}
+                            <div className={`${fieldCls} col-span-2 md:col-span-1`}>
+                                <label className={labelCls}>Residential Address <span className="text-[#e11d48]">*</span></label>
+                                <input type="text" name="residentialAddress" className={inputCls} placeholder="e.g. 99 Halbutt Street, Dagenham, RM9 5AR" value={formData.residentialAddress} onChange={handleInputChange} />
+                            </div>
+
+                            {/* Time at Current Address */}
+                            <div className={fieldCls}>
+                                <label className={labelCls}>Time at Current Address</label>
+                                <input type="text" name="timeAtCurrentAddress" className={inputCls} placeholder="e.g. 3 years, 6 months..." value={formData.timeAtCurrentAddress} onChange={handleInputChange} />
+                            </div>
+
+                            {/* Previous Address */}
+                            <div className={fieldCls}>
+                                <label className={labelCls}>Previous Address</label>
+                                <input type="text" name="previousAddress" className={inputCls} placeholder="Enter previous address if applicable..." value={formData.previousAddress} onChange={handleInputChange} />
+                            </div>
+
                             {/* Assigned Agent (read-only) */}
                             <div className={fieldCls}>
                                 <label className={labelCls}>Assigned Agent</label>
@@ -376,13 +414,42 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 <RadioGroup name="existingLoan" options={['Yes', 'No']} value={formData.existingLoan} />
                             </div>
 
-                            {/* Existing Loan Amount (conditional) */}
+                            {/* Existing Loan Details (conditional) */}
                             {formData.existingLoan === 'Yes' && (
-                                <div className={`${fieldCls} col-span-2 md:col-span-1 animate-fadeIn`}>
-                                    <label className={labelCls}>If Yes, Existing Loan Amount</label>
-                                    <div className="relative flex items-center">
-                                        <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                        <input type="text" name="existingLoanAmount" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.existingLoanAmount} onChange={handleInputChange} />
+                                <div className="col-span-2 md:col-span-1 animate-fadeIn">
+                                    <div className="bg-[#f8faff] rounded-2xl border border-[#ebf0ff] p-5">
+                                        <p className="text-[11px] font-bold text-[#2447d7] uppercase tracking-wider mb-4">Existing Loan Details</p>
+                                        <div className="grid grid-cols-2 gap-4 md:grid-cols-1">
+                                            <div className={fieldCls}>
+                                                <label className={labelCls}>Lender Name</label>
+                                                <input type="text" name="existingLoanLenderName" className={inputCls} placeholder="e.g. Barclays, Funding Circle..." value={formData.existingLoanLenderName} onChange={handleInputChange} />
+                                            </div>
+                                            <div className={fieldCls}>
+                                                <label className={labelCls}>Amount Taken</label>
+                                                <div className="relative flex items-center">
+                                                    <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
+                                                    <input type="text" name="existingLoanAmount" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.existingLoanAmount} onChange={handleInputChange} />
+                                                </div>
+                                            </div>
+                                            <div className={fieldCls}>
+                                                <label className={labelCls}>Interest Rate</label>
+                                                <div className="relative flex items-center">
+                                                    <input type="text" name="existingLoanInterestRate" className={`${inputCls} pr-8`} placeholder="e.g. 5.5" value={formData.existingLoanInterestRate} onChange={handleInputChange} />
+                                                    <span className="absolute right-4 text-sm font-bold text-[#a0aec0]">%</span>
+                                                </div>
+                                            </div>
+                                            <div className={fieldCls}>
+                                                <label className={labelCls}>Monthly Repayment</label>
+                                                <div className="relative flex items-center">
+                                                    <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
+                                                    <input type="text" name="existingLoanMonthlyRepayment" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.existingLoanMonthlyRepayment} onChange={handleInputChange} />
+                                                </div>
+                                            </div>
+                                            <div className={`${fieldCls} col-span-2 md:col-span-1`}>
+                                                <label className={labelCls}>Loan Term</label>
+                                                <input type="text" name="existingLoanTerm" className={inputCls} placeholder="e.g. 24 months, 3 years..." value={formData.existingLoanTerm} onChange={handleInputChange} />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -430,6 +497,13 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                             <div className={`${fieldCls} col-span-2 md:col-span-1`}>
                                 <label className={labelCls}>Have you taken any loans before from Alpha Funding? <span className="text-[#e11d48]">*</span></label>
                                 <RadioGroup name="previousAlphaFundingLoan" options={['Yes', 'No']} value={formData.previousAlphaFundingLoan} />
+                            </div>
+
+                            {/* Credit Consent */}
+                            <div className={`${fieldCls} col-span-2 md:col-span-1`}>
+                                <label className={labelCls}>Credit Search Consent <span className="text-[#e11d48]">*</span></label>
+                                <p className="text-[12px] text-[#718096] -mt-1 mb-1">Does the client consent to a credit search being carried out?</p>
+                                <RadioGroup name="creditConsent" options={['Yes', 'No']} value={formData.creditConsent} />
                             </div>
 
                         </div>
