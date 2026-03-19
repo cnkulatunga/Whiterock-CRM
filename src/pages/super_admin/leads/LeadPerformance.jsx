@@ -24,7 +24,7 @@ const LEADS_BAR_DATA = [
 
 const BarChart = () => {
     const [hovered, setHovered] = useState(null);
-    const max = Math.max(...LEADS_BAR_DATA.map(d => Math.max(d.leads, d.target)));
+    const max = Math.max(...LEADS_BAR_DATA.map(d => d.leads));
     const yTicks = [0, 25, 50, 75, 100];
 
     return (
@@ -43,7 +43,6 @@ const BarChart = () => {
             <div className="flex items-end gap-3 pl-12" style={{ height: '200px', paddingBottom: '32px', paddingTop: '8px' }}>
                 {LEADS_BAR_DATA.map((d, i) => {
                     const revH = (d.leads / max) * 100;
-                    const tarH = (d.target / max) * 100;
                     const isHov = hovered === i;
                     return (
                         <div
@@ -62,23 +61,11 @@ const BarChart = () => {
 
                             {/* Bar group */}
                             <div className="flex items-end gap-1.5 w-full justify-center" style={{ height: '100%' }}>
-                                {/* Target bar */}
-                                <div
-                                    className="rounded-t-xl transition-all duration-300"
-                                    style={{
-                                        width: '14px',
-                                        height: `${tarH}%`,
-                                        background: isHov
-                                            ? 'linear-gradient(180deg,#c7d2fe,#a5b4fc)'
-                                            : 'linear-gradient(180deg,#e0e7ff,#c7d2fe)',
-                                        animation: `barGrow 0.7s cubic-bezier(0.22,1,0.36,1) ${i * 75}ms both`
-                                    }}
-                                />
                                 {/* Leads bar */}
                                 <div
                                     className="rounded-t-xl transition-all duration-300"
                                     style={{
-                                        width: '14px',
+                                        width: '20px',
                                         height: `${revH}%`,
                                         background: isHov
                                             ? 'linear-gradient(180deg,#6680f5,#2447d7)'
@@ -173,10 +160,6 @@ const LeadPerformance = () => {
                             <div className="flex items-center gap-1.5">
                                 <span className="w-3 h-3 rounded-sm" style={{ background: 'linear-gradient(180deg,#3b5ee8,#1a38b8)' }} />
                                 <span className="text-[11px] font-semibold text-[#4a5568]">Leads</span>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-3 h-3 rounded-sm" style={{ background: 'linear-gradient(180deg,#e0e7ff,#c7d2fe)' }} />
-                                <span className="text-[11px] font-semibold text-[#94a3b8]">Target</span>
                             </div>
                         </div>
                     </div>
