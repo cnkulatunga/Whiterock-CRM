@@ -1,2 +1,2 @@
-# Whiterock-CRM
-CRM Development for Whiterock
+# Alpha Funding CRM
+CRM Development for Alpha Funding

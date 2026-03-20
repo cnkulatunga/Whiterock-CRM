@@ -10,8 +10,8 @@ const STAGE_TO_OP = {
     'Document Verification Done': 'doc_collect',
     'Lender Selection': 'lender_select',
     'Final Review': 'lender_select',
-    'Completed': 'closed',
-    'Rejected': 'closed',
+    'Completed': 'won',
+    'Rejected': 'rejected',
 };
 
 const mapLeadToOp = (l) => ({
@@ -19,8 +19,8 @@ const mapLeadToOp = (l) => ({
     name: l.name,
     businessName: l.businessName || '',
     agent: l.agentName || '',
-    tl: '',
-    manager: '',
+    tl: l.tl || 'Marcus Smith',
+    manager: l.manager || 'Sarah White',
     stage: STAGE_TO_OP[l.stage] || 'lead_gather',
     progress: l.progress || 10,
     lastActive: l.lastContact || 'Recently',

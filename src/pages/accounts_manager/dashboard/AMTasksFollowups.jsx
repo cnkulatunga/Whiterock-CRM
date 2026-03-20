@@ -556,7 +556,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                         </svg>
                                     </div>
                                     <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>Connect Your Outlook Calendar</h3>
-                                    <p className={`text-[15px] leading-relaxed max-w-[400px] mb-8 font-medium ${isDark ? 'text-[#94a3b8]' : 'text-[#718096]'}`}>Sync with your Microsoft 365 account to view and manage your schedule directly from Whiterock CRM.</p>
+                                    <p className={`text-[15px] leading-relaxed max-w-[400px] mb-8 font-medium ${isDark ? 'text-[#94a3b8]' : 'text-[#718096]'}`}>Sync with your Microsoft 365 account to view and manage your schedule directly from Alpha Funding CRM.</p>
                                     <button className="px-8 py-3.5 bg-[#0078d4] text-white rounded-xl font-bold text-sm shadow-[0_4px_16px_rgba(0,120,212,0.25)] hover:bg-[#005a9e] hover:-translate-y-px transition-all duration-200 active:translate-y-0 flex items-center gap-3" onClick={handleOutlookLogin}>
                                         <svg width="18" height="18" viewBox="0 0 21 21"><path d="M10 0v10H0V0h10zm11 0v10H11V0h10zM10 11v10H0V11h10zm11 0v10H11V11h10z" fill="#fff" /></svg>
                                         Sign in with Microsoft

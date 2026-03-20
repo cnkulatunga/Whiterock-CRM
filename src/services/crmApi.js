@@ -1,12 +1,12 @@
 /**
- * WHITEROCK CRM — FRONTEND API SERVICE
+ * ALPHA FUNDING CRM — FRONTEND API SERVICE
  * ─────────────────────────────────────
  * Single source of truth for all CRM API calls.
  * Leave Management has its own separate API: leaveApi.js
  *
  * Usage:
  *   import { leadsApi, usersApi, ... } from './crmApi';
- *   const lead = await leadsApi.getById('WR-001');
+ *   const lead = await leadsApi.getById('AF-001');
  */
 
 import api from './api';
@@ -156,7 +156,7 @@ export const usersApi = {
 // ─────────────────────────────────────────────────────────────────────────────
 /**
  * Leads CRUD + stage management.
- * Lead ID format: 'WR-XXX'
+ * Lead ID format: 'AF-XXX'
  * Stage values: 'Document Collection' | 'Document Verification Done' |
  *               'Lender Selection' | 'Final Review' | 'Completed' | 'Rejected'
  */
@@ -170,7 +170,7 @@ export const leadsApi = {
         api.get('/leads', { params }).then(r => r.data),
 
     /**
-     * Get a single lead by its ID (e.g. 'WR-001').
+     * Get a single lead by its ID (e.g. 'AF-001').
      * @param {string} id
      */
     getById: (id) =>
@@ -189,7 +189,7 @@ export const leadsApi = {
 
     /**
      * Update a lead's details (full update).
-     * @param {string} id  Lead ID e.g. 'WR-001'
+     * @param {string} id  Lead ID e.g. 'AF-001'
      * @param {object} data  Fields to update
      */
     update: (id, data) =>

@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ThemeProvider>
       <TasksProvider>
         <LeadsProvider>
-          <BrowserRouter basename="/Whiterock-CRM">
+          <BrowserRouter basename="/AlphaFunding">
             <App />
           </BrowserRouter>
         </LeadsProvider>

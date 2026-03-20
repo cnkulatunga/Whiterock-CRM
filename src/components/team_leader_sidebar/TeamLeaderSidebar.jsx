@@ -22,7 +22,7 @@ const TeamLeaderSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCollaps
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const name = `${user.first_name || 'Team'} ${user.last_name || 'Leader'}`.trim();
-    const email = user.email || 'teamleader@whiterock.com';
+    const email = user.email || 'teamleader@alphafunding.com';
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     const toggle = () => {

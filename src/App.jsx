@@ -184,7 +184,7 @@ function App() {
                         </div>
                         <h3 className="text-xl font-bold mb-3" style={{ color: isDark ? '#e4ecff' : '#0d1236' }}>Confirm Logout</h3>
                         <p className="text-[15px] leading-relaxed mb-7" style={{ color: isDark ? '#94abda' : '#4b5681' }}>
-                            Are you sure you want to log out of Whiterock CRM? Any unsaved changes might be lost.
+                            Are you sure you want to log out of Alpha Funding CRM? Any unsaved changes might be lost.
                         </p>
                         <div className="flex gap-3 max-[520px]:flex-col-reverse max-[520px]:gap-2">
                             <button

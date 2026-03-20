@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: "/Whiterock-CRM/",
+    base: "/AlphaFunding/",
     plugins: [react(), tailwindcss()],
     server: {
         port: 3000,

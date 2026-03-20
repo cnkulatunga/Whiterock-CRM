@@ -281,7 +281,7 @@ const Login = ({ onLogin, defaultRole }) => {
 
                     <div style={{ textAlign: 'center', zIndex: 1 }}>
                         <h1 style={{ fontSize: '3rem', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.8px', marginBottom: 20 }}>
-                            Alpha Finance CRM
+                            Alpha Funding CRM
                         </h1>
                         <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.6, maxWidth: 400, margin: '0 auto' }}>
                             Loan management made simple
@@ -306,7 +306,7 @@ const Login = ({ onLogin, defaultRole }) => {
                                         <label style={labelStyle}>Email address</label>
                                         <div style={inputStyle}>
                                             <span style={iconBoxStyle}><IconUser /></span>
-                                            <input style={inputFieldStyle} type="email" placeholder="alex@whiterock.com" autoComplete="off" name="no-autofill" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} onFocus={e => e.target.parentNode.style.borderColor = inputFocusBorder} onBlur={e => e.target.parentNode.style.borderColor = inputBorder} />
+                                            <input style={inputFieldStyle} type="email" placeholder="alex@alphafunding.com" autoComplete="off" name="no-autofill" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} onFocus={e => e.target.parentNode.style.borderColor = inputFocusBorder} onBlur={e => e.target.parentNode.style.borderColor = inputBorder} />
                                         </div>
                                     </div>
 
@@ -352,7 +352,7 @@ const Login = ({ onLogin, defaultRole }) => {
                                                 <label style={labelStyle}>Email Address</label>
                                                 <div style={inputStyle}>
                                                     <span style={iconBoxStyle}><IconMail /></span>
-                                                    <input style={inputFieldStyle} type="email" placeholder="alex@whiterock.com" value={fpEmail} onChange={e => setFpEmail(e.target.value)} onFocus={e => e.target.parentNode.style.borderColor = inputFocusBorder} onBlur={e => e.target.parentNode.style.borderColor = inputBorder} />
+                                                    <input style={inputFieldStyle} type="email" placeholder="alex@alphafunding.com" value={fpEmail} onChange={e => setFpEmail(e.target.value)} onFocus={e => e.target.parentNode.style.borderColor = inputFocusBorder} onBlur={e => e.target.parentNode.style.borderColor = inputBorder} />
                                                 </div>
                                             </div>
                                             {fpEmailError && <div style={{ background: isDark ? 'rgba(220,38,38,0.12)' : '#fef2f2', border: `1px solid ${isDark ? 'rgba(220,38,38,0.3)' : '#fecaca'}`, color: isDark ? '#f87171' : '#dc2626', fontSize: '0.82rem', borderRadius: 10, padding: '10px 14px', marginBottom: 16 }}>{fpEmailError}</div>}

@@ -6,7 +6,7 @@ const LenderSelection = ({ lead, onNavigate }) => {
     const { updateLead } = useLeads();
     const clientName = lead?.name || 'Jonathan Doe';
     const initials   = clientName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    const leadId     = lead?.id || 'WR-2026-0001';
+    const leadId     = lead?.id || 'AF-2026-0001';
 
     const clientDetails = {
         name: lead?.name || '',

@@ -129,7 +129,7 @@ const AccountsManagerSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCo
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const name = `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Alex Thompson';
-    const email = user.email || 'accounts@whiterock.com';
+    const email = user.email || 'accounts@alphafunding.com';
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     const toggle = () => {

@@ -3,14 +3,14 @@ import { MOCK_LEADS } from '../data/dummyData';
 
 const LeadsContext = createContext(null);
 
-// Generate next WR-XXX id from current leads list
+// Generate next AF-XXX id from current leads list
 const generateLeadId = (leads) => {
     const nums = leads.map(l => {
-        const match = l.id?.match(/WR-(\d+)/);
+        const match = l.id?.match(/AF-(\d+)/);
         return match ? parseInt(match[1], 10) : 0;
     });
     const max = nums.length ? Math.max(...nums) : 0;
-    return `WR-${String(max + 1).padStart(3, '0')}`;
+    return `AF-${String(max + 1).padStart(3, '0')}`;
 };
 
 export const LeadsProvider = ({ children }) => {

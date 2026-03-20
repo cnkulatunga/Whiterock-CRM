@@ -27,7 +27,7 @@ const TeleAgentSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCollapse
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const name = user.role === 'tele_agent' ? 'Sarah Jenkins' : `${user.first_name || 'Tele'} ${user.last_name || 'Agent'}`.trim();
-    const email = user.email || 'agent@whiterock.com';
+    const email = user.email || 'agent@alphafunding.com';
     const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
     const toggle = () => {

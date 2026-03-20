@@ -1,5 +1,5 @@
 /**
- * WHITEROCK CRM — LEAVE MANAGEMENT API SERVICE
+ * ALPHA FUNDING CRM — LEAVE MANAGEMENT API SERVICE
  * ──────────────────────────────────────────────
  * All API calls for the Leave Management portal.
  * Kept completely separate from crmApi.js — uses the same axios

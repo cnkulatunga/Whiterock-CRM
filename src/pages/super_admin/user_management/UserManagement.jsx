@@ -109,7 +109,7 @@ const UserFormFields = ({ form, setForm, error }) => (
         </div>
         <div className="flex flex-col gap-1.5">
             <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Email Address</label>
-            <input type="email" className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="e.g. john@whiterock.crm" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+            <input type="email" className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="e.g. john@alphafunding.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         </div>
         <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">

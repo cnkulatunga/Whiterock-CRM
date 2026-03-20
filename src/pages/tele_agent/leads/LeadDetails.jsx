@@ -20,7 +20,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     
     // Use initialLead or a fallback
     const [lead, setLead] = useState(initialLead || { 
-        id: 'WR-2026-0000', 
+        id: 'AF-2026-0000', 
         name: 'Guest Lead', 
         businessName: '',
         email: 'no-email@example.com', 
@@ -28,7 +28,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
         documents: [] 
     });
 
-    const leadId = lead.id?.toString().startsWith('WR-') ? lead.id : `WR-2026-${String(lead.id).padStart(4, '0')}`;
+    const leadId = lead.id?.toString().startsWith('AF-') ? lead.id : `AF-2026-${String(lead.id).padStart(4, '0')}`;
     const leadName = lead.name;
     const leadTasks = tasks.filter(t => t.lead === leadName || t.leadId === leadId);
 
@@ -133,7 +133,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                             <line x1="8" y1="2" x2="8" y2="6" />
                             <line x1="3" y1="10" x2="21" y2="10" />
                         </svg>
-                        Created on Oct 24, 2023 • Assigned to <strong className="text-[#1a202c]">Sarah Jenkins</strong>
+                        Created on {lead.submissionDate || lead.date || 'Oct 24, 2023'} • Assigned to <strong className="text-[#1a202c]">{lead.agentName || lead.agent || 'Sarah Jenkins'}</strong>
                     </p>
                 </div>
             </div>
@@ -141,38 +141,80 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
             {/* ── PROGRESS TRACKER ── */}
             <div className="bg-white rounded-2xl border border-[#edf2f7] p-8 px-12 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-x-auto md:p-6 md:px-4 md:mx-[-12px] md:rounded-none">
                 <div className="flex items-start justify-between min-w-[750px] sm:min-w-[600px]">
-                    <div className="flex flex-col items-center gap-2 flex-1">
-                        <div className="w-8 h-8 bg-[#10b981] rounded-full flex items-center justify-center">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="14" height="14">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                        </div>
-                        <span className="text-[10px] font-bold text-[#10b981] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Document Collected</span>
-                    </div>
-                    <div className="flex-1 h-0.5 bg-[#10b981] mt-[15px] min-w-[15px]"></div>
-                    <div className="flex flex-col items-center gap-2 flex-1">
-                        <div className="w-8 h-8 bg-[#2447d7] rounded-full border-[4px] border-[#ebf0ff]"></div>
-                        <span className="text-[10px] font-bold text-[#2447d7] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Document Verification Done</span>
-                    </div>
-                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[15px]"></div>
-                    <div className="flex flex-col items-center gap-2 flex-1">
-                        <div className="w-3.5 h-3.5 bg-[#edf2f7] rounded-full border-[3px] border-white shadow-[0_0_0_1px_#edf2f7] mt-[9px]"></div>
-                        <span className="text-[10px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Lender Selection</span>
-                    </div>
-                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[15px]"></div>
-                    <div className="flex flex-col items-center gap-2 flex-1">
-                        <div className="w-3.5 h-3.5 bg-[#edf2f7] rounded-full border-[3px] border-white shadow-[0_0_0_1px_#edf2f7] mt-[9px]"></div>
-                        <span className="text-[10px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Loan Confirmed</span>
-                    </div>
-                    <div className="flex-1 h-0.5 bg-[#edf2f7] mt-[15px] min-w-[15px]"></div>
-                    <div className="flex flex-col items-center gap-2 flex-1">
-                        <div className="w-3.5 h-3.5 bg-[#edf2f7] rounded-full border-[3px] border-white shadow-[0_0_0_1px_#edf2f7] mt-[9px]"></div>
-                        <span className="text-[10px] font-bold text-[#a0aec0] text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]">Loan Rejected</span>
-                    </div>
+                    {(() => {
+                        const stages = [
+                            { id: 'Document Collection', label: 'Document Collected' },
+                            { id: 'Document Verification Done', label: 'Document Verification Done' },
+                            { id: 'Lender Selection', label: 'Lender Selection' },
+                            { id: 'Loan Confirmed', label: 'Loan Confirmed' },
+                            { id: 'Loan Rejected', label: 'Loan Rejected' }
+                        ];
+
+                        const currentStatus = lead.status || lead.stage || 'Document Collection';
+                        
+                        // Map status to index
+                        let currentIndex = 0;
+                        if (currentStatus === 'Document Verification Done') currentIndex = 1;
+                        else if (currentStatus === 'Lender Selection') currentIndex = 2;
+                        else if (['Completed', 'Loan Confirmed', 'Final Review'].includes(currentStatus)) currentIndex = 3;
+                        else if (['Rejected', 'Loan Rejected'].includes(currentStatus)) currentIndex = 4;
+
+                        return stages.map((stage, index) => {
+                            const isCompleted = index < currentIndex;
+                            const isCurrent = index === currentIndex;
+                            const isLast = index === stages.length - 1;
+                            
+                            // Special handling for final stages
+                            const isRejected = ['Rejected', 'Loan Rejected'].includes(currentStatus);
+                            const isConfirmed = ['Completed', 'Loan Confirmed'].includes(currentStatus);
+                            
+                            let bgColor = 'bg-[#edf2f7]';
+                            let textColor = 'text-[#a0aec0]';
+                            let icon = null;
+
+                            if (isCompleted) {
+                                bgColor = 'bg-[#10b981]';
+                                textColor = 'text-[#10b981]';
+                                icon = (
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="14" height="14">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                );
+                            } else if (isCurrent) {
+                                if (stage.id === 'Loan Rejected' && isRejected) {
+                                    bgColor = 'bg-red-500';
+                                    textColor = 'text-red-500';
+                                } else {
+                                    bgColor = 'bg-[#2447d7]';
+                                    textColor = 'text-[#2447d7]';
+                                }
+                            }
+
+                            return (
+                                <React.Fragment key={stage.id}>
+                                    <div className="flex flex-col items-center gap-2 flex-1">
+                                        <div className={`w-8 h-8 ${bgColor} rounded-full flex items-center justify-center transition-all duration-500 ${isCurrent ? 'border-[4px] border-[#ebf0ff]' : ''}`}>
+                                            {icon}
+                                            {isCurrent && !icon && stage.id.includes('Rejected') && (
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="14" height="14">
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </svg>
+                                            )}
+                                        </div>
+                                        <span className={`text-[10px] font-bold ${textColor} text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]`}>{stage.label}</span>
+                                    </div>
+                                    {!isLast && (
+                                        <div className={`flex-1 h-0.5 ${index < currentIndex ? 'bg-[#10b981]' : 'bg-[#edf2f7]'} mt-[15px] min-w-[15px] transition-all duration-500`}></div>
+                                    )}
+                                </React.Fragment>
+                            );
+                        });
+                    })()}
                 </div>
             </div>
 
-            <div className="grid grid-cols-[1fr_1.5fr] gap-6 lg:grid-cols-1">
+            <div className="grid grid-cols-2 gap-6 lg:grid-cols-1">
                 {/* ── LEFT COLUMN ── */}
                 <div className="flex flex-col gap-6">
                     {/* Lead Details Info */}
@@ -215,7 +257,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                 
                                 <div className="flex flex-col gap-2 md:col-span-2">
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">AMOUNT NEEDED</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.amount || 'N/A'}</div>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.loanAmount || lead.amount || 'N/A'}</div>
                                 </div>
                                 
                                 <div className="flex flex-col gap-2 md:col-span-2">
@@ -230,7 +272,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                 
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LEAD SOURCE</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.leadSource || 'N/A'}</div>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.source || lead.leadSource || 'N/A'}</div>
                                 </div>
                                 
                                 <div className="flex flex-col gap-2">
@@ -245,7 +287,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
                                 <div className="flex flex-col gap-2">
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">COMPANY HOUSE NO.</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.companyHouseNumber || 'N/A'}</div>
+                                    <div className="text-sm font-bold text-[#1a202c]">{lead.nic || lead.companyHouseNumber || 'N/A'}</div>
                                 </div>
 
                                 <div className="flex flex-col gap-2">
@@ -277,7 +319,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">EMAIL ADDRESS</label>
                                     <div className="flex items-center gap-2.5 p-[10px_12px] bg-white border border-[#edf2f7] rounded-xl cursor-pointer hover:border-[#2447d7] hover:bg-[#f0f4ff] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(36,71,215,0.08)] transition-all">
                                         <div className="w-7 h-7 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center shrink-0"><IconEmail /></div>
-                                        <span className="text-[13px] font-semibold text-[#4a5568] break-all leading-tight">{lead.email || 'no-email@example.com'}</span>
+                                        <span className="text-[13px] font-semibold text-[#4a5568] break-all leading-tight">{lead.email || lead.emailAddress || 'no-email@example.com'}</span>
                                     </div>
                                 </div>
 
@@ -285,34 +327,109 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                     <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">PHONE NUMBER</label>
                                     <div className="flex items-center gap-2.5 p-[10px_12px] bg-white border border-[#edf2f7] rounded-xl cursor-pointer hover:border-[#2447d7] hover:bg-[#ecfdf5] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(16,185,129,0.08)] transition-all">
                                         <div className="w-7 h-7 bg-[#ecfdf5] text-[#10b981] rounded-lg flex items-center justify-center shrink-0"><IconPhone /></div>
-                                        <span className="text-[13px] font-semibold text-[#4a5568] leading-tight">{lead.phone || 'N/A'}</span>
+                                        <span className="text-[13px] font-semibold text-[#4a5568] leading-tight">{lead.phone || lead.phoneNumber || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {/* Lead Notes & Context */}
+
+
+                    {/* Loan & Mortgage Details */}
                     <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
                         <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
-                            <span className="w-8 h-8 bg-[#fff1f2] text-[#f43f5e] rounded-lg flex items-center justify-center flex-shrink-0">
-                                <IconInfo />
-                            </span>
-                            <h3 className="text-base font-bold text-[#1a202c]">Notes & Context</h3>
+                            <span className="w-8 h-8 bg-[#fefce8] text-[#ca8a04] rounded-lg flex items-center justify-center flex-shrink-0"><IconBank /></span>
+                            <h3 className="text-base font-bold text-[#1a202c]">Loan & Financial Details</h3>
                         </div>
                         <div className="p-6">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ADDITIONAL COMMENTARY</label>
-                                <div className="bg-[#fffcfc] border border-dashed border-[#fecaca] p-4 rounded-xl text-[13px] text-[#4a5568] leading-relaxed italic">
-                                    {lead.notes || 'No additional notes provided for this lead.'}
+                            <div className="grid grid-cols-2 gap-5 sm:grid-cols-1">
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LOAN AMOUNT</label>
+                                    <div className="text-lg font-bold text-[#2447d7]">{lead.loanAmount || lead.amount || 'N/A'}</div>
                                 </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">FUNDING TIMELINE</label>
+                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.fundingTimeline || 'N/A'}</div>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LOAN PURPOSE</label>
+                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.loanPurpose || 'N/A'}</div>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">OVERDRAFT FACILITY</label>
+                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.overdraftFacility || 'No'}</div>
+                                </div>
+
+                                {lead.existingLoan === 'Yes' && (
+                                    <div className="col-span-2 bg-[#f8fafc] p-4 rounded-xl border border-[#edf2f7] mt-2">
+                                        <label className="text-[10px] font-bold text-[#2447d7] uppercase tracking-wider block mb-3">EXISTING LOAN SPECIFICATIONS</label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Lender</span>
+                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanLenderName || 'N/A'}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Amount</span>
+                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanAmount ? `£${lead.existingLoanAmount}` : 'N/A'}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Interest Rate</span>
+                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanInterestRate ? `${lead.existingLoanInterestRate}%` : 'N/A'}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-0.5">
+                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Monthly Repayment</span>
+                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanMonthlyRepayment ? `£${lead.existingLoanMonthlyRepayment}` : 'N/A'}</span>
+                                            </div>
+                                            <div className="flex flex-col gap-0.5 col-span-2">
+                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Loan Term</span>
+                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanTerm || 'N/A'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
+
                 </div>
 
                 {/* ── RIGHT COLUMN ── */}
                 <div className="flex flex-col gap-6">
+                    {/* Personal Information */}
+                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
+                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
+                            <span className="w-8 h-8 bg-[#f0f9ff] text-[#0ea5e9] rounded-lg flex items-center justify-center flex-shrink-0"><IconUser /></span>
+                            <h3 className="text-base font-bold text-[#1a202c]">Personal Information</h3>
+                        </div>
+                        <div className="p-6">
+                            <div className="grid grid-cols-2 gap-5 sm:grid-cols-1">
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">DATE OF BIRTH</label>
+                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.dob || 'N/A'}</div>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">NIC / ID NUMBER</label>
+                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.nic || 'N/A'}</div>
+                                </div>
+                                <div className="flex flex-col gap-1 col-span-2">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">RESIDENTIAL ADDRESS</label>
+                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.residentialAddress || 'N/A'}</div>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">TIME AT ADDRESS</label>
+                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.timeAtCurrentAddress || 'N/A'}</div>
+                                </div>
+                                {lead.previousAddress && (
+                                    <div className="flex flex-col gap-1 col-span-2">
+                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">PREVIOUS ADDRESS</label>
+                                        <div className="text-sm font-semibold text-[#4a5568]">{lead.previousAddress}</div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Documents section */}
                     <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
                         <div className="flex justify-between items-center p-5 border-b border-[#f7fafc] gap-3 sm:flex-col sm:items-start">
@@ -490,6 +607,24 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                             )}
                         </div>
                     </div>
+
+                    {/* Lead Notes & Context */}
+                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
+                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
+                            <span className="w-8 h-8 bg-[#fff1f2] text-[#f43f5e] rounded-lg flex items-center justify-center flex-shrink-0">
+                                <IconInfo />
+                            </span>
+                            <h3 className="text-base font-bold text-[#1a202c]">Notes & Context</h3>
+                        </div>
+                        <div className="p-6">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ADDITIONAL COMMENTARY</label>
+                                <div className="bg-[#fffcfc] border border-dashed border-[#fecaca] p-4 rounded-xl text-[13px] text-[#4a5568] leading-relaxed italic">
+                                    {lead.notes || 'No additional notes provided for this lead.'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -659,6 +794,16 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 const IconInfo = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
         <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+    </svg>
+);
+const IconUser = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+    </svg>
+);
+const IconBank = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M17 21v-2a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v2" /><path d="M6 3h12" /><path d="M10 3v4" /><path d="M14 3v4" />
     </svg>
 );
 const IconEmail = () => (

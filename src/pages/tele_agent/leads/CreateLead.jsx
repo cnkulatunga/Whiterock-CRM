@@ -49,14 +49,14 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
         emailAddress: '',
         phoneNumber: '',
         preferredContactMethod: [],
-        homeOwner: '',
+        homeOwner: 'No',
         residentialAddress: '',
         timeAtCurrentAddress: '',
         previousAddress: '',
         // Loan Details
         loanAmount: '',
         loanPurpose: '',
-        existingLoan: '',
+        existingLoan: 'No',
         existingLoanLenderName: '',
         existingLoanAmount: '',
         existingLoanInterestRate: '',
@@ -264,7 +264,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                     </div>
                     <div className="flex items-center gap-2 bg-[#f0f4ff] px-3 py-1.5 rounded-lg">
                         <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider">SYSTEM ID:</span>
-                        <span className="text-[12px] font-bold text-[#2447d7]">WR-2026-0001</span>
+                        <span className="text-[12px] font-bold text-[#2447d7]">AF-2026-0001</span>
                     </div>
                 </div>
 

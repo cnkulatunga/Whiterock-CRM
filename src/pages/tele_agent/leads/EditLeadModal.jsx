@@ -50,10 +50,19 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
         phoneNumber: '',
         preferredContactMethod: [],
         homeOwner: '',
+        dob: '',
+        nic: '',
+        residentialAddress: '',
+        timeAtCurrentAddress: '',
+        previousAddress: '',
         loanAmount: '',
         loanPurpose: '',
         existingLoan: '',
+        existingLoanLenderName: '',
         existingLoanAmount: '',
+        existingLoanInterestRate: '',
+        existingLoanMonthlyRepayment: '',
+        existingLoanTerm: '',
         overdraftFacility: '',
         companyBank: '',
         leadSource: '',
@@ -77,10 +86,19 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
                 phoneNumber: lead.phone || '',
                 preferredContactMethod: lead.preferredContactMethod || ['Email', 'Phone'],
                 homeOwner: lead.homeOwner || 'No',
-                loanAmount: lead.amount ? lead.amount.replace(/[^0-9.]/g, '') : '',
+                dob: lead.dob || '',
+                nic: lead.nic || '',
+                residentialAddress: lead.residentialAddress || '',
+                timeAtCurrentAddress: lead.timeAtCurrentAddress || '',
+                previousAddress: lead.previousAddress || '',
+                loanAmount: lead.amount ? lead.amount.replace(/[^0-9.]/g, '') : (lead.loanAmount ? lead.loanAmount.replace(/[^0-9.]/g, '') : ''),
                 loanPurpose: lead.loanPurpose || '',
                 existingLoan: lead.existingLoan || 'No',
+                existingLoanLenderName: lead.existingLoanLenderName || '',
                 existingLoanAmount: lead.existingLoanAmount || '',
+                existingLoanInterestRate: lead.existingLoanInterestRate || '',
+                existingLoanMonthlyRepayment: lead.existingLoanMonthlyRepayment || '',
+                existingLoanTerm: lead.existingLoanTerm || '',
                 overdraftFacility: lead.overdraftFacility || 'No',
                 companyBank: lead.companyBank || '',
                 leadSource: lead.leadSource || '',
@@ -88,7 +106,7 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
                 industry: lead.industry || '',
                 previousAlphaFundingLoan: lead.previousAlphaFundingLoan || 'No',
                 additionalComments: lead.notes || '',
-                assignedAgent: lead.staff || 'Unassigned'
+                assignedAgent: lead.staff || lead.agentName || 'Unassigned'
             });
         }
     }, [lead, isOpen]);
@@ -119,24 +137,36 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
             name: formData.fullName,
             businessName: formData.companyName,
             companyHouseNumber: formData.companyHouseNumber,
+            nic: formData.nic || formData.companyHouseNumber,
             businessAnnualTurnover: formData.businessAnnualTurnover,
             jobTitle: formData.jobTitle,
             email: formData.emailAddress,
             phone: formData.phoneNumber,
             preferredContactMethod: formData.preferredContactMethod,
             homeOwner: formData.homeOwner,
+            dob: formData.dob,
+            residentialAddress: formData.residentialAddress,
+            timeAtCurrentAddress: formData.timeAtCurrentAddress,
+            previousAddress: formData.previousAddress,
             amount: formData.loanAmount ? `£${Number(formData.loanAmount).toLocaleString()}` : lead.amount,
+            loanAmount: formData.loanAmount ? `£${Number(formData.loanAmount).toLocaleString()}` : lead.loanAmount,
             loanPurpose: formData.loanPurpose,
             existingLoan: formData.existingLoan,
+            existingLoanLenderName: formData.existingLoanLenderName,
             existingLoanAmount: formData.existingLoanAmount,
+            existingLoanInterestRate: formData.existingLoanInterestRate,
+            existingLoanMonthlyRepayment: formData.existingLoanMonthlyRepayment,
+            existingLoanTerm: formData.existingLoanTerm,
             overdraftFacility: formData.overdraftFacility,
             companyBank: formData.companyBank,
             leadSource: formData.leadSource,
+            source: formData.leadSource,
             fundingTimeline: formData.fundingTimeline,
             industry: formData.industry,
             previousAlphaFundingLoan: formData.previousAlphaFundingLoan,
             notes: formData.additionalComments,
-            staff: formData.assignedAgent
+            staff: formData.assignedAgent,
+            agentName: formData.assignedAgent
         };
         onSave(updatedLead);
     };
@@ -263,6 +293,31 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
                                 <RadioGroup name="homeOwner" options={['Yes', 'No']} value={formData.homeOwner} />
                             </div>
 
+                            <div className={fieldCls}>
+                                <label className={labelCls}>Date of Birth</label>
+                                <input type="date" name="dob" className={inputCls} value={formData.dob} onChange={handleInputChange} />
+                            </div>
+
+                            <div className={fieldCls}>
+                                <label className={labelCls}>NIC / ID Number</label>
+                                <input type="text" name="nic" className={inputCls} placeholder="Enter NIC or ID..." value={formData.nic} onChange={handleInputChange} />
+                            </div>
+
+                            <div className={`${fieldCls} col-span-2`}>
+                                <label className={labelCls}>Residential Address</label>
+                                <input type="text" name="residentialAddress" className={inputCls} placeholder="e.g. 99 Halbutt Street, Dagenham..." value={formData.residentialAddress} onChange={handleInputChange} />
+                            </div>
+
+                            <div className={fieldCls}>
+                                <label className={labelCls}>Time at Current Address</label>
+                                <input type="text" name="timeAtCurrentAddress" className={inputCls} placeholder="e.g. 3 years" value={formData.timeAtCurrentAddress} onChange={handleInputChange} />
+                            </div>
+
+                            <div className={`${fieldCls} col-span-2`}>
+                                <label className={labelCls}>Previous Address</label>
+                                <input type="text" name="previousAddress" className={inputCls} placeholder="Enter previous address if less than 3 years..." value={formData.previousAddress} onChange={handleInputChange} />
+                            </div>
+
                         </div>
                     </div>
 
@@ -290,11 +345,33 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
                             </div>
 
                             {formData.existingLoan === 'Yes' && (
-                                <div className={`${fieldCls} col-span-2 sm:col-span-1`}>
-                                    <label className={labelCls}>If Yes, Existing Loan Amount</label>
-                                    <div className="relative flex items-center">
-                                        <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                        <input type="text" name="existingLoanAmount" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.existingLoanAmount} onChange={handleInputChange} />
+                                <div className="col-span-2 bg-[#f8fafc] p-5 rounded-2xl border border-[#edf2f7] grid grid-cols-2 gap-4">
+                                    <div className="col-span-2 text-[11px] font-bold text-[#2447d7] uppercase tracking-wider mb-2">Existing Loan Details</div>
+                                    <div className={fieldCls}>
+                                        <label className={labelCls}>Lender Name</label>
+                                        <input type="text" name="existingLoanLenderName" className={inputCls} placeholder="e.g. Barclays" value={formData.existingLoanLenderName} onChange={handleInputChange} />
+                                    </div>
+                                    <div className={fieldCls}>
+                                        <label className={labelCls}>Amount Taken</label>
+                                        <div className="relative flex items-center">
+                                            <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
+                                            <input type="text" name="existingLoanAmount" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.existingLoanAmount} onChange={handleInputChange} />
+                                        </div>
+                                    </div>
+                                    <div className={fieldCls}>
+                                        <label className={labelCls}>Interest Rate (%)</label>
+                                        <input type="text" name="existingLoanInterestRate" className={inputCls} placeholder="e.g. 5.5" value={formData.existingLoanInterestRate} onChange={handleInputChange} />
+                                    </div>
+                                    <div className={fieldCls}>
+                                        <label className={labelCls}>Monthly Repayment</label>
+                                        <div className="relative flex items-center">
+                                            <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
+                                            <input type="text" name="existingLoanMonthlyRepayment" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.existingLoanMonthlyRepayment} onChange={handleInputChange} />
+                                        </div>
+                                    </div>
+                                    <div className={`${fieldCls} col-span-2`}>
+                                        <label className={labelCls}>Loan Term</label>
+                                        <input type="text" name="existingLoanTerm" className={inputCls} placeholder="e.g. 24 months" value={formData.existingLoanTerm} onChange={handleInputChange} />
                                     </div>
                                 </div>
                             )}
