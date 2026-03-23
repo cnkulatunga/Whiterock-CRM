@@ -36,6 +36,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     const [showDuplicateModal, setShowDuplicateModal] = useState(false);
     const [duplicateLead, setDuplicateLead] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const [formData, setFormData] = useState({
         // Contact Information
@@ -106,6 +107,10 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        // Clear error when user types
+        if (errors[name]) {
+            setErrors(prev => ({ ...prev, [name]: null }));
+        }
     };
 
     const handleCheckboxChange = (name, option) => {
@@ -129,7 +134,72 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
         }
     }, [isSubmitting, uploadingDocs]);
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        // Basic required fields (as marked with *)
+        const requiredFields = [
+            'title', 'fullName', 'dob', 'companyName', 'companyHouseNumber',
+            'businessAnnualTurnover', 'emailAddress', 'phoneNumber',
+            'preferredContactMethod', 'residentialAddress', 'loanAmount',
+            'previousAlphaFundingLoan', 'creditConsent'
+        ];
+
+        requiredFields.forEach(field => {
+            if (!formData[field] || (Array.isArray(formData[field]) && formData[field].length === 0)) {
+                newErrors[field] = 'This field is required';
+            }
+        });
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (formData.emailAddress && !emailRegex.test(formData.emailAddress)) {
+            newErrors.emailAddress = 'Enter a valid email address';
+        }
+
+        // Phone validation (country code and numbers)
+        // Simplified regex: + followed by digits, spaces, or hyphens
+        const phoneRegex = /^\+?(\d[\s-]?){7,15}$/;
+        if (formData.phoneNumber) {
+            const strippedPhone = formData.phoneNumber.replace(/[\s-]/g, '');
+            if (!formData.phoneNumber.startsWith('+')) {
+                newErrors.phoneNumber = 'Must start with country code (e.g., +44)';
+            } else if (!phoneRegex.test(formData.phoneNumber)) {
+                newErrors.phoneNumber = 'Enter a valid phone number';
+            }
+        }
+
+        // Amount validation (numbers only, allow optional decimals)
+        const amountRegex = /^\d+(\.\d{1,2})?$/;
+        const validateAmount = (field, label) => {
+            const val = formData[field]?.toString().replace(/,/g, '');
+            if (val && !amountRegex.test(val)) {
+                newErrors[field] = `${label} must be numbers only`;
+            }
+        };
+
+        validateAmount('loanAmount', 'Loan amount');
+        validateAmount('businessAnnualTurnover', 'Turnover');
+        validateAmount('existingLoanAmount', 'Amount');
+        validateAmount('existingLoanMonthlyRepayment', 'Repayment');
+
+        setErrors(newErrors);
+        
+        if (Object.keys(newErrors).length > 0) {
+            // Scroll to the first error
+            const firstErrorField = Object.keys(newErrors)[0];
+            const element = document.getElementsByName(firstErrorField)[0];
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+        
+        return Object.keys(newErrors).length === 0;
+    };
+
     const triggerSaveAndSend = () => {
+        if (!validateForm()) return;
+
         const duplicate = leads.find(l =>
             (formData.emailAddress && l.email?.toLowerCase() === formData.emailAddress.toLowerCase()) ||
             (formData.phoneNumber && l.phone === formData.phoneNumber)
@@ -218,7 +288,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     const inputCls = "bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full";
     const selectCls = `${inputCls} appearance-none cursor-pointer`;
     const labelCls = "text-[13px] font-semibold text-[#4a5568]";
-    const fieldCls = "flex flex-col gap-2";
+    const errorCls = "text-[11px] font-medium text-[#e11d48] mt-1 flex items-center gap-1";
+    const fieldCls = "flex flex-col gap-1";
     const sectionCls = "mb-8";
     const sectionHeadCls = "text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5";
     const radioGroupCls = "flex flex-wrap gap-3 mt-1";
@@ -279,31 +350,36 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                             {/* Title */}
                             <div className={fieldCls}>
                                 <label className={labelCls}>Title <span className="text-[#e11d48]">*</span></label>
-                                <input type="text" name="title" className={inputCls} placeholder="e.g. Mr, Mrs, Dr, Prof..." value={formData.title} onChange={handleInputChange} />
+                                <input type="text" name="title" className={`${inputCls} ${errors.title ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="e.g. Mr, Mrs, Dr, Prof..." value={formData.title} onChange={handleInputChange} />
+                                {errors.title && <span className={errorCls}><IconAlert size={12} /> {errors.title}</span>}
                             </div>
 
                             {/* Full Name */}
                             <div className={fieldCls}>
                                 <label className={labelCls}>Full Name <span className="text-[#e11d48]">*</span></label>
-                                <input type="text" name="fullName" className={inputCls} placeholder="e.g. Jonathan Doe" value={formData.fullName} onChange={handleInputChange} />
+                                <input type="text" name="fullName" className={`${inputCls} ${errors.fullName ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="e.g. Jonathan Doe" value={formData.fullName} onChange={handleInputChange} />
+                                {errors.fullName && <span className={errorCls}><IconAlert size={12} /> {errors.fullName}</span>}
                             </div>
 
                             {/* Date of Birth */}
                             <div className={fieldCls}>
                                 <label className={labelCls}>Date of Birth <span className="text-[#e11d48]">*</span></label>
-                                <input type="date" name="dob" className={inputCls} value={formData.dob} onChange={handleInputChange} />
+                                <input type="date" name="dob" className={`${inputCls} ${errors.dob ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} value={formData.dob} onChange={handleInputChange} />
+                                {errors.dob && <span className={errorCls}><IconAlert size={12} /> {errors.dob}</span>}
                             </div>
 
                             {/* Company / Organization Name */}
                             <div className={fieldCls}>
                                 <label className={labelCls}>Company / Organization Name <span className="text-[#e11d48]">*</span></label>
-                                <input type="text" name="companyName" className={inputCls} placeholder="Enter registered company name..." value={formData.companyName} onChange={handleInputChange} />
+                                <input type="text" name="companyName" className={`${inputCls} ${errors.companyName ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="Enter registered company name..." value={formData.companyName} onChange={handleInputChange} />
+                                {errors.companyName && <span className={errorCls}><IconAlert size={12} /> {errors.companyName}</span>}
                             </div>
 
                             {/* Company House Number */}
                             <div className={fieldCls}>
                                 <label className={labelCls}>Company House Number <span className="text-[#e11d48]">*</span></label>
-                                <input type="text" name="companyHouseNumber" className={inputCls} placeholder="e.g. 12345678" value={formData.companyHouseNumber} onChange={handleInputChange} />
+                                <input type="text" name="companyHouseNumber" className={`${inputCls} ${errors.companyHouseNumber ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="e.g. 12345678" value={formData.companyHouseNumber} onChange={handleInputChange} />
+                                {errors.companyHouseNumber && <span className={errorCls}><IconAlert size={12} /> {errors.companyHouseNumber}</span>}
                             </div>
 
                             {/* Business Annual Turnover */}
@@ -311,8 +387,9 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 <label className={labelCls}>Business Annual Turnover <span className="text-[#e11d48]">*</span></label>
                                 <div className="relative flex items-center">
                                     <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                    <input type="text" name="businessAnnualTurnover" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.businessAnnualTurnover} onChange={handleInputChange} />
+                                    <input type="text" name="businessAnnualTurnover" className={`${inputCls} pl-8 ${errors.businessAnnualTurnover ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.businessAnnualTurnover} onChange={handleInputChange} />
                                 </div>
+                                {errors.businessAnnualTurnover && <span className={errorCls}><IconAlert size={12} /> {errors.businessAnnualTurnover}</span>}
                             </div>
 
                             {/* Job Title / Position */}
@@ -326,8 +403,9 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 <label className={labelCls}>Email Address <span className="text-[#e11d48]">*</span></label>
                                 <div className="relative flex items-center">
                                     <div className="absolute left-4 text-[#cbd5e0]"><IconMail /></div>
-                                    <input type="email" name="emailAddress" className={`${inputCls} pl-11`} placeholder="client@example.com" value={formData.emailAddress} onChange={handleInputChange} />
+                                    <input type="email" name="emailAddress" className={`${inputCls} pl-11 ${errors.emailAddress ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="client@example.com" value={formData.emailAddress} onChange={handleInputChange} />
                                 </div>
+                                {errors.emailAddress && <span className={errorCls}><IconAlert size={12} /> {errors.emailAddress}</span>}
                             </div>
 
                             {/* Phone Number */}
@@ -335,8 +413,9 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 <label className={labelCls}>Phone Number <span className="text-[#e11d48]">*</span></label>
                                 <div className="relative flex items-center">
                                     <div className="absolute left-4 text-[#cbd5e0]"><IconPhone /></div>
-                                    <input type="text" name="phoneNumber" className={`${inputCls} pl-11`} placeholder="+44 7700 900000" value={formData.phoneNumber} onChange={handleInputChange} />
+                                    <input type="text" name="phoneNumber" className={`${inputCls} pl-11 ${errors.phoneNumber ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="+44 7700 900000" value={formData.phoneNumber} onChange={handleInputChange} />
                                 </div>
+                                {errors.phoneNumber && <span className={errorCls}><IconAlert size={12} /> {errors.phoneNumber}</span>}
                             </div>
 
                             {/* Preferred Contact Method – multi-select */}
@@ -346,13 +425,14 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                     {['Email', 'Phone', 'WhatsApp', 'Other'].map(opt => {
                                         const selected = formData.preferredContactMethod.includes(opt);
                                         return (
-                                            <label key={opt} className={radioCls(selected)} onClick={() => handleCheckboxChange('preferredContactMethod', opt)}>
+                                            <label key={opt} className={`${radioCls(selected)} ${errors.preferredContactMethod ? 'border-[#e11d48]/40' : ''}`} onClick={() => handleCheckboxChange('preferredContactMethod', opt)}>
                                                 {selected && <IconCheck size={13} />}
                                                 {opt}
                                             </label>
                                         );
                                     })}
                                 </div>
+                                {errors.preferredContactMethod && <span className={errorCls}><IconAlert size={12} /> {errors.preferredContactMethod}</span>}
                             </div>
 
                             {/* Home Owner */}
@@ -364,7 +444,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                             {/* Residential Address */}
                             <div className={`${fieldCls} col-span-2 md:col-span-1`}>
                                 <label className={labelCls}>Residential Address <span className="text-[#e11d48]">*</span></label>
-                                <input type="text" name="residentialAddress" className={inputCls} placeholder="e.g. 99 Halbutt Street, Dagenham, RM9 5AR" value={formData.residentialAddress} onChange={handleInputChange} />
+                                <input type="text" name="residentialAddress" className={`${inputCls} ${errors.residentialAddress ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="e.g. 99 Halbutt Street, Dagenham, RM9 5AR" value={formData.residentialAddress} onChange={handleInputChange} />
+                                {errors.residentialAddress && <span className={errorCls}><IconAlert size={12} /> {errors.residentialAddress}</span>}
                             </div>
 
                             {/* Time at Current Address */}
@@ -398,8 +479,9 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 <label className={labelCls}>Amount Needed <span className="text-[#e11d48]">*</span></label>
                                 <div className="relative flex items-center">
                                     <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                    <input type="text" name="loanAmount" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.loanAmount} onChange={handleInputChange} />
+                                    <input type="text" name="loanAmount" className={`${inputCls} pl-8 ${errors.loanAmount ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.loanAmount} onChange={handleInputChange} />
                                 </div>
+                                {errors.loanAmount && <span className={errorCls}><IconAlert size={12} /> {errors.loanAmount}</span>}
                             </div>
 
                             {/* Purpose of Taking Loan */}
@@ -428,8 +510,9 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                                 <label className={labelCls}>Amount Taken</label>
                                                 <div className="relative flex items-center">
                                                     <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                                    <input type="text" name="existingLoanAmount" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.existingLoanAmount} onChange={handleInputChange} />
+                                                    <input type="text" name="existingLoanAmount" className={`${inputCls} pl-8 ${errors.existingLoanAmount ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.existingLoanAmount} onChange={handleInputChange} />
                                                 </div>
+                                                {errors.existingLoanAmount && <span className={errorCls}><IconAlert size={12} /> {errors.existingLoanAmount}</span>}
                                             </div>
                                             <div className={fieldCls}>
                                                 <label className={labelCls}>Interest Rate</label>
@@ -442,8 +525,9 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                                 <label className={labelCls}>Monthly Repayment</label>
                                                 <div className="relative flex items-center">
                                                     <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                                    <input type="text" name="existingLoanMonthlyRepayment" className={`${inputCls} pl-8`} placeholder="0.00" value={formData.existingLoanMonthlyRepayment} onChange={handleInputChange} />
+                                                    <input type="text" name="existingLoanMonthlyRepayment" className={`${inputCls} pl-8 ${errors.existingLoanMonthlyRepayment ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.existingLoanMonthlyRepayment} onChange={handleInputChange} />
                                                 </div>
+                                                {errors.existingLoanMonthlyRepayment && <span className={errorCls}><IconAlert size={12} /> {errors.existingLoanMonthlyRepayment}</span>}
                                             </div>
                                             <div className={`${fieldCls} col-span-2 md:col-span-1`}>
                                                 <label className={labelCls}>Loan Term</label>
@@ -497,6 +581,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                             <div className={`${fieldCls} col-span-2 md:col-span-1`}>
                                 <label className={labelCls}>Have you taken any loans before from Alpha Funding? <span className="text-[#e11d48]">*</span></label>
                                 <RadioGroup name="previousAlphaFundingLoan" options={['Yes', 'No']} value={formData.previousAlphaFundingLoan} />
+                                {errors.previousAlphaFundingLoan && <span className={errorCls}><IconAlert size={12} /> {errors.previousAlphaFundingLoan}</span>}
                             </div>
 
                             {/* Credit Consent */}
@@ -504,6 +589,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 <label className={labelCls}>Credit Search Consent <span className="text-[#e11d48]">*</span></label>
                                 <p className="text-[12px] text-[#718096] -mt-1 mb-1">Does the client consent to a credit search being carried out?</p>
                                 <RadioGroup name="creditConsent" options={['Yes', 'No']} value={formData.creditConsent} />
+                                {errors.creditConsent && <span className={errorCls}><IconAlert size={12} /> {errors.creditConsent}</span>}
                             </div>
 
                         </div>
