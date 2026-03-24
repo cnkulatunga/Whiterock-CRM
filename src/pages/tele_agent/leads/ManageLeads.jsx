@@ -141,9 +141,8 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
 
             <div className="flex gap-5 mb-8 flex-wrap lg:gap-4 sm:gap-3">
                 {[
-                    { label: 'Total Leads', value: MOCK_LEAD_COUNTS.total.toLocaleString() },
-                    { label: 'New Today', value: MOCK_LEAD_COUNTS.newToday },
-                    { label: 'Response Rate', value: MOCK_LEAD_COUNTS.responseRate }
+                    { label: 'Total Leads', value: (MOCK_LEAD_COUNTS.total || 0).toLocaleString() },
+                    { label: 'New Today', value: (MOCK_LEAD_COUNTS.newToday || 0) }
                 ].map((stat, i) => (
                     <div key={i} className="bg-white p-[16px_24px] sm:p-4 rounded-xl border border-[#edf2f7] flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[calc(33.33%-14px)] md:min-w-[calc(50%-10px)] sm:min-w-[calc(50%-6px)] hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop" style={{ animationDelay: `${200 + i * 80}ms`, animationFillMode: 'both' }}>
                         <span className="text-[11px] sm:text-[9px] font-bold text-[#a0aec0] uppercase tracking-wider">{stat.label}</span>
@@ -210,7 +209,12 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                         </thead>
                         <tbody>
                             {displayedLeads.map((lead, idx) => (
-                                <tr key={lead.id} className="hover:bg-[#fcfdfe] transition-colors border-b border-[#f7fafc] last:border-0 animate-rowIn" style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}>
+                                <tr 
+                                    key={lead.id} 
+                                    onClick={() => onViewDetails(lead)}
+                                    className="hover:bg-[#fcfdfe] transition-colors border-b border-[#f7fafc] last:border-0 animate-rowIn cursor-pointer" 
+                                    style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}
+                                >
                                     <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
                                         <div className="flex items-center gap-3 sm:gap-2">
                                             <div className="w-8 h-8 sm:w-6 sm:h-6 bg-[#f0f4ff] text-[#2447d7] rounded-lg flex items-center justify-center text-[11px] sm:text-[9px] font-bold">
@@ -321,7 +325,10 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                 <button 
                                                     className="p-1 sm:p-1 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
                                                     title="Upload/Manage Documents"
-                                                    onClick={() => handleOpenModal(lead)}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleOpenModal(lead);
+                                                    }}
                                                 >
                                                     <IconUpload size={16} />
                                                 </button>
@@ -332,7 +339,10 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                         <button
                                                             className="px-2 py-1 text-[10px] font-semibold border border-[#e9d5ff] bg-[#f5f3ff] rounded-lg text-[#7c3aed] hover:bg-[#7c3aed] hover:text-white transition-all duration-200 whitespace-nowrap"
                                                             title="Select Lender"
-                                                            onClick={() => onSelectLender(lead)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                onSelectLender(lead);
+                                                            }}
                                                         >
                                                             Lender
                                                         </button>
@@ -340,7 +350,8 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                     <button
                                                         className="p-1 sm:p-0.5 border border-[#ebf0ff] bg-[#f0f4ff] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
                                                         title="Reassign Lead"
-                                                        onClick={() => {
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
                                                             setLeadToReassign(lead);
                                                             setShowReassignModal(true);
                                                         }}
@@ -350,7 +361,10 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                     <button
                                                         className="p-1 sm:p-0.5 border border-[#fee2e2] bg-[#fef2f2] rounded-lg text-[#ef4444] hover:bg-[#ef4444] hover:text-white transition-all duration-200"
                                                         title="Delete Lead"
-                                                        onClick={() => handleDeleteLead(lead)}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteLead(lead);
+                                                        }}
                                                     >
                                                         <IconTrash size={16} />
                                                     </button>

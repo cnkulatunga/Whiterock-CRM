@@ -38,6 +38,32 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const [previewDoc, setPreviewDoc] = useState(null);
     const [showEditModal, setShowEditModal] = useState(false);
     const { addTask, updateTask } = useTasks();
+    const [newNote, setNewNote] = useState('');
+
+    const handleAddNote = () => {
+        if (!newNote.trim()) return;
+        
+        const now = new Date();
+        const timestamp = {
+            date: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+            time: now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+        };
+
+        const noteObj = {
+            id: Date.now(),
+            text: newNote,
+            author: currentUser.name || 'Tele Agent',
+            role: (currentUser.role || 'Tele Agent').toUpperCase(),
+            ...timestamp
+        };
+
+        const updatedHistory = [noteObj, ...(lead.noteHistory || [])];
+        const updatedLead = { ...lead, noteHistory: updatedHistory, notes: newNote };
+        
+        setLead(updatedLead);
+        updateLead(lead.id, { noteHistory: updatedHistory, notes: newNote });
+        setNewNote('');
+    };
 
     const handleUpload = (leadId, docId, docName, file) => {
         const targetDocId = docId || Date.now();
@@ -607,79 +633,111 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                             )}
                         </div>
                     </div>
+                </div> {/* Closing div for the right column */}
+            </div> {/* Closing div for the main flex container */}
 
-                    {/* Lead Notes & Context */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
-                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
-                            <span className="w-8 h-8 bg-[#fff1f2] text-[#f43f5e] rounded-lg flex items-center justify-center flex-shrink-0">
-                                <IconInfo />
-                            </span>
-                            <h3 className="text-base font-bold text-[#1a202c]">Notes & Context</h3>
-                        </div>
-                        <div className="p-6">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ADDITIONAL COMMENTARY</label>
-                                <div className="bg-[#fffcfc] border border-dashed border-[#fecaca] p-4 rounded-xl text-[13px] text-[#4a5568] leading-relaxed italic">
-                                    {lead.notes || 'No additional notes provided for this lead.'}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* ── ADD TASK MODAL ── */}
+            {/* Add Task Modal */}
             {isAddingTask && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-[4px] flex items-center justify-center z-[2000] animate-fadeIn p-4">
-                    <div className="bg-white w-full max-w-[450px] rounded-2xl p-8 shadow-2xl relative animate-slideUp">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold text-[#1a202c]">Add Lead Task</h2>
-                            <button className="text-2xl text-[#a0aec0] hover:text-[#4a5568]" onClick={() => setIsAddingTask(false)}>&times;</button>
+                <div className="fixed inset-0 z-[2100] flex items-center justify-center p-8 bg-black/80 backdrop-blur-md animate-fadeIn">
+                    <div className="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-scaleIn">
+                        <div className="p-5 border-b flex justify-between items-center bg-gray-50/50">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-[#fff7ed] flex items-center justify-center text-[#ea580c]">
+                                    <IconBell color="#ea580c" />
+                                </div>
+                                <span className="font-bold text-gray-800 text-sm">Add New Task</span>
+                            </div>
+                            <button onClick={() => setIsAddingTask(false)} className="p-2 rounded-xl hover:bg-gray-200 transition-colors text-gray-500"><IconClose size={18} /></button>
                         </div>
-                        <form onSubmit={handleAddTask} className="flex flex-col gap-4">
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold text-[#4a5568]">Task Title</label>
-                                <input required type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" value={newTask.title} onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. Call to verify documents" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-bold text-[#4a5568]">Date</label>
-                                    <input required type="date" className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" value={newTask.date} onChange={e => setNewTask({...newTask, date: e.target.value})} />
+                        <div className="p-6 flex flex-col gap-4">
+                            <form onSubmit={handleAddTask} className="flex flex-col gap-4">
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Task Title</label>
+                                    <input
+                                        required
+                                        type="text"
+                                        className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
+                                        value={newTask.title}
+                                        onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                                        placeholder="e.g., Follow up call"
+                                    />
                                 </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-bold text-[#4a5568]">Time</label>
-                                    <input required type="time" className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" value={newTask.time} onChange={e => setNewTask({...newTask, time: e.target.value})} />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Date</label>
+                                        <input
+                                            required
+                                            type="date"
+                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
+                                            value={newTask.date}
+                                            onChange={(e) => setNewTask({...newTask, date: e.target.value})}
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Time</label>
+                                        <input
+                                            required
+                                            type="time"
+                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
+                                            value={newTask.time}
+                                            onChange={(e) => setNewTask({...newTask, time: e.target.value})}
+                                        />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-bold text-[#4a5568]">Type</label>
-                                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none" value={newTask.type} onChange={e => setNewTask({...newTask, type: e.target.value})}>
-                                        <option>Call</option>
-                                        <option>Document</option>
-                                        <option>Review</option>
-                                        <option>Email</option>
-                                    </select>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Type</label>
+                                        <select
+                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
+                                            value={newTask.type}
+                                            onChange={(e) => setNewTask({...newTask, type: e.target.value})}
+                                        >
+                                            <option value="Call">Call</option>
+                                            <option value="Document">Document</option>
+                                            <option value="Review">Review</option>
+                                            <option value="Email">Email</option>
+                                        </select>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Reminder</label>
+                                        <select
+                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
+                                            value={newTask.reminder}
+                                            onChange={(e) => setNewTask({...newTask, reminder: e.target.value})}
+                                        >
+                                            <option value="none">Off</option>
+                                            <option value="15m">15 minutes before</option>
+                                            <option value="1h">1 hour before</option>
+                                            <option value="1d">1 day before</option>
+                                        </select>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-xs font-bold text-[#4a5568]">Reminder</label>
-                                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none" value={newTask.reminder} onChange={e => setNewTask({...newTask, reminder: e.target.value})}>
-                                        <option value="none">None</option>
-                                        <option value="15m">15m Before</option>
-                                        <option value="1h">1h Before</option>
-                                        <option value="1d">1d Before</option>
-                                    </select>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Message (Optional)</label>
+                                    <textarea
+                                        className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50 min-h-[80px]"
+                                        value={newTask.message}
+                                        onChange={(e) => setNewTask({...newTask, message: e.target.value})}
+                                        placeholder="Add any notes for this task..."
+                                    />
                                 </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-xs font-bold text-[#4a5568]">Notes</label>
-                                <textarea className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all min-h-[80px]" value={newTask.message} onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional notes..." rows="3" />
-                            </div>
-                            <div className="flex justify-end gap-3 mt-2">
-                                <button type="button" className="px-5 py-2.5 bg-[#f7fafc] border border-[#edf2f7] rounded-xl font-bold text-[#4a5568] hover:bg-[#edf2f7]" onClick={() => setIsAddingTask(false)}>Cancel</button>
-                                <button type="submit" className="px-6 py-2.5 bg-[#2447d7] text-white rounded-xl font-bold hover:bg-[#1a36b1] shadow-lg">Create Task</button>
-                            </div>
-                        </form>
+                                <div className="flex justify-end gap-3 mt-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsAddingTask(false)}
+                                        className="px-6 py-2.5 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold hover:bg-gray-200 transition-all"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="px-8 py-2.5 rounded-xl bg-[#2447d7] text-white text-xs font-bold hover:bg-[#1a36b1] transition-all shadow-lg active:scale-95"
+                                    >
+                                        Create Task
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}
