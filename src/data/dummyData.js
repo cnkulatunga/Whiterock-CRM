@@ -356,6 +356,30 @@ export const MOCK_LEADS = [
         documents: [
             { id: 1, type: 'Certificate of Authenticity', status: 'Approved', note: 'Verified by Museum', date: '2024-03-18' }
         ]
+    },
+    {
+        id: 'AF-015', leadId: 'AF-015', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-24', name: 'Tony Stark',
+        businessName: 'Stark Industries', email: 'tony@stark.com', phone: '+1 800-IRON-MAN', nic: 'NIC-015', source: 'Direct', status: 'Document Collection', lastContact: 'Just now', stage: 'Document Collection', progress: 15, assignedStaffId: 3,
+        loanAmount: '£10,000,000', loanPurpose: 'R&D', homeOwner: 'Yes', companyBank: 'Stark Bank', businessAnnualTurnover: '100,000,000', fundingTimeline: 'ASAP', industry: 'Tech', jobTitle: 'CEO',
+        existingLoan: 'No', overdraftFacility: 'Yes',
+        notes: 'High priority lead for clean energy project.',
+        documents: []
+    },
+    {
+        id: 'AF-016', leadId: 'AF-016', agentName: 'Priya Sharma', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-24', name: 'Steve Rogers',
+        businessName: 'Shield Logistics', email: 'steve@shield.gov', phone: '+1 800-CAPTAIN', nic: 'NIC-016', source: 'Referral', status: 'Lender Selection', lastContact: '1 hour ago', stage: 'Lender Selection', progress: 70, assignedStaffId: 11,
+        loanAmount: '£500,000', loanPurpose: 'Logistics', homeOwner: 'No', companyBank: 'Army Bank', businessAnnualTurnover: '5,000,000', fundingTimeline: '1 month', industry: 'Security', jobTitle: 'Director',
+        existingLoan: 'No', overdraftFacility: 'No',
+        notes: 'Needs funding for new transport fleet.',
+        documents: []
+    },
+    {
+        id: 'AF-017', leadId: 'AF-017', agentName: 'Jake Morrison', tl: 'Ryan Patel', manager: 'Alex Johnson', submissionDate: '2026-03-24', name: 'Natasha Romanoff',
+        businessName: 'Red Room Agency', email: 'natasha@avengers.com', phone: '+1 800-WIDOW', nic: 'NIC-017', source: 'Cold Outreach', status: 'Document Collection', lastContact: '30 mins ago', stage: 'Document Collection', progress: 5, assignedStaffId: 12,
+        loanAmount: '£1,000,000', loanPurpose: 'Operations', homeOwner: 'No', companyBank: 'Global Bank', businessAnnualTurnover: '10,000,000', fundingTimeline: 'Immediate', industry: 'Specialized', jobTitle: 'Agent',
+        existingLoan: 'No', overdraftFacility: 'No',
+        notes: 'Confidential request.',
+        documents: []
     }
 ];
 
@@ -424,11 +448,13 @@ export const AUDIT_STATS = {
 };
 
 export const AUDIT_LOG_ENTRIES = [
-    { id: 1, date: 'Oct 24, 2023', time: '14:24:08', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'verify', actionText: 'Verified compliance docs for', refId: 'AF-001', turnover: '£1,200,000', purpose: 'Working Capital', bank: 'Barclays', homeowner: 'YES' },
-    { id: 2, date: 'Oct 24, 2023', time: '13:15:22', name: 'Marcus Smith', initials: 'MS', bg: ROLE_COLORS['Team Leader'].bg, role: 'Team Leader', roleCls: ROLE_COLORS['Team Leader'].roleCls, actionIcon: 'edit',   actionText: 'Modified status of', refId: 'AF-002', turnover: '£3,500,000', purpose: 'Equipment Finance', bank: 'HSBC', homeowner: 'YES' },
-    { id: 3, date: 'Oct 24, 2023', time: '11:05:44', name: 'Sarah White', initials: 'SW', bg: ROLE_COLORS['Accounts Manager'].bg, role: 'Accounts Manager', roleCls: ROLE_COLORS['Accounts Manager'].roleCls, actionIcon: 'payment', actionText: 'Confirmed payment for', refId: 'AF-008', turnover: '£900,000', purpose: 'Expansion Loan', bank: 'Lloyds', homeowner: 'NO' },
-    { id: 4, date: 'Oct 24, 2023', time: '09:42:12', name: 'System', initials: 'SYS', bg: ROLE_COLORS['Automation'].bg, role: 'Automation', roleCls: ROLE_COLORS['Automation'].roleCls, actionIcon: 'auto',    actionText: 'Auto-assigned lead to agent', refId: 'AF-005', autoApproved: true },
-    { id: 5, date: 'Oct 23, 2023', time: '17:30:00', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'reject',  actionText: 'Flagged suspicious activity on', refId: 'AF-004', turnover: '£5,200,000', purpose: 'Bridge Loan', bank: 'Santander', homeowner: 'YES' },
+    { id: 1, date: 'Oct 24, 2023', time: '14:24:08', name: 'Jane Doe', initials: 'JD', bg: ROLE_COLORS['Super Admin'].bg, role: 'Super Admin', roleCls: ROLE_COLORS['Super Admin'].roleCls, actionIcon: 'verify', actionText: 'Verified compliance docs for', refId: 'AF-001' },
+    { id: 2, date: 'Oct 24, 2023', time: '13:15:22', name: 'Marcus Smith', initials: 'MS', bg: ROLE_COLORS['Team Leader'].bg, role: 'Team Leader', roleCls: ROLE_COLORS['Team Leader'].roleCls, actionIcon: 'verify', actionText: 'Approved bank statements for', refId: 'AF-011' },
+    { id: 3, date: 'Oct 24, 2023', time: '11:05:44', name: 'Sarah White', initials: 'SW', bg: ROLE_COLORS['Accounts Manager'].bg, role: 'Accounts Manager', roleCls: ROLE_COLORS['Accounts Manager'].roleCls, actionIcon: 'verify', actionText: 'Approved final loan terms for', refId: 'AF-008' },
+    { id: 4, date: 'Oct 24, 2023', time: '10:12:12', name: 'Sarah White', initials: 'SW', bg: ROLE_COLORS['Accounts Manager'].bg, role: 'Accounts Manager', roleCls: ROLE_COLORS['Accounts Manager'].roleCls, actionIcon: 'verify', actionText: 'Submitted file to ANZ Bank for', refId: 'AF-002' },
+    { id: 5, date: 'Oct 23, 2023', time: '17:30:00', name: 'Marcus Smith', initials: 'MS', bg: ROLE_COLORS['Team Leader'].bg, role: 'Team Leader', roleCls: ROLE_COLORS['Team Leader'].roleCls, actionIcon: 'reject', actionText: 'Rejected incomplete ID docs for', refId: 'AF-004', note: 'Unclear photo' },
+    { id: 6, date: 'Oct 23, 2023', time: '16:05:44', name: 'Sarah White', initials: 'SW', bg: ROLE_COLORS['Accounts Manager'].bg, role: 'Accounts Manager', roleCls: ROLE_COLORS['Accounts Manager'].roleCls, actionIcon: 'verify', actionText: 'Approved loan for', refId: 'AF-015' },
+    { id: 7, date: 'Oct 22, 2023', time: '11:15:22', name: 'Marcus Smith', initials: 'MS', bg: ROLE_COLORS['Team Leader'].bg, role: 'Team Leader', roleCls: ROLE_COLORS['Team Leader'].roleCls, actionIcon: 'verify', actionText: 'Approved proof of earnings for', refId: 'AF-009' }
 ];
 
 /**
