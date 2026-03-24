@@ -5,6 +5,7 @@ import App from './App.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { TasksProvider } from './context/TasksContext.jsx'
 import { LeadsProvider } from './context/LeadsContext.jsx'
+import { PromotionsProvider } from './context/PromotionsContext.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -12,9 +13,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <ThemeProvider>
       <TasksProvider>
         <LeadsProvider>
-          <BrowserRouter basename="/AlphaFunding">
-            <App />
-          </BrowserRouter>
+          <PromotionsProvider>
+            <BrowserRouter basename="/AlphaFunding">
+              <App />
+            </BrowserRouter>
+          </PromotionsProvider>
         </LeadsProvider>
       </TasksProvider>
     </ThemeProvider>

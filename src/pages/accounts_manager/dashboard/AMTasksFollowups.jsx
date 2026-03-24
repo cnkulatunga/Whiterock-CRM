@@ -5,8 +5,26 @@ import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
 import { canManageTask } from '../../../utils/permissionUtils';
 import { useTasks } from '../../../context/TasksContext';
+import { usePromotions } from '../../../context/PromotionsContext';
 
-const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
+const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyReminderSet }) => {
+    const { promotions } = usePromotions();
+    
+    // Merge promotions as pseudo-tasks
+    const memoizedPromotions = React.useMemo(() => promotions.map(p => ({
+        id: `promo-${p.id}`,
+        title: `PROMO: ${p.lenderName}`,
+        lead: p.description,
+        date: p.startDate, // Shows on start date
+        endDate: p.endDate,
+        time: '09:00',
+        type: 'Promotion',
+        status: 'Active',
+        isPromotion: true,
+        priority: 'High'
+    })), [promotions]);
+
+    const tasks = React.useMemo(() => [...initialTasks, ...memoizedPromotions], [initialTasks, memoizedPromotions]);
     const { users } = useUsers();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
@@ -176,7 +194,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
     const [showNotifications, setShowNotifications] = useState(false);
 
     const filteredTasks = tasks.filter(task => {
-        const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch = (task.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (task.lead && task.lead.toLowerCase().includes(searchTerm.toLowerCase()));
         
         const matchesStatus = filter === 'All' || task.status === filter;
@@ -247,7 +265,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                         {dayTasks.slice(0, 3).map(t => (
                                             <div
                                                 key={t.id}
-                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' ? 'animate-pulse' : ''}`}
+                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.isPromotion ? 'bg-[#2447d7] animate-pulse' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' && !t.isPromotion ? 'animate-pulse' : ''}`}
                                                 title={t.title}
                                             ></div>
                                         ))}
@@ -292,7 +310,8 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                                     <span className="text-[13px] font-bold text-[#1a202c] leading-tight">
                                                         {t.title}
                                                     </span>
-                                                    {t.assignedTo !== 'Self' && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Team</span>}
+                                                    {t.isPromotion && <span className="bg-[#2447d7] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">Active Promo</span>}
+                                                    {t.assignedTo !== 'Self' && !t.isPromotion && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Team</span>}
                                                 </div>
                                                     <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
                                                     {t.reminder && t.reminder !== 'none' && (
@@ -308,36 +327,38 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                                         Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
                                                     </span>
                                                 )}
-                                                <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
-                                                    <div className="flex items-center border border-[#edf2f7] rounded-lg bg-white">
-                                                        <select
-                                                            className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
-                                                            value={t.reminder || 'none'}
-                                                            onChange={(e) => updateTaskReminder(t.id, e.target.value)}
-                                                            title="Update Reminder"
-                                                        >
-                                                            <option value="none">🔔 Off</option>
-                                                            <option value="15m">15m</option>
-                                                            <option value="1h">1h</option>
-                                                            <option value="1d">1d</option>
-                                                        </select>
+                                                {!t.isPromotion && (
+                                                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
+                                                        <div className="flex items-center border border-[#edf2f7] rounded-lg bg-white">
+                                                            <select
+                                                                className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
+                                                                value={t.reminder || 'none'}
+                                                                onChange={(e) => updateTaskReminder(t.id, e.target.value)}
+                                                                title="Update Reminder"
+                                                            >
+                                                                <option value="none">🔔 Off</option>
+                                                                <option value="15m">15m</option>
+                                                                <option value="1h">1h</option>
+                                                                <option value="1d">1d</option>
+                                                            </select>
+                                                        </div>
+                                                        <div className="flex items-center flex-1">
+                                                            <select
+                                                                className={`w-full py-1 text-[10px] pr-6 font-black uppercase tracking-widest border border-[#edf2f7] outline-none transition-all cursor-pointer shadow-sm rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669]' :
+                                                                        t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7]' :
+                                                                            'bg-[#fff7ed] text-[#ea580c]'
+                                                                    }`}
+                                                                value={t.status}
+                                                                onChange={(e) => updateTaskStatus(t.id, e.target.value)}
+                                                            >
+                                                                <option>Pending</option>
+                                                                <option>In Progress</option>
+                                                                <option>Completed</option>
+                                                            </select>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center flex-1">
-                                                        <select
-                                                            className={`w-full py-1 text-[10px] pr-6 font-black uppercase tracking-widest border border-[#edf2f7] outline-none transition-all cursor-pointer shadow-sm rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669]' :
-                                                                    t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7]' :
-                                                                        'bg-[#fff7ed] text-[#ea580c]'
-                                                                }`}
-                                                            value={t.status}
-                                                            onChange={(e) => updateTaskStatus(t.id, e.target.value)}
-                                                        >
-                                                            <option>Pending</option>
-                                                            <option>In Progress</option>
-                                                            <option>Completed</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                {canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                                )}
+                                                {canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && !t.isPromotion && (
                                                     <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
                                                         <button 
                                                             onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
@@ -629,6 +650,7 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                         task.type === 'Document' ? 'bg-[#f0f9ff] text-[#0ea5e9] border-[#e0f2fe]' :
                                         task.type === 'Review' ? 'bg-[#fefce8] text-[#ca8a04] border-[#fef9c3]' :
                                         task.type === 'Email' ? 'bg-[#fdf2f8] text-[#db2777] border-[#fce7f3]' :
+                                        task.type === 'Promotion' ? 'bg-[#2447d7] text-white border-[#2447d7]' :
                                         'bg-[#f5f3ff] text-[#7c3aed] border-[#ede9fe]'
                                     }`}>
                                         {task.type === 'Call' && <IconPhone />}
@@ -640,14 +662,15 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                     <div className="flex flex-col gap-1 flex-1">
                                         <div className="flex items-center gap-3">
                                             <h3 className="text-[15px] font-bold text-[#1a202c] leading-tight group-hover:text-[#2447d7] transition-colors">{task.title}</h3>
-                                            {task.assignedTo === 'Self' ? (
+                                            {task.isPromotion && <span className="bg-[#2447d7] text-white text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider animate-pulse">Active Promo</span>}
+                                            {task.assignedTo === 'Self' && !task.isPromotion ? (
                                                 <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
-                                            ) : (
+                                            ) : !task.isPromotion ? (
                                                 <span className="flex items-center gap-1.5 text-[0.8rem] font-bold text-[#2447d7] bg-[#f0f4ff] px-2.5 py-1 rounded-lg">
                                                     Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
                                                 </span>
-                                            )}
-                                            {task.createdBy && (task.createdBy !== 'Accounts Manager' && task.createdBy !== 'Manager') && (
+                                            ) : null}
+                                            {task.createdBy && (task.createdBy !== 'Accounts Manager' && task.createdBy !== 'Manager') && !task.isPromotion && (
                                                 <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-[#ffedd5]">By: {task.createdBy}</span>
                                             )}
 
@@ -673,51 +696,55 @@ const AMTasksFollowups = ({ tasks, setTasks, initialDate, notifyReminderSet }) =
                                     </div>
                                 </div>
                                 <div className="shrink-0 flex items-center gap-3 sm:flex-col sm:items-stretch sm:gap-2">
-                                    <div className="flex items-center border border-[#edf2f7] rounded-xl bg-[#f7fafc]">
-                                        <select 
-                                            className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
-                                            value={task.reminder || 'none'}
-                                            onChange={(e) => updateTaskReminder(task.id, e.target.value)}
-                                            title="Update Reminder"
-                                        >
-                                            <option value="none">🔔 Off</option>
-                                            <option value="15m">15m</option>
-                                            <option value="1h">1h</option>
-                                            <option value="1d">1d</option>
-                                        </select>
-                                    </div>
-                                    <div className="flex items-center">
-                                        <select 
-                                            className={`p-[8px_20px] rounded-xl text-xs font-black uppercase tracking-widest border-2 outline-none transition-all cursor-pointer shadow-sm active:scale-95 sm:w-full ${
-                                                task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#d1fae5]' :
-                                                task.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff] hover:bg-[#d9ebff]' :
-                                                'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5] hover:bg-[#ffedd5]'
-                                            }`}
-                                            value={task.status}
-                                            onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                        >
-                                            <option>Pending</option>
-                                            <option>In Progress</option>
-                                            <option>Completed</option>
-                                        </select>
-                                    </div>
-                                    {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
-                                        <div className="flex items-center gap-2">
-                                            <button 
-                                                onClick={() => handleEditClick(task)}
-                                                className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
-                                                title="Edit Task"
-                                            >
-                                                <IconEdit />
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteTask(task.id)}
-                                                className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
-                                                title="Delete Task"
-                                            >
-                                                <IconTrash />
-                                            </button>
-                                        </div>
+                                    {!task.isPromotion && (
+                                        <>
+                                            <div className="flex items-center border border-[#edf2f7] rounded-xl bg-[#f7fafc]">
+                                                <select 
+                                                    className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
+                                                    value={task.reminder || 'none'}
+                                                    onChange={(e) => updateTaskReminder(task.id, e.target.value)}
+                                                    title="Update Reminder"
+                                                >
+                                                    <option value="none">🔔 Off</option>
+                                                    <option value="15m">15m</option>
+                                                    <option value="1h">1h</option>
+                                                    <option value="1d">1d</option>
+                                                </select>
+                                            </div>
+                                            <div className="flex items-center">
+                                                <select 
+                                                    className={`p-[8px_20px] rounded-xl text-xs font-black uppercase tracking-widest border-2 outline-none transition-all cursor-pointer shadow-sm active:scale-95 sm:w-full ${
+                                                        task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#d1fae5]' :
+                                                        task.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff] hover:bg-[#d9ebff]' :
+                                                        'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5] hover:bg-[#ffedd5]'
+                                                    }`}
+                                                    value={task.status}
+                                                    onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                >
+                                                    <option>Pending</option>
+                                                    <option>In Progress</option>
+                                                    <option>Completed</option>
+                                                </select>
+                                            </div>
+                                            {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                                <div className="flex items-center gap-2">
+                                                    <button 
+                                                        onClick={() => handleEditClick(task)}
+                                                        className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                                        title="Edit Task"
+                                                    >
+                                                        <IconEdit />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteTask(task.id)}
+                                                        className="w-9 h-9 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                                        title="Delete Task"
+                                                    >
+                                                        <IconTrash />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </div>
 

@@ -12,6 +12,7 @@ import { useTasks } from '../context/TasksContext';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
 import ReminderModal from '../components/NotificationTray/ReminderModal';
 import LenderSelectionApproved from '../pages/accounts_manager/lender_selection_approved/LenderSelectionApproved';
+import LenderPromotionsView from '../pages/shared/promotions/LenderPromotionsView';
 import Lenders from '../pages/super_admin/lenders/Lenders';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
 import ManageLeads from '../pages/tele_agent/leads/ManageLeads';
@@ -78,6 +79,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
             case 'lead_details': navigate('/accounts-manager/lead-details'); break;
 
             case 'tasks_followups': navigate('/accounts-manager/tasks-followups'); break;
+            case 'promotions': navigate('/accounts-manager/promotions'); break;
             default: navigate('/accounts-manager/dashboard');
         }
     };
@@ -216,6 +218,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="lenders" element={<Lenders readOnly={true} />} />
 
                         <Route path="tasks-followups" element={<AMTasksFollowups tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="promotions" element={<LenderPromotionsView />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => handleNavigate('accounts_manager_dashboard')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="manage-leads" element={<ManageLeads onViewDetails={(lead) => handleNavigate('lead_details', lead)} onSelectLender={(lead) => handleNavigate('lender_selection', lead)} isAccountsManager={true} />} />
                         <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => handleNavigate('manage_leads')} />} />

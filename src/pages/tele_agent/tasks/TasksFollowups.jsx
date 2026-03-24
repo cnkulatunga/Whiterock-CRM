@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { canManageTask } from '../../../utils/permissionUtils';
+import { usePromotions } from '../../../context/PromotionsContext';
 
 
 // Removed INITIAL_TASKS mock data, using props from layout.
@@ -10,6 +11,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const { promotions } = usePromotions();
 
     const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
@@ -174,6 +176,23 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         return matchesSearch && matchesFilter;
     });
 
+    // Add Promotions to the list
+    const activePromotions = promotions.map(p => ({
+        id: `promo-${p.id}`,
+        title: `PROMO: ${p.lenderName}`,
+        lead: 'Lender Promotion',
+        date: p.startDate, // Primary date for list view
+        endDate: p.endDate,
+        time: 'All Day',
+        type: 'Promotion',
+        status: 'Active',
+        message: p.description,
+        isPromotion: true,
+        fileName: p.fileName
+    }));
+
+    const displayTasks = [...filteredTasks, ...activePromotions].sort((a, b) => new Date(b.date) - new Date(a.date));
+
     const renderCalendar = () => {
         const todayStr = new Date().toISOString().split('T')[0];
         const firstDayOfWeek = new Date(calYear, calMonth, 1).getDay();
@@ -241,6 +260,13 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                             if (day === null) return <div key={`blank-${idx}`} />;
                             const dateStr = `${calYear}-${monthStr}-${String(day).padStart(2, '0')}`;
                             const dayTasks = tasks.filter(t => t.date === dateStr);
+                            const dayPromos = promotions.filter(p => {
+                                const start = new Date(p.startDate);
+                                const end = new Date(p.endDate);
+                                const current = new Date(dateStr);
+                                return current >= start && current <= end;
+                            });
+                            const allDayItems = [...dayTasks, ...dayPromos.map(p => ({ ...p, isPromotion: true }))];
                             const isSelected = selectedDate === dateStr;
                             const isToday = dateStr === todayStr;
                             return (
@@ -263,12 +289,12 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                             color: isToday ? '#ffffff' : isSelected ? '#2447d7' : dayText,
                                         }}
                                     >{day}</span>
-                                    {dayTasks.length > 0 && (
+                                    {allDayItems.length > 0 && (
                                         <div className="flex gap-1 mt-1 flex-wrap justify-center px-1">
-                                            {dayTasks.slice(0, 3).map(t => (
-                                                <div key={t.id} className={`w-1.5 h-1.5 rounded-full ring-1 ring-white/20 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#6480c4]'}`} title={t.title} />
+                                            {allDayItems.slice(0, 3).map((t, i) => (
+                                                <div key={t.id || i} className={`w-1.5 h-1.5 rounded-full ring-1 ring-white/20 ${t.isPromotion ? 'bg-[#2447d7]' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#6480c4]'}`} title={t.title || t.lenderName} />
                                             ))}
-                                            {dayTasks.length > 3 && <div className="w-1 h-1 rounded-full" style={{ background: mutedColor }} />}
+                                            {allDayItems.length > 3 && <div className="w-1 h-1 rounded-full" style={{ background: mutedColor }} />}
                                         </div>
                                     )}
                                 </div>
@@ -300,36 +326,54 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
 
                     </div>
                     <div className="flex-1 flex flex-col gap-3 overflow-y-auto max-h-[500px] pr-1 scrollbar-thin">
-                        {tasks.filter(t => t.date === selectedDate).length > 0 ? (
-                            tasks.filter(t => t.date === selectedDate).map(t => (
-                                <div key={t.id} className="p-3 rounded-xl flex items-center gap-3 shadow-sm hover:translate-y-[-2px] transition-all" style={{ background: taskCardBg, border: `1px solid ${taskCardBorder}` }}>
-                                    <div className={`w-1 h-8 rounded-full shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#cbd5e0]'}`}></div>
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-[13px] font-bold truncate leading-tight" style={{ color: taskTitleColor }}>{t.title}</span>
-                                        <span className="text-[11px] font-medium" style={{ color: mutedColor }}>{t.time} • {t.lead}</span>
-                                    </div>
-                                    {canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
-                                        <div className="flex items-center gap-1.5 ml-auto">
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
-                                                className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#2447d7] transition-all`}
-                                            >
-                                                <IconEdit size={14} />
-                                            </button>
-                                            <button 
-                                                onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
-                                                className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#e53e3e] transition-all`}
-                                            >
-                                                <IconTrash size={14} />
-                                            </button>
+                        {(() => {
+                            const dayTasks = tasks.filter(t => t.date === selectedDate);
+                            const dayPromos = promotions.filter(p => {
+                                const start = new Date(p.startDate);
+                                const end = new Date(p.endDate);
+                                const current = new Date(selectedDate);
+                                return current >= start && current <= end;
+                            }).map(p => ({
+                                id: `promo-${p.id}`,
+                                title: `PROMO: ${p.lenderName}`,
+                                lead: 'Lender Promotion',
+                                time: 'All Day',
+                                status: 'Active',
+                                isPromotion: true,
+                                message: p.description
+                            }));
+                            const items = [...dayTasks, ...dayPromos];
+                            
+                            return items.length > 0 ? (
+                                items.map(t => (
+                                    <div key={t.id} className="p-3 rounded-xl flex items-center gap-3 shadow-sm hover:translate-y-[-2px] transition-all" style={{ background: t.isPromotion ? (isDark ? '#1e3278' : '#e0e7ff') : taskCardBg, border: `1px solid ${t.isPromotion ? '#2447d7' : taskCardBorder}` }}>
+                                        <div className={`w-1 h-8 rounded-full shrink-0 ${t.isPromotion ? 'bg-[#2447d7]' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#cbd5e0]'}`}></div>
+                                        <div className="flex flex-col min-w-0 flex-1">
+                                            <span className="text-[13px] font-bold truncate leading-tight" style={{ color: t.isPromotion ? (isDark ? '#e4ecff' : '#2447d7') : taskTitleColor }}>{t.title}</span>
+                                            <span className="text-[11px] font-medium" style={{ color: mutedColor }}>{t.time} • {t.lead}</span>
                                         </div>
-                                    )}
-                                </div>
-
-                            ))
-                        ) : (
-                            <p className="text-[12px] text-center mt-4 italic" style={{ color: mutedColor }}>No tasks scheduled for this day.</p>
-                        )}
+                                        {!t.isPromotion && canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                            <div className="flex items-center gap-1.5 ml-auto">
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
+                                                    className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#2447d7] transition-all`}
+                                                >
+                                                    <IconEdit size={14} />
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
+                                                    className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#e53e3e] transition-all`}
+                                                >
+                                                    <IconTrash size={14} />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-[12px] text-center mt-4 italic" style={{ color: mutedColor }}>No tasks scheduled for this day.</p>
+                            );
+                        })()}
                     </div>
                 </div>
             </div>
@@ -537,84 +581,95 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                     )}
                 </div>
             ) : (
-                <div className="flex flex-col gap-4">                    {filteredTasks.length > 0 ? (
-                        filteredTasks.map(task => (
-                            <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 flex justify-between items-center gap-4 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-200 md:flex-col md:items-stretch" key={task.id}>
+                <div className="flex flex-col gap-4">
+                    {displayTasks.length > 0 ? (
+                        displayTasks.map(task => (
+                            <div className={`rounded-2xl border p-5 flex justify-between items-center gap-4 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-200 md:flex-col md:items-stretch ${task.isPromotion ? (isDark ? 'bg-[#1e3278] border-[#2447d7]' : 'bg-[#f0f7ff] border-[#2447d7]/30') : 'bg-white border-[#edf2f7]'}`} key={task.id}>
                                 <div className="flex items-center gap-5 sm:gap-3">
-                                    <div className={`w-12 h-12 sm:w-10 sm:h-10 rounded-[14px] flex items-center justify-center shrink-0 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fef3c7] text-[#d97706]' : task.type === 'Review' ? 'bg-[#f3e8ff] text-[#7c3aed]' : task.type === 'Email' ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#e0f2fe] text-[#0369a1]'}`}>
+                                    <div className={`w-12 h-12 sm:w-10 sm:h-10 rounded-[14px] flex items-center justify-center shrink-0 ${task.isPromotion ? 'bg-[#2447d7] text-white' : task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fef3c7] text-[#d97706]' : task.type === 'Review' ? 'bg-[#f3e8ff] text-[#7c3aed]' : task.type === 'Email' ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#e0f2fe] text-[#0369a1]'}`}>
+                                        {task.isPromotion && (
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                                        )}
                                         {task.type === 'Call' && <IconPhone />}
                                         {task.type === 'Document' && <IconDoc />}
                                         {task.type === 'Review' && <IconReview />}
                                         {task.type === 'Email' && <IconMail />}
                                         {task.type === 'Meeting' && <IconMeeting />}
                                     </div>
-                                    <div className="flex flex-col gap-1 min-w-0">
-                                        <h3 className="text-base font-bold text-[#1a202c] truncate sm:text-sm">{task.title}</h3>
-                                        <div className="flex flex-col gap-1.5">
+                                    <div className="flex flex-col gap-1 min-w-0 flex-1">
+                                        <h3 className={`text-base font-bold truncate sm:text-sm ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>{task.title}</h3>
+                                        <div className="flex flex-col gap-1.5 text-left">
                                             <div className="flex items-center gap-4 flex-wrap sm:gap-2">
-                                                <span className="flex items-center gap-1.5 text-[13px] font-semibold text-[#718096] sm:text-[11px]">
+                                                <span className={`flex items-center gap-1.5 text-[13px] font-semibold sm:text-[11px] ${isDark ? 'text-[#8ea0d4]' : 'text-[#718096]'}`}>
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
                                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
                                                     </svg>
                                                     {task.lead || 'Personal'}
                                                 </span>
-                                                <span className="text-[12px] font-medium text-[#a0aec0] sm:text-[10px]">
-                                                    {task.date} • {task.time}
+                                                <span className={`text-[12px] font-medium sm:text-[10px] ${isDark ? 'text-[#546298]' : 'text-[#a0aec0]'}`}>
+                                                    {task.date} {task.endDate ? `to ${task.endDate}` : ''} • {task.time}
                                                 </span>
                                             </div>
-                                            {task.message && <p className="p-2.5 px-3.5 bg-[#f8fafc] border border-[#e2e8f0] rounded-xl text-[0.85rem] text-[#4a5568] leading-relaxed max-w-[500px] mt-1 italic sm:text-[0.75rem]"><span className="font-bold text-[#2447d7] not-italic mr-1">Notes:</span>{task.message}</p>}
-                                            {task.reminder !== 'none' && (
-                                                <span className="bg-[#f0f4ff] text-[#2447d7] px-2 py-0.5 rounded-md text-[11px] font-bold w-fit flex items-center gap-1.5 sm:text-[9px]">
-                                                    <IconBellActive />
-                                                    Remind {task.reminder === '1d' ? '1 day before' : task.reminder === '1h' ? '1 hour before' : '15 min before'}
-                                                </span>
+                                            {task.message && <p className={`p-2.5 px-3.5 border rounded-xl text-[0.85rem] leading-relaxed max-w-[500px] mt-1 italic sm:text-[0.75rem] ${isDark ? 'bg-[#141829] border-[#2c3568] text-[#8ea0d4]' : 'bg-[#f8fafc] border-[#e2e8f0] text-[#4a5568]'}`}><span className="font-bold text-[#2447d7] not-italic mr-1">{task.isPromotion ? 'Promo Details:' : 'Notes:'}</span>{task.message}</p>}
+                                            {task.isPromotion && task.fileName && (
+                                                <div className={`mt-2 flex items-center gap-2 p-2 rounded-lg text-xs font-bold w-fit ${isDark ? 'bg-[#2447d7]/20 text-[#7a96fa]' : 'bg-[#e0e7ff] text-[#2447d7]'}`}>
+                                                    <IconDoc /> {task.fileName}
+                                                </div>
                                             )}
                                         </div>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-4 shrink-0 sm:flex-col sm:items-stretch sm:gap-3">
-                                    <div className="flex items-center gap-2">
-                                        <div className="flex items-center">
-                                            <select 
-                                                className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#718096] bg-[#f7fafc] border border-[#edf2f7] outline-none hover:border-[#2447d7] hover:text-[#2447d7] hover:bg-white transition-all cursor-pointer"
-                                                value={task.reminder}
-                                                onChange={(e) => updateTaskReminder(task.id, e.target.value)}
-                                                title="Update Reminder"
-                                            >
-                                                <option value="none">🔔 Off</option>
-                                                <option value="15m">15m</option>
-                                                <option value="1h">1h</option>
-                                                <option value="1d">1d</option>
-                                            </select>
-                                        </div>
-                                        <div className="relative">
-                                            <select 
-                                                className={`appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:12px] pr-9 pl-4 py-2 rounded-xl text-[13px] font-bold border outline-none transition-all hover:translate-y-[-1px] hover:shadow-sm min-w-[140px] sm:min-w-full ${task.status === 'Completed' ? 'bg-[#f0fff4] text-[#276749] border-[#9ae6b4]' : task.status === 'In Progress' ? 'bg-[#fffbef] text-[#c05621] border-[#fbd38d]' : 'bg-[#f7fafc] text-[#4a5568] border-[#e2e8f0]'}`}
-                                                value={task.status}
-                                                onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                            >
-                                                <option>Pending</option>
-                                                <option>In Progress</option>
-                                                <option>Completed</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
-                                        <div className="flex items-center gap-2">
-                                            <button 
-                                                onClick={() => handleEditClick(task)}
-                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
-                                                title="Edit Task"
-                                            >
-                                                <IconEdit />
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteTask(task.id)}
-                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
-                                                title="Delete Task"
-                                            >
-                                                <IconTrash />
-                                            </button>
+                                    {!task.isPromotion ? (
+                                        <>
+                                            <div className="flex items-center gap-2">
+                                                <div className="flex items-center">
+                                                    <select 
+                                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#718096] bg-[#f7fafc] border border-[#edf2f7] outline-none hover:border-[#2447d7] hover:text-[#2447d7] hover:bg-white transition-all cursor-pointer"
+                                                        value={task.reminder}
+                                                        onChange={(e) => updateTaskReminder(task.id, e.target.value)}
+                                                        title="Update Reminder"
+                                                    >
+                                                        <option value="none">🔔 Off</option>
+                                                        <option value="15m">15m</option>
+                                                        <option value="1h">1h</option>
+                                                        <option value="1d">1d</option>
+                                                    </select>
+                                                </div>
+                                                <div className="relative">
+                                                    <select 
+                                                        className={`appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:12px] pr-9 pl-4 py-2 rounded-xl text-[13px] font-bold border outline-none transition-all hover:translate-y-[-1px] hover:shadow-sm min-w-[140px] sm:min-w-full ${task.status === 'Completed' ? 'bg-[#f0fff4] text-[#276749] border-[#9ae6b4]' : task.status === 'In Progress' ? 'bg-[#fffbef] text-[#c05621] border-[#fbd38d]' : 'bg-[#f7fafc] text-[#4a5568] border-[#e2e8f0]'}`}
+                                                        value={task.status}
+                                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                    >
+                                                        <option>Pending</option>
+                                                        <option>In Progress</option>
+                                                        <option>Completed</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                                <div className="flex items-center gap-2">
+                                                    <button 
+                                                        onClick={() => handleEditClick(task)}
+                                                        className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                                        title="Edit Task"
+                                                    >
+                                                        <IconEdit />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteTask(task.id)}
+                                                        className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                                        title="Delete Task"
+                                                    >
+                                                        <IconTrash />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest ${isDark ? 'bg-[#2447d7] text-white' : 'bg-[#2447d7] text-white'}`}>
+                                            Active Promo
                                         </div>
                                     )}
                                 </div>

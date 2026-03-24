@@ -5,6 +5,7 @@ import TeamLeaderDashboard from '../pages/team_leader/dashboard/TeamLeaderDashbo
 import LeadMonitoring from '../pages/team_leader/lead_monitoring/LeadMonitoring';
 import DocumentVerification from '../pages/team_leader/document_verification/DocumentVerification';
 import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar';
+import LenderPromotionsView from '../pages/shared/promotions/LenderPromotionsView';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
 import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
 import { useReminders } from '../hooks/useReminders';
@@ -65,6 +66,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
             case 'lead-monitoring': navigate('/team-leader/lead-monitoring'); break;
             case 'document-verification': navigate('/team-leader/document-verification'); break;
             case 'calendar': navigate('/team-leader/calendar'); break;
+            case 'promotions': navigate('/team-leader/promotions'); break;
             case 'create-lead': navigate('/team-leader/create-lead'); break;
             case 'lead-details': navigate('/team-leader/lead-details'); break;
             default: navigate('/team-leader/dashboard');
@@ -202,6 +204,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
                         <Route path="lead-monitoring" element={<LeadMonitoring onViewDetails={(lead) => handleNavigate('lead-details', lead)} />} />
                         <Route path="document-verification" element={<DocumentVerification />} />
                         <Route path="calendar" element={<TeamLeaderCalendar tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="promotions" element={<LenderPromotionsView />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => handleNavigate('dashboard')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => handleNavigate('lead-monitoring')} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
