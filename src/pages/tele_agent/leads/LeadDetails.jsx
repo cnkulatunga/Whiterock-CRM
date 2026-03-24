@@ -422,6 +422,49 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
                 {/* ── RIGHT COLUMN ── */}
                 <div className="flex flex-col gap-6">
+                    {/* Team & Assignment */}
+                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
+                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
+                            <span className="w-8 h-8 bg-[#f0fdf4] text-[#16a34a] rounded-lg flex items-center justify-center flex-shrink-0">
+                                <IconUser />
+                            </span>
+                            <h3 className="text-base font-bold text-[#1a202c]">Team & Assignment</h3>
+                        </div>
+                        <div className="p-6">
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="flex items-center justify-between p-3.5 bg-[#f8fafc] rounded-2xl border border-[#edf2f7] hover:border-[#2447d7]/20 transition-all group">
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Tele Agent</span>
+                                        <span className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#2447d7] transition-colors">{lead.agentName || lead.agent || 'Not Assigned'}</span>
+                                    </div>
+                                    <div className="w-9 h-9 bg-white shadow-sm border border-[#edf2f7] text-[#2447d7] rounded-xl flex items-center justify-center text-[13px] font-black">
+                                        {(lead.agentName || lead.agent || 'N').charAt(0)}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between p-3.5 bg-[#f8fafc] rounded-2xl border border-[#edf2f7] hover:border-[#10b981]/20 transition-all group">
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Team Leader</span>
+                                        <span className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#10b981] transition-colors">{lead.tl || 'Sarah Jenkins'}</span>
+                                    </div>
+                                    <div className="w-9 h-9 bg-white shadow-sm border border-[#edf2f7] text-[#10b981] rounded-xl flex items-center justify-center text-[13px] font-black">
+                                        {(lead.tl || 'S').charAt(0)}
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between p-3.5 bg-[#f8fafc] rounded-2xl border border-[#edf2f7] hover:border-[#7c3aed]/20 transition-all group">
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Account Manager</span>
+                                        <span className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#7c3aed] transition-colors">{lead.manager || 'Marcus Smith'}</span>
+                                    </div>
+                                    <div className="w-9 h-9 bg-white shadow-sm border border-[#edf2f7] text-[#7c3aed] rounded-xl flex items-center justify-center text-[13px] font-black">
+                                        {(lead.manager || 'M').charAt(0)}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Personal Information */}
                     <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
                         <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
