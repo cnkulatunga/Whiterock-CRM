@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
 import { WORKFLOW_STAGES } from '../../../data/dummyData';
 import { useLeads } from '../../../context/LeadsContext';
+import LeadDetails from '../../tele_agent/leads/LeadDetails';
+import { useTasks } from '../../../context/TasksContext';
 
 // Map CRM workflow stages to the 4 operational flow buckets
 const STAGE_TO_OP = {
@@ -14,36 +17,6 @@ const STAGE_TO_OP = {
     'Rejected': 'rejected',
 };
 
-const mapLeadToOp = (l) => ({
-    id: l.id,
-    name: l.name,
-    businessName: l.businessName || '',
-    agent: l.agentName || '',
-    tl: l.tl || 'Marcus Smith',
-    manager: l.manager || 'Sarah White',
-    stage: STAGE_TO_OP[l.stage] || 'lead_gather',
-    progress: l.progress || 10,
-    lastActive: l.lastContact || 'Recently',
-    leadDetails: {
-        phone: l.phone || '',
-        email: l.email || '',
-        source: l.source || '',
-        amount: l.loanAmount || 'N/A',
-        purpose: l.loanPurpose || 'N/A',
-        nic: l.nic || '',
-        homeowner: l.homeOwner || 'N/A',
-        bank: l.companyBank || 'N/A',
-        turnover: l.businessAnnualTurnover || 'N/A',
-        notes: l.notes || '',
-        residentialAddress: '',
-        existingLoan: l.existingLoan || 'NA',
-        term: 'N/A',
-        fundingTimeline: l.fundingTimeline || 'N/A',
-    },
-    lenderDetails: l.selectedLenders?.length
-        ? { partner: l.selectedLenders[0], rate: 'N/A', status: 'Lenders Assigned', terms: 'N/A' }
-        : { partner: 'Pending', rate: 'N/A', status: 'Analysis Stage', terms: 'N/A' },
-});
 
 /* ─── STYLES & ANIMATIONS ─────────────────────── */
 const STYLES = `
@@ -142,274 +115,6 @@ if (typeof document !== 'undefined' && !document.getElementById('of-flow-styles'
 
 /* ─── COMPONENTS ──────────────────────────────── */
 
-const ClientDetailModal = ({ client, onClose, isDark }) => {
-    const [activeTab, setActiveTab] = useState('overview'); // 'overview', 'lead', 'lender'
-
-    if (!client) return null;
-
-    const tabs = [
-        { id: 'overview', label: 'Overview' },
-        { id: 'lead', label: 'Lead Details' },
-        { id: 'lender', label: 'Lender Selection' }
-    ];
-
-    return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 9999,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '20px', animation: 'fadeIn 0.3s ease-out'
-        }} onClick={onClose}>
-            <div style={{
-                background: isDark ? '#1e2347' : '#fff', borderRadius: '28px',
-                width: '100%', maxWidth: '850px', maxHeight: '90vh',
-                overflow: 'hidden', border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`,
-                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
-                position: 'relative', display: 'flex', flexDirection: 'column',
-                animation: 'slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
-            }} onClick={e => e.stopPropagation()}>
-                
-                {/* Close Button */}
-                <button onClick={onClose} style={{
-                    position: 'absolute', top: '24px', right: '24px',
-                    background: isDark ? '#2c3568' : '#f1f5f9', border: 'none',
-                    borderRadius: '50%', width: '36px', height: '36px',
-                    cursor: 'pointer', color: isDark ? '#94abda' : '#64748b',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10
-                }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20">
-                        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                </button>
-
-                {/* Header */}
-                <div style={{ padding: '40px 40px 0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                        <h2 style={{ fontSize: '26px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', margin: 0 }}>{client.name}</h2>
-                        <StageBadge stageId={client.stage} isDark={isDark} />
-                    </div>
-                    <span style={{ fontSize: '14px', color: '#94a3b8', fontWeight: 600 }}>ID: {client.id} • {client.lastActive}</span>
-
-                    {/* Tab Navigation */}
-                    <div style={{ display: 'flex', gap: '24px', marginTop: '32px', borderBottom: `1px solid ${isDark ? '#2c3568' : '#f1f5f9'}` }}>
-                        {tabs.map(tab => (
-                            <button 
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                style={{
-                                    padding: '12px 4px',
-                                    background: 'none',
-                                    border: 'none',
-                                    borderBottom: activeTab === tab.id ? `3px solid #6366f1` : '3px solid transparent',
-                                    color: activeTab === tab.id ? (isDark ? '#e4ecff' : '#0f172a') : '#94a3b8',
-                                    fontSize: '14px',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-
-                {/* Content Area */}
-                <div style={{ padding: '32px 40px 40px', overflowY: 'auto', flex: 1 }}>
-                    {activeTab === 'overview' && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.2fr) minmax(0, 0.8fr)', gap: '40px' }}>
-                            {/* Workflow */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                <h3 style={{ fontSize: '16px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', margin: 0 }}>Project Roadmap</h3>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative', paddingLeft: '32px' }}>
-                                    <div style={{ position: 'absolute', top: '10px', bottom: '10px', left: '7px', width: '2px', background: isDark ? '#2c3568' : '#f1f5f9' }} />
-                                    {WORKFLOW_STAGES.map((stage, idx) => {
-                                        const stageMap = { 'lead_gather': 1, 'doc_collect': 2, 'lender_select': 3, 'closed': 4 };
-                                        const clientStageMap = { 'lead_gather': 1, 'doc_collect': 2, 'lender_select': 3, 'won': 4, 'rejected': 4 };
-                                        const currentIdx = clientStageMap[client.stage];
-                                        const stepIdx = stageMap[stage.id];
-                                        const isCompleted = stepIdx < currentIdx;
-                                        const isCurrent = stepIdx === currentIdx;
-                                        
-                                        let circleColor = isDark ? '#2c3568' : '#f1f5f9';
-                                        let textColor = isDark ? '#546298' : '#94a3b8';
-                                        if (isCompleted || isCurrent) {
-                                            circleColor = stage.color;
-                                            textColor = isDark ? '#e4ecff' : '#0f172a';
-                                        }
-                                        if (isCurrent && client.stage === 'rejected') circleColor = '#ef4444';
-
-                                        return (
-                                            <div key={stage.id} style={{ position: 'relative' }}>
-                                                <div style={{ 
-                                                    position: 'absolute', left: '-32px', top: '4px', width: '16px', height: '16px', 
-                                                    borderRadius: '50%', background: circleColor,
-                                                    border: `3px solid ${isDark ? '#1e2347' : '#fff'}`, zIndex: 1
-                                                }} />
-                                                <div>
-                                                    <div style={{ fontSize: '14px', fontWeight: 800, color: textColor }}>{stage.label}</div>
-                                                    <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500, marginTop: '2px' }}>{stage.description}</div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Personnel */}
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                                <div style={{ 
-                                    background: isDark ? 'rgba(99,102,241,0.05)' : '#f8faff', 
-                                    padding: '24px', borderRadius: '20px', border: `1px solid ${isDark ? '#2c3568' : '#eff2ff'}` 
-                                }}>
-                                    <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase', marginBottom: '16px', letterSpacing: '0.05em' }}>Personnel Flow</h4>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                        {[
-                                            { label: 'Tele Agent', name: client.agent },
-                                            { label: 'Team Leader', name: client.tl },
-                                            { label: 'Account Manager', name: client.manager }
-                                        ].map((person, i) => (
-                                            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <div style={{ 
-                                                    width: '36px', height: '36px', borderRadius: '10px', 
-                                                    background: isDark ? '#2c3568' : '#fff', display: 'flex', 
-                                                    alignItems: 'center', justifyContent: 'center', fontWeight: 900, 
-                                                    color: '#6366f1', border: `1px solid ${isDark ? '#3d4a8f' : '#e2e8f0'}`,
-                                                    fontSize: '14px'
-                                                }}>
-                                                    {person.name.charAt(0)}
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontSize: '13px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a' }}>{person.name}</div>
-                                                    <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>{person.label}</div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'lead' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                            <table className="of-table" style={{ marginTop: '-8px' }}>
-                                <tbody>
-                                    {[
-                                        { label: 'NIC / National ID', value: client.leadDetails.nic, icon: '🪪' },
-                                        { label: 'Contact Number', value: client.leadDetails.phone, icon: '📞' },
-                                        { label: 'Email Address', value: client.leadDetails.email, icon: '✉️' },
-                                        { label: 'Residential Address', value: client.leadDetails.residentialAddress, icon: '🏠' },
-                                        { label: 'Requested Amount', value: client.leadDetails.amount, icon: '💰' },
-                                        { label: 'Loan Purpose', value: client.leadDetails.purpose, icon: '📋' },
-                                        { label: 'Submission Date', value: 'Oct 24, 2023', icon: '📅' }
-                                    ].map((item, i) => (
-                                        <tr key={i}>
-                                            <td style={{ width: '48px', textAlign: 'center', fontSize: '18px', padding: '12px 0 12px 20px' }}>{item.icon}</td>
-                                            <td style={{ width: '220px', fontSize: '12px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</td>
-                                            <td style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{item.value}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            {/* New Gathered Details */}
-                            <div>
-                                <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 8px', paddingLeft: '8px' }}>📊 Gathered Details</h4>
-                                <table className="of-table">
-                                    <tbody>
-                                        {[
-                                            { label: 'Turnover', value: client.leadDetails.turnover, icon: '📈' },
-                                            { label: 'Homeowner', value: client.leadDetails.homeowner, icon: '🏡' },
-                                            { label: 'Bank', value: client.leadDetails.bank, icon: '🏦' },
-                                            { label: 'Overdraft', value: client.leadDetails.overdraft, icon: '💳' },
-                                            { label: 'Term', value: client.leadDetails.term, icon: '📆' },
-                                            { label: 'Funding Timeline', value: client.leadDetails.fundingTimeline, icon: '⏱️' },
-                                            { label: 'Existing Loan', value: client.leadDetails.existingLoan, icon: '🔗' },
-                                        ].map((item, i) => (
-                                            <tr key={i}>
-                                                <td style={{ width: '48px', textAlign: 'center', fontSize: '16px', padding: '12px 0 12px 20px' }}>{item.icon}</td>
-                                                <td style={{ width: '220px', fontSize: '12px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{item.label}</td>
-                                                <td style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{item.value || 'N/A'}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            {/* Notes Section */}
-                            <div style={{ 
-                                padding: '24px', borderRadius: '20px', 
-                                background: isDark ? 'rgba(99,102,241,0.05)' : '#f8faff',
-                                border: `1px solid ${isDark ? '#2c3568' : '#eff2ff'}`
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                                    <span style={{ fontSize: '16px' }}>📝</span>
-                                    <h4 style={{ fontSize: '13px', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>Additional Commentary</h4>
-                                </div>
-                                <p style={{ 
-                                    fontSize: '14px', color: isDark ? '#94abda' : '#64748b', 
-                                    lineHeight: '1.6', margin: 0, fontStyle: 'italic'
-                                }}>
-                                    "{client.leadDetails.notes}"
-                                </p>
-                            </div>
-                        </div>
-                    )}
-
-
-                    {activeTab === 'lender' && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            <div style={{ 
-                                padding: '32px', borderRadius: '24px', 
-                                background: isDark ? 'linear-gradient(135deg, #161a35, #1e2347)' : '#f8faff',
-                                border: `1px solid ${isDark ? '#2c3568' : '#eff2ff'}`,
-                                textAlign: 'center'
-                            }}>
-                                <div style={{ fontSize: '40px', marginBottom: '16px' }}>🏦</div>
-                                <h4 style={{ fontSize: '20px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', margin: '0 0 8px' }}>
-                                    {client.lenderDetails.partner}
-                                </h4>
-                                <div style={{ display: 'inline-block', padding: '6px 16px', borderRadius: '999px', background: isDark ? '#6366f120' : '#6366f110', color: '#6366f1', fontSize: '13px', fontWeight: 800 }}>
-                                    {client.lenderDetails.status}
-                                </div>
-                            </div>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                <div style={{ padding: '20px', borderRadius: '16px', background: isDark ? '#161a35' : '#f8faff', border: `1px solid ${isDark ? '#2c3568' : '#eff2ff'}` }}>
-                                    <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Interest Rate</div>
-                                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#10b981' }}>{client.lenderDetails.rate}</div>
-                                </div>
-                                <div style={{ padding: '20px', borderRadius: '16px', background: isDark ? '#161a35' : '#f8faff', border: `1px solid ${isDark ? '#2c3568' : '#eff2ff'}` }}>
-                                    <div style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '4px' }}>Approved Terms</div>
-                                    <div style={{ fontSize: '18px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a' }}>{client.lenderDetails.terms}</div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Footer Actions */}
-                <div style={{ 
-                    padding: '24px 40px', borderTop: `1px solid ${isDark ? '#2c3568' : '#f1f5f9'}`,
-                    display: 'flex', justifyContent: 'flex-end'
-                }}>
-                    <button 
-                        onClick={onClose}
-                        style={{
-                            padding: '12px 32px', borderRadius: '14px', border: 'none',
-                            background: 'linear-gradient(135deg, #6366f1, #4f46e5)', color: '#fff',
-                            fontSize: '14px', fontWeight: 800, cursor: 'pointer',
-                            boxShadow: '0 8px 20px rgba(99,102,241,0.3)'
-                        }}
-                    >
-                        Close Details
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 const StageBadge = ({ stageId, isDark, compact = false }) => {
     let stage = WORKFLOW_STAGES.find(s => s.id === stageId);
@@ -459,34 +164,52 @@ const OperationalFlow = () => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { leads } = useLeads();
-    const OPERATIONAL_FLOW_LEADS = leads.map(mapLeadToOp);
+    const { tasks, setTasks } = useTasks();
+    const location = useLocation();
     const [search, setSearch] = useState('');
     const [filterStage, setFilterStage] = useState('All');
     const [viewMode, setViewMode] = useState(window.innerWidth > 768 ? 'table' : 'grid');
     const [selectedClient, setSelectedClient] = useState(null);
 
+    // Auto-select lead if passed from navigation state (e.g., from Performance Popup)
     useEffect(() => {
-        const handleResize = () => {
-            const isDesktop = window.innerWidth > 768;
-            setViewMode(isDesktop ? 'table' : 'grid');
-        };
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+        if (location.state?.selectedLead) {
+            setSelectedClient(location.state.selectedLead);
+            // Clear state after reading to avoid re-selection on refresh if not desired, 
+            // though usually it's fine.
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
-    const filteredClients = OPERATIONAL_FLOW_LEADS.filter(c => {
-        const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || 
-                             c.agent.toLowerCase().includes(search.toLowerCase()) ||
-                             c.tl.toLowerCase().includes(search.toLowerCase()) ||
+    // Filter leads directly since we removed mapLeadToOp
+    const filteredClients = leads.filter(c => {
+        const matchesSearch = (c.name || '').toLowerCase().includes(search.toLowerCase()) || 
+                             (c.agentName || c.agent || '').toLowerCase().includes(search.toLowerCase()) ||
+                             (c.tl || '').toLowerCase().includes(search.toLowerCase()) ||
                              (c.businessName && c.businessName.toLowerCase().includes(search.toLowerCase()));
         
-        let matchesStage = filterStage === 'All' || c.stage === filterStage;
+        const mappedStage = STAGE_TO_OP[c.stage] || 'lead_gather';
+        let matchesStage = filterStage === 'All' || mappedStage === filterStage;
         if (filterStage === 'closed') {
-            matchesStage = c.stage === 'won' || c.stage === 'rejected';
+            matchesStage = mappedStage === 'won' || mappedStage === 'rejected';
         }
 
         return matchesSearch && matchesStage;
     });
+
+    if (selectedClient) {
+        return (
+            <div className="animate-fadeIn">
+                <LeadDetails 
+                    lead={selectedClient} 
+                    onBack={() => setSelectedClient(null)} 
+                    tasks={tasks}
+                    setTasks={setTasks}
+                />
+            </div>
+        );
+    }
+
 
     return (
         <div style={{ 
@@ -679,7 +402,7 @@ const OperationalFlow = () => {
                                         )}
                                     </div>
                                 </div>
-                                <StageBadge stageId={client.stage} isDark={isDark} />
+                                <StageBadge stageId={STAGE_TO_OP[client.stage]} isDark={isDark} />
                             </div>
 
                             <div style={{ 
@@ -693,7 +416,7 @@ const OperationalFlow = () => {
                             }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                     <span style={{ fontSize: '9px', color: '#a0aec0', fontWeight: 900, textTransform: 'uppercase', trackingWidest: '0.05em' }}>Tele Agent</span>
-                                    <span style={{ fontSize: '12px', color: isDark ? '#e4ecff' : '#1a202c', fontWeight: 700 }}>{client.agent}</span>
+                                    <span style={{ fontSize: '12px', color: isDark ? '#e4ecff' : '#1a202c', fontWeight: 700 }}>{client.agentName || client.agent}</span>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                                     <span style={{ fontSize: '9px', color: '#a0aec0', fontWeight: 900, textTransform: 'uppercase', trackingWidest: '0.05em' }}>Team Leader</span>
@@ -788,7 +511,7 @@ const OperationalFlow = () => {
                                     <td>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '11px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{client.agent}</span>
+                                                <span style={{ fontSize: '11px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{client.agentName || client.agent}</span>
                                                 <span style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Agent</span>
                                             </div>
                                             <FlowArrow />
@@ -811,7 +534,7 @@ const OperationalFlow = () => {
                                                 </div>
                                                 <span style={{ fontSize: '12px', fontWeight: 900, color: '#6366f1', minWidth: '35px' }}>{client.progress}%</span>
                                             </div>
-                                            <StageBadge stageId={client.stage} isDark={isDark} compact />
+                                            <StageBadge stageId={STAGE_TO_OP[client.stage]} isDark={isDark} compact />
                                         </div>
                                     </td>
                                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
@@ -856,14 +579,6 @@ const OperationalFlow = () => {
                 </div>
             )}
 
-            {/* Modal Overlay */}
-            {selectedClient && (
-                <ClientDetailModal 
-                    client={selectedClient} 
-                    onClose={() => setSelectedClient(null)} 
-                    isDark={isDark} 
-                />
-            )}
         </div>
     );
 };
