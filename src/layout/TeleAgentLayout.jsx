@@ -65,6 +65,7 @@ const TeleAgentLayout = ({ onLogout }) => {
             case 'lead-details': navigate('/tele-agent/lead-details'); break;
             case 'create-lead': navigate('/tele-agent/create-lead'); break;
             case 'follow-ups': navigate('/tele-agent/follow-ups'); break;
+            case 'leave': navigate('/leave-management/login'); break;
             case 'knowledge': navigate('/tele-agent/knowledge'); break;
             default: navigate('/tele-agent/dashboard');
         }
@@ -172,19 +173,6 @@ const TeleAgentLayout = ({ onLogout }) => {
                         </div>
                         <ThemeToggle compact={isMobile} />
                         <button
-                            className="text-white border-none h-11 sm:h-10 px-4 sm:px-3 rounded-xl text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
-                            style={{
-                                background: isDark ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #10b981, #059669)',
-                                boxShadow: '0 8px 20px rgba(16,185,129,0.3)',
-                            }}
-                            onClick={() => navigate('/leave-management/login')}
-                        >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-                            </svg>
-                            <span className="md:hidden lg:inline-block">Leave</span>
-                        </button>
-                        <button
                             className="text-white border-none h-11 sm:h-10 px-6 sm:px-3 rounded-xl text-sm font-extrabold flex items-center gap-2.5 sm:gap-1 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
                             style={{
                                 background: isDark
@@ -208,7 +196,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                 </div>
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4 sm:p-5 sm:px-3">
                     <Routes>
-                        <Route path="dashboard" element={<TeleDashboard onNavigate={handleNavigate} tasks={tasks} />} />
+                        <Route path="dashboard" element={<TeleDashboard onNavigate={handleNavigate} tasks={tasks} onViewLeadDetails={handleViewLeadDetails} />} />
                         <Route path="leads" element={<ManageLeads onViewDetails={handleViewLeadDetails} />} />
                         <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => navigate('/tele-agent/leads')} />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />

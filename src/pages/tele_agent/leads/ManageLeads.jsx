@@ -203,7 +203,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                             <tr className="bg-[#fbfeff]">
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">Client / Business</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:hidden">EMAIL / PHONE</th>
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">ASSIGNED TO</th>
+                                {isAccountsManager && <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">ASSIGNED TO</th>}
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">STATUS</th>
                                 <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">ACTION</th>
                             </tr>
@@ -228,29 +228,31 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                             <span className="text-xs text-[#a0aec0]">{lead.phone}</span>
                                         </div>
                                     </td>
-                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
-                                        <div className="flex items-center gap-2">
-                                            {(() => {
-                                                const staff = users?.find(u => u.id === lead.assignedStaffId);
-                                                if (!staff) return <span className="text-[11px] text-[#a0aec0] italic">Unassigned</span>;
-                                                
-                                                // Use color for background, fallback to a default color
-                                                const bgColor = staff.color || staff.bgColor || '#2447d7';
-                                                
-                                                return (
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm" style={{ backgroundColor: bgColor }}>
-                                                            {staff.initials}
+                                    {isAccountsManager && (
+                                        <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
+                                            <div className="flex items-center gap-2">
+                                                {(() => {
+                                                    const staff = users?.find(u => u.id === lead.assignedStaffId);
+                                                    if (!staff) return <span className="text-[11px] text-[#a0aec0] italic">Unassigned</span>;
+                                                    
+                                                    // Use color for background, fallback to a default color
+                                                    const bgColor = staff.color || staff.bgColor || '#2447d7';
+                                                    
+                                                    return (
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm" style={{ backgroundColor: bgColor }}>
+                                                                {staff.initials}
+                                                            </div>
+                                                            <div className="flex flex-col min-w-0 flex-1">
+                                                                <span className="text-[12px] font-bold text-[#1a202c] truncate">{staff.name}</span>
+                                                                <span className="text-[9px] font-medium text-[#718096] uppercase tracking-wider">{staff.role}</span>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex flex-col min-w-0">
-                                                            <span className="text-[12px] font-bold text-[#1a202c] truncate">{staff.name}</span>
-                                                            <span className="text-[9px] font-medium text-[#718096] uppercase tracking-wider">{staff.role}</span>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })()}
-                                        </div>
-                                    </td>
+                                                    );
+                                                })()}
+                                            </div>
+                                        </td>
+                                    )}
                                     <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
                                         <div className="flex items-center">
                                             {(() => {
