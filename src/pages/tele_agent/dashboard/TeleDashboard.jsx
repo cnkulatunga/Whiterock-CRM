@@ -480,10 +480,30 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                     >
                         <div className="flex items-center gap-4 mb-5 px-1">
                             <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    width="22"
+                                    height="22"
+                                    fill="currentColor"
+                                    style={{ animation: 'bulbFlicker 3s ease-in-out infinite' }}
+                                    className="text-yellow-300 drop-shadow-[0_0_6px_rgba(253,224,71,0.9)]"
+                                >
+                                    <path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z" />
+                                    <rect x="9" y="18" width="6" height="1" rx="0.5" fill="currentColor" opacity="0.6" />
+                                    <rect x="9.5" y="19.5" width="5" height="1" rx="0.5" fill="currentColor" opacity="0.4" />
+                                </svg>
                             </div>
                             <h2 className="text-base font-bold">Knowledge Base</h2>
                         </div>
+                        <style>{`
+                            @keyframes bulbFlicker {
+                                0%, 100% { opacity: 1; filter: drop-shadow(0 0 6px rgba(253,224,71,0.9)); }
+                                40% { opacity: 0.55; filter: drop-shadow(0 0 2px rgba(253,224,71,0.3)); }
+                                50% { opacity: 1; filter: drop-shadow(0 0 8px rgba(253,224,71,1)); }
+                                70% { opacity: 0.7; filter: drop-shadow(0 0 3px rgba(253,224,71,0.5)); }
+                                80% { opacity: 1; filter: drop-shadow(0 0 6px rgba(253,224,71,0.9)); }
+                            }
+                        `}</style>
                         <p className="text-[11px] text-blue-100/70 font-medium leading-relaxed">Instantly access policy guidelines and lender requirements.</p>
                     </div>
 
