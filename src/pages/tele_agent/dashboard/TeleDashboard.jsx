@@ -488,17 +488,19 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                     </div>
 
                     {/* AI ANALYTICS placeholder */}
-                    <div className="bg-white dark:bg-[#1e2347] rounded-[24px] border border-slate-100 dark:border-white/5 p-7 shadow-sm min-h-[160px] flex flex-col gap-5">
-                        <div className="flex items-center justify-between">
+                    <div className="bg-white dark:bg-[#1e2347] rounded-[24px] border border-slate-100 dark:border-white/5 p-7 shadow-sm flex-1 min-h-[160px] flex flex-col gap-5">
+                        <div className="flex items-center justify-between shrink-0">
                             <h2 className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">AI Intelligence</h2>
                             <span className="text-[9px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700">Ready</span>
                         </div>
-                        <div className="flex flex-col gap-2 opacity-50">
+                        <div className="flex flex-col justify-center gap-3 opacity-50 flex-1">
                             <div className="h-1.5 w-full bg-slate-50 dark:bg-slate-800 rounded-full" />
-                            <div className="h-1.5 w-[70%] bg-slate-50 dark:bg-slate-800 rounded-full" />
-                            <div className="h-1.5 w-[90%] bg-slate-50 dark:bg-slate-800 rounded-full" />
+                            <div className="h-1.5 w-[85%] bg-slate-50 dark:bg-slate-800 rounded-full" />
+                            <div className="h-1.5 w-[65%] bg-slate-50 dark:bg-slate-800 rounded-full" />
+                            <div className="h-1.5 w-[90%] bg-slate-50 dark:bg-slate-800 rounded-full mt-2" />
+                            <div className="h-1.5 w-[75%] bg-slate-50 dark:bg-slate-800 rounded-full" />
                         </div>
-                        <div className="mt-auto flex items-center justify-center py-2 text-[10px] font-bold text-blue-500 uppercase tracking-wider">
+                        <div className="mt-auto shrink-0 flex items-center justify-center py-2 text-[10px] font-bold text-blue-500 uppercase tracking-wider">
                             Sync with AI Analytics
                         </div>
                     </div>
