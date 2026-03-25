@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { LEADS_BY_STAGE, MOCK_LEAD_COUNTS, MOCK_LEADS, INITIAL_TASKS } from '../../../data/dummyData';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
+import { usePromotions } from '../../../context/PromotionsContext';
 
 /* ─── SVG ICONS ─── */
 const IconUserGroup = () => (
@@ -58,6 +59,7 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const { promotions } = usePromotions();
     const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [outlookAccount, setOutlookAccount] = useState(null);
@@ -137,6 +139,12 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
     const [viewDate, setViewDate] = useState(new Date());
     const today = new Date();
     const todayStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+
+    // Active promotions for today — compare date strings to avoid timezone issues
+    const todayPromos = promotions.filter(p => {
+        if (!p.startDate || !p.endDate) return false;
+        return todayStr >= p.startDate && todayStr <= p.endDate;
+    });
 
     const currentYear = viewDate.getFullYear();
     const currentMonth = viewDate.getMonth();
@@ -361,6 +369,43 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                                 </button>
                             </div>
                             <div className="flex flex-col gap-3.5 flex-1">
+                                {/* Active Promotions */}
+                                {todayPromos.map((promo) => (
+                                    <div key={`promo-${promo.id}`} className="group flex flex-col p-5 bg-blue-50 dark:bg-blue-900/20 rounded-[18px] border border-blue-200 dark:border-blue-500/30 transition-all duration-200">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className={`text-[12px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-900'}`}>{promo.lenderName}</span>
+                                                    <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[160px]">{promo.description}</span>
+                                                </div>
+                                            </div>
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-600 text-white animate-pulse">PROMO</span>
+                                        </div>
+                                        <div className="flex items-center justify-between text-[10px] mt-1">
+                                            <div className="flex items-center gap-2 flex-wrap">
+                                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-bold whitespace-nowrap">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                                                    {promo.startDate}
+                                                </span>
+                                                <span className="text-slate-300 dark:text-slate-600 font-bold">→</span>
+                                                <span className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 font-bold whitespace-nowrap">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                                    Ends {promo.endDate}
+                                                </span>
+                                            </div>
+                                            {promo.fileName && promo.fileData && (
+                                                <a href={promo.fileData} download={promo.fileName} onClick={e => e.stopPropagation()} className="text-[10px] font-bold text-blue-600 hover:underline uppercase tracking-wider shrink-0">
+                                                    Download
+                                                </a>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+
+                                {/* Regular Tasks */}
                                 {tasks.filter(t => t.date === todayStr).length > 0 ? (
                                     tasks.filter(t => t.date === todayStr).slice(0, 4).map((item) => (
                                         <div key={item.id} className="group flex flex-col p-5 bg-slate-50/40 dark:bg-slate-800/20 rounded-[18px] border border-slate-100 dark:border-white/5 hover:bg-white dark:hover:bg-white/5 hover:border-blue-200 dark:hover:border-blue-500 transition-all duration-200 cursor-pointer">
@@ -382,7 +427,7 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                                             </div>
                                         </div>
                                     ))
-                                ) : <div className="text-slate-400 italic text-sm">No tasks for today.</div>}
+                                ) : todayPromos.length === 0 ? <div className="text-slate-400 italic text-sm">No tasks or promotions for today.</div> : null}
                             </div>
                         </div>
 
