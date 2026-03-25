@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { SHARED_INITIAL_USERS, INITIAL_MEMBERSHIPS, AM_MEMBERSHIPS, TL_AGENT_PERFORMANCE, WORKFLOW_STAGES_LIST, AUDIT_LOG_ENTRIES } from '../../../data/dummyData';
 import { useLeads } from '../../../context/LeadsContext';
 
-import UserProfileModal from '../../components/modals/UserProfileModal';
+import UserProfileModal from '../../../components/modals/UserProfileModal';
 
 const HierarchyCard = ({ title, items, selectedId, onSelect, onViewPerformance, emptyText }) => {
     const isAgentTable = title.toLowerCase().includes('agent');
