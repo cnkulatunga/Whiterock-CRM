@@ -120,13 +120,6 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], setTasks, notifyRem
                             </div>
                         </div>
                         <div className="text-2xl font-bold text-[#1a202c] mb-3">{card.value}</div>
-                        <div className="flex items-center gap-2">
-                            <span className="flex items-center gap-1 text-[#059669] bg-[#ecfdf5] border border-[#d1fae5] px-2 py-1 rounded-lg text-[10px] font-semibold">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="9" height="9"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18" /><polyline points="17 6 23 6 23 12" /></svg>
-                                {card.change}
-                            </span>
-                            <span className="text-[11px] text-[#a0aec0]">{card.changeLabel}</span>
-                        </div>
                     </div>
                 ))}
             </div>

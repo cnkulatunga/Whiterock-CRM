@@ -15,20 +15,11 @@ const IcoTrendDown = () => (
 );
 
 /* ─── KPI CARD ────────────────────────────── */
-const KpiCard = ({ icon, iconBg, label, value, trend, trendLabel }) => (
+const KpiCard = ({ icon, iconBg, label, value }) => (
     <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 cursor-default">
         <div className="flex justify-between items-start mb-5">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: iconBg }}>
                 {icon}
-            </div>
-            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-semibold border ${
-                trend === 'up' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' :
-                trend === 'down' ? 'bg-[#fef2f2] text-[#dc2626] border-[#fee2e2]' :
-                'bg-[#f8fafc] text-[#64748b] border-[#e2e8f0]'
-            }`}>
-                {trend === 'up' && <IcoTrendUp />}
-                {trend === 'down' && <IcoTrendDown />}
-                <span>{trendLabel}</span>
             </div>
         </div>
         <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest mb-1">{label}</div>
@@ -207,30 +198,16 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                     <div className="relative z-10">
                         <div className="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2">Total Loans</div>
                         <div className="text-3xl font-bold text-white mb-4">{SA_STATS.monthlyRevenue}</div>
-                        <div className="flex items-center gap-1.5 bg-[#10b981]/20 text-[#6ee7b7] px-2.5 py-1 rounded-lg w-fit">
-                            <IcoTrendUp />
-                            <span className="text-[11px] font-medium">{SA_STATS.revenueIncrease} Increase vs. Last Month</span>
-                        </div>
                     </div>
                 </div>
 
                 {/* Document Pending */}
-                <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:300ms] [animation-fill-mode:both]">
-                    <div className="flex items-start gap-3 mb-4">
-                        <div className="w-10 h-10 bg-[#f0f9ff] rounded-xl flex items-center justify-center shrink-0">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Document Pending Verification</div>
-                            <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.pendingDocs}</div>
-                        </div>
-                    </div>
-                    <div className="h-1.5 bg-[#f1f5f9] rounded-full mb-3 overflow-hidden">
-                        <div className="h-full w-[30%] bg-[#0ea5e9] rounded-full" />
-                    </div>
-                    <div className="text-[11px] text-[#718096]">Needs executive approval (Priority 1)</div>
+                <div className="animate-kpiPop [animation-delay:300ms] [animation-fill-mode:both]">
+                    <KpiCard
+                        iconBg="#f0f9ff"
+                        icon={<svg viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>}
+                        label="Document Pending Verification" value={SA_STATS.pendingDocs}
+                    />
                 </div>
             </div> {/* end KPI grid */}
 

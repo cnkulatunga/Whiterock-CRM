@@ -85,10 +85,6 @@ const LeadPerformance = () => {
                             <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.totalLeads}</div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#059669] bg-[#ecfdf5] border border-[#d1fae5] px-3 py-1.5 rounded-lg w-fit text-[11px] font-medium">
-                        <IcoTrendUp />
-                        {SA_STATS.leadsChange} vs last month
-                    </div>
                 </div>
                 <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:300ms] [animation-fill-mode:both]">
                     <div className="flex items-center gap-4 mb-4">
@@ -99,10 +95,6 @@ const LeadPerformance = () => {
                             <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Rejection Rate</div>
                             <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.rejectionRate}</div>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-1.5 text-[#dc2626] bg-[#fef2f2] border border-[#fee2e2] px-3 py-1.5 rounded-lg w-fit text-[11px] font-medium">
-                        <IcoTrendUp />
-                        {SA_STATS.rejectionChange} vs last month
                     </div>
                 </div>
             </div>

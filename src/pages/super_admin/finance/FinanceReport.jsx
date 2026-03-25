@@ -22,19 +22,10 @@ const IcoTrendDown = () => (
     </svg>
 );
 
-const KpiCard = ({ icon, iconBg, label, value, trend, trendLabel }) => (
+const KpiCard = ({ icon, iconBg, label, value }) => (
     <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
         <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: iconBg }}>{icon}</div>
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-semibold border ${
-                trend === 'up' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' :
-                trend === 'down' ? 'bg-[#fef2f2] text-[#dc2626] border-[#fee2e2]' :
-                'bg-[#f8fafc] text-[#64748b] border-[#e2e8f0]'
-            }`}>
-                {trend === 'up' && <IcoTrendUp />}
-                {trend === 'down' && <IcoTrendDown />}
-                <span>{trendLabel}</span>
-            </div>
         </div>
         <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest mb-1">{label}</div>
         <div className="text-xl font-bold text-[#1a202c]">{value}</div>

@@ -138,8 +138,6 @@ const LeadMonitoring = ({ onViewDetails }) => {
         <StatCard
           label="Total Leads"
           value={stats.total.toLocaleString()}
-          sub="+12% This Month"
-          subColor="#10b981"
           iconBg="#eef2ff"
           icon={
             <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" width="18" height="18">
