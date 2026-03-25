@@ -205,7 +205,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                         </svg>
                     </div>
                     <div className="relative z-10">
-                        <div className="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2">Monthly Revenue</div>
+                        <div className="text-[11px] font-semibold text-white/60 uppercase tracking-widest mb-2">Total Loans</div>
                         <div className="text-3xl font-bold text-white mb-4">{SA_STATS.monthlyRevenue}</div>
                         <div className="flex items-center gap-1.5 bg-[#10b981]/20 text-[#6ee7b7] px-2.5 py-1 rounded-lg w-fit">
                             <IcoTrendUp />

@@ -321,7 +321,7 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
                                                 <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
                                                 {t.assignedTo !== 'Self' && (
                                                     <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: '#f0f4ff', color: '#2447d7' }}>
-                                                        Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
+                                                        Assignee: {users.find(u => u.id.toString() === t.assignedTo?.toString())?.name || t.assignedTo}
                                                     </span>
                                                 )}
                                                 {t.createdBy && t.createdBy !== 'Team Leader' && !t.isPromotion && (
@@ -546,7 +546,7 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
                                                 <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
                                             ) : !task.isPromotion ? (
                                                 <span className="flex items-center gap-1.5 text-[0.8rem] font-bold text-[#2447d7] bg-[#f0f4ff] px-2.5 py-1 rounded-lg">
-                                                    Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
+                                                    Assignee: {users.find(u => u.id.toString() === task.assignedTo?.toString())?.name || task.assignedTo}
                                                 </span>
                                             ) : null}
                                             {task.createdBy && task.createdBy !== 'Team Leader' && !task.isPromotion && (

@@ -21,7 +21,8 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
         isPromotion: true,
         priority: 'High',
         fileName: p.fileName,
-        fileData: p.fileData
+        fileData: p.fileData,
+        assignedTo: 'Self'
     })), [promotions]);
 
     const tasks = React.useMemo(() => [...initialTasks, ...memoizedPromotions], [initialTasks, memoizedPromotions]);
@@ -314,7 +315,7 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                                                     {t.assignedTo !== 'Self' && !t.isPromotion && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Assigned</span>}
                                                 </div>
                                                 <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
-                                                {t.assignedTo !== 'Self' && (
+                                                {t.assignedTo && t.assignedTo !== 'Self' && (
                                                     <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: isDark ? 'rgba(36,71,215,0.15)' : '#f0f4ff', color: '#2447d7' }}>
                                                         Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
                                                     </span>
@@ -540,7 +541,7 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                                             {task.isPromotion && <span className="bg-[#2447d7] text-white text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider animate-pulse">Active Promo</span>}
                                             {task.assignedTo === 'Self' && !task.isPromotion ? (
                                                 <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
-                                            ) : !task.isPromotion ? (
+                                            ) : task.assignedTo && !task.isPromotion ? (
                                                 <span className="flex items-center gap-1.5 text-[0.8rem] font-bold text-[#2447d7] bg-[#f0f4ff] px-2.5 py-1 rounded-lg">
                                                     Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
                                                 </span>

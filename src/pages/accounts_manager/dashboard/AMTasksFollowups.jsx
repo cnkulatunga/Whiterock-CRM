@@ -334,7 +334,7 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
                                                     )}
                                                 {t.assignedTo !== 'Self' && (
                                                     <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: isDark ? 'rgba(36,71,215,0.15)' : '#f0f4ff', color: '#2447d7' }}>
-                                                        Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
+                                                        Assignee: {users.find(u => u.id.toString() === t.assignedTo?.toString())?.name || t.assignedTo}
                                                     </span>
                                                 )}
                                                 {!t.isPromotion && (
@@ -677,7 +677,7 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
                                                 <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
                                             ) : !task.isPromotion ? (
                                                 <span className="flex items-center gap-1.5 text-[0.8rem] font-bold text-[#2447d7] bg-[#f0f4ff] px-2.5 py-1 rounded-lg">
-                                                    Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
+                                                    Assignee: {users.find(u => u.id.toString() === task.assignedTo?.toString())?.name || task.assignedTo}
                                                 </span>
                                             ) : null}
                                             {task.createdBy && (task.createdBy !== 'Accounts Manager' && task.createdBy !== 'Manager') && !task.isPromotion && (

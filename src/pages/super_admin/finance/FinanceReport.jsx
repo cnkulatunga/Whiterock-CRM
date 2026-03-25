@@ -222,12 +222,11 @@ const FinanceReport = () => {
             </div>
 
             {/* ── KPI CARDS ── */}
-            <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 sm:grid-cols-1">
+            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1">
                 {[
                     { iconBg: '#dcfce7', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>, label: 'Total Loans', value: FINANCE_STATS.totalLoans, trend: 'up', trendLabel: '+12%' },
                     { iconBg: '#fef3c7', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>, label: 'Pending Loans', value: FINANCE_STATS.pendingLoans, trend: 'flat', trendLabel: '-0%' },
                     { iconBg: '#fef2f2', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#e53e3e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>, label: 'Rejected Loans', value: FINANCE_STATS.rejectedLoans, trend: 'down', trendLabel: '-4%' },
-                    { iconBg: '#eef2ff', icon: <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>, label: 'Monthly Revenue', value: FINANCE_STATS.monthlyRevenue, trend: 'up', trendLabel: '+8%' },
                 ].map((kpi, i) => (
                     <div key={i} className="animate-kpiPop" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
                         <KpiCard {...kpi} />
