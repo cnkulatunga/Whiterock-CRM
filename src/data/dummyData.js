@@ -54,7 +54,7 @@ export const AUDIT_LOG_USER_ROLES = ['Any Role', 'Admin', 'Compliance', 'Sales',
 
 // Derive Tele Agent names for filters to stay consistent
 export const PERFORMANCE_AGENT_OPTIONS = ['All Agents', ...SHARED_INITIAL_USERS.filter(u => u.role === 'Tele Agent').map(u => u.name)];
-export const PERFORMANCE_LEAD_STATUSES = ['All', 'Active', 'Completed', 'Urgent'];
+export const PERFORMANCE_LEAD_STATUSES = ['All', 'Document Collection', 'Document Verification Done', 'Document Rejected', 'Lender Selection', 'Completed', 'Rejected'];
 
 export const LENDER_TYPES = ['Major Bank', 'Non-Bank', 'Credit Union', 'Building Society', 'Specialist'];
 
@@ -387,10 +387,10 @@ export const MOCK_LEADS = [
  * Super Admin Lead Performance
  */
 export const SA_RECENT_LEADS = [
-    { id: 'AF-001', name: 'Robert Miller',  businessName: 'Miller Logistics Co.', initials: 'RM', bg: LEAD_AVATAR_COLORS['Robert Miller'].bg, tc: LEAD_AVATAR_COLORS['Robert Miller'].tc, stage: 'Document Collection', stageCls: 'bg-[#1a202c] text-white',        status: 'Active',    statusCls: 'text-[#059669]', dot: STATUS_COLORS.active.dot, agent: 'Cody Lane',      date: 'Oct 24, 2023', amount: '$250,000', purpose: 'Working Capital', homeowner: 'YES', bank: 'Barclays', term: '12 months' },
-    { id: 'AF-002', name: 'Alice Huang',    businessName: 'Huang Tech Solutions', initials: 'AH', bg: LEAD_AVATAR_COLORS['Alice Huang'].bg, tc: LEAD_AVATAR_COLORS['Alice Huang'].tc, stage: 'Document Verification Done', stageCls: 'bg-[#fef9c3] text-[#a16207]',    status: 'Active',    statusCls: 'text-[#059669]', dot: STATUS_COLORS.active.dot, agent: 'Leo Kumar',      date: 'Oct 24, 2023', amount: '$1,200,000', purpose: 'Equipment Finance', homeowner: 'YES', bank: 'HSBC', term: '36 months' },
-    { id: 'AF-008', name: 'Marcus Aurelius', businessName: 'Aurelius Consulting', initials: 'MA', bg: LEAD_AVATAR_COLORS['Marcus Aurelius'].bg, tc: LEAD_AVATAR_COLORS['Marcus Aurelius'].tc, stage: 'Completed', stageCls: 'bg-[#ecfdf5] text-[#059669]', status: 'Completed', statusCls: 'text-[#a0aec0]', dot: 'bg-[#a0aec0]', agent: 'Cody Lane',      date: 'Oct 23, 2023', amount: '$75,000', purpose: 'Expansion Loan', homeowner: 'NO', bank: 'Lloyds', term: '24 months' },
-    { id: 'AF-004', name: 'Sarah Connor',   businessName: 'Connor Security Group', initials: 'SC', bg: LEAD_AVATAR_COLORS['Sarah Connor'].bg, tc: LEAD_AVATAR_COLORS['Sarah Connor'].tc, stage: 'Rejected', stageCls: 'bg-[#f1f5f9] text-[#64748b]',    status: 'Urgent',    statusCls: 'text-[#dc2626]', dot: STATUS_COLORS.urgent.dot, agent: 'Jake Morrison', date: 'Oct 23, 2023', amount: '$540,000', purpose: 'Bridge Loan', homeowner: 'NO', bank: 'Santander', term: '18 months' },
+    { id: 'AF-001', name: 'Robert Miller',  businessName: 'Miller Logistics Co.', initials: 'RM', bg: LEAD_AVATAR_COLORS['Robert Miller'].bg, tc: LEAD_AVATAR_COLORS['Robert Miller'].tc, stage: 'Document Collection', stageCls: 'bg-[#1a202c] text-white',        status: 'Document Collection',          statusCls: 'text-[#2447d7]', dot: 'bg-blue-400',    agent: 'Cody Lane',      date: 'Oct 24, 2023', amount: '$250,000', purpose: 'Working Capital', homeowner: 'YES', bank: 'Barclays', term: '12 months' },
+    { id: 'AF-002', name: 'Alice Huang',    businessName: 'Huang Tech Solutions', initials: 'AH', bg: LEAD_AVATAR_COLORS['Alice Huang'].bg, tc: LEAD_AVATAR_COLORS['Alice Huang'].tc, stage: 'Document Verification Done', stageCls: 'bg-[#fef9c3] text-[#a16207]',    status: 'Document Verification Done',   statusCls: 'text-[#059669]', dot: 'bg-emerald-400', agent: 'Leo Kumar',      date: 'Oct 24, 2023', amount: '$1,200,000', purpose: 'Equipment Finance', homeowner: 'YES', bank: 'HSBC', term: '36 months' },
+    { id: 'AF-008', name: 'Marcus Aurelius', businessName: 'Aurelius Consulting', initials: 'MA', bg: LEAD_AVATAR_COLORS['Marcus Aurelius'].bg, tc: LEAD_AVATAR_COLORS['Marcus Aurelius'].tc, stage: 'Completed', stageCls: 'bg-[#ecfdf5] text-[#059669]', status: 'Completed',                    statusCls: 'text-[#0d9488]', dot: 'bg-teal-400',    agent: 'Cody Lane',      date: 'Oct 23, 2023', amount: '$75,000', purpose: 'Expansion Loan', homeowner: 'NO', bank: 'Lloyds', term: '24 months' },
+    { id: 'AF-004', name: 'Sarah Connor',   businessName: 'Connor Security Group', initials: 'SC', bg: LEAD_AVATAR_COLORS['Sarah Connor'].bg, tc: LEAD_AVATAR_COLORS['Sarah Connor'].tc, stage: 'Rejected', stageCls: 'bg-[#f1f5f9] text-[#64748b]',    status: 'Document Rejected',            statusCls: 'text-[#dc2626]', dot: 'bg-red-400',     agent: 'Jake Morrison', date: 'Oct 23, 2023', amount: '$540,000', purpose: 'Bridge Loan', homeowner: 'NO', bank: 'Santander', term: '18 months' },
 ];
 
 export const SA_STATS = {

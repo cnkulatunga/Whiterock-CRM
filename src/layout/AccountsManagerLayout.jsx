@@ -4,8 +4,8 @@ import AccountsManagerSidebar from '../components/accounts_manager_sidebar/Accou
 import AMDashboard from '../pages/accounts_manager/dashboard/AMDashboard';
 import LenderSelector from '../pages/accounts_manager/lender_selector/LenderSelector';
 import LenderSelection from '../pages/accounts_manager/lender_selection/LenderSelection';
-import FinanceReport from '../pages/super_admin/finance/FinanceReport';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
+import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
 import AMTasksFollowups from '../pages/accounts_manager/dashboard/AMTasksFollowups';
 import { useReminders } from '../hooks/useReminders';
 import { useTasks } from '../context/TasksContext';
@@ -70,7 +70,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
             case 'accounts_manager_dashboard': navigate('/accounts-manager/dashboard'); break;
             case 'lender_selector': navigate('/accounts-manager/lender-selector'); break;
             case 'lender_selection': navigate('/accounts-manager/lender-selection'); break;
-            case 'financial_payment_report': navigate('/accounts-manager/financial-payment-report'); break;
+            case 'lead_performance': navigate('/accounts-manager/lead-performance'); break;
             case 'audit_logs': navigate('/accounts-manager/audit-logs'); break;
             case 'lender_selection_approved': navigate('/accounts-manager/lender-selection-approved'); break;
             case 'lenders': navigate('/accounts-manager/lenders'); break;
@@ -212,8 +212,8 @@ const AccountsManagerLayout = ({ onLogout }) => {
                         <Route path="dashboard" element={<AMDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="lender-selector" element={<LenderSelector onNavigate={handleNavigate} />} />
                         <Route path="lender-selection" element={<LenderSelection lead={selectedLead} onNavigate={handleNavigate} />} />
-                        <Route path="financial-payment-report" element={<FinanceReport />} />
                         <Route path="audit-logs" element={<AuditLogs />} />
+                        <Route path="lead-performance" element={<LeadPerformance />} />
                         <Route path="lender-selection-approved" element={<LenderSelectionApproved />} />
                         <Route path="lenders" element={<Lenders readOnly={true} />} />
 

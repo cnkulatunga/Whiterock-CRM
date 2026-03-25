@@ -4,7 +4,6 @@ import { UsersProvider } from '../context/UsersContext';
 import SuperAdminSidebar from '../components/super_admin_siderbar/superAdminSidebar';
 import UserManagement from '../pages/super_admin/user_management/UserManagement';
 import SuperAdminDashboard from '../pages/super_admin/dashboard/SuperAdminDashboard';
-import FinanceReport from '../pages/super_admin/finance/FinanceReport';
 import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
 import AuditLogs from '../pages/super_admin/audit_logs/AuditLogs';
 import TeamLeaders from '../pages/super_admin/team_leaders/TeamLeaders';
@@ -219,7 +218,6 @@ const AppLayout = ({ onLogout }) => {
                         <Route path="user-management" element={<UserManagement />} />
                         <Route path="leads" element={<LeadPerformance />} />
                         <Route path="deals" element={<DealsPage />} />
-                        <Route path="finance" element={<FinanceReport />} />
                         <Route path="accounts" element={<AccountsPage />} />
                         <Route path="reports" element={<AuditLogs />} />
                         <Route path="settings" element={<SettingsPage />} />

@@ -17,7 +17,17 @@ export const LeadsProvider = ({ children }) => {
     const [leads, setLeads] = useState(() => {
         try {
             const saved = localStorage.getItem('crm_leads');
-            return saved ? JSON.parse(saved) : MOCK_LEADS;
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                const validStages = ['Document Collection', 'Document Verification Done', 'Document Rejected', 'Lender Selection', 'Completed', 'Rejected'];
+                // Filter out stale leads with invalid IDs or unknown stages
+                const clean = parsed.filter(l => l.id?.startsWith('AF-') && validStages.includes(l.stage));
+                if (clean.length !== parsed.length) {
+                    localStorage.setItem('crm_leads', JSON.stringify(clean));
+                }
+                return clean.length ? clean : MOCK_LEADS;
+            }
+            return MOCK_LEADS;
         } catch {
             return MOCK_LEADS;
         }
