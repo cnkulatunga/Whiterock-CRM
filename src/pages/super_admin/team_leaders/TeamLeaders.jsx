@@ -178,6 +178,12 @@ const IconTrash = () => (
         <path d="M9 6V4h6v2" />
     </svg>
 );
+const IconPhone = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.88 12.88 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+);
 const IconMail = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
         strokeLinecap="round" strokeLinejoin="round" width="13" height="13">
@@ -265,7 +271,7 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                         </div>
                     </div>
                     <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', padding: '4px', borderRadius: '8px', display: 'flex' }} onClick={onClose}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                     </button>
                 </div>
 
@@ -312,7 +318,7 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                                 >
                                     {/* Checkbox */}
                                     <div style={{ width: '20px', height: '20px', borderRadius: '6px', border: `2px solid ${isSel ? '#6366f1' : (isDark ? '#3e4a88' : '#cbd5e1')}`, background: isSel ? '#6366f1' : (isDark ? '#242b50' : '#fff'), display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all 0.15s' }}>
-                                        {isSel && <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>}
+                                        {isSel && <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" width="10" height="10"><polyline points="20 6 9 17 4 12" /></svg>}
                                     </div>
                                     <div style={{ width: '38px', height: '38px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', background: av.bg, color: av.text, flexShrink: 0 }}>{getInitials(u.name)}</div>
                                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -333,7 +339,7 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                                     <div style={{ width: '18px', height: '18px', borderRadius: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '9px', background: getAvatarColor(u.id).bg, color: '#fff', flexShrink: 0 }}>{getInitials(u.name)}</div>
                                     {u.name}
                                     <button onClick={e => { e.stopPropagation(); toggle(u); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6366f1', padding: 0, display: 'flex', lineHeight: 1 }}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                                     </button>
                                 </div>
                             ))}
@@ -348,6 +354,99 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
                     <button style={{ flex: 1, padding: '12px', background: cancelBg, border: `1.5px solid ${cancelBorder}`, borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: cancelColor, cursor: 'pointer', transition: 'all 0.15s' }} onClick={onClose}>Cancel</button>
                     <button style={{ flex: 1, padding: '12px', borderRadius: '12px', fontSize: '14px', fontWeight: 700, color: '#fff', border: 'none', cursor: selected.length > 0 ? 'pointer' : 'not-allowed', opacity: selected.length > 0 ? 1 : 0.5, transition: 'all 0.15s', ...confirmBtnStyle }} onClick={handle} disabled={selected.length === 0}>
                         {selected.length > 1 ? `${confirmLabel} (${selected.length})` : confirmLabel}
+                    </button>
+                </div>
+            </div>
+        </div>,
+        document.body
+    );
+};
+
+/* ─── LEADER PROFILE MODAL (DEEP DIVE) ────────── */
+const LeaderProfileModal = ({ leader, onClose, isDark }) => {
+    const modalBg = isDark ? '#1f2347' : '#ffffff';
+    const borderCol = isDark ? '#2c3568' : '#f1f5f9';
+    const textPrimary = isDark ? '#e4ecff' : '#0f172a';
+    const textMuted = isDark ? '#94a2b8' : '#64748b';
+    
+    const mockActivities = [
+        { id: 1, type: 'approve', title: 'Approved bank statements for #AF-011', time: 'OCT 24, 2023 • 13:15:22', status: 'done' },
+        { id: 2, type: 'reject', title: 'Rejected incomplete ID docs for #AF-004', time: 'OCT 23, 2023 • 17:30:00', status: 'rejected', reason: 'Unclear photo' },
+        { id: 3, type: 'approve', title: 'Approved proof of earnings for #AF-009', time: 'OCT 22, 2023 • 11:15:22', status: 'done' }
+    ];
+
+    return ReactDOM.createPortal(
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', animation: 'fadeIn 0.2s ease' }} onClick={onClose}>
+            <div style={{ background: modalBg, borderRadius: '32px', width: '100%', maxWidth: '820px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.3)', animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)', position: 'relative' }} onClick={e => e.stopPropagation()}>
+                
+                {/* Close X */}
+                <button onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', zIndex: 10 }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                </button>
+
+                {/* Header Section */}
+                <div style={{ padding: '32px 40px', display: 'flex', alignItems: 'center', gap: '24px', borderBottom: `1px solid ${borderCol}` }}>
+                    <div style={{ width: '84px', height: '84px', borderRadius: '24px', background: leader.color || '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 900, boxShadow: '0 8px 24px rgba(16, 185, 129, 0.25)' }}>
+                        {getInitials(leader.name)}
+                    </div>
+                    <div>
+                        <h2 style={{ fontSize: '32px', fontWeight: 900, color: textPrimary, margin: 0, letterSpacing: '-0.8px' }}>{leader.name}</h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px' }}>
+                            <span style={{ background: isDark ? 'rgba(99, 102, 241, 0.15)' : '#eef2ff', color: '#6366f1', padding: '4px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Team Leader</span>
+                            <span style={{ color: textMuted, fontSize: '14px', fontWeight: 500 }}>{leader.email}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Grid Content */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', padding: '40px' }} className="tl-modal-grid">
+                    
+                    {/* Left: Leads */}
+                    <div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '15px', fontWeight: 900, color: textPrimary, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Active Leads</h3>
+                            <span style={{ padding: '4px 12px', borderRadius: '999px', background: isDark ? 'rgba(99, 102, 241, 0.1)' : '#f1f5f9', color: '#6366f1', fontSize: '12px', fontWeight: 800 }}>0 Leads</span>
+                        </div>
+                        
+                        <div style={{ height: '260px', borderRadius: '24px', border: `2px dashed ${isDark ? '#2c3568' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
+                            <p style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1.6 }}>No leads currently managed by this profile</p>
+                        </div>
+                    </div>
+
+                    {/* Right: Activities */}
+                    <div>
+                        <h3 style={{ fontSize: '15px', fontWeight: 900, color: textPrimary, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '24px', margin: 0 }}>Recent Activities</h3>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0', position: 'relative' }}>
+                            {/* Timeline line */}
+                            <div style={{ position: 'absolute', left: '7px', top: '10px', bottom: '10px', width: '2px', background: isDark ? '#2c3568' : '#f1f5f9' }} />
+                            
+                            {mockActivities.map((act, i) => (
+                                <div key={act.id} style={{ display: 'flex', gap: '20px', paddingBottom: i === mockActivities.length - 1 ? 0 : '24px', position: 'relative' }}>
+                                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: act.status === 'done' ? '#10b981' : '#ef4444', border: `3px solid ${modalBg}`, zIndex: 1, marginTop: '4px', flexShrink: 0, boxShadow: `0 0 0 4px ${act.status === 'done' ? 'rgba(16,185,129,0.1)' : 'rgba(239, 68, 68, 0.1)'}` }} />
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: '14px', fontWeight: 800, color: textPrimary, lineHeight: 1.4 }}>
+                                            {act.title.split('#')[0]}
+                                            <span style={{ color: '#6366f1' }}>#{act.title.split('#')[1]}</span>
+                                        </div>
+                                        <div style={{ fontSize: '11px', fontWeight: 700, color: textMuted, marginTop: '4px', textTransform: 'uppercase' }}>{act.time}</div>
+                                        
+                                        {act.reason && (
+                                            <div style={{ marginTop: '12px', padding: '10px 16px', background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fff5f5', borderRadius: '8px', border: `1px solid ${isDark ? 'rgba(239, 68, 68, 0.2)' : '#ffebeb'}` }}>
+                                                <span style={{ fontSize: '12px', fontWeight: 800, color: '#ef4444' }}>Reason: {act.reason}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Footer */}
+                <div style={{ padding: '24px 40px 32px', borderTop: `1px solid ${borderCol}`, display: 'flex', justifyContent: 'flex-end' }}>
+                    <button onClick={onClose} style={{ padding: '14px 32px', borderRadius: '16px', background: '#1e2329', color: '#ffffff', border: 'none', fontSize: '14px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                        Close Profile
                     </button>
                 </div>
             </div>
@@ -379,7 +478,7 @@ const StatPill = ({ label, value, accent, isDark }) => (
 );
 
 /* ─── TEAM LEADER CARD ────────────────────────── */
-const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemoveAgent, isDark }) => {
+const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemoveAgent, onClick, setProfileLeader, isDark }) => {
     const [expanded, setExpanded] = useState(false);
     const [showAddAgent, setShowAddAgent] = useState(false);
     const activeMembers = leader.members.filter(m => m.status === 'Active').length;
@@ -399,47 +498,51 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                 opacity: isActive ? 1 : 0.72,
                 fontFamily: "'Sora', sans-serif",
             }}
-            onMouseEnter={e => { 
-                if (isActive) { 
-                    e.currentTarget.style.boxShadow = isDark ? '0 12px 40px rgba(99,102,241,0.25)' : '0 8px 36px rgba(99,102,241,0.14)'; 
-                    e.currentTarget.style.transform = 'translateY(-4px)'; 
-                    e.currentTarget.style.borderColor = isDark ? '#4f46e5' : '#6366f1';
-                } 
-            }}
-            onMouseLeave={e => { 
-                e.currentTarget.style.boxShadow = isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 2px 12px rgba(15,23,42,0.06)'; 
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.borderColor = isDark ? '#2c3568' : '#e8edf5';
-            }}
+                onMouseEnter={e => {
+                    if (isActive) {
+                        e.currentTarget.style.boxShadow = isDark ? '0 12px 40px rgba(99,102,241,0.25)' : '0 8px 36px rgba(99,102,241,0.14)';
+                        e.currentTarget.style.transform = 'translateY(-4px)';
+                        e.currentTarget.style.borderColor = isDark ? '#4f46e5' : '#6366f1';
+                    }
+                }}
+                onMouseLeave={e => {
+                    e.currentTarget.style.boxShadow = isDark ? '0 4px 20px rgba(0,0,0,0.4)' : '0 2px 12px rgba(15,23,42,0.06)';
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.borderColor = isDark ? '#2c3568' : '#e8edf5';
+                }}
             >
                 {/* Main content */}
                 <div className="tl-card-body">
-                    {/* Avatar */}
-                    <div style={{ width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '20px', color: leader.textColor, background: leader.color, flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.2)', animation: 'avatarPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both', transition: 'box-shadow 0.25s' }}
-                    onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 0 4px rgba(99,102,241,0.25), 0 4px 16px rgba(99,102,241,0.3)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.2)'; }}
+                    {/* Avatar & Info (Clickable) */}
+                    <div 
+                        onClick={() => setProfileLeader(leader)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, minWidth: 0, cursor: 'pointer' }}
+                        className="tl-card-info-wrap"
                     >
-                        {getInitials(leader.name)}
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                            <span className="tl-leader-name" style={{ fontSize: '17px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', letterSpacing: '-0.3px' }}>{leader.name}</span>
-                            <span style={{
-                                display: 'inline-flex', alignItems: 'center', gap: '5px',
-                                fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px',
-                                background: isActive ? '#dcfce7' : '#f1f5f9',
-                                color: isActive ? '#16a34a' : '#64748b',
-                                border: `1px solid ${isActive ? '#bbf7d0' : '#e2e8f0'}`
-                            }}>
-                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isActive ? '#22c55e' : '#94a3b8', display: 'inline-block', animation: isActive ? 'pulse 2s infinite' : 'none' }} />
-                                {leader.status}
-                            </span>
+                        {/* Avatar */}
+                        <div style={{ width: '60px', height: '60px', borderRadius: '18px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: '20px', color: leader.textColor, background: leader.color, flexShrink: 0, boxShadow: '0 4px 16px rgba(99,102,241,0.2)', animation: 'avatarPop 0.5s cubic-bezier(0.34,1.56,0.64,1) both', transition: 'box-shadow 0.25s' }}>
+                            {getInitials(leader.name)}
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', fontSize: '13px', fontWeight: 500 }}>
-                            <IconMail />
-                            {leader.email}
+
+                        {/* Info */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                                <span className="tl-leader-name" style={{ fontSize: '17px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', letterSpacing: '-0.3px' }}>{leader.name}</span>
+                                <span style={{
+                                    display: 'inline-flex', alignItems: 'center', gap: '5px',
+                                    fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '999px',
+                                    background: isActive ? '#dcfce7' : '#f1f5f9',
+                                    color: isActive ? '#16a34a' : '#64748b',
+                                    border: `1px solid ${isActive ? '#bbf7d0' : '#e2e8f0'}`
+                                }}>
+                                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isActive ? '#22c55e' : '#94a3b8', display: 'inline-block', animation: isActive ? 'pulse 2s infinite' : 'none' }} />
+                                    {leader.status}
+                                </span>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', fontSize: '13px', fontWeight: 500 }}>
+                                <IconMail />
+                                {leader.email}
+                            </div>
                         </div>
                     </div>
 
@@ -472,7 +575,7 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                 display: 'inline-flex', alignItems: 'center', gap: '6px',
                                 padding: '9px 16px', borderRadius: '10px', fontSize: '12px', fontWeight: 700,
                                 cursor: 'pointer', border: `1.5px solid ${isDark ? '#1a4d36' : '#d1fae5'}`,
-                                background: isDark ? 'rgba(16, 185, 129, 0.1)' : '#ecfdf5', 
+                                background: isDark ? 'rgba(16, 185, 129, 0.1)' : '#ecfdf5',
                                 color: '#10b981', transition: 'all 0.15s'
                             }}
                         >
@@ -531,16 +634,16 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                             transition: 'all 0.2s ease',
                                             animation: `memberSlide 0.3s ease ${mi * 0.06}s both`,
                                         }}
-                                        onMouseEnter={e => { 
-                                            e.currentTarget.style.boxShadow = isDark ? '0 8px 24px rgba(0,0,0,0.3)' : '0 4px 16px rgba(99,102,241,0.1)';
-                                            e.currentTarget.style.borderColor = isDark ? '#4f46e5' : '#6366f1';
-                                            e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.08)' : '#fff';
-                                        }}
-                                        onMouseLeave={e => { 
-                                            e.currentTarget.style.boxShadow = 'none'; 
-                                            e.currentTarget.style.borderColor = isDark ? '#2c3568' : '#e8edf5';
-                                            e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.04)' : '#fff';
-                                        }}
+                                            onMouseEnter={e => {
+                                                e.currentTarget.style.boxShadow = isDark ? '0 8px 24px rgba(0,0,0,0.3)' : '0 4px 16px rgba(99,102,241,0.1)';
+                                                e.currentTarget.style.borderColor = isDark ? '#4f46e5' : '#6366f1';
+                                                e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.08)' : '#fff';
+                                            }}
+                                            onMouseLeave={e => {
+                                                e.currentTarget.style.boxShadow = 'none';
+                                                e.currentTarget.style.borderColor = isDark ? '#2c3568' : '#e8edf5';
+                                                e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.04)' : '#fff';
+                                            }}
                                         >
                                             {/* Avatar */}
                                             <div style={{ width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '13px', background: member.color, color: member.textColor || '#ffffff', flexShrink: 0 }}>
@@ -563,11 +666,11 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                                 <button
                                                     title={mActive ? 'Deactivate agent' : 'Activate agent'}
                                                     onClick={() => onToggleAgent(leader.id, member.id)}
-                                                    style={{ 
-                                                        width: '34px', height: '34px', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', 
-                                                        border: `1.5px solid ${mActive ? (isDark ? '#5c2d2d' : '#fecaca') : (isDark ? '#1a4d36' : '#bbf7d0')}`, 
-                                                        background: mActive ? (isDark ? 'rgba(239, 68, 68, 0.1)' : '#fef2f2') : (isDark ? 'rgba(16, 185, 129, 0.1)' : '#dcfce7'), 
-                                                        color: mActive ? '#f87171' : '#10b981', transition: 'all 0.15s' 
+                                                    style={{
+                                                        width: '34px', height: '34px', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                                                        border: `1.5px solid ${mActive ? (isDark ? '#5c2d2d' : '#fecaca') : (isDark ? '#1a4d36' : '#bbf7d0')}`,
+                                                        background: mActive ? (isDark ? 'rgba(239, 68, 68, 0.1)' : '#fef2f2') : (isDark ? 'rgba(16, 185, 129, 0.1)' : '#dcfce7'),
+                                                        color: mActive ? '#f87171' : '#10b981', transition: 'all 0.15s'
                                                     }}
                                                 >
                                                     {mActive ? <IconBan /> : <IconActivate />}
@@ -576,15 +679,15 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                                     title="Remove from team"
                                                     onClick={() => onRemoveAgent(leader.id, member.id)}
                                                     style={{ width: '34px', height: '34px', borderRadius: '9px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', border: `1.5px solid ${isDark ? '#36407a' : '#e2e8f0'}`, background: isDark ? '#1e2347' : '#f8fafc', color: isDark ? '#94abda' : '#94a3b8', transition: 'all 0.15s' }}
-                                                    onMouseEnter={e => { 
-                                                        e.currentTarget.style.background = isDark ? 'rgba(239, 68, 68, 0.1)' : '#fef2f2'; 
-                                                        e.currentTarget.style.color = '#f87171'; 
-                                                        e.currentTarget.style.borderColor = isDark ? '#5c2d2d' : '#fecaca'; 
+                                                    onMouseEnter={e => {
+                                                        e.currentTarget.style.background = isDark ? 'rgba(239, 68, 68, 0.1)' : '#fef2f2';
+                                                        e.currentTarget.style.color = '#f87171';
+                                                        e.currentTarget.style.borderColor = isDark ? '#5c2d2d' : '#fecaca';
                                                     }}
-                                                    onMouseLeave={e => { 
-                                                        e.currentTarget.style.background = isDark ? '#1e2347' : '#f8fafc'; 
-                                                        e.currentTarget.style.color = isDark ? '#94abda' : '#94a3b8'; 
-                                                        e.currentTarget.style.borderColor = isDark ? '#36407a' : '#e2e8f0'; 
+                                                    onMouseLeave={e => {
+                                                        e.currentTarget.style.background = isDark ? '#1e2347' : '#f8fafc';
+                                                        e.currentTarget.style.color = isDark ? '#94abda' : '#94a3b8';
+                                                        e.currentTarget.style.borderColor = isDark ? '#36407a' : '#e2e8f0';
                                                     }}
                                                 >
                                                     <IconTrash />
@@ -611,6 +714,177 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
     );
 };
 
+/* ─── LEADER DETAILS ─────────────────────────── */
+const LeaderDetails = ({ leader, onBack, onAddAgent, onToggleLeader, onToggleAgent, onRemoveAgent, isDark }) => {
+    const activeMembers = leader.members.filter(m => m.status === 'Active').length;
+    const totalMembers = leader.members.length;
+    const isActive = leader.status === 'Active';
+
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', animation: 'fadeIn 0.3s ease' }}>
+            {/* Header / Back */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <button 
+                    onClick={onBack}
+                    style={{ 
+                        width: '40px', height: '40px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                        background: isDark ? '#2a3258' : '#f1f5f9', border: 'none', color: isDark ? '#94abda' : '#64748b', cursor: 'pointer', transition: 'all 0.2s' 
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = isDark ? '#36407a' : '#e2e8f0'; e.currentTarget.style.color = '#6366f1'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = isDark ? '#2a3258' : '#f1f5f9'; e.currentTarget.style.color = isDark ? '#94abda' : '#64748b'; }}
+                >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <h2 style={{ fontSize: '22px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>Leader Details</h2>
+                        <button 
+                            onClick={() => setProfileLeader(leader)}
+                            style={{ 
+                                padding: '4px 10px', borderRadius: '8px', background: isDark ? 'rgba(99,102,241,0.1)' : '#eef2ff', 
+                                border: 'none', color: '#6366f1', fontSize: '11px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s' 
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = '#6366f1'; e.currentTarget.style.color = '#fff'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = isDark ? 'rgba(99, 102, 241, 0.1)' : '#eef2ff'; e.currentTarget.style.color = '#6366f1'; }}
+                        >
+                            View Detailed Profile
+                        </button>
+                    </div>
+                    <p style={{ fontSize: '13px', color: isDark ? '#94abda' : '#64748b', margin: '2px 0 0', fontWeight: 500 }}>Profile and Team Overview</p>
+                </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '24px' }} className="tl-details-grid">
+                {/* Left: Profile Card */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                    <div style={{ 
+                        background: isDark ? '#1e2347' : '#fff', borderRadius: '24px', border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`, overflow: 'hidden',
+                        boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.4)' : '0 4px 20px rgba(15,23,42,0.06)'
+                    }}>
+                        <div style={{ height: '80px', background: leader.grad || 'linear-gradient(135deg,#6366f1,#4f46e5)' }} />
+                        <div style={{ padding: '0 24px 24px', marginTop: '-40px', textAlign: 'center' }}>
+                            <div style={{ 
+                                width: '80px', height: '80px', borderRadius: '24px', background: leader.color, color: leader.textColor, margin: '0 auto 16px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 900, border: `4px solid ${isDark ? '#1e2347' : '#fff'}`,
+                                boxShadow: '0 8px 20px rgba(0,0,0,0.15)'
+                            }}>
+                                {getInitials(leader.name)}
+                            </div>
+                            <h3 style={{ fontSize: '20px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', margin: '0 0 6px' }}>{leader.name}</h3>
+                            <span style={{ 
+                                display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '999px', fontSize: '11px', fontWeight: 700,
+                                background: isActive ? 'rgba(16,185,129,0.1)' : 'rgba(148,163,184,0.1)', color: isActive ? '#10b981' : '#94a3b8', border: `1px solid ${isActive ? 'rgba(16,185,129,0.2)' : 'rgba(148,163,184,0.2)'}`
+                            }}>
+                                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isActive ? '#10b981' : '#94a3b8' }} />
+                                {leader.status}
+                            </span>
+
+                            <div style={{ marginTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px', textAlign: 'left' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: isDark ? 'rgba(99,102,241,0.05)' : '#f8fafc', borderRadius: '16px' }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: isDark ? '#2a3258' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}><IconMail /></div>
+                                    <div style={{ overflow: 'hidden' }}>
+                                        <div style={{ fontSize: '10px', fontWeight: 700, color: isDark ? '#546298' : '#94a3b8', textTransform: 'uppercase' }}>Email</div>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, color: isDark ? '#e4ecff' : '#475569', textOverflow: 'ellipsis', overflow: 'hidden' }}>{leader.email}</div>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', background: isDark ? 'rgba(99,102,241,0.05)' : '#f8fafc', borderRadius: '16px' }}>
+                                    <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: isDark ? '#2a3258' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}><IconPhone /></div>
+                                    <div>
+                                        <div style={{ fontSize: '10px', fontWeight: 700, color: isDark ? '#546298' : '#94a3b8', textTransform: 'uppercase' }}>Phone</div>
+                                        <div style={{ fontSize: '13px', fontWeight: 600, color: isDark ? '#e4ecff' : '#475569' }}>{leader.phone || 'N/A'}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => onToggleLeader(leader.id)}
+                                style={{
+                                    width: '100%', marginTop: '24px', padding: '12px', borderRadius: '14px', fontSize: '13px', fontWeight: 800, cursor: 'pointer',
+                                    border: `1.5px solid ${isActive ? '#fecaca' : '#bfdbfe'}`, background: isActive ? '#fff1f2' : '#eff6ff', color: isActive ? '#ef4444' : '#3b82f6', transition: 'all 0.15s'
+                                }}
+                            >
+                                {isActive ? 'Deactivate Account' : 'Activate Account'}
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Quick Stats */}
+                    <div style={{ background: isDark ? '#1e2347' : '#fff', borderRadius: '24px', border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`, padding: '24px', boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.4)' : '0 4px 20px rgba(15,23,42,0.06)' }}>
+                        <h4 style={{ fontSize: '14px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <IconTeams /> Team Overview
+                        </h4>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                            <div style={{ padding: '16px', background: isDark ? 'rgba(99,102,241,0.05)' : '#f8fafc', borderRadius: '16px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '24px', fontWeight: 900, color: '#6366f1' }}>{totalMembers}</div>
+                                <div style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginTop: '4px' }}>Agents</div>
+                            </div>
+                            <div style={{ padding: '16px', background: isDark ? 'rgba(16,185,129,0.05)' : '#f0fdf4', borderRadius: '16px', textAlign: 'center' }}>
+                                <div style={{ fontSize: '24px', fontWeight: 900, color: '#10b981' }}>{activeMembers}</div>
+                                <div style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginTop: '4px' }}>Active</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right: Team Members List */}
+                <div style={{ background: isDark ? '#1e2347' : '#fff', borderRadius: '24px', border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: isDark ? '0 8px 32px rgba(0,0,0,0.4)' : '0 4px 20px rgba(15,23,42,0.06)' }}>
+                    <div style={{ padding: '24px 28px', borderBottom: `1px solid ${isDark ? '#2c3568' : '#f1f5f9'}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                            <h4 style={{ fontSize: '16px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', margin: 0 }}>Tele Agent Members</h4>
+                            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '2px 0 0', fontWeight: 500 }}>Manage access and roles for this team</p>
+                        </div>
+                        <button 
+                            onClick={() => onAddAgent(leader.id)}
+                            style={{ padding: '10px 18px', borderRadius: '12px', background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', border: 'none', fontSize: '13px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}
+                        >
+                            <IconPlus /> Add Agent
+                        </button>
+                    </div>
+
+                    <div style={{ padding: '20px 28px', flex: 1 }}>
+                        {leader.members.length === 0 ? (
+                            <div style={{ padding: '60px 0', textAlign: 'center', color: '#94a3b8' }}>
+                                <div style={{ fontSize: '14px', fontWeight: 600 }}>No agents assigned yet.</div>
+                                <button style={{ fontSize: '13px', fontWeight: 700, color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', marginTop: '8px' }} onClick={() => onAddAgent(leader.id)}>Assign the first agent</button>
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                {leader.members.map((member, mi) => (
+                                    <div key={member.id} style={{ 
+                                        display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 18px', borderRadius: '16px', 
+                                        background: isDark ? 'rgba(99,102,241,0.03)' : '#f8fafc', border: `1px solid ${isDark ? '#2c3568' : '#f1f5f9'}`,
+                                        animation: `memberSlide 0.3s ease ${mi * 0.05}s both`
+                                    }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', flexShrink: 0, background: member.color, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 800 }}>
+                                            {getInitials(member.name)}
+                                        </div>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            <div style={{ fontSize: '14px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{member.name}</div>
+                                            <div style={{ fontSize: '12px', color: '#94a3b8', fontWeight: 500 }}>{member.email}</div>
+                                        </div>
+                                        <span style={{ 
+                                            fontSize: '10px', fontWeight: 800, padding: '4px 10px', borderRadius: '999px', textTransform: 'uppercase',
+                                            background: member.status === 'Active' ? '#dcfce7' : '#f1f5f9', color: member.status === 'Active' ? '#16a34a' : '#64748b'
+                                        }}>{member.status}</span>
+                                        <div style={{ display: 'flex', gap: '6px' }}>
+                                            <button onClick={() => onToggleAgent(leader.id, member.id)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: member.status === 'Active' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', color: member.status === 'Active' ? '#f87171' : '#10b981', cursor: 'pointer' }}>
+                                                {member.status === 'Active' ? <IconBan /> : <IconActivate />}
+                                            </button>
+                                            <button onClick={() => onRemoveAgent(leader.id, member.id)} style={{ width: '32px', height: '32px', borderRadius: '8px', border: 'none', background: isDark ? 'rgba(255,255,255,0.05)' : '#fff', color: '#94a3b8', cursor: 'pointer', border: `1px solid ${isDark ? '#2c3568' : '#e2e8f0'}` }}>
+                                                <IconTrash />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 /* ─── MAIN PAGE ───────────────────────────────── */
 const TeamLeaders = ({ onNavigate }) => {
     const { theme } = useTheme();
@@ -619,6 +893,10 @@ const TeamLeaders = ({ onNavigate }) => {
     const [memberships, setMemberships] = useState(INITIAL_MEMBERSHIPS);
     const [search, setSearch] = useState('');
     const [filterTab, setFilterTab] = useState('All'); // All | Active | Inactive
+    const [selectedLeader, setSelectedLeader] = useState(null);
+    const [profileLeader, setProfileLeader] = useState(null);
+
+    const tlTABS = ['All', 'Active', 'Inactive'];
 
     const leaders = users
         .filter(u => u.role === 'Team Leader')
@@ -681,19 +959,19 @@ const TeamLeaders = ({ onNavigate }) => {
     };
 
     return (
-        <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '28px', 
-            fontFamily: "'Sora', sans-serif", 
+        <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '28px',
+            fontFamily: "'Sora', sans-serif",
             animation: 'fadeIn 0.25s ease',
             '--tl-border': isDark ? '#2c3568' : '#e8edf5'
         }}>
 
             {document.getElementById('mobile-header-portal') && ReactDOM.createPortal(
-                <div className="p-4 px-6 fixed top-[60px] left-0 right-0 z-40 flex items-center gap-4" style={{ 
-                    background: isDark ? '#1e2347' : '#ffffff', 
-                    borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}` 
+                <div className="p-4 px-6 fixed top-[60px] left-0 right-0 z-40 flex items-center gap-4" style={{
+                    background: isDark ? '#1e2347' : '#ffffff',
+                    borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}`
                 }}>
                     <div className="relative group flex-1">
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#6366f1] transition-colors">
@@ -702,9 +980,9 @@ const TeamLeaders = ({ onNavigate }) => {
                         <input
                             type="text"
                             className="w-full border-2 border-transparent p-3 pl-12 rounded-2xl text-sm font-bold outline-none transition-all"
-                            style={{ 
-                                background: isDark ? '#2a3258' : '#f1f5f9', 
-                                color: isDark ? '#e4ecff' : '#0f172a' 
+                            style={{
+                                background: isDark ? '#2a3258' : '#f1f5f9',
+                                color: isDark ? '#e4ecff' : '#0f172a'
                             }}
                             placeholder="Search leaders..."
                             value={search}
@@ -724,152 +1002,178 @@ const TeamLeaders = ({ onNavigate }) => {
                     <h1 style={{ fontSize: '26px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>Team Leaders</h1>
                     <p style={{ fontSize: '14px', color: isDark ? '#94abda' : '#64748b', fontWeight: 500, margin: '5px 0 0', animation: 'fadeIn 0.6s 0.15s both' }}>Manage team leaders and their tele agent members.</p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {/* Search bar */}
-                    <div className="lg:hidden" style={{ position: 'relative' }}>
-                        <span style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
-                        <input
-                            style={{ 
-                                background: isDark ? '#242b50' : '#fff', 
-                                border: `1.5px solid ${isDark ? '#36407a' : '#e2e8f0'}`, 
-                                padding: '10px 14px 10px 38px', 
-                                borderRadius: '12px', 
-                                fontSize: '14px', 
-                                fontWeight: 600, 
-                                color: isDark ? '#e4ecff' : '#0f172a', 
-                                outline: 'none', 
-                                width: '240px', 
-                                transition: 'all 0.2s' 
-                            }}
-                            type="text"
-                            placeholder="Search team leaders..."
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
-                            onBlur={e => { e.target.style.borderColor = isDark ? '#36407a' : '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
-                        />
-                    </div>
-                    <button
-                        onClick={() => onNavigate('user-management')}
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.35)', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
-                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(99,102,241,0.4)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.35)'; }}
-                    >
-                        <IconPlus /> Add Team Leader
-                    </button>
-                </div>
-            </div>
-
-            {/* ── KPI CARDS ── */}
-            <div className="tl-kpi-grid">
-                {[
-                    { icon: <IconUsers />, value: totalLeaders, label: 'Total Leaders', grad: 'linear-gradient(135deg,#6366f1,#4f46e5)', light: isDark ? 'rgba(99,102,241,0.1)' : '#eef2ff', soft: isDark ? 'rgba(99,102,241,0.2)' : '#c7d2fe' },
-                    { icon: <IconUserSingle />, value: totalAgents, label: 'Total Tele Agents', grad: 'linear-gradient(135deg,#10b981,#059669)', light: isDark ? 'rgba(16,185,129,0.1)' : '#ecfdf5', soft: isDark ? 'rgba(16,185,129,0.2)' : '#a7f3d0' },
-                    { icon: <IconTeams />, value: activeTeams, label: 'Active Teams', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', light: isDark ? 'rgba(139,92,246,0.1)' : '#f5f3ff', soft: isDark ? 'rgba(139,92,246,0.2)' : '#ddd6fe' },
-                ].map((kpi, i) => (
-                    <div key={i} style={{
-                        background: isDark ? '#1e2347' : '#fff', borderRadius: '18px', border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`,
-                        padding: '24px', display: 'flex', alignItems: 'center', gap: '18px',
-                        boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 2px 10px rgba(15,23,42,0.05)', transition: 'all 0.3s ease',
-                        cursor: 'default',
-                        animation: `kpiPop 0.5s cubic-bezier(0.22,1,0.36,1) ${0.1 + i * 0.1}s both`,
-                    }}
-                    onMouseEnter={e => {
-                        e.currentTarget.style.boxShadow = isDark ? '0 12px 32px rgba(99,102,241,0.2)' : '0 8px 28px rgba(99,102,241,0.14)';
-                        e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
-                        e.currentTarget.style.borderColor = isDark ? '#4f46e5' : '#6366f1';
-                        e.currentTarget.querySelector('.kpi-icon').style.transform = 'scale(1.15) rotate(-8deg)';
-                    }}
-                    onMouseLeave={e => {
-                        e.currentTarget.style.boxShadow = isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 2px 10px rgba(15,23,42,0.05)';
-                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                        e.currentTarget.style.borderColor = isDark ? '#2c3568' : '#e8edf5';
-                        e.currentTarget.querySelector('.kpi-icon').style.transform = 'scale(1) rotate(0deg)';
-                    }}
-                    >
-                        <div className="kpi-icon" style={{ width: '56px', height: '56px', borderRadius: '16px', background: kpi.light, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1px solid ${kpi.soft}`, color: kpi.grad.includes('6366f1') ? '#6366f1' : kpi.grad.includes('10b981') ? '#059669' : '#7c3aed', transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1)' }}>
-                            {kpi.icon}
-                        </div>
-                        <div>
-                            <div style={{ fontSize: '30px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', letterSpacing: '-1px', lineHeight: 1, animation: 'countUp 0.4s ease both', animationDelay: `${0.2 + i * 0.1}s` }}>
-                                <AnimatedNumber value={kpi.value} />
-                            </div>
-                            <div style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginTop: '4px', letterSpacing: '0.02em' }}>{kpi.label}</div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── FILTER TABS ── */}
-            <div className="tl-tabs" style={{ animation: 'tabSlide 0.4s 0.3s both' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '6px', color: '#94a3b8' }}><IconFilter /></div>
-                {TABS.map(tab => (
-                    <button
-                        key={tab}
-                        onClick={() => setFilterTab(tab)}
-                        style={{
-                            padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
-                            color: filterTab === tab ? '#6366f1' : '#64748b',
-                            borderBottom: `2.5px solid ${filterTab === tab ? '#6366f1' : 'transparent'}`,
-                            transition: 'all 0.2s', marginBottom: '-1px', display: 'flex', alignItems: 'center', gap: '6px'
-                        }}
-                    >
-                        {tab}
-                        <span style={{ 
-                            fontSize: '11px', 
-                            fontWeight: 800, 
-                            padding: '1px 7px', 
-                            borderRadius: '999px', 
-                            background: filterTab === tab ? (isDark ? 'rgba(99,102,241,0.15)' : '#eef2ff') : (isDark ? '#2a3258' : '#f1f5f9'), 
-                            color: filterTab === tab ? '#818cf8' : '#94a3b8' 
-                        }}>
-                            {tabCounts[tab]}
-                        </span>
-                    </button>
-                ))}
-            </div>
-
-            {/* ── LEADERS LIST ── */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {filtered.length === 0 ? (
-                    <div style={{ 
-                        padding: '60px 24px', 
-                        textAlign: 'center', 
-                        background: isDark ? '#1e2347' : '#fff', 
-                        borderRadius: '20px', 
-                        border: `2px dashed ${isDark ? '#2c3568' : '#e2e8f0'}`, 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        alignItems: 'center', 
-                        gap: '16px' 
-                    }}>
-                        <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: isDark ? '#2a3258' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isDark ? '#4b5563' : '#cbd5e1' }}><IconUsers /></div>
-                        <h3 style={{ fontSize: '20px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', margin: 0 }}>No results found</h3>
-                        <p style={{ fontSize: '14px', color: isDark ? '#94abda' : '#64748b', maxWidth: '380px', margin: 0 }}>{search ? 'Try refining your search or clearing the filter.' : 'Begin by adding your first team leader.'}</p>
-                        {!search && filterTab === 'All' && (
-                            <button
-                                onClick={() => onNavigate('user-management')}
-                                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 14px rgba(99,102,241,0.3)', marginTop: '4px' }}
-                            >
-                                <IconPlus /> Add Team Leader
-                            </button>
-                        )}
-                    </div>
-                ) : (
-                    filtered.map((leader, i) => (
-                        <div key={leader.id} style={{ animation: `slideUp 0.45s cubic-bezier(0.22,1,0.36,1) ${i * 0.07}s both` }}>
-                            <LeaderCard
-                                leader={leader}
-                                onAddAgent={handleAddAgent}
-                                onToggleLeader={handleToggleLeader}
-                                onToggleAgent={handleToggleAgent}
-                                onRemoveAgent={handleRemoveAgent}
-                                isDark={isDark}
+                {!selectedLeader && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {/* Search bar */}
+                        <div className="lg:hidden" style={{ position: 'relative' }}>
+                            <span style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
+                            <input
+                                style={{
+                                    background: isDark ? '#242b50' : '#fff',
+                                    border: `1.5px solid ${isDark ? '#36407a' : '#e2e8f0'}`,
+                                    padding: '10px 14px 10px 38px',
+                                    borderRadius: '12px',
+                                    fontSize: '14px',
+                                    fontWeight: 600,
+                                    color: isDark ? '#e4ecff' : '#0f172a',
+                                    outline: 'none',
+                                    width: '240px',
+                                    transition: 'all 0.2s'
+                                }}
+                                type="text"
+                                placeholder="Search team leaders..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
+                                onBlur={e => { e.target.style.borderColor = isDark ? '#36407a' : '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
                             />
                         </div>
-                    ))
+                        <button
+                            onClick={() => onNavigate('user-management')}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '10px 20px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 16px rgba(99,102,241,0.35)', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(99,102,241,0.4)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(99,102,241,0.35)'; }}
+                        >
+                            <IconPlus /> Add Team Leader
+                        </button>
+                    </div>
                 )}
             </div>
+
+            {/* ── CONDITIONAL CONTENT ── */}
+            {selectedLeader ? (
+                <LeaderDetails
+                    leader={selectedLeader}
+                    onBack={() => setSelectedLeader(null)}
+                    onAddAgent={handleAddAgent}
+                    onToggleLeader={handleToggleLeader}
+                    onToggleAgent={handleToggleAgent}
+                    onRemoveAgent={handleRemoveAgent}
+                    isDark={isDark}
+                />
+            ) : (
+                <>
+                    {/* ── KPI CARDS ── */}
+                    <div className="tl-kpi-grid">
+                        {[
+                            { icon: <IconUsers />, value: totalLeaders, label: 'Total Leaders', grad: 'linear-gradient(135deg,#6366f1,#4f46e5)', light: isDark ? 'rgba(99,102,241,0.1)' : '#eef2ff', soft: isDark ? 'rgba(99,102,241,0.2)' : '#c7d2fe' },
+                            { icon: <IconUserSingle />, value: totalAgents, label: 'Total Tele Agents', grad: 'linear-gradient(135deg,#10b981,#059669)', light: isDark ? 'rgba(16,185,129,0.1)' : '#ecfdf5', soft: isDark ? 'rgba(16,185,129,0.2)' : '#a7f3d0' },
+                            { icon: <IconTeams />, value: activeTeams, label: 'Active Teams', grad: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', light: isDark ? 'rgba(139,92,246,0.1)' : '#f5f3ff', soft: isDark ? 'rgba(139,92,246,0.2)' : '#ddd6fe' },
+                        ].map((kpi, i) => (
+                            <div key={i} style={{
+                                background: isDark ? '#1e2347' : '#fff', borderRadius: '18px', border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`,
+                                padding: '24px', display: 'flex', alignItems: 'center', gap: '18px',
+                                boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 2px 10px rgba(15,23,42,0.05)', transition: 'all 0.3s ease',
+                                cursor: 'default',
+                                animation: `kpiPop 0.5s cubic-bezier(0.22,1,0.36,1) ${0.1 + i * 0.1}s both`,
+                            }}
+                            onMouseEnter={e => {
+                                e.currentTarget.style.boxShadow = isDark ? '0 12px 32px rgba(99,102,241,0.2)' : '0 8px 28px rgba(99,102,241,0.14)';
+                                e.currentTarget.style.transform = 'translateY(-5px) scale(1.02)';
+                                e.currentTarget.style.borderColor = isDark ? '#4f46e5' : '#6366f1';
+                                e.currentTarget.querySelector('.kpi-icon').style.transform = 'scale(1.15) rotate(-8deg)';
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.boxShadow = isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 2px 10px rgba(15,23,42,0.05)';
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                e.currentTarget.style.borderColor = isDark ? '#2c3568' : '#e8edf5';
+                                e.currentTarget.querySelector('.kpi-icon').style.transform = 'scale(1) rotate(0deg)';
+                            }}
+                            >
+                                <div className="kpi-icon" style={{ width: '56px', height: '56px', borderRadius: '16px', background: kpi.light, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1px solid ${kpi.soft}`, color: kpi.grad.includes('6366f1') ? '#6366f1' : kpi.grad.includes('10b981') ? '#059669' : '#7c3aed', transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1)' }}>
+                                    {kpi.icon}
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '30px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', letterSpacing: '-1px', lineHeight: 1, animation: 'countUp 0.4s ease both', animationDelay: `${0.2 + i * 0.1}s` }}>
+                                        <AnimatedNumber value={kpi.value} />
+                                    </div>
+                                    <div style={{ fontSize: '12px', fontWeight: 600, color: '#94a3b8', marginTop: '4px', letterSpacing: '0.02em' }}>{kpi.label}</div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* ── FILTER TABS ── */}
+                    <div className="tl-tabs" style={{ animation: 'tabSlide 0.4s 0.3s both' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '6px', color: '#94a3b8' }}><IconFilter /></div>
+                        {tlTABS.map(tab => (
+                            <button
+                                key={tab}
+                                onClick={() => setFilterTab(tab)}
+                                style={{
+                                    padding: '8px 16px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '13px', fontWeight: 700,
+                                    color: filterTab === tab ? '#6366f1' : '#64748b',
+                                    borderBottom: `2.5px solid ${filterTab === tab ? '#6366f1' : 'transparent'}`,
+                                    transition: 'all 0.2s', marginBottom: '-1px', display: 'flex', alignItems: 'center', gap: '6px'
+                                }}
+                            >
+                                {tab}
+                                <span style={{ 
+                                    fontSize: '11px', 
+                                    fontWeight: 800, 
+                                    padding: '1px 7px', 
+                                    borderRadius: '999px', 
+                                    background: filterTab === tab ? (isDark ? 'rgba(99,102,241,0.15)' : '#eef2ff') : (isDark ? '#2a3258' : '#f1f5f9'), 
+                                    color: filterTab === tab ? '#818cf8' : '#94a3b8' 
+                                }}>
+                                    {tabCounts[tab]}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* ── LEADERS LIST ── */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {filtered.length === 0 ? (
+                            <div style={{ 
+                                padding: '60px 24px', 
+                                textAlign: 'center', 
+                                background: isDark ? '#1e2347' : '#fff', 
+                                borderRadius: '20px', 
+                                border: `2px dashed ${isDark ? '#2c3568' : '#e2e8f0'}`, 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                alignItems: 'center', 
+                                gap: '16px' 
+                            }}>
+                                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: isDark ? '#2a3258' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isDark ? '#4b5563' : '#cbd5e1' }}><IconUsers /></div>
+                                <h3 style={{ fontSize: '20px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', margin: 0 }}>No results found</h3>
+                                <p style={{ fontSize: '14px', color: isDark ? '#94abda' : '#64748b', maxWidth: '380px', margin: 0 }}>{search ? 'Try refining your search or clearing the filter.' : 'Begin by adding your first team leader.'}</p>
+                                {!search && filterTab === 'All' && (
+                                    <button
+                                        onClick={() => onNavigate('user-management')}
+                                        style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '12px 24px', background: 'linear-gradient(135deg,#6366f1,#4f46e5)', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 14px rgba(99,102,241,0.3)', marginTop: '4px' }}
+                                    >
+                                        <IconPlus /> Add Team Leader
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            filtered.map((leader, i) => (
+                                <div key={leader.id} style={{ animation: `slideUp 0.45s cubic-bezier(0.22,1,0.36,1) ${i * 0.07}s both` }}>
+                                    <LeaderCard
+                                        leader={leader}
+                                        onAddAgent={handleAddAgent}
+                                        onToggleLeader={handleToggleLeader}
+                                        onToggleAgent={handleToggleAgent}
+                                        onRemoveAgent={handleRemoveAgent}
+                                        onClick={setSelectedLeader}
+                                        setProfileLeader={setProfileLeader}
+                                        isDark={isDark}
+                                    />
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </>
+            )}
+            {profileLeader && (
+                <LeaderProfileModal
+                    leader={profileLeader}
+                    onClose={() => setProfileLeader(null)}
+                    isDark={isDark}
+                />
+            )}
         </div>
     );
 };

@@ -65,7 +65,7 @@ const PerformanceModal = ({ user, onClose, leads }) => {
                         {/* Left Column: Leads */}
                         <div className="space-y-6">
                             <div className="flex items-center justify-between px-1">
-                                <h3 className="text-sm font-black text-[#1a202c] uppercase tracking-widest">Active Portfolio</h3>
+                                <h3 className="text-sm font-black text-[#1a202c] uppercase tracking-widest">Active Leads</h3>
                                 <span className="text-[11px] font-bold text-[#6366f1] bg-[#6366f1]/10 px-3 py-1 rounded-full">{userLeads.length} Cases</span>
                             </div>
                             

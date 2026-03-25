@@ -434,7 +434,7 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
                             <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
                                 <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
                                     <label className="text-[13px] font-bold text-[#4a5568]">Task Title</label>
-                                    <input required type="text" value={newTask.title} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. Portfolio Review..." />
+                                    <input required type="text" value={newTask.title} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. Leads Review..." />
                                 </div>                                <div className="flex flex-col gap-2 col-span-2">
                                     <label className="text-xs font-bold text-[#4a5568]">Assign To</label>
                                     <select 

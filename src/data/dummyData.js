@@ -85,7 +85,7 @@ export const INITIAL_TASKS = [
     { id: 102, title: 'Quarterly Review Prep', lead: 'Internal', status: 'In Progress', date: '2026-03-17', time: '14:30', type: 'Meeting', reminder: '1h', assignedTo: 'Self' },
 
     // Account Manager Tasks
-    { id: 201, title: 'Portfolio Strategy Review', lead: 'Key Accounts', status: 'Pending', date: '2026-03-16', time: '11:00', type: 'Meeting', reminder: '1h', assignedTo: 'Self' },
+    { id: 201, title: 'Leads Strategy Review', lead: 'Key Accounts', status: 'Pending', date: '2026-03-16', time: '11:00', type: 'Meeting', reminder: '1h', assignedTo: 'Self' },
     { id: 202, title: 'Quarterly Performance Report', lead: 'Enterprise', status: 'In Progress', date: '2026-03-18', time: '09:00', type: 'Review', reminder: 'none', assignedTo: 'Self' },
 
     // Tele Agent Tasks
