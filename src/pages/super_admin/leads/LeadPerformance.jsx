@@ -6,8 +6,7 @@ import { useLeads } from '../../../context/LeadsContext';
 const STAGE_CLS = {
     'Document Collection':        'bg-[#1a202c] text-white',
     'Document Verification Done': 'bg-[#fef9c3] text-[#a16207]',
-    'Lender Selection':           'bg-[#fff7ed] text-[#f97316] border-[#ffedd5]',
-    'Final Review':               'bg-[#ecfeff] text-[#0891b2]',
+    'Lender Selection':           'bg-[#f5f3ff] text-[#7c3aed]',
     'Completed':                  'bg-[#ecfdf5] text-[#059669]',
     'Rejected':                   'bg-[#f1f5f9] text-[#64748b]',
 };

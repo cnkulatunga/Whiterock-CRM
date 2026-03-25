@@ -713,7 +713,6 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                                     'Document Collection':        { color: '#2447d7', bg: isDark ? 'rgba(36,71,215,0.15)' : '#eef2ff' },
                                     'Document Verification Done': { color: '#f59e0b', bg: isDark ? 'rgba(245,158,11,0.15)' : '#fffbeb' },
                                     'Lender Selection':           { color: '#8b5cf6', bg: isDark ? 'rgba(139,92,246,0.15)' : '#f5f3ff' },
-                                    'Final Review':               { color: '#06b6d4', bg: isDark ? 'rgba(6,182,212,0.15)' : '#ecfeff' },
                                     'Completed':                  { color: '#10b981', bg: isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5' },
                                     'Rejected':                   { color: '#ef4444', bg: isDark ? 'rgba(239,68,68,0.15)' : '#fef2f2' },
                                 }[lead.stage] || { color: '#64748b', bg: '#f1f5f9' };

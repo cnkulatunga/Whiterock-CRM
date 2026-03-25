@@ -182,7 +182,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                         let currentIndex = 0;
                         if (currentStatus === 'Document Verification Done') currentIndex = 1;
                         else if (currentStatus === 'Lender Selection') currentIndex = 2;
-                        else if (['Completed', 'Loan Confirmed', 'Final Review'].includes(currentStatus)) currentIndex = 3;
+                        else if (['Completed', 'Loan Confirmed'].includes(currentStatus)) currentIndex = 3;
                         else if (['Rejected', 'Loan Rejected'].includes(currentStatus)) currentIndex = 4;
 
                         return stages.map((stage, index) => {

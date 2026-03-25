@@ -75,10 +75,10 @@ const LenderSelectionApproved = () => {
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [selectedLeadForRejection, setSelectedLeadForRejection] = useState(null);
 
-    // Filter leads that are in "Lender Selection" or "Final Review" stages
+    // Filter leads that are in "Lender Selection" stage
     const approvedLeads = leads.filter(lead => {
         const stage = lead.stage || lead.status;
-        return stage === 'Lender Selection' || stage === 'Final Review' || stage === 'Completed';
+        return stage === 'Lender Selection' || stage === 'Completed';
     });
 
     const setLender = (leadId, lender) => {

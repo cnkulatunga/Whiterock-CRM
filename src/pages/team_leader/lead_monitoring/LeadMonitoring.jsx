@@ -10,8 +10,7 @@ const STAGE_META = {
   'Document Collection':        { color: '#2447d7', bg: '#eef2ff', icon: '📄' },
   'Document Verification Done': { color: '#f59e0b', bg: '#fffbeb', icon: '✓' },
   'Lender Selection':           { color: '#8b5cf6', bg: '#f5f3ff', icon: '🏦' },
-  'Final Review':               { color: '#06b6d4', bg: '#ecfeff', icon: '🔍' },
-  'Completed':                  { color: '#10b981', bg: '#ecfdf5', icon: '✓' },
+  'Completed':                  { color: '#10b981', bg: '#ecfdf5', icon: '✅' },
   'Rejected':                   { color: '#ef4444', bg: '#fef2f2', icon: '✕' },
 };
 

@@ -43,7 +43,7 @@ export const SHARED_INITIAL_USERS = [
 export const ALL_ROLES = ['All Roles', 'Super Admin', 'Team Leader', 'Tele Agent', 'Accounts Manager'];
 export const ALL_STATUSES = ['All', 'Active', 'Inactive', 'Qualified', 'Contacted', 'New'];
 export const LOAN_DECISIONS = ['pending', 'approved', 'rejected'];
-export const WORKFLOW_STAGES_LIST = ['All Stages', 'Document Collection', 'Document Verification Done', 'Lender Selection', 'Final Review', 'Completed', 'Rejected'];
+export const WORKFLOW_STAGES_LIST = ['All Stages', 'Document Collection', 'Document Verification Done', 'Document Rejected', 'Lender Selection', 'Completed', 'Rejected'];
 
 export const DATE_RANGE_OPTIONS = ['Last 24 Hours', 'Last 7 Days', 'Last 30 Days', 'Last 90 Days', 'This Year'];
 
@@ -155,7 +155,7 @@ export const WORKFLOW_STAGES = [
     { id: 'lead_gather', label: 'Lead Detail Gather', color: WORKFLOW_STAGE_COLORS.lead_gather.color, description: 'Tele Agent gathering core info' },
     { id: 'doc_collect', label: 'Collect Document', color: WORKFLOW_STAGE_COLORS.doc_collect.color, description: 'Team Leader collecting records' },
     { id: 'lender_select', label: 'Lender Selection', color: WORKFLOW_STAGE_COLORS.lender_select.color, description: 'Manager selecting best partner' },
-    { id: 'closed', label: 'Won / Rejected', color: WORKFLOW_STAGE_COLORS.closed.color, description: 'Final process outcome' },
+    { id: 'closed', label: 'Confirmed or Rejected', color: WORKFLOW_STAGE_COLORS.closed.color, description: 'Final process outcome' },
 ];
 
 export const OPERATIONAL_FLOW_LEADS = [
@@ -331,7 +331,7 @@ export const MOCK_LEADS = [
     },
     {
         id: 'AF-007', leadId: 'AF-007', agentName: 'Sophie Tan', tl: 'Ryan Patel', manager: 'Alex Johnson', submissionDate: '2026-03-17', name: 'Liam Neeson',
- businessName: 'Neeson Security', email: 'liam@security.com', phone: '+1 222-333-444', nic: 'NIC-007', source: 'Referral', status: 'Final Review', lastContact: '1 hour ago', stage: 'Final Review', progress: 80, assignedStaffId: 15, documents: []
+ businessName: 'Neeson Security', email: 'liam@security.com', phone: '+1 222-333-444', nic: 'NIC-007', source: 'Referral', status: 'Lender Selection', lastContact: '1 hour ago', stage: 'Lender Selection', progress: 80, assignedStaffId: 15, documents: []
     },
     {
         id: 'AF-008', leadId: 'AF-008', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-15', name: 'Marcus Aurelius',

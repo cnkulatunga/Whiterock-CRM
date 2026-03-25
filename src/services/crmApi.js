@@ -158,7 +158,7 @@ export const usersApi = {
  * Leads CRUD + stage management.
  * Lead ID format: 'AF-XXX'
  * Stage values: 'Document Collection' | 'Document Verification Done' |
- *               'Lender Selection' | 'Final Review' | 'Completed' | 'Rejected'
+ *               'Lender Selection' | 'Completed' | 'Rejected'
  */
 export const leadsApi = {
     /**

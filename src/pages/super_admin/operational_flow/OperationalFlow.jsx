@@ -12,8 +12,7 @@ const STAGE_TO_OP = {
     'Document Collection': 'lead_gather',
     'Document Verification Done': 'doc_collect',
     'Lender Selection': 'lender_select',
-    'Final Review': 'lender_select',
-    'Completed': 'won',
+    'Completed': 'closed',
     'Rejected': 'rejected',
 };
 
@@ -121,8 +120,8 @@ const StageBadge = ({ stageId, isDark, compact = false }) => {
     let label = stage?.label;
     let color = stage?.color;
 
-    if (stageId === 'won') {
-        label = 'Won';
+    if (stageId === 'won' || stageId === 'closed') {
+        label = 'Confirmed';
         color = '#10b981';
     } else if (stageId === 'rejected') {
         label = 'Rejected';

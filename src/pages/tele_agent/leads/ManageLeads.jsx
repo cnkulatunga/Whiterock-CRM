@@ -32,7 +32,21 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     const filteredLeads = leads.filter(lead => {
         const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             lead.email.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === 'All' || (lead.stage || lead.status) === statusFilter;
+        
+        const hasRejected = lead.documents?.some(d => d.status === 'Rejected');
+        const isAllVerified = lead.documents?.every(d => d.status === 'Approved') && (lead.documents?.length || 0) > 0;
+        
+        let matchesStatus = statusFilter === 'All';
+        if (!matchesStatus) {
+            if (statusFilter === 'Document Verification Done') {
+                matchesStatus = (lead.stage || lead.status) === 'Document Verification Done' && isAllVerified;
+            } else if (statusFilter === 'Document Rejected') {
+                matchesStatus = (lead.stage || lead.status) === 'Document Verification Done' && hasRejected;
+            } else {
+                matchesStatus = (lead.stage || lead.status) === statusFilter;
+            }
+        }
+        
         return matchesSearch && matchesStatus;
     });
 
@@ -168,8 +182,8 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                 <option value="All">All Status</option>
                                 <option value="Document Collection">Document Collection</option>
                                 <option value="Document Verification Done">Document Verification Done</option>
+                                <option value="Document Rejected">Document Rejected</option>
                                 <option value="Lender Selection">Lender Selection</option>
-                                <option value="Final Review">Final Review</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Rejected">Rejected</option>
                             </select>
@@ -267,19 +281,21 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                 const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
 
                                                 // 1. Critical Rejection (Document or Loan level)
-                                                if (hasRejected || lead.status === 'Loan Rejected') {
+                                                if (hasRejected || lead.status === 'Loan Rejected' || lead.status === 'Rejected') {
+                                                    const label = hasRejected ? 'Document Rejected' : lead.status;
                                                     return (
                                                         <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm">
-                                                            <IconAlert size={12} /> {lead.status === 'Document Verifications' ? 'Docs Rejected' : lead.status}
+                                                            <IconAlert size={12} /> {label === 'Document Verifications' ? 'Docs Rejected' : label}
                                                         </span>
                                                     );
                                                 }
 
                                                 // 2. Success / Post-Verification Stage
                                                 if (lead.status === 'Loan Confirmed' || isAllVerified) {
+                                                    const label = isAllVerified && (lead.status === 'Document Verification Done' || lead.status === 'Document Verifications') ? 'Document Verified' : lead.status;
                                                     return (
                                                         <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm">
-                                                            <IconCheck size={12} strokeWidth={3} /> {lead.status}
+                                                            <IconCheck size={12} strokeWidth={3} /> {label}
                                                         </span>
                                                     );
                                                 }
@@ -335,7 +351,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                             )}
                                             {isAccountsManager && (
                                                 <>
-                                                    {['Document Verification Done', 'Lender Selection', 'Final Review'].includes(lead.stage) && onSelectLender && (
+                                                    {['Document Verification Done', 'Lender Selection'].includes(lead.stage) && onSelectLender && (
                                                         <button
                                                             className="px-2 py-1 text-[10px] font-semibold border border-[#e9d5ff] bg-[#f5f3ff] rounded-lg text-[#7c3aed] hover:bg-[#7c3aed] hover:text-white transition-all duration-200 whitespace-nowrap"
                                                             title="Select Lender"
