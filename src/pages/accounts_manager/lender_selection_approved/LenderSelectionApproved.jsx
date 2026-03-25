@@ -137,7 +137,6 @@ const LenderSelectionApproved = () => {
         { label: 'Approved',     value: totalApproved,   bg: '#ecfdf5', color: '#16a34a', icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></> },
         { label: 'Rejected',     value: totalRejected,   bg: '#fff1f2', color: '#e11d48', icon: <><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></> },
         { label: 'Pending',      value: totalPending,    bg: '#fff7ed', color: '#f97316', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
-        { label: 'Total Value',  value: `£${totalValue.toFixed(0)}K`, bg: '#f5f3ff', color: '#7c3aed', icon: <><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></> },
     ];
 
     return (
@@ -156,7 +155,7 @@ const LenderSelectionApproved = () => {
             </header>
 
             {/* Stats */}
-            <div className="grid grid-cols-5 gap-4 xl:grid-cols-3 lg:grid-cols-2 sm:grid-cols-1">
+            <div className="grid grid-cols-4 gap-4 xl:grid-cols-3 lg:grid-cols-2 sm:grid-cols-1">
                 {stats.map((stat, i) => (
                     <div key={i} className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex items-center gap-3 animate-kpiPop min-w-0" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
                         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: stat.bg }}>

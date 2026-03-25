@@ -295,12 +295,6 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderS
                             <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{stat.label}</span>
                             <div className="flex items-center gap-3">
                                 <h2 className="text-2xl font-extrabold text-[#1a202c] tracking-tight">{stat.value}</h2>
-                                {stat.trend && (
-                                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-lg border uppercase tracking-wider ${stat.trendType === 'positive' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : 'bg-[#f1f5f9] text-[#718096] border-[#e2e8f0]'
-                                        }`}>
-                                        {stat.trend}
-                                    </span>
-                                )}
                             </div>
                         </div>
                     </div>

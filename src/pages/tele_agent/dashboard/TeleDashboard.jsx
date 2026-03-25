@@ -304,7 +304,6 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                             </div>
                             <div className="flex items-end justify-between">
                                 <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{(MOCK_LEAD_COUNTS[user.id] || 0).toLocaleString()}</h2>
-                                <span className="text-emerald-500 text-[11px] font-bold px-2 py-1 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg">+5.2%</span>
                             </div>
                         </div>
 
@@ -321,7 +320,6 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                             </div>
                             <div className="flex items-end justify-between">
                                 <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{tasks.length}</h2>
-                                <div className="px-2 py-1 bg-orange-50 dark:bg-orange-500/10 rounded-lg text-orange-600 dark:text-orange-400 text-[10px] font-bold uppercase tracking-wider">Today</div>
                             </div>
                         </div>
 
