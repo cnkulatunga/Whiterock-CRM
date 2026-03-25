@@ -48,83 +48,6 @@ const IcoTrendUp = () => (
     </svg>
 );
 
-const LEADS_BAR_DATA = [
-    { label: 'JAN', leads: 120, target: 150 },
-    { label: 'FEB', leads: 145, target: 150 },
-    { label: 'MAR', leads: 180, target: 150 },
-    { label: 'APR', leads: 210, target: 200 },
-    { label: 'MAY', leads: 190, target: 200 },
-    { label: 'JUN', leads: 245, target: 200 },
-];
-
-const BarChart = () => {
-    const [hovered, setHovered] = useState(null);
-    const max = Math.max(...LEADS_BAR_DATA.map(d => d.leads));
-    const yTicks = [0, 25, 50, 75, 100];
-
-    return (
-        <div className="relative select-none">
-            {/* Y-axis grid */}
-            <div className="absolute left-0 right-0 top-0 flex flex-col justify-between pointer-events-none" style={{ bottom: '32px' }}>
-                {[...yTicks].reverse().map(t => (
-                    <div key={t} className="flex items-center gap-3">
-                        <span className="text-[10px] text-[#cbd5e1] font-medium w-6 text-right shrink-0">{Math.round((t/100)*max)}</span>
-                        <div className="flex-1 border-t border-dashed border-[#f1f5f9]" />
-                    </div>
-                ))}
-            </div>
-
-            {/* Bars */}
-            <div className="flex items-end gap-3 pl-12" style={{ height: '200px', paddingBottom: '32px', paddingTop: '8px' }}>
-                {LEADS_BAR_DATA.map((d, i) => {
-                    const revH = (d.leads / max) * 100;
-                    const isHov = hovered === i;
-                    return (
-                        <div
-                            key={d.label}
-                            className="relative flex flex-col items-center justify-end flex-1 h-full cursor-pointer"
-                            onMouseEnter={() => setHovered(i)}
-                            onMouseLeave={() => setHovered(null)}
-                        >
-                            {/* Tooltip */}
-                            {isHov && (
-                                <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-[#1a202c] text-white text-[11px] font-bold px-2.5 py-1.5 rounded-xl whitespace-nowrap z-20 animate-fadeIn shadow-lg">
-                                    {d.leads} Leads
-                                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[5px] border-r-[5px] border-t-[5px] border-l-transparent border-r-transparent border-t-[#1a202c]" />
-                                </div>
-                            )}
-
-                            {/* Bar group */}
-                            <div className="flex items-end gap-1.5 w-full justify-center" style={{ height: '100%' }}>
-                                {/* Leads bar */}
-                                <div
-                                    className="rounded-t-xl transition-all duration-300"
-                                    style={{
-                                        width: '20px',
-                                        height: `${revH}%`,
-                                        background: isHov
-                                            ? 'linear-gradient(180deg,#6680f5,#2447d7)'
-                                            : 'linear-gradient(180deg,#3b5ee8,#1a38b8)',
-                                        boxShadow: isHov ? '0 4px 16px rgba(36,71,215,0.4)' : '0 2px 6px rgba(36,71,215,0.2)',
-                                        animation: `barGrow 0.65s cubic-bezier(0.22,1,0.36,1) ${i * 75 + 50}ms both`
-                                    }}
-                                />
-                            </div>
-
-                            {/* Month label */}
-                            <span
-                                className="absolute text-[10px] font-bold uppercase tracking-wide transition-colors duration-200"
-                                style={{ bottom: '-24px', color: isHov ? '#2447d7' : '#94a3b8' }}
-                            >
-                                {d.label}
-                            </span>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-};
 
 const LeadPerformance = () => {
     const { leads } = useLeads();
@@ -151,57 +74,38 @@ const LeadPerformance = () => {
                 </div>
             </header>
 
-            {/* ── KPI & CHART ── */}
-            <div className="grid grid-cols-[1fr_2fr] gap-5 lg:grid-cols-1">
-                <div className="flex flex-col gap-5">
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:200ms] [animation-fill-mode:both]">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="w-10 h-10 bg-[#eef2ff] rounded-xl flex items-center justify-center">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                            </div>
-                            <div>
-                                <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Total Leads</div>
-                                <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.totalLeads}</div>
-                            </div>
+            {/* ── KPI SECTION ── */}
+            <div className="grid grid-cols-2 gap-5 sm:grid-cols-1">
+                <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:200ms] [animation-fill-mode:both]">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-10 h-10 bg-[#eef2ff] rounded-xl flex items-center justify-center">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
                         </div>
-                        <div className="flex items-center gap-1.5 text-[#059669] bg-[#ecfdf5] border border-[#d1fae5] px-3 py-1.5 rounded-lg w-fit text-[11px] font-medium">
-                            <IcoTrendUp />
-                            {SA_STATS.leadsChange} vs last month
+                        <div>
+                            <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Total Leads</div>
+                            <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.totalLeads}</div>
                         </div>
                     </div>
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:300ms] [animation-fill-mode:both]">
-                        <div className="flex items-center gap-4 mb-4">
-                            <div className="w-10 h-10 bg-[#fef2f2] rounded-xl flex items-center justify-center">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-                            </div>
-                            <div>
-                                <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Rejection Rate</div>
-                                <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.rejectionRate}</div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-[#dc2626] bg-[#fef2f2] border border-[#fee2e2] px-3 py-1.5 rounded-lg w-fit text-[11px] font-medium">
-                            <IcoTrendUp />
-                            {SA_STATS.rejectionChange} vs last month
-                        </div>
+                    <div className="flex items-center gap-1.5 text-[#059669] bg-[#ecfdf5] border border-[#d1fae5] px-3 py-1.5 rounded-lg w-fit text-[11px] font-medium">
+                        <IcoTrendUp />
+                        {SA_STATS.leadsChange} vs last month
                     </div>
                 </div>
-
-                {/* Bar Chart */}
-                <section className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm overflow-hidden animate-slideUp [animation-delay:350ms] [animation-fill-mode:both]">
-                    <div className="flex justify-between items-start mb-6">
-                        <div>
-                            <span className="text-[14px] font-bold text-[#1a202c]">Lead Acquisition Trend</span>
-                            <p className="text-[12px] text-[#94a3b8] mt-0.5 font-medium">Jan – Jun 2026 · Hover bars for details</p>
+                <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop [animation-delay:300ms] [animation-fill-mode:both]">
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="w-10 h-10 bg-[#fef2f2] rounded-xl flex items-center justify-center">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-1.5">
-                                <span className="w-3 h-3 rounded-sm" style={{ background: 'linear-gradient(180deg,#3b5ee8,#1a38b8)' }} />
-                                <span className="text-[11px] font-semibold text-[#4a5568]">Leads</span>
-                            </div>
+                        <div>
+                            <div className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">Rejection Rate</div>
+                            <div className="text-2xl font-bold text-[#1a202c]">{SA_STATS.rejectionRate}</div>
                         </div>
                     </div>
-                    <BarChart />
-                </section>
+                    <div className="flex items-center gap-1.5 text-[#dc2626] bg-[#fef2f2] border border-[#fee2e2] px-3 py-1.5 rounded-lg w-fit text-[11px] font-medium">
+                        <IcoTrendUp />
+                        {SA_STATS.rejectionChange} vs last month
+                    </div>
+                </div>
             </div>
 
             {/* ── FILTERS ── */}
