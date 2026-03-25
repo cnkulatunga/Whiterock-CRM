@@ -4,160 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { SHARED_INITIAL_USERS, INITIAL_MEMBERSHIPS, AM_MEMBERSHIPS, TL_AGENT_PERFORMANCE, WORKFLOW_STAGES_LIST, AUDIT_LOG_ENTRIES } from '../../../data/dummyData';
 import { useLeads } from '../../../context/LeadsContext';
 
-const PerformanceModal = ({ user, onClose, leads }) => {
-    const navigate = useNavigate();
-
-    if (!user) return null;
-
-    // Filter leads based on user's role and name
-    const userLeads = leads.filter(l => {
-        const userName = user.name.toLowerCase();
-        const leadManager = l.manager?.toLowerCase() || '';
-        const leadTl = l.tl?.toLowerCase() || '';
-        const leadAgent = l.agentName?.toLowerCase() || l.agent?.toLowerCase() || '';
-
-        if (user.role === 'Accounts Manager') return leadManager === userName;
-        if (user.role === 'Team Leader') return leadTl === userName;
-        if (user.role === 'Tele Agent') return leadAgent === userName;
-        return false;
-    });
-
-    const calculateProgress = (stage) => {
-        const stages = WORKFLOW_STAGES_LIST.filter(s => s !== 'All Stages');
-        const index = stages.indexOf(stage);
-        if (index === -1) return 0;
-        return Math.min(Math.round(((index + 1) / stages.length) * 100), 100);
-    };
-
-    const handleLeadClick = (lead) => {
-        onClose(); // Close performance popup first
-        navigate('/super-admin/operational-flow', { state: { selectedLead: lead } });
-    };
-
-    return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-[#090b14]/60 backdrop-blur-xl animate-fadeIn transition-all duration-500">
-            <div className="bg-white rounded-[32px] w-full max-w-3xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col animate-slideUp border border-white/20">
-                {/* Header */}
-                <div className="p-8 border-b border-gray-100 flex justify-between items-start bg-gradient-to-r from-gray-50/50 to-white">
-                    <div className="flex gap-6 items-center">
-                        <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-2xl font-black text-white shadow-2xl transform transition-transform duration-500 hover:rotate-3"
-                             style={{ background: user.color || '#6366f1', boxShadow: `0 20px 40px ${user.color}40` }}>
-                            {user.initials}
-                        </div>
-                        <div className="space-y-1">
-                            <h2 className="text-3xl font-black text-[#1a202c] tracking-tight">{user.name}</h2>
-                            <div className="flex items-center gap-3">
-                                <span className="px-3 py-1 rounded-full text-[10px] font-black bg-[#6366f1]/10 text-[#6366f1] uppercase tracking-widest">{user.role}</span>
-                                <span className="text-[11px] font-bold text-gray-400">{user.email}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className="p-2 hover:bg-red-50 hover:text-red-500 rounded-xl transition-all text-gray-400">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto p-8 custom-scrollbar pt-6">
-                    <div className="grid grid-cols-[1.5fr_1fr] gap-8">
-                        {/* Left Column: Leads */}
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between px-1">
-                                <h3 className="text-sm font-black text-[#1a202c] uppercase tracking-widest">Active Leads</h3>
-                                <span className="text-[11px] font-bold text-[#6366f1] bg-[#6366f1]/10 px-3 py-1 rounded-full">{userLeads.length} Cases</span>
-                            </div>
-                            
-                            <div className="grid gap-3">
-                                {userLeads.length > 0 ? (
-                                    userLeads.map((lead) => {
-                                        const progress = calculateProgress(lead.stage);
-                                        return (
-                                            <div 
-                                                key={lead.id} 
-                                                onClick={() => handleLeadClick(lead)}
-                                                className="p-5 rounded-3xl border border-gray-100 bg-white hover:border-[#6366f1]/30 hover:shadow-[0_20px_40px_rgba(0,0,0,0.04)] transition-all cursor-pointer group relative overflow-hidden"
-                                            >
-                                                <div className="absolute top-0 left-0 w-1 h-full bg-[#6366f1] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                <div className="flex justify-between items-start mb-4">
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className="text-[15px] font-black text-[#1a202c] group-hover:text-[#6366f1] transition-colors">{lead.clientName || lead.name}</span>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{lead.stage}</span>
-                                                            <span className="w-1 h-1 rounded-full bg-gray-300" />
-                                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{lead.loanAmount || 'N/A'}</span>
-                                                        </div>
-                                                    </div>
-                                                    <span className="text-[13px] font-black text-[#6366f1]">{progress}%</span>
-                                                </div>
-                                                
-                                                <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                                                    <div 
-                                                        className="h-full bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] transition-all duration-1000 ease-out rounded-full"
-                                                        style={{ width: `${progress}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                ) : (
-                                    <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-100 rounded-[32px] bg-gray-50/30">
-                                        <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest text-center px-4">No Leads Currently Managed By This Profile</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Right Column: Activities */}
-                        <div className="space-y-6">
-                            <h3 className="text-sm font-black text-[#1a202c] uppercase tracking-widest px-1">Recent Activities</h3>
-                            <div className="space-y-4">
-                                {(AUDIT_LOG_ENTRIES || []).filter(entry => entry.name === user.name).length > 0 ? (
-                                    AUDIT_LOG_ENTRIES
-                                        .filter(entry => entry.name === user.name)
-                                        .map((activity, idx) => (
-                                            <div key={idx} className="flex gap-4 group">
-                                                <div className="relative flex flex-col items-center">
-                                                    <div className={`w-2.5 h-2.5 rounded-full mt-1.5 ${activity.actionIcon === 'reject' ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : (activity.actionIcon === 'verify' ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-[#6366f1] shadow-[0_0_8px_#6366f1]')}`} />
-                                                    {idx !== AUDIT_LOG_ENTRIES.filter(e => e.name === user.name).length - 1 && (
-                                                        <div className="w-px flex-1 bg-gray-100 my-1" />
-                                                    )}
-                                                </div>
-                                                <div className="pb-6 space-y-1">
-                                                    <p className="text-[12px] font-bold text-[#1a202c] leading-tight">
-                                                        {activity.actionText} <span className="text-[#6366f1]">#{activity.refId}</span>
-                                                    </p>
-                                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{activity.date} • {activity.time}</p>
-                                                    {activity.actionIcon === 'reject' && activity.note && (
-                                                        <div className="mt-2 p-2 rounded-lg bg-red-50 border border-red-100/50 text-[10px] font-bold text-red-600">
-                                                            Reason: {activity.note}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))
-                                ) : (
-                                    <div className="py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-100 rounded-[32px] bg-gray-50/30">
-                                        <span className="text-[11px] text-gray-400 font-bold uppercase tracking-widest text-center px-4">No Recorded History</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Footer */}
-                <div className="p-8 border-t border-gray-50 bg-gray-50 flex justify-end items-center">
-                    <button onClick={onClose} className="px-10 py-4 bg-[#1a202c] text-white rounded-2xl text-sm font-bold hover:bg-gray-800 transition-all shadow-lg shadow-gray-200">
-                        Close Profile
-                    </button>
-                </div>
-            </div>
-        </div>,
-        document.body
-    );
-};
+import UserProfileModal from '../../components/modals/UserProfileModal';
 
 const HierarchyCard = ({ title, items, selectedId, onSelect, onViewPerformance, emptyText }) => {
     const isAgentTable = title.toLowerCase().includes('agent');
@@ -353,10 +200,9 @@ const StaffHierarchy = () => {
             </div>
 
             {performanceUser && (
-                <PerformanceModal 
+                <UserProfileModal 
                     user={performanceUser} 
                     onClose={() => setPerformanceUser(null)} 
-                    leads={leads}
                 />
             )}
         </section>

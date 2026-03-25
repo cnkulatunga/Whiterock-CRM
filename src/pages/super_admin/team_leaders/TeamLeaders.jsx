@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
 import { useTheme } from '../../../context/ThemeContext';
+import UserProfileModal from '../../../components/modals/UserProfileModal';
 
 /* ─── GLOBAL KEYFRAMES ────────────────────────── */
 const KEYFRAMES = `
@@ -362,98 +363,7 @@ const UserPickerModal = ({ title, subtitle, iconWrapStyle, confirmLabel, confirm
     );
 };
 
-/* ─── LEADER PROFILE MODAL (DEEP DIVE) ────────── */
-const LeaderProfileModal = ({ leader, onClose, isDark }) => {
-    const modalBg = isDark ? '#1f2347' : '#ffffff';
-    const borderCol = isDark ? '#2c3568' : '#f1f5f9';
-    const textPrimary = isDark ? '#e4ecff' : '#0f172a';
-    const textMuted = isDark ? '#94a2b8' : '#64748b';
-    
-    const mockActivities = [
-        { id: 1, type: 'approve', title: 'Approved bank statements for #AF-011', time: 'OCT 24, 2023 • 13:15:22', status: 'done' },
-        { id: 2, type: 'reject', title: 'Rejected incomplete ID docs for #AF-004', time: 'OCT 23, 2023 • 17:30:00', status: 'rejected', reason: 'Unclear photo' },
-        { id: 3, type: 'approve', title: 'Approved proof of earnings for #AF-009', time: 'OCT 22, 2023 • 11:15:22', status: 'done' }
-    ];
 
-    return ReactDOM.createPortal(
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', animation: 'fadeIn 0.2s ease' }} onClick={onClose}>
-            <div style={{ background: modalBg, borderRadius: '32px', width: '100%', maxWidth: '820px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.3)', animation: 'scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)', position: 'relative' }} onClick={e => e.stopPropagation()}>
-                
-                {/* Close X */}
-                <button onClick={onClose} style={{ position: 'absolute', top: '24px', right: '24px', background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8', zIndex: 10 }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="24" height="24"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                </button>
-
-                {/* Header Section */}
-                <div style={{ padding: '32px 40px', display: 'flex', alignItems: 'center', gap: '24px', borderBottom: `1px solid ${borderCol}` }}>
-                    <div style={{ width: '84px', height: '84px', borderRadius: '24px', background: leader.color || '#10b981', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', fontWeight: 900, boxShadow: '0 8px 24px rgba(16, 185, 129, 0.25)' }}>
-                        {getInitials(leader.name)}
-                    </div>
-                    <div>
-                        <h2 style={{ fontSize: '32px', fontWeight: 900, color: textPrimary, margin: 0, letterSpacing: '-0.8px' }}>{leader.name}</h2>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '6px' }}>
-                            <span style={{ background: isDark ? 'rgba(99, 102, 241, 0.15)' : '#eef2ff', color: '#6366f1', padding: '4px 12px', borderRadius: '8px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Team Leader</span>
-                            <span style={{ color: textMuted, fontSize: '14px', fontWeight: 500 }}>{leader.email}</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Grid Content */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px', padding: '40px' }} className="tl-modal-grid">
-                    
-                    {/* Left: Leads */}
-                    <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <h3 style={{ fontSize: '15px', fontWeight: 900, color: textPrimary, textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0 }}>Active Leads</h3>
-                            <span style={{ padding: '4px 12px', borderRadius: '999px', background: isDark ? 'rgba(99, 102, 241, 0.1)' : '#f1f5f9', color: '#6366f1', fontSize: '12px', fontWeight: 800 }}>0 Leads</span>
-                        </div>
-                        
-                        <div style={{ height: '260px', borderRadius: '24px', border: `2px dashed ${isDark ? '#2c3568' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', textAlign: 'center' }}>
-                            <p style={{ color: '#94a3b8', fontSize: '13px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1.6 }}>No leads currently managed by this profile</p>
-                        </div>
-                    </div>
-
-                    {/* Right: Activities */}
-                    <div>
-                        <h3 style={{ fontSize: '15px', fontWeight: 900, color: textPrimary, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '24px', margin: 0 }}>Recent Activities</h3>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0', position: 'relative' }}>
-                            {/* Timeline line */}
-                            <div style={{ position: 'absolute', left: '7px', top: '10px', bottom: '10px', width: '2px', background: isDark ? '#2c3568' : '#f1f5f9' }} />
-                            
-                            {mockActivities.map((act, i) => (
-                                <div key={act.id} style={{ display: 'flex', gap: '20px', paddingBottom: i === mockActivities.length - 1 ? 0 : '24px', position: 'relative' }}>
-                                    <div style={{ width: '16px', height: '16px', borderRadius: '50%', background: act.status === 'done' ? '#10b981' : '#ef4444', border: `3px solid ${modalBg}`, zIndex: 1, marginTop: '4px', flexShrink: 0, boxShadow: `0 0 0 4px ${act.status === 'done' ? 'rgba(16,185,129,0.1)' : 'rgba(239, 68, 68, 0.1)'}` }} />
-                                    <div style={{ flex: 1 }}>
-                                        <div style={{ fontSize: '14px', fontWeight: 800, color: textPrimary, lineHeight: 1.4 }}>
-                                            {act.title.split('#')[0]}
-                                            <span style={{ color: '#6366f1' }}>#{act.title.split('#')[1]}</span>
-                                        </div>
-                                        <div style={{ fontSize: '11px', fontWeight: 700, color: textMuted, marginTop: '4px', textTransform: 'uppercase' }}>{act.time}</div>
-                                        
-                                        {act.reason && (
-                                            <div style={{ marginTop: '12px', padding: '10px 16px', background: isDark ? 'rgba(239, 68, 68, 0.1)' : '#fff5f5', borderRadius: '8px', border: `1px solid ${isDark ? 'rgba(239, 68, 68, 0.2)' : '#ffebeb'}` }}>
-                                                <span style={{ fontSize: '12px', fontWeight: 800, color: '#ef4444' }}>Reason: {act.reason}</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                {/* Footer */}
-                <div style={{ padding: '24px 40px 32px', borderTop: `1px solid ${borderCol}`, display: 'flex', justifyContent: 'flex-end' }}>
-                    <button onClick={onClose} style={{ padding: '14px 32px', borderRadius: '16px', background: '#1e2329', color: '#ffffff', border: 'none', fontSize: '14px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', transition: 'transform 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
-                        Close Profile
-                    </button>
-                </div>
-            </div>
-        </div>,
-        document.body
-    );
-};
 
 /* ─── ADD TELE AGENT MODAL ────────────────────── */
 const AddAgentModal = ({ leaderName, existingMemberIds, onClose, onAdd }) => (
@@ -469,6 +379,10 @@ const AddAgentModal = ({ leaderName, existingMemberIds, onClose, onAdd }) => (
     />
 );
 
+
+
+
+
 /* ─── STAT PILL ───────────────────────────────── */
 const StatPill = ({ label, value, accent, isDark }) => (
     <div className="tl-stat-pill" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px', padding: '10px 20px', background: isDark ? 'rgba(99,102,241,0.08)' : '#f8fafc', borderRadius: '12px', minWidth: '80px', border: `1px solid ${isDark ? 'rgba(99,102,241,0.15)' : 'transparent'}` }}>
@@ -481,6 +395,7 @@ const StatPill = ({ label, value, accent, isDark }) => (
 const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemoveAgent, onClick, setProfileLeader, isDark }) => {
     const [expanded, setExpanded] = useState(false);
     const [showAddAgent, setShowAddAgent] = useState(false);
+    const [profileAgent, setProfileAgent] = useState(null);
     const activeMembers = leader.members.filter(m => m.status === 'Active').length;
     const totalMembers = leader.members.length;
     const fillPct = totalMembers > 0 ? Math.round((activeMembers / totalMembers) * 100) : 0;
@@ -631,9 +546,10 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                             display: 'flex', alignItems: 'center', gap: '14px',
                                             padding: '14px 18px', background: isDark ? 'rgba(99,102,241,0.04)' : '#fff', borderRadius: '14px',
                                             border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`, opacity: mActive ? 1 : 0.65,
-                                            transition: 'all 0.2s ease',
+                                            transition: 'all 0.2s ease', cursor: 'pointer',
                                             animation: `memberSlide 0.3s ease ${mi * 0.06}s both`,
                                         }}
+                                            onClick={() => setProfileAgent(member)}
                                             onMouseEnter={e => {
                                                 e.currentTarget.style.boxShadow = isDark ? '0 8px 24px rgba(0,0,0,0.3)' : '0 4px 16px rgba(99,102,241,0.1)';
                                                 e.currentTarget.style.borderColor = isDark ? '#4f46e5' : '#6366f1';
@@ -661,8 +577,10 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                                 color: mActive ? '#16a34a' : '#64748b',
                                                 border: `1px solid ${mActive ? '#bbf7d0' : '#e2e8f0'}`
                                             }}>{member.status}</span>
-                                            {/* Action buttons */}
-                                            <div style={{ display: 'flex', gap: '6px' }}>
+                                            {/* Action buttons — stop propagation to avoid opening modal */}
+                                            <div style={{ display: 'flex', gap: '6px' }}
+                                                onClick={e => e.stopPropagation()}
+                                            >
                                                 <button
                                                     title={mActive ? 'Deactivate agent' : 'Activate agent'}
                                                     onClick={() => onToggleAgent(leader.id, member.id)}
@@ -708,6 +626,12 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                     existingMemberIds={leader.members.map(m => m.id)}
                     onClose={() => setShowAddAgent(false)}
                     onAdd={users => onAddAgent(leader.id, users)}
+                />
+            )}
+            {profileAgent && (
+                <UserProfileModal
+                    user={profileAgent}
+                    onClose={() => setProfileAgent(null)}
                 />
             )}
         </>
@@ -1168,10 +1092,9 @@ const TeamLeaders = ({ onNavigate }) => {
                 </>
             )}
             {profileLeader && (
-                <LeaderProfileModal
-                    leader={profileLeader}
+                <UserProfileModal
+                    user={profileLeader}
                     onClose={() => setProfileLeader(null)}
-                    isDark={isDark}
                 />
             )}
         </div>
