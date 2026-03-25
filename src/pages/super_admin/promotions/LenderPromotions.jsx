@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePromotions } from '../../../context/PromotionsContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { useLenders } from '../../../context/LendersContext';
 
 /* ─── ICONS ────────────────────────────────────── */
 const IconPlus = () => (
@@ -54,7 +55,7 @@ const PromotionModal = ({ title, children, onClose, onSubmit, submitLabel, submi
     </div>
 );
 
-const PromotionFormFields = ({ form, setForm, error, isDark }) => {
+const PromotionFormFields = ({ form, setForm, error, isDark, activeLenders }) => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -73,7 +74,17 @@ const PromotionFormFields = ({ form, setForm, error, isDark }) => {
         <>
             <div className="flex flex-col gap-1.5">
                 <label className={labelClasses}>Lender Name</label>
-                <input type="text" className={inputClasses} placeholder="e.g. Alpha Funding" value={form.lenderName} onChange={(e) => setForm({ ...form, lenderName: e.target.value })} />
+                <div className="relative group">
+                    <select className={`${inputClasses} appearance-none cursor-pointer pr-10`} value={form.lenderName} onChange={(e) => setForm({ ...form, lenderName: e.target.value })}>
+                        <option value="" disabled>Select a lender...</option>
+                        {activeLenders.map(l => (
+                            <option key={l.id} value={l.name}>{l.name}</option>
+                        ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
+                    </div>
+                </div>
             </div>
             <div className="flex flex-col gap-1.5">
                 <label className={labelClasses}>Promotion Description</label>
@@ -108,6 +119,8 @@ const LenderPromotions = () => {
     const { promotions, addPromotion, updatePromotion, deletePromotion } = usePromotions();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const { lenders } = useLenders();
+    const activeLenders = lenders.filter(l => l.status === 'Active');
 
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingPromotion, setEditingPromotion] = useState(null);
@@ -227,13 +240,13 @@ const LenderPromotions = () => {
 
             {showAddModal && (
                 <PromotionModal title="Add New Lender Promotion" onClose={() => setShowAddModal(false)} onSubmit={handleAdd} submitLabel="Create Promotion" submitClass="bg-[#2447d7] hover:bg-[#1732a3]" isDark={isDark}>
-                    <PromotionFormFields form={form} setForm={setForm} error={error} isDark={isDark} />
+                    <PromotionFormFields form={form} setForm={setForm} error={error} isDark={isDark} activeLenders={activeLenders} />
                 </PromotionModal>
             )}
 
             {editingPromotion && (
                 <PromotionModal title="Edit Lender Promotion" onClose={() => setEditingPromotion(null)} onSubmit={handleUpdate} submitLabel="Update Promotion" submitClass="bg-[#2447d7] hover:bg-[#1732a3]" isDark={isDark}>
-                    <PromotionFormFields form={form} setForm={setForm} error={error} isDark={isDark} />
+                    <PromotionFormFields form={form} setForm={setForm} error={error} isDark={isDark} activeLenders={activeLenders} />
                 </PromotionModal>
             )}
         </div>

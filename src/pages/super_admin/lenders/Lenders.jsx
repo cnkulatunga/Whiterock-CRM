@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { FULL_LENDERS_LIST as INITIAL_LENDERS } from '../../../data/dummyData';
+import { useLenders } from '../../../context/LendersContext';
 
 
 const EMPTY_FORM = { name: '', contact: '', status: 'Active', unsecured: false, secured: false, commercial: false, refinance: false };
@@ -19,7 +19,7 @@ const StatusBadge = ({ status }) => (
 
 
 const Lenders = ({ readOnly = false }) => {
-    const [lenders, setLenders] = useState(INITIAL_LENDERS);
+    const { lenders, addLender, updateLender, deleteLender } = useLenders();
     const [search, setSearch] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
     const [showModal, setShowModal] = useState(false);
@@ -60,15 +60,15 @@ const Lenders = ({ readOnly = false }) => {
     const handleSave = () => {
         if (!form.name.trim()) return;
         if (editingLender) {
-            setLenders(prev => prev.map(l => l.id === editingLender.id ? { ...l, ...form } : l));
+            updateLender(editingLender.id, form);
         } else {
-            setLenders(prev => [...prev, { ...form, id: Date.now() }]);
+            addLender(form);
         }
         setShowModal(false);
     };
 
     const handleDelete = (id) => {
-        setLenders(prev => prev.filter(l => l.id !== id));
+        deleteLender(id);
         setDeleteConfirmId(null);
     };
 
