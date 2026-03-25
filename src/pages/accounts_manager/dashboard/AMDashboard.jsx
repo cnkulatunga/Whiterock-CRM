@@ -7,11 +7,31 @@ import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS, RECENT_LENDERS, AM_STAT_CARDS as
 
 
 import { useTasks } from '../../../context/TasksContext';
+import { usePromotions } from '../../../context/PromotionsContext';
 
-const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) => {
+const AMDashboard = ({ onNavigate, tasks: initialTasks = [], setTasks, notifyReminderSet }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { users } = useUsers();
+    const { promotions } = usePromotions();
+
+    // Merge promotions as pseudo-tasks
+    const memoizedPromotions = React.useMemo(() => promotions.map(p => ({
+        id: `promo-${p.id}`,
+        title: `PROMO: ${p.lenderName}`,
+        lead: p.description,
+        date: p.startDate,
+        endDate: p.endDate,
+        time: '09:00',
+        type: 'Promotion',
+        status: 'Active',
+        isPromotion: true,
+        priority: 'High',
+        fileName: p.fileName,
+        fileData: p.fileData
+    })), [promotions]);
+
+    const tasks = React.useMemo(() => [...initialTasks, ...memoizedPromotions], [initialTasks, memoizedPromotions]);
 
     // Team Leader drill-down state
     const [selectedTeam, setSelectedTeam] = useState(null);
@@ -52,6 +72,7 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
     };
 
     const updateTaskReminder = (id, newReminder) => {
+        if (id.toString().startsWith('promo-')) return;
         const updatedTask = { ...tasks.find(t => t.id === id), reminder: newReminder };
         updateTask(updatedTask);
         if (notifyReminderSet && newReminder !== 'none') notifyReminderSet(updatedTask);
@@ -321,39 +342,47 @@ const AMDashboard = ({ onNavigate, tasks = [], setTasks, notifyReminderSet }) =>
                                                                 {t.reminder === '1d' ? '1 day before' : t.reminder === '1h' ? '1 hour before' : '15 min before'}
                                                             </span>
                                                         )}
-                                                        {t.createdBy && (t.createdBy !== 'Accounts Manager' && t.createdBy !== 'Manager') && (
+                                                        {t.isPromotion && (
+                                                            <span className="bg-[#2447d7] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">Active Promo</span>
+                                                        )}
+                                                        {t.isPromotion && t.fileName && t.fileData && (
+                                                            <a href={t.fileData} download={t.fileName} className="text-[#2447d7] hover:underline text-[9px] font-bold uppercase ml-auto">Download</a>
+                                                        )}
+                                                        {t.createdBy && (t.createdBy !== 'Accounts Manager' && t.createdBy !== 'Manager') && !t.isPromotion && (
                                                             <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 border border-[#ffedd5]">By: {t.createdBy}</span>
                                                         )}
                                                     </div>
                                                 </div>
 
                                             </div>
-                                            <div className="flex items-center gap-2 pl-4">
-                                                <div className="flex items-center border border-[#edf2f7] rounded-lg bg-white">
-                                                    <select
-                                                        className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
-                                                        value={t.reminder || 'none'}
-                                                        onChange={e => updateTaskReminder(t.id, e.target.value)}
-                                                        title="Set Reminder"
-                                                    >
-                                                        <option value="none">🔔 Off</option>
-                                                        <option value="15m">15m</option>
-                                                        <option value="1h">1h</option>
-                                                        <option value="1d">1d</option>
-                                                    </select>
+                                            {!t.isPromotion && (
+                                                <div className="flex items-center gap-2 pl-4">
+                                                    <div className="flex items-center border border-[#edf2f7] rounded-lg bg-white">
+                                                        <select
+                                                            className="px-2 py-1 rounded-lg text-[10px] font-bold text-[#718096] bg-transparent outline-none hover:text-[#2447d7] transition-all cursor-pointer border-none"
+                                                            value={t.reminder || 'none'}
+                                                            onChange={e => updateTaskReminder(t.id, e.target.value)}
+                                                            title="Set Reminder"
+                                                        >
+                                                            <option value="none">🔔 Off</option>
+                                                            <option value="15m">15m</option>
+                                                            <option value="1h">1h</option>
+                                                            <option value="1d">1d</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <select
+                                                            className={`w-full py-1 px-2 text-[10px] font-black uppercase tracking-widest border outline-none transition-all cursor-pointer rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' : 'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5]'}`}
+                                                            value={t.status}
+                                                            onChange={e => updateTaskStatus(t.id, e.target.value)}
+                                                        >
+                                                            <option>Pending</option>
+                                                            <option>In Progress</option>
+                                                            <option>Completed</option>
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                                <div className="flex-1">
-                                                    <select
-                                                        className={`w-full py-1 px-2 text-[10px] font-black uppercase tracking-widest border outline-none transition-all cursor-pointer rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' : 'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5]'}`}
-                                                        value={t.status}
-                                                        onChange={e => updateTaskStatus(t.id, e.target.value)}
-                                                    >
-                                                        <option>Pending</option>
-                                                        <option>In Progress</option>
-                                                        <option>Completed</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                            )}
                                         </div>
                                     ))
                                 ) : (

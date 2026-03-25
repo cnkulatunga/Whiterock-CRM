@@ -18,7 +18,9 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
         type: 'Promotion',
         status: 'Active',
         isPromotion: true,
-        priority: 'High'
+        priority: 'High',
+        fileName: p.fileName,
+        fileData: p.fileData
     })), [promotions]);
 
     const tasks = React.useMemo(() => [...initialTasks, ...memoizedPromotions], [initialTasks, memoizedPromotions]);
@@ -310,6 +312,12 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
                                                     {t.isPromotion && <span className="bg-[#2447d7] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">Active Promo</span>}
                                                     {t.assignedTo !== 'Self' && !t.isPromotion && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Team</span>}
                                                 </div>
+                                                {t.isPromotion && t.fileName && t.fileData && (
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] text-[#718096] truncate max-w-[120px]">{t.fileName}</span>
+                                                        <a href={t.fileData} download={t.fileName} className="text-[#2447d7] hover:underline text-[10px] font-bold uppercase">Download</a>
+                                                    </div>
+                                                )}
                                                 <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
                                                 {t.assignedTo !== 'Self' && (
                                                     <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: '#f0f4ff', color: '#2447d7' }}>

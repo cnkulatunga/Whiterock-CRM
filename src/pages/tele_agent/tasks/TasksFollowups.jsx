@@ -12,6 +12,24 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { promotions } = usePromotions();
+    
+    // Merge promotions as pseudo-tasks
+    const memoizedPromotions = React.useMemo(() => promotions.map(p => ({
+        id: `promo-${p.id}`,
+        title: `PROMO: ${p.lenderName}`,
+        lead: p.description,
+        date: p.startDate, // Shows on start date
+        endDate: p.endDate,
+        time: '09:00',
+        type: 'Promotion',
+        status: 'Active',
+        isPromotion: true,
+        priority: 'High',
+        fileName: p.fileName,
+        fileData: p.fileData
+    })), [promotions]);
+
+    const allTasks = React.useMemo(() => [...(tasks || []), ...memoizedPromotions], [tasks, memoizedPromotions]);
 
     const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
@@ -177,21 +195,21 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     });
 
     // Add Promotions to the list
-    const activePromotions = promotions.map(p => ({
+    const activePromotions = React.useMemo(() => promotions.map(p => ({
         id: `promo-${p.id}`,
         title: `PROMO: ${p.lenderName}`,
-        lead: 'Lender Promotion',
+        lead: p.description,
         date: p.startDate, // Primary date for list view
         endDate: p.endDate,
-        time: 'All Day',
+        time: '09:00',
         type: 'Promotion',
         status: 'Active',
-        message: p.description,
         isPromotion: true,
-        fileName: p.fileName
-    }));
+        fileName: p.fileName,
+        fileData: p.fileData
+    })), [promotions]);
 
-    const displayTasks = [...filteredTasks, ...activePromotions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const displayTasks = React.useMemo(() => [...filteredTasks, ...activePromotions].sort((a, b) => new Date(b.date) - new Date(a.date)), [filteredTasks, activePromotions]);
 
     const renderCalendar = () => {
         const todayStr = new Date().toISOString().split('T')[0];
@@ -328,29 +346,31 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                     <div className="flex-1 flex flex-col gap-3 overflow-y-auto max-h-[500px] pr-1 scrollbar-thin">
                         {(() => {
                             const dayTasks = tasks.filter(t => t.date === selectedDate);
-                            const dayPromos = promotions.filter(p => {
-                                const start = new Date(p.startDate);
+                            const dayPromos = activePromotions.filter(p => {
+                                const start = new Date(p.date);
                                 const end = new Date(p.endDate);
                                 const current = new Date(selectedDate);
                                 return current >= start && current <= end;
-                            }).map(p => ({
-                                id: `promo-${p.id}`,
-                                title: `PROMO: ${p.lenderName}`,
-                                lead: 'Lender Promotion',
-                                time: 'All Day',
-                                status: 'Active',
-                                isPromotion: true,
-                                message: p.description
-                            }));
+                            });
                             const items = [...dayTasks, ...dayPromos];
                             
                             return items.length > 0 ? (
                                 items.map(t => (
                                     <div key={t.id} className="p-3 rounded-xl flex items-center gap-3 shadow-sm hover:translate-y-[-2px] transition-all" style={{ background: t.isPromotion ? (isDark ? '#1e3278' : '#e0e7ff') : taskCardBg, border: `1px solid ${t.isPromotion ? '#2447d7' : taskCardBorder}` }}>
                                         <div className={`w-1 h-8 rounded-full shrink-0 ${t.isPromotion ? 'bg-[#2447d7]' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#cbd5e0]'}`}></div>
-                                        <div className="flex flex-col min-w-0 flex-1">
-                                            <span className="text-[13px] font-bold truncate leading-tight" style={{ color: t.isPromotion ? (isDark ? '#e4ecff' : '#2447d7') : taskTitleColor }}>{t.title}</span>
+                                        <div className="flex flex-col min-w-0 flex-1 gap-0.5">
+                                            <div className="flex items-center gap-1.5 justify-between">
+                                                <span className="text-[13px] font-bold truncate leading-tight grow" style={{ color: t.isPromotion ? (isDark ? '#e4ecff' : '#2447d7') : taskTitleColor }}>{t.title}</span>
+                                                {t.isPromotion && <span className="bg-[#2447d7] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse shrink-0">Promo</span>}
+                                            </div>
                                             <span className="text-[11px] font-medium" style={{ color: mutedColor }}>{t.time} • {t.lead}</span>
+                                            {t.isPromotion && t.fileName && t.fileData && (
+                                                <div className="flex items-center gap-2 mt-1.5 p-1 bg-white/10 rounded-lg border border-white/10 w-fit">
+                                                    <IconDoc size={12} />
+                                                    <span className="text-[9px] font-bold text-[#4a5568] max-w-[80px] truncate">{t.fileName}</span>
+                                                    <a href={t.fileData} download={t.fileName} className="text-[#2447d7] hover:underline text-[9px] font-black uppercase">Download</a>
+                                                </div>
+                                            )}
                                         </div>
                                         {!t.isPromotion && canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
                                             <div className="flex items-center gap-1.5 ml-auto">
@@ -612,8 +632,13 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                             </div>
                                             {task.message && <p className={`p-2.5 px-3.5 border rounded-xl text-[0.85rem] leading-relaxed max-w-[500px] mt-1 italic sm:text-[0.75rem] ${isDark ? 'bg-[#141829] border-[#2c3568] text-[#8ea0d4]' : 'bg-[#f8fafc] border-[#e2e8f0] text-[#4a5568]'}`}><span className="font-bold text-[#2447d7] not-italic mr-1">{task.isPromotion ? 'Promo Details:' : 'Notes:'}</span>{task.message}</p>}
                                             {task.isPromotion && task.fileName && (
-                                                <div className={`mt-2 flex items-center gap-2 p-2 rounded-lg text-xs font-bold w-fit ${isDark ? 'bg-[#2447d7]/20 text-[#7a96fa]' : 'bg-[#e0e7ff] text-[#2447d7]'}`}>
-                                                    <IconDoc /> {task.fileName}
+                                                <div className={`mt-2 flex items-center gap-3 p-2 px-3 rounded-lg text-xs font-bold w-fit ${isDark ? 'bg-[#2447d7]/20 text-[#7a96fa]' : 'bg-[#e0e7ff] text-[#2447d7]'}`}>
+                                                    <div className="flex items-center gap-2">
+                                                        <IconDoc /> {task.fileName}
+                                                    </div>
+                                                    {task.fileData && (
+                                                        <a href={task.fileData} download={task.fileName} className="ml-2 text-[10px] font-black uppercase tracking-wider hover:underline opacity-80 hover:opacity-100">Download</a>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>

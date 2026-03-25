@@ -58,7 +58,11 @@ const PromotionFormFields = ({ form, setForm, error, isDark }) => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-            setForm({ ...form, fileName: file.name });
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setForm({ ...form, fileName: file.name, fileData: event.target.result });
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -108,7 +112,7 @@ const LenderPromotions = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [editingPromotion, setEditingPromotion] = useState(null);
     const [error, setError] = useState('');
-    const [form, setForm] = useState({ lenderName: '', description: '', fileName: '', startDate: '', endDate: '' });
+    const [form, setForm] = useState({ lenderName: '', description: '', fileName: '', fileData: '', startDate: '', endDate: '' });
 
     const validate = () => {
         if (!form.lenderName.trim()) return 'Lender Name is required';
@@ -125,7 +129,7 @@ const LenderPromotions = () => {
         if (err) { setError(err); return; }
         addPromotion(form);
         setShowAddModal(false);
-        setForm({ lenderName: '', description: '', fileName: '', startDate: '', endDate: '' });
+        setForm({ lenderName: '', description: '', fileName: '', fileData: '', startDate: '', endDate: '' });
         setError('');
     };
 
@@ -135,13 +139,13 @@ const LenderPromotions = () => {
         if (err) { setError(err); return; }
         updatePromotion(editingPromotion.id, form);
         setEditingPromotion(null);
-        setForm({ lenderName: '', description: '', fileName: '', startDate: '', endDate: '' });
+        setForm({ lenderName: '', description: '', fileName: '', fileData: '', startDate: '', endDate: '' });
         setError('');
     };
 
     const startEdit = (promo) => {
         setEditingPromotion(promo);
-        setForm({ lenderName: promo.lenderName, description: promo.description, fileName: promo.fileName, startDate: promo.startDate, endDate: promo.endDate });
+        setForm({ lenderName: promo.lenderName, description: promo.description, fileName: promo.fileName, fileData: promo.fileData, startDate: promo.startDate, endDate: promo.endDate });
     };
 
     return (
@@ -153,7 +157,7 @@ const LenderPromotions = () => {
                 </div>
                 <button
                     className="flex items-center gap-2 bg-[#2447d7] text-white px-4 py-2.5 rounded-xl text-[13px] font-semibold hover:bg-[#1732a3] transition-all shadow-[0_4px_12px_rgba(36,71,215,0.3)]"
-                    onClick={() => { setShowAddModal(true); setForm({ lenderName: '', description: '', fileName: '', startDate: '', endDate: '' }); setError(''); }}
+                    onClick={() => { setShowAddModal(true); setForm({ lenderName: '', description: '', fileName: '', fileData: '', startDate: '', endDate: '' }); setError(''); }}
                 >
                     <IconPlus /> Add Promotion
                 </button>
@@ -187,9 +191,22 @@ const LenderPromotions = () => {
                             <h3 className={`font-bold text-[15px] mb-2 line-clamp-2 ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>{promo.description}</h3>
                             
                             {promo.fileName && (
-                                <div className={`flex items-center gap-2 p-2.5 rounded-xl text-[11px] font-medium mb-4 transition-all ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'}`}>
-                                    <IconFile />
-                                    <span className="truncate">{promo.fileName}</span>
+                                <div className={`flex items-center justify-between gap-2 p-2.5 rounded-xl text-[11px] font-medium mb-4 transition-all ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'}`}>
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <IconFile />
+                                        <span className="truncate">{promo.fileName}</span>
+                                    </div>
+                                    {promo.fileData && (
+                                        <a
+                                            href={promo.fileData}
+                                            download={promo.fileName}
+                                            className={`p-1.5 rounded-lg transition-colors ${isDark ? 'hover:bg-[#2c3568] text-[#7a96fa]' : 'hover:bg-white text-[#2447d7]'}`}
+                                            title="Download Document"
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                        </a>
+                                    )}
                                 </div>
                             )}
 

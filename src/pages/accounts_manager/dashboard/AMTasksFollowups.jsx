@@ -21,7 +21,9 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
         type: 'Promotion',
         status: 'Active',
         isPromotion: true,
-        priority: 'High'
+        priority: 'High',
+        fileName: p.fileName,
+        fileData: p.fileData
     })), [promotions]);
 
     const tasks = React.useMemo(() => [...initialTasks, ...memoizedPromotions], [initialTasks, memoizedPromotions]);
@@ -313,6 +315,14 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
                                                     {t.isPromotion && <span className="bg-[#2447d7] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">Active Promo</span>}
                                                     {t.assignedTo !== 'Self' && !t.isPromotion && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Team</span>}
                                                 </div>
+                                                {t.isPromotion && t.fileName && (
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] text-[#718096] truncate max-w-[120px]">{t.fileName}</span>
+                                                        {t.fileData && (
+                                                            <a href={t.fileData} download={t.fileName} className="text-[#2447d7] hover:underline text-[10px] font-bold uppercase">Download</a>
+                                                        )}
+                                                    </div>
+                                                )}
                                                     <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
                                                     {t.reminder && t.reminder !== 'none' && (
                                                         <span className="bg-[#f0f4ff] text-[#2447d7] px-2 py-0.5 rounded-md text-[9px] uppercase font-bold w-fit flex items-center gap-1 mt-1">
@@ -692,6 +702,15 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
                                                 </svg>
                                                 Remind {task.reminder === '1d' ? '1 day before' : task.reminder === '1h' ? '1 hour before' : '15 min before'}
                                             </span>
+                                        )}
+                                        {task.isPromotion && task.fileName && (
+                                            <div className="flex items-center gap-3 mt-2 p-1.5 px-3 rounded-xl bg-[#f0f4ff] border border-[#2447d7]/10 w-fit">
+                                                <IconDoc />
+                                                <span className="text-[12px] font-semibold text-[#4a5568] truncate max-w-[150px]">{task.fileName}</span>
+                                                {task.fileData && (
+                                                    <a href={task.fileData} download={task.fileName} className="ml-2 text-[11px] font-black text-[#2447d7] hover:underline uppercase tracking-wider">Download</a>
+                                                )}
+                                            </div>
                                         )}
                                     </div>
                                 </div>

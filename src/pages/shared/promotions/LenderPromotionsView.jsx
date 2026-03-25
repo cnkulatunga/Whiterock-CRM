@@ -53,9 +53,17 @@ const LenderPromotionsView = () => {
                                         <IconFile />
                                         <span className="truncate">{promo.fileName}</span>
                                     </div>
-                                    <button className="shrink-0 p-1.5 rounded-lg hover:bg-white/20 transition-all font-black text-[10px] uppercase tracking-wider">
-                                        View Doc
-                                    </button>
+                                    {promo.fileData ? (
+                                        <a
+                                            href={promo.fileData}
+                                            download={promo.fileName}
+                                            className="shrink-0 p-1.5 px-3 rounded-lg bg-white/10 hover:bg-[#2447d7] hover:text-white transition-all font-black text-[10px] uppercase tracking-wider text-center no-underline"
+                                        >
+                                            Download
+                                        </a>
+                                    ) : (
+                                        <span className="text-[10px] opacity-50 uppercase">No Doc</span>
+                                    )}
                                 </div>
                             )}
 

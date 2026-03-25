@@ -3,8 +3,28 @@ import { signIn, createCalendarEvent, getCalendarEvents, getAccount } from '../.
 import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
 import { canManageTask } from '../../../utils/permissionUtils';
+import { usePromotions } from '../../../context/PromotionsContext';
 
-const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) => {
+const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyReminderSet }) => {
+    const { promotions } = usePromotions();
+    
+    // Merge promotions as pseudo-tasks
+    const memoizedPromotions = React.useMemo(() => promotions.map(p => ({
+        id: `promo-${p.id}`,
+        title: `PROMO: ${p.lenderName}`,
+        lead: p.description,
+        date: p.startDate, // Shows on start date
+        endDate: p.endDate,
+        time: '09:00',
+        type: 'Promotion',
+        status: 'Active',
+        isPromotion: true,
+        priority: 'High',
+        fileName: p.fileName,
+        fileData: p.fileData
+    })), [promotions]);
+
+    const tasks = React.useMemo(() => [...initialTasks, ...memoizedPromotions], [initialTasks, memoizedPromotions]);
     const { users } = useUsers();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
@@ -174,7 +194,7 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
     };
 
     const filteredTasks = tasks.filter(task => {
-        const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        const matchesSearch = (task.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (task.lead && task.lead.toLowerCase().includes(searchTerm.toLowerCase()));
         
         const matchesStatus = filter === 'All' || task.status === filter;
@@ -245,7 +265,7 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                                         {dayTasks.slice(0, 3).map(t => (
                                             <div
                                                 key={t.id}
-                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' ? 'animate-pulse' : ''}`}
+                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.isPromotion ? 'bg-[#2447d7] animate-pulse' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' && !t.isPromotion ? 'animate-pulse' : ''}`}
                                                 title={t.title}
                                             ></div>
                                         ))}
@@ -290,7 +310,8 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                                                     <span className="text-[13px] font-bold text-[#1a202c] leading-tight">
                                                         {t.title}
                                                     </span>
-                                                    {t.assignedTo !== 'Self' && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Assigned</span>}
+                                                    {t.isPromotion && <span className="bg-[#2447d7] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">Active Promo</span>}
+                                                    {t.assignedTo !== 'Self' && !t.isPromotion && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Assigned</span>}
                                                 </div>
                                                 <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
                                                 {t.assignedTo !== 'Self' && (
@@ -298,12 +319,20 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                                                         Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
                                                     </span>
                                                 )}
-                                                {t.createdBy && t.createdBy !== 'Super Admin' && (
+                                                {t.isPromotion && t.fileName && (
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] text-[#718096] truncate max-w-[150px]">{t.fileName}</span>
+                                                        {t.fileData && (
+                                                            <a href={t.fileData} download={t.fileName} className="text-[#2447d7] hover:underline text-[10px] font-bold uppercase transition-all">Download</a>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                {t.createdBy && t.createdBy !== 'Super Admin' && !t.isPromotion && (
                                                     <span className="text-[9px] font-black mt-1 px-1.5 py-0.5 rounded uppercase tracking-wider w-fit" style={{ background: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5' }}>
                                                         By: {t.createdBy}
                                                     </span>
                                                 )}
-                                                {canManageTask(t, user) && (
+                                                {canManageTask(t, user) && !t.isPromotion && (
                                                     <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
                                                         <button 
                                                             onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
@@ -500,22 +529,23 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                         filteredTasks.map(task => (
                             <div key={task.id} className="bg-white rounded-2xl border border-[#edf2f7] p-6 flex items-center justify-between gap-6 hover:translate-y-[-2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300 group">
                                 <div className="flex items-center gap-5">
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fff7ed] text-[#ea580c]' : 'bg-[#f0fdf4] text-[#16a34a]'}`}>
+                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fff7ed] text-[#ea580c]' : task.type === 'Promotion' ? 'bg-[#2447d7] text-white' : 'bg-[#f0fdf4] text-[#16a34a]'}`}>
                                         {task.type === 'Call' && <IconPhone />}
                                         {task.type === 'Document' && <IconDoc />}
-                                        {task.type !== 'Call' && task.type !== 'Document' && <IconMeeting />}
+                                        {task.type === 'Promotion' ? <IconPlus /> : (task.type !== 'Call' && task.type !== 'Document' && <IconMeeting />)}
                                     </div>
                                     <div className="flex flex-col gap-1.5">
                                         <div className="flex items-center gap-3">
                                             <h3 className="text-lg font-bold text-[#1a202c]">{task.title}</h3>
-                                            {task.assignedTo === 'Self' ? (
+                                            {task.isPromotion && <span className="bg-[#2447d7] text-white text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider animate-pulse">Active Promo</span>}
+                                            {task.assignedTo === 'Self' && !task.isPromotion ? (
                                                 <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
-                                            ) : (
+                                            ) : !task.isPromotion ? (
                                                 <span className="flex items-center gap-1.5 text-[0.8rem] font-bold text-[#2447d7] bg-[#f0f4ff] px-2.5 py-1 rounded-lg">
                                                     Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
                                                 </span>
-                                            )}
-                                            {task.createdBy && task.createdBy !== 'Super Admin' && (
+                                            ) : null}
+                                            {task.createdBy && task.createdBy !== 'Super Admin' && !task.isPromotion && (
                                                 <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-[#ffedd5]">By: {task.createdBy}</span>
                                             )}
 
@@ -526,41 +556,52 @@ const SuperAdminTasks = ({ tasks, setTasks, initialDate, notifyReminderSet }) =>
                                                 {task.lead || 'Administrative'}
                                             </span>
                                             <span className="text-[12px] font-bold text-[#a0aec0] uppercase tracking-widest">{task.date} • {task.time}</span>
+                                            {task.isPromotion && task.fileName && (
+                                                <div className="flex items-center gap-3 mt-1 p-2 rounded-lg bg-[#f0f4ff]/50 border border-[#2447d7]/10">
+                                                    <IconDoc />
+                                                    <span className="text-[11px] font-medium text-[#4a5568]">{task.fileName}</span>
+                                                    {task.fileData && (
+                                                        <a href={task.fileData} download={task.fileName} className="ml-auto text-[10px] font-black text-[#2447d7] hover:underline uppercase tracking-wider">Download</a>
+                                                    )}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-6">
-                                    <select 
-                                        className={`p-[10px_20px] rounded-xl text-sm font-bold border-2 outline-none transition-all cursor-pointer appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:12px] pr-10
-                                            ${task.status === 'Completed' ? 'bg-[#f0fdf4] text-[#166534] border-[#dcfce7]' : task.status === 'In Progress' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#dbeafe]' : 'bg-[#f8fafc] text-[#718096] border-[#edf2f7]'}
-                                        `}
-                                        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22${task.status === 'Completed' ? '%23166534' : task.status === 'In Progress' ? '%231d4ed8' : '%23718096'}%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E")` }}
-                                        value={task.status}
-                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                    >
-                                        <option>Pending</option>
-                                        <option>In Progress</option>
-                                        <option>Completed</option>
-                                    </select>
-                                    {canManageTask(task, user) && (
-                                        <div className="flex items-center gap-2">
-                                            <button 
-                                                onClick={() => handleEditClick(task)}
-                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
-                                                title="Edit Task"
+                                    {!task.isPromotion && (
+                                        <div className="flex items-center gap-6">
+                                            <select 
+                                                className={`p-[10px_20px] rounded-xl text-sm font-bold border-2 outline-none transition-all cursor-pointer appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:12px] pr-10
+                                                    ${task.status === 'Completed' ? 'bg-[#f0fdf4] text-[#166534] border-[#dcfce7]' : task.status === 'In Progress' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#dbeafe]' : 'bg-[#f8fafc] text-[#718096] border-[#edf2f7]'}
+                                                `}
+                                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22${task.status === 'Completed' ? '%23166534' : task.status === 'In Progress' ? '%231d4ed8' : '%23718096'}%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E")` }}
+                                                value={task.status}
+                                                onChange={(e) => updateTaskStatus(task.id, e.target.value)}
                                             >
-                                                <IconEdit />
-                                            </button>
-                                            <button 
-                                                onClick={() => handleDeleteTask(task.id)}
-                                                className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
-                                                title="Delete Task"
-                                            >
-                                                <IconTrash />
-                                            </button>
+                                                <option>Pending</option>
+                                                <option>In Progress</option>
+                                                <option>Completed</option>
+                                            </select>
+                                            {canManageTask(task, user) && (
+                                                <div className="flex items-center gap-2">
+                                                    <button 
+                                                        onClick={() => handleEditClick(task)}
+                                                        className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
+                                                        title="Edit Task"
+                                                    >
+                                                        <IconEdit />
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteTask(task.id)}
+                                                        className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
+                                                        title="Delete Task"
+                                                    >
+                                                        <IconTrash />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     )}
-                                </div>
 
                             </div>
                         ))
