@@ -6,7 +6,6 @@ import ManageLeads from '../pages/tele_agent/leads/ManageLeads';
 import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
 import TasksFollowups from '../pages/tele_agent/tasks/TasksFollowups';
-import KnowledgeBase from '../pages/tele_agent/knowledge/KnowledgeBase';
 import LenderPromotionsView from '../pages/shared/promotions/LenderPromotionsView';
 import { useReminders } from '../hooks/useReminders';
 import { useTasks } from '../context/TasksContext';
@@ -68,7 +67,6 @@ const TeleAgentLayout = ({ onLogout }) => {
             case 'follow-ups': navigate('/tele-agent/follow-ups'); break;
             case 'promotions': navigate('/tele-agent/promotions'); break;
             case 'leave': navigate('/leave-management/login'); break;
-            case 'knowledge': navigate('/tele-agent/knowledge'); break;
             default: navigate('/tele-agent/dashboard');
         }
     };
@@ -204,7 +202,6 @@ const TeleAgentLayout = ({ onLogout }) => {
                         <Route path="create-lead" element={<CreateLead onBack={() => navigate('/tele-agent/leads')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="follow-ups" element={<TasksFollowups tasks={tasks} setTasks={setTasks} initialDate={pendingTaskDate} onClearPendingDate={() => setPendingTaskDate(null)} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="promotions" element={<LenderPromotionsView />} />
-                        <Route path="knowledge" element={<KnowledgeBase />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>

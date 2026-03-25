@@ -32,21 +32,21 @@ const IconChevronRight = () => (
 );
 
 /* ─── MODAL COMPONENT ─── */
-const DashboardModal = ({ isOpen, onClose, title, children }) => {
+const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white dark:bg-[#1e2347] w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden animate-zoomIn">
-                <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-[#2c3568]">
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : 'max-w-4xl rounded-2xl'}`}>
+                <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors">
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors shrink-0">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
                             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                     </button>
                 </div>
-                <div className="p-6 max-h-[70vh] overflow-y-auto">
+                <div className={`p-6 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : 'max-h-[70vh]'}`}>
                     {children}
                 </div>
             </div>
@@ -69,33 +69,33 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
     const [selectedProduct, setSelectedProduct] = useState(null);
 
     const ASSET_PRODUCTS = [
-        { 
-            name: 'Unsecured', 
-            iconColor: 'text-indigo-500', 
+        {
+            name: 'Unsecured',
+            iconColor: 'text-indigo-500',
             bgColor: 'bg-indigo-50/50 dark:bg-indigo-500/10',
             dotColor: 'bg-indigo-400',
             brief: 'Clean funding for rapid growth without asset pledges.',
             requirements: ['6+ Months Trading', '$10k+ Monthly Revenue', 'Clear Bank Statements', 'Australian Registered Business']
         },
-        { 
-            name: 'Secured', 
-            iconColor: 'text-emerald-500', 
+        {
+            name: 'Secured',
+            iconColor: 'text-emerald-500',
             bgColor: 'bg-emerald-50/50 dark:bg-emerald-500/10',
             dotColor: 'bg-emerald-400',
             brief: 'High-limit financing backed by business or personal assets.',
             requirements: ['Property/Equipment Equity', '12+ Months Trading', 'Good Credit Score', 'Full Financial Statements']
         },
-        { 
-            name: 'Commercial', 
-            iconColor: 'text-amber-500', 
+        {
+            name: 'Commercial',
+            iconColor: 'text-amber-500',
             bgColor: 'bg-amber-50/50 dark:bg-amber-500/10',
             dotColor: 'bg-amber-400',
             brief: 'Strategic capital for property purchase or large-scale expansion.',
             requirements: ['20% Initial Deposit', 'Proven Cash Flow', 'Property Appraisal', 'Detailed Business Plan']
         },
-        { 
-            name: 'Refinance', 
-            iconColor: 'text-rose-500', 
+        {
+            name: 'Refinance',
+            iconColor: 'text-rose-500',
             bgColor: 'bg-rose-50/50 dark:bg-rose-500/10',
             dotColor: 'bg-rose-400',
             brief: 'Debt restructuring to lower payments and optimize cash flow.',
@@ -214,14 +214,14 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                             <h4 className="text-[11px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-2">Category Overview</h4>
                             <p className="text-sm font-medium text-slate-600 dark:text-slate-300 leading-relaxed">{selectedProduct.brief}</p>
                         </div>
-                        
+
                         <div className="flex flex-col gap-3">
                             <h4 className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Minimum Requirements</h4>
                             <div className="grid grid-cols-1 gap-2">
                                 {selectedProduct.requirements.map((req, idx) => (
                                     <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50/50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-white/5">
                                         <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="20 6 9 17 4 12" /></svg>
                                         </div>
                                         <span className="text-[13px] font-bold text-slate-700 dark:text-slate-200">{req}</span>
                                     </div>
@@ -240,6 +240,29 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                         <div className="p-4 bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800 rounded-xl">
                             <h4 className="font-bold text-purple-800 dark:text-purple-300 mb-2">Next Steps Recommendation</h4>
                             <p className="text-sm text-purple-700 dark:text-purple-400">Prioritize \"Robert Miller\" as document verification is 90% complete. Follow up with \"Michael Chen\" for missing ID.</p>
+                        </div>
+                    </div>
+                );
+            case 'KNOWLEDGE_BASE':
+                const requiredDetails = [
+                    'Turnover', 'Amount', 'Purpose', 'Homeowner', 'Bank',
+                    'Overdraft', 'Existing Loan', 'Term', 'Contact', 'Email',
+                    'How soon do you need this funding?'
+                ];
+                return (
+                    <div className="flex flex-col gap-6 animate-fadeIn">
+                        <div className="flex flex-col gap-3">
+                            <h4 className="text-[11px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest px-1">Required Call Details</h4>
+                            <div className="grid grid-cols-2 gap-2 sm:grid-cols-1">
+                                {requiredDetails.map((req, idx) => (
+                                    <div key={idx} className="flex items-center gap-3 p-3 bg-slate-50/50 dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-white/5">
+                                        <div className="w-5 h-5 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="20 6 9 17 4 12" /></svg>
+                                        </div>
+                                        <span className="text-[13px] font-bold text-slate-700 dark:text-slate-200">{req}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 );
@@ -263,13 +286,13 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
 
             {/* ── MAIN CONTENT GRID ── */}
             <div className="grid grid-cols-[1fr_340px] gap-8 xl:grid-cols-1">
-                
+
                 {/* ── LEFT MAIN COLUMN ── */}
                 <div className="flex flex-col gap-8 overflow-hidden">
                     {/* ── TOP KPI CARDS ── */}
                     <div className="grid grid-cols-3 gap-6 md:grid-cols-1">
                         {/* MY LEAD COUNT */}
-                        <div 
+                        <div
                             onClick={() => setActiveModal('LEAD_COUNT')}
                             className="bg-white dark:bg-[#1a202c] rounded-[24px] border-t-4 border-t-blue-600 border border-slate-100 dark:border-white/5 p-8 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group hover:-translate-y-1"
                         >
@@ -286,7 +309,7 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                         </div>
 
                         {/* MY FOLLOWUPS */}
-                        <div 
+                        <div
                             onClick={() => setActiveModal('FOLLOW_UPS')}
                             className="bg-white dark:bg-[#1a202c] rounded-[24px] border-t-4 border-t-orange-500 border border-slate-100 dark:border-white/5 p-8 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group hover:-translate-y-1"
                         >
@@ -303,7 +326,7 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                         </div>
 
                         {/* PENDING LEADS DOCUMENTS */}
-                        <div 
+                        <div
                             onClick={() => setActiveModal('PENDING_DOCS')}
                             className="bg-white dark:bg-[#1a202c] rounded-[24px] border-t-4 border-t-emerald-500 border border-slate-100 dark:border-white/5 p-8 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group hover:-translate-y-1"
                         >
@@ -434,7 +457,7 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                         </h2>
                         <div className="grid grid-cols-2 gap-3">
                             {ASSET_PRODUCTS.map(p => (
-                                <button 
+                                <button
                                     key={p.name}
                                     onClick={() => {
                                         setSelectedProduct(p);
@@ -452,7 +475,7 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
 
                     {/* KNOWLEDGE SEARCH */}
                     <div
-                        onClick={() => onNavigate('knowledge')}
+                        onClick={() => setActiveModal('KNOWLEDGE_BASE')}
                         className="bg-blue-600 rounded-[24px] p-7 text-white shadow-lg shadow-blue-500/20 cursor-pointer hover:bg-blue-700 transition-all group"
                     >
                         <div className="flex items-center gap-4 mb-5 px-1">
@@ -488,7 +511,7 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
                             title="Open Microsoft Teams"
                         >
                             <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                                <path d="M12.5 13.5c1.38 0 2.5 1.12 2.5 2.5v1h-5v-1c0-1.38 1.12-2.5 2.5-2.5zm0-4.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm.5 11c1.93 0 3.5-1.57 3.5-3.5v-1c0-.28-.22-.5-.5-.5H9c-.28 0-.5.22-.5.5v1c0 1.93 1.57 3.5 3.5 3.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                                <path d="M12.5 13.5c1.38 0 2.5 1.12 2.5 2.5v1h-5v-1c0-1.38 1.12-2.5 2.5-2.5zm0-4.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm.5 11c1.93 0 3.5-1.57 3.5-3.5v-1c0-.28-.22-.5-.5-.5H9c-.28 0-.5.22-.5.5v1c0 1.93 1.57 3.5 3.5 3.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
                             </svg>
                             <span className="text-xs font-bold uppercase tracking-widest">Connect to MS Teams</span>
                         </button>
@@ -500,7 +523,7 @@ const TeleDashboard = ({ onNavigate, tasks, onViewLeadDetails }) => {
             <DashboardModal
                 isOpen={activeModal !== null}
                 onClose={closeModal}
-                title={activeModal?.replace(/_/g, ' ')}
+                title={activeModal === 'KNOWLEDGE_BASE' ? 'Knowledge Base' : activeModal?.replace(/_/g, ' ')}
             >
                 {renderModalContent()}
             </DashboardModal>
