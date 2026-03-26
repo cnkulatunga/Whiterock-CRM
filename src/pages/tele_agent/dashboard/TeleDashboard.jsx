@@ -214,30 +214,30 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
             <div className="grid grid-cols-7 grid-rows-[min-content_1fr] flex-1 gap-4 min-h-0 w-full mb-1">
                 
                 {/* === ROW 1: 7 SMALL SQUARES === (Cols 1 to 7) */}
-                <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-50/80 dark:bg-[#1c2340] rounded-2xl border border-blue-200/50 dark:border-blue-500/20 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUserGroup width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">{(MOCK_LEAD_COUNTS[user.id] || 0).toLocaleString()}</h2>
                     <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Leads</span>
                 </div>
 
-                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-orange-50/80 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200/50 dark:border-orange-500/20 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-orange-100/40 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200 dark:border-orange-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-orange-500/20"><IconClock width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{tasks.length}</h2>
                     <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest">Followups</span>
                 </div>
 
-                <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-50/80 dark:bg-[#182724] rounded-2xl border border-emerald-200/50 dark:border-emerald-500/20 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconFolder width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">{MOCK_LEADS.filter(l => l.documents.some(d => d.status === 'Pending')).length}</h2>
                     <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Docs Limit</span>
                 </div>
 
-                <div onClick={() => onNavigate('create-lead')} className="bg-indigo-50/80 dark:bg-[#201d3a] rounded-2xl border border-indigo-200/50 dark:border-indigo-500/20 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-indigo-600 text-white flex items-center justify-center mb-1 shadow-md shadow-indigo-600/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-indigo-700 dark:text-indigo-300">Create<br/>Lead</h2>
+                <div onClick={() => onNavigate('create-lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20"><IconUserGroup width="24" height="24" /></div>
+                    <h2 className="text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">Create<br/>Lead</h2>
                 </div>
 
-                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="bg-amber-50/80 dark:bg-[#282315] rounded-2xl border border-amber-200/50 dark:border-amber-500/20 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center mb-1 shadow-md shadow-amber-500/20"><IconBulb width="24" height="24" /></div>
                     <h2 className="text-[14px] font-black leading-tight text-amber-700 dark:text-amber-400">Knowledge<br/>Base</h2>
                 </div>
@@ -247,7 +247,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">Connect<br/>Teams</h2>
                 </div>
 
-                <div className="bg-purple-50/80 dark:bg-[#251a3a] rounded-2xl border border-purple-200/50 dark:border-purple-500/20 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square text-center relative overflow-hidden">
+                <div className="bg-purple-100/30 dark:bg-[#251a3a] rounded-2xl border border-purple-200 dark:border-purple-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square text-center relative overflow-hidden">
                     <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center mb-1 shadow-md shadow-purple-500/30 relative z-10"><IconBulb width="24" height="24" /></div>
                     <h2 className="text-[14px] font-black leading-tight text-purple-700 dark:text-purple-300 relative z-10">AI<br/>Analytics</h2>
                     <span className="absolute top-2 right-2 text-[8px] font-black bg-purple-200 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded tracking-widest z-10">BETA</span>
