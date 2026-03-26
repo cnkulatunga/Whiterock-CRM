@@ -83,6 +83,17 @@ const TeleAgentLayout = ({ onLogout }) => {
         return () => window.removeEventListener('resize', handler);
     }, []);
 
+    const getPageTitle = () => {
+        const path = location.pathname;
+        if (path.includes('dashboard')) return 'Tele Dashboard';
+        if (path.includes('create-lead')) return 'Create Lead';
+        if (path.includes('lead-details')) return 'Lead Details';
+        if (path.includes('leads')) return 'Manage Leads';
+        if (path.includes('follow-ups')) return 'Tasks & Follow-ups';
+        if (path.includes('promotions')) return 'Lender Promotions';
+        return '';
+    };
+
     return (
         <div
             className="flex min-h-screen w-full overflow-x-hidden"
@@ -116,7 +127,13 @@ const TeleAgentLayout = ({ onLogout }) => {
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
-                    <div className="flex-1" />
+                    
+                    <div className="flex-1 flex items-center pl-2 lg:pl-0">
+                        <h1 className="text-[16px] font-black tracking-widest uppercase text-slate-900 dark:text-white truncate">
+                            {getPageTitle()}
+                        </h1>
+                    </div>
+                    
                     <div className="flex items-center gap-3">
                         {/* Notification Bell */}
                         <div className="relative">
