@@ -88,10 +88,10 @@ export const INITIAL_TASKS = [
     { id: 202, title: 'Quarterly Performance Report', lead: 'Enterprise', status: 'In Progress', date: '2026-03-18', time: '09:00', type: 'Review', reminder: 'none', assignedTo: 'Self' },
 
     // Tele Agent Tasks
-    { id: 1, title: 'Follow up with Robert Miller', lead: 'Robert Miller', status: 'Pending', date: '2026-03-09', time: '14:00', type: 'Call', reminder: '15m', assignedTo: '3' },
-    { id: 2, title: "Verify Alice Huang's documents", lead: 'Alice Huang', status: 'In Progress', date: '2026-03-09', time: '16:30', type: 'Document', reminder: '1h', assignedTo: '3' },
-    { id: 3, title: 'Check loan eligibility for David Rivera', lead: 'David Rivera', status: 'Completed', date: '2026-03-08', time: '10:00', type: 'Review', reminder: 'none', assignedTo: '3' },
-    { id: 4, title: 'Send welcome email to Michael Chen', lead: 'Michael Chen', status: 'Pending', date: '2026-03-10', time: '10:00', type: 'Email', reminder: '1d', assignedTo: '3' },
+    { id: 1, title: 'Follow up with Robert Miller', lead: 'Robert Miller', email: 'robert.miller@logistics.com', phone: '+44 20 7946 0123', status: 'Pending', date: '2026-03-26', time: '14:00', type: 'Call', reminder: '15m', assignedTo: '3', description: 'Address concerns about the high interest rate on the proposed working capital loan.' },
+    { id: 2, title: "Verify Alice Huang's documents", lead: 'Alice Huang', email: 'alice.huang@techsol.com', phone: '+44 20 7946 0456', status: 'In Progress', date: '2026-03-26', time: '16:30', type: 'Document', reminder: '1h', assignedTo: '3', description: 'Check the business annual turnover figures match the submitted bank statements.' },
+    { id: 3, title: 'Check loan eligibility for David Rivera', lead: 'David Rivera', email: 'd.rivera@designstudio.uk', phone: '+44 20 7946 0789', status: 'Completed', date: '2026-03-25', time: '10:00', type: 'Review', reminder: 'none', assignedTo: '3', description: 'Eligibility confirmed. Ready to proceed to the next stage of document collection.' },
+    { id: 4, title: 'Send welcome email to Michael Chen', lead: 'Michael Chen', email: 'm.chen@financehub.com', phone: '+44 20 7946 0111', status: 'Pending', date: '2026-03-27', time: '10:00', type: 'Email', reminder: '1d', assignedTo: '3', description: 'Introduce the team and outline the next steps for documentation submission.' },
 ];
 
 /**
@@ -379,6 +379,62 @@ export const MOCK_LEADS = [
         existingLoan: 'No', overdraftFacility: 'No',
         notes: 'Confidential request.',
         documents: []
+    },
+    {
+        id: 'AF-018', leadId: 'AF-018', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-25', name: 'Peter Parker',
+        businessName: 'Parker Tech Solutions', email: 'peter@parkertech.com', phone: '+1 212-555-0101', nic: 'NIC-018', source: 'Website Form', status: 'Document Collection', lastContact: '1 hour ago', stage: 'Document Collection', progress: 20, assignedStaffId: 3,
+        loanAmount: '£120,000', loanPurpose: 'Working Capital', homeOwner: 'No', companyBank: 'Chase', businessAnnualTurnover: '450,000', fundingTimeline: 'Within 2 weeks', industry: 'Technology', jobTitle: 'Founder',
+        existingLoan: 'No', overdraftFacility: 'No',
+        notes: 'Young startup founder. Needs quick capital for inventory.',
+        documents: []
+    },
+    {
+        id: 'AF-019', leadId: 'AF-019', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-25', name: 'Clark Kent',
+        businessName: 'Daily Planet Media', email: 'clark.kent@dailyplanet.com', phone: '+1 312-555-0202', nic: 'NIC-019', source: 'Referral', status: 'Lender Selection', lastContact: '3 hours ago', stage: 'Lender Selection', progress: 70, assignedStaffId: 3,
+        loanAmount: '£750,000', loanPurpose: 'Expansion', homeOwner: 'Yes', companyBank: 'Metropolis Bank', businessAnnualTurnover: '3,200,000', fundingTimeline: '1 month', industry: 'Media', jobTitle: 'Editor',
+        existingLoan: 'Yes', existingLoanLenderName: 'MetroBank', existingLoanAmount: '100,000', existingLoanInterestRate: '3.9', existingLoanMonthlyRepayment: '2,100', existingLoanTerm: '48 months', overdraftFacility: 'Yes',
+        notes: 'Looking for capital to expand digital publishing division.',
+        documents: [{ id: 1, type: 'Bank Statement', status: 'Approved', note: 'Verified', date: '2026-03-24' }]
+    },
+    {
+        id: 'AF-020', leadId: 'AF-020', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-25', name: 'Diana Prince',
+        businessName: 'Amazonian Exports Ltd', email: 'diana.prince@amazonia.com', phone: '+1 407-555-0303', nic: 'NIC-020', source: 'LinkedIn', status: 'Document Verification Done', lastContact: 'Yesterday', stage: 'Document Verification Done', progress: 45, assignedStaffId: 3,
+        loanAmount: '£2,500,000', loanPurpose: 'Import Finance', homeOwner: 'Yes', companyBank: 'ANZ Bank', businessAnnualTurnover: '8,000,000', fundingTimeline: 'Within 3 months', industry: 'Export & Trade', jobTitle: 'Director',
+        existingLoan: 'No', overdraftFacility: 'Yes',
+        notes: 'Trade finance for new international shipping contract.',
+        documents: [{ id: 1, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2026-03-24' }, { id: 2, type: 'Bank Statement', status: 'Approved', note: 'Verified', date: '2026-03-24' }]
+    },
+    {
+        id: 'AF-021', leadId: 'AF-021', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-26', name: 'Bruce Banner',
+        businessName: 'Gamma Labs', email: 'b.banner@gammalabs.io', phone: '+1 617-555-0404', nic: 'NIC-021', source: 'Direct Call', status: 'Completed', lastContact: 'Just now', stage: 'Completed', progress: 100, assignedStaffId: 3,
+        loanAmount: '£3,000,000', loanPurpose: 'R&D Infrastructure', homeOwner: 'Yes', companyBank: 'Barclays', businessAnnualTurnover: '12,000,000', fundingTimeline: 'Immediate', industry: 'Research', jobTitle: 'Chief Scientist',
+        existingLoan: 'No', overdraftFacility: 'No',
+        notes: 'Confidential scientific research funding. High priority clearance.',
+        documents: [{ id: 1, type: 'Loan Agreement', status: 'Approved', note: 'Signed', date: '2026-03-25' }]
+    },
+    {
+        id: 'AF-022', leadId: 'AF-022', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-26', name: 'Wanda Maximoff',
+        businessName: 'Hex Creative Studios', email: 'wanda@hexstudios.com', phone: '+1 718-555-0505', nic: 'NIC-022', source: 'Facebook Ads', status: 'Document Collection', lastContact: '45 mins ago', stage: 'Document Collection', progress: 10, assignedStaffId: 3,
+        loanAmount: '£180,000', loanPurpose: 'Equipment Finance', homeOwner: 'No', companyBank: 'HSBC', businessAnnualTurnover: '620,000', fundingTimeline: 'Within 1 month', industry: 'Creative Arts', jobTitle: 'Creative Director',
+        existingLoan: 'No', overdraftFacility: 'No',
+        notes: 'Film & production studio needing new camera equipment.',
+        documents: []
+    },
+    {
+        id: 'AF-023', leadId: 'AF-023', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-26', name: 'Sam Wilson',
+        businessName: 'Wilson Aviation', email: 'sam@wilsonaviation.com.au', phone: '+61 400-555-0606', nic: 'NIC-023', source: 'Partner', status: 'Rejected', lastContact: '2 days ago', stage: 'Rejected', progress: 100, assignedStaffId: 3,
+        loanAmount: '£4,500,000', loanPurpose: 'Fleet Acquisition', homeOwner: 'Yes', companyBank: 'Commonwealth Bank', businessAnnualTurnover: '9,500,000', fundingTimeline: 'ASAP', industry: 'Aviation', jobTitle: 'Managing Director',
+        existingLoan: 'Yes', existingLoanLenderName: 'Westpac', existingLoanAmount: '2,000,000', existingLoanInterestRate: '5.2', existingLoanMonthlyRepayment: '42,000', existingLoanTerm: '60 months', overdraftFacility: 'Yes',
+        notes: 'Rejected due to existing debt-to-income ratio exceeding threshold.',
+        documents: [{ id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Insufficient balance', date: '2026-03-24' }]
+    },
+    {
+        id: 'AF-024', leadId: 'AF-024', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-26', name: 'T\'Challa Udaku',
+        businessName: 'Wakanda Resources', email: 'tchalla@wakanda.co', phone: '+27 11-555-0707', nic: 'NIC-024', source: 'Website Form', status: 'Lender Selection', lastContact: '10 mins ago', stage: 'Lender Selection', progress: 65, assignedStaffId: 3,
+        loanAmount: '£15,000,000', loanPurpose: 'Infrastructure', homeOwner: 'Yes', companyBank: 'Standard Bank', businessAnnualTurnover: '50,000,000', fundingTimeline: '2 weeks', industry: 'Mining & Resources', jobTitle: 'Chairman',
+        existingLoan: 'No', overdraftFacility: 'Yes',
+        notes: 'Major infrastructure deal. Lender shortlist in progress.',
+        documents: [{ id: 1, type: 'Financial Report', status: 'Approved', note: 'Audited 2025', date: '2026-03-25' }]
     }
 ];
 

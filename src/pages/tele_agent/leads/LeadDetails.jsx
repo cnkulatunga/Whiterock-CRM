@@ -99,6 +99,8 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const [newTask, setNewTask] = useState({
         title: '',
         lead: leadName,
+        email: lead.email || '',
+        phone: lead.phone || '',
         date: new Date().toISOString().split('T')[0],
         time: '12:00',
         type: 'Call',
@@ -125,6 +127,8 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
         setNewTask({
             title: '',
             lead: leadName,
+            email: lead.email || '',
+            phone: lead.phone || '',
             date: new Date().toISOString().split('T')[0],
             time: '12:00',
             type: 'Call',
@@ -704,6 +708,28 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                         onChange={(e) => setNewTask({...newTask, title: e.target.value})}
                                         placeholder="e.g., Follow up call"
                                     />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Lead Email</label>
+                                        <input
+                                            type="email"
+                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
+                                            value={newTask.email}
+                                            onChange={(e) => setNewTask({...newTask, email: e.target.value})}
+                                            placeholder="email@example.com"
+                                        />
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Lead Phone</label>
+                                        <input
+                                            type="text"
+                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
+                                            value={newTask.phone}
+                                            onChange={(e) => setNewTask({...newTask, phone: e.target.value})}
+                                            placeholder="+44 ..."
+                                        />
+                                    </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="flex flex-col gap-1">
