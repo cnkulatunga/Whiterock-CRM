@@ -13,14 +13,16 @@ const IconCalculator = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="c
 const IconStickyNote = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" {...props}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><line x1="9" y1="14" x2="15" y2="14" /><line x1="9" y1="18" x2="15" y2="18" /><line x1="9" y1="10" x2="9.01" y2="10" /></svg>;
 const IconTeams = (props) => <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" {...props}><path d="M12.5 13.5c1.38 0 2.5 1.12 2.5 2.5v1h-5v-1c0-1.38 1.12-2.5 2.5-2.5zm0-4.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm.5 11c1.93 0 3.5-1.57 3.5-3.5v-1c0-.28-.22-.5-.5-.5H9c-.28 0-.5.22-.5.5v1c0 1.93 1.57 3.5 3.5 3.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /></svg>;
 const IconBulb = (props) => <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" {...props}><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z" /></svg>;
+const IconMail = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
+const IconPhone = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.28-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
 
 /* ─── MODAL COMPONENT ─── */
-const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false }) => {
+const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false, isWide = false }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : 'max-w-4xl rounded-2xl'}`}>
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-4xl rounded-2xl'}`}>
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors shrink-0">
@@ -29,7 +31,7 @@ const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false
                         </svg>
                     </button>
                 </div>
-                <div className={`p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : 'max-h-[70vh]'}`}>
+                <div className={`p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : 'max-h-[80vh] custom-scrollbar'}`}>
                     {children}
                 </div>
             </div>
@@ -46,12 +48,12 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     const safePromotions = promotions || [];
     const [outlookAccount, setOutlookAccount] = useState(null);
     const [outlookEvents, setOutlookEvents] = useState([]);
-    
+
     const [activeModal, setActiveModal] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
 
     const [notesList, setNotesList] = useState(() => {
-        try { 
+        try {
             const existingArr = JSON.parse(localStorage.getItem('tele_notes_list'));
             if (existingArr && existingArr.length > 0) return existingArr;
             const oldText = localStorage.getItem('tele_notes_v3');
@@ -77,7 +79,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
         const acc = getAccount();
         if (acc) {
             setOutlookAccount(acc);
-            getCalendarEvents().then(setOutlookEvents).catch(() => {});
+            getCalendarEvents().then(setOutlookEvents).catch(() => { });
         }
     }, []);
 
@@ -111,7 +113,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
         const createdNote = {
             id: Date.now(),
             text: newNote.trim(),
-            date: `${now.getFullYear()}-${getPadded(now.getMonth()+1)}-${getPadded(now.getDate())}`,
+            date: `${now.getFullYear()}-${getPadded(now.getMonth() + 1)}-${getPadded(now.getDate())}`,
             time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             highlighted: false
         };
@@ -134,7 +136,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     };
 
     const clearAllNotes = () => {
-        if(window.confirm("Are you sure you want to clear all your notes permanently?")) {
+        if (window.confirm("Are you sure you want to clear all your notes permanently?")) {
             setNotesList([]);
             localStorage.setItem('tele_notes_list', JSON.stringify([]));
         }
@@ -152,38 +154,158 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
     const renderModalContent = () => {
         switch (activeModal) {
-            case 'LEAD_COUNT': return (
-                <div className="flex flex-col gap-3">
-                    {MOCK_LEADS.slice(0, 5).map(lead => (
-                        <div key={lead.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                            <div><div className="font-bold text-sm dark:text-white">{lead.name}</div><div className="text-xs text-slate-500">{lead.businessName}</div></div>
-                            <span className="text-[10px] font-bold px-2 py-1 bg-blue-100 text-blue-700 rounded-full">{lead.status}</span>
-                        </div>
-                    ))}
-                    <button className="text-blue-600 font-bold mt-2 text-sm pt-2" onClick={() => { onNavigate('leads'); closeModal(); }}>View All Leads</button>
-                </div>
-            );
-            case 'FOLLOW_UPS': return (
-                <div className="flex flex-col gap-3">
-                    {tasks.slice(0, 5).map(task => (
-                        <div key={task.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                            <div><div className="font-bold text-sm dark:text-white">{task.title}</div><div className="text-xs text-slate-500">{task.date} at {task.time}</div></div>
-                            <span className={`w-2 h-2 rounded-full ${task.status === 'Completed' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                        </div>
-                    ))}
-                    <button className="text-blue-600 font-bold mt-2 text-sm pt-2" onClick={() => { onNavigate('follow-ups'); closeModal(); }}>View Schedule</button>
-                </div>
-            );
-            case 'PENDING_DOCS': return (
-                <div className="flex flex-col gap-3">
-                    {MOCK_LEADS.filter(l => l.documents.some(d => d.status === 'Pending')).map(lead => (
-                        <div key={lead.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                            <div><div className="font-bold text-sm dark:text-white">{lead.name}</div><div className="text-xs text-slate-500">{lead.documents.filter(d => d.status === 'Pending').length} Pending Docs</div></div>
-                            <button className="text-[10px] bg-blue-600 text-white px-2 py-1 rounded-md" onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}>View</button>
-                        </div>
-                    ))}
-                </div>
-            );
+            case 'LEAD_COUNT': {
+                const myLeads = MOCK_LEADS.filter(l => l.assignedStaffId === user.id && l.status !== 'Completed');
+                const STATUS_COLORS_MAP = {
+                    'Document Collection': 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
+                    'Document Verification Done': 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
+                    'Lender Selection': 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+                    'Completed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+                    'Rejected': 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                    'Pending': 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+                };
+                return (
+                    <div className="flex flex-col gap-3">
+                        {myLeads.length > 0 ? (
+                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-hidden">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="bg-slate-50 dark:bg-slate-800/80">
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-8">#</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Name</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business Name</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loan Amount</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                        {myLeads.map((lead, idx) => (
+                                            <tr
+                                                key={lead.id}
+                                                onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
+                                                className="cursor-pointer bg-white dark:bg-transparent hover:bg-blue-50/50 dark:hover:bg-blue-900/10 border-l-2 border-transparent hover:border-blue-500 transition-all"
+                                            >
+                                                <td className="px-3 py-2 text-[11px] font-bold text-slate-400">{idx + 1}</td>
+                                                <td className="px-3 py-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-[9px] font-black shrink-0 shadow-sm">
+                                                            {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                        </div>
+                                                        <span className="text-[12px] font-bold text-slate-800 dark:text-white">{lead.name}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                                                        <IconMail width="11" height="11" className="shrink-0" />
+                                                        <span className="truncate max-w-[160px]">{lead.email || '—'}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                                                        <IconPhone width="11" height="11" className="shrink-0" />
+                                                        <span>{lead.phone || '—'}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">{lead.businessName || '—'}</span>
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">{lead.loanAmount || '—'}</span>
+                                                </td>
+                                                <td className="px-3 py-2 text-center">
+                                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tight ${STATUS_COLORS_MAP[lead.status] || 'bg-slate-100 text-slate-600'}`}>
+                                                        {lead.status}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                                No leads assigned yet
+                            </div>
+                        )}
+                        {myLeads.length > 0 && (
+                            <button
+                                className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 font-black py-2.5 rounded-xl text-[10px] uppercase tracking-widest transition-all"
+                                onClick={() => { onNavigate('leads'); closeModal(); }}
+                            >
+                                View All Leads →
+                            </button>
+                        )}
+                    </div>
+                );
+            }
+            case 'FOLLOW_UPS': {
+                return (
+                    <div className="flex flex-col gap-2">
+                        {tasks.length > 0 ? tasks.slice(0, 10).map(task => {
+                            const relatedLead = MOCK_LEADS.find(l => l.name === task.leadName);
+                            return (
+                                <div 
+                                    key={task.id} 
+                                    onClick={() => { relatedLead && onViewLeadDetails && onViewLeadDetails(relatedLead); closeModal(); }}
+                                    className="p-3 bg-white dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-white/5 shadow-sm hover:border-orange-400 dark:hover:border-orange-500/50 hover:bg-orange-50/30 dark:hover:bg-orange-900/10 transition-all cursor-pointer flex items-center justify-between group"
+                                >
+                                    <div className="flex-1 min-w-0 pr-4">
+                                        <div className="flex items-center gap-2 mb-0.5">
+                                            <h3 className="font-black text-[13px] dark:text-white truncate">{task.title}</h3>
+                                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded tracking-tighter shrink-0 ${task.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>
+                                                {task.time}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                                            <span className="truncate max-w-[150px]">{task.leadName} &bull; {task.date}</span>
+                                        </div>
+                                    </div>
+                                    <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-700/50 text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                                        <IconChevronRight width="14" height="14" />
+                                    </div>
+                                </div>
+                            );
+                        }) : (
+                            <div className="p-8 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">No upcoming followups</div>
+                        )}
+                        <button className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-slate-500 font-black py-2.5 rounded-xl mt-1 text-[10px] uppercase tracking-widest transition-all" onClick={() => { onNavigate('follow-ups'); closeModal(); }}>View Full Schedule</button>
+                    </div>
+                );
+            }
+            case 'PENDING_DOCS': {
+                const pendingLeads = MOCK_LEADS.filter(l => l.documents.some(d => d.status === 'Pending'));
+                return (
+                    <div className="flex flex-col gap-2">
+                        {pendingLeads.length > 0 ? pendingLeads.map(lead => (
+                            <div 
+                                key={lead.id} 
+                                onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
+                                className="p-3 bg-white dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-white/5 shadow-sm hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all cursor-pointer flex items-center justify-between group"
+                            >
+                                <div className="flex-1 min-w-0 pr-4">
+                                    <div className="flex items-center gap-2 mb-0.5">
+                                        <h3 className="font-black text-[13px] dark:text-white truncate">{lead.name}</h3>
+                                        <span className="text-[8px] font-black px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded uppercase tracking-tighter shrink-0">
+                                            {lead.documents.filter(d => d.status === 'Pending').length} Pending
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-3 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                                        <span className="truncate max-w-[150px]">{lead.businessName}</span>
+                                    </div>
+                                </div>
+                                <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-700/50 text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                                    <IconChevronRight width="14" height="14" />
+                                </div>
+                            </div>
+                        )) : (
+                            <div className="p-8 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">All documents verified!</div>
+                        )}
+                        <button className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-slate-500 font-black py-2.5 rounded-xl mt-1 text-[10px] uppercase tracking-widest transition-all" onClick={() => { onNavigate('documents'); closeModal(); }}>Manage Documents</button>
+                    </div>
+                );
+            }
             case 'PRODUCT_BRIEF': return selectedProduct && (
                 <div className="flex flex-col gap-4">
                     <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800"><p className="text-sm font-medium dark:text-slate-300">{selectedProduct.brief}</p></div>
@@ -212,49 +334,49 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
             {/* STRICT SINGLE SCREEN GRID (Row 1: Tiles, Row 2: Main Stacks) */}
             <div className="grid grid-cols-7 grid-rows-[min-content_1fr] flex-1 gap-4 min-h-0 w-full mb-1">
-                
+
                 {/* === ROW 1: 7 SMALL SQUARES === (Cols 1 to 7) */}
                 <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUserGroup width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">{(MOCK_LEAD_COUNTS[user.id] || 0).toLocaleString()}</h2>
-                    <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Leads</span>
+                    <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MY LEAD COUNT</span>
                 </div>
 
                 <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-orange-100/40 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200 dark:border-orange-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-orange-500/20"><IconClock width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{tasks.length}</h2>
-                    <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest">Followups</span>
+                    <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest">MY FOLLOWUPS</span>
                 </div>
 
                 <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconFolder width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">{MOCK_LEADS.filter(l => l.documents.some(d => d.status === 'Pending')).length}</h2>
-                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Docs Limit</span>
+                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">PENDING DOCUMENTS</span>
                 </div>
 
                 <div onClick={() => onNavigate('create-lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">Create<br/>Lead</h2>
+                    <h2 className="text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">CREATE<br />LEAD</h2>
                 </div>
 
                 <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center mb-1 shadow-md shadow-amber-500/20"><IconBulb width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-amber-700 dark:text-amber-400">Knowledge<br/>Base</h2>
+                    <h2 className="text-[14px] font-black leading-tight text-amber-700 dark:text-amber-400">KNOWLEDGE<br />BASE</h2>
                 </div>
 
                 <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-md shadow-[#5b5fc7]/30"><IconTeams width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">Connect<br/>Teams</h2>
+                    <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">CONNECT<br />TEAMS</h2>
                 </div>
 
                 <div className="bg-purple-100/30 dark:bg-[#251a3a] rounded-2xl border border-purple-200 dark:border-purple-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square text-center relative overflow-hidden">
                     <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center mb-1 shadow-md shadow-purple-500/30 relative z-10"><IconBulb width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-purple-700 dark:text-purple-300 relative z-10">AI<br/>Analytics</h2>
+                    <h2 className="text-[14px] font-black leading-tight text-purple-700 dark:text-purple-300 relative z-10">AI<br />ANALYTICS</h2>
                     <span className="absolute top-2 right-2 text-[8px] font-black bg-purple-200 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded tracking-widest z-10">BETA</span>
                 </div>
 
                 {/* === ROW 2: COLUMN STACKS === */}
-                
+
                 {/* STACK 1: TIMELINE (Cols 1-2) */}
                 <div className="col-span-2 flex flex-col min-h-0 shadow-sm overflow-hidden bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5">
                     {/* WIDGET TOP MENU BAR */}
@@ -262,7 +384,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate mr-2">Timeline</h2>
                         <span className="text-[8px] bg-slate-200 dark:bg-slate-700 font-bold px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-300 shrink-0">{tasks.filter(t => t.date === selectedDate).length}</span>
                     </div>
-                    
+
                     <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar flex-1 p-2">
                         {todayPromos.map(promo => (
                             <div key={promo.id} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 shrink-0">
@@ -274,7 +396,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             tasks.filter(t => t.date === selectedDate).map((item) => (
                                 <div key={item.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 shrink-0">
                                     <div className="text-[11px] font-bold dark:text-white mb-0.5 leading-tight">{item.title}</div>
-                                    <div className="text-[9px] font-medium text-slate-500 flex items-center gap-1.5"><IconClock/>{item.time} &bull; {item.leadName}</div>
+                                    <div className="text-[9px] font-medium text-slate-500 flex items-center gap-1.5"><IconClock />{item.time} &bull; {item.leadName}</div>
                                 </div>
                             ))
                         ) : <div className="text-[9px] text-slate-400 italic p-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl mt-1">Clear calendar. Take a break!</div>}
@@ -283,7 +405,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                 {/* STACK 2: MIDDLE (Cols 3-5) */}
                 <div className="col-span-3 flex flex-col gap-4 min-h-0">
-                    
+
                     {/* NOTES (Absorbs remaining space) */}
                     <div className="bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden">
                         <div className="bg-[#fff9c4] dark:bg-[#4d4826] border-b border-yellow-200/50 dark:border-yellow-700/30 p-2.5 px-4 shrink-0 flex items-center justify-between">
@@ -296,11 +418,10 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                     <div className="text-xs text-yellow-700/50 italic text-center mt-4 border border-dashed border-yellow-200 dark:border-yellow-800 p-4 rounded-xl">No notes yet. Type below to start!</div>
                                 ) : (
                                     notesList.map(note => (
-                                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group transition-all border shrink-0 ${
-                                            note.highlighted 
-                                                ? 'bg-yellow-200 dark:bg-yellow-600/40 border-yellow-300 dark:border-yellow-500/50 text-yellow-900 dark:text-yellow-50' 
-                                                : 'bg-white/60 dark:bg-black/20 border-yellow-100 dark:border-yellow-700/20 text-yellow-900 dark:text-yellow-100'
-                                        }`}>
+                                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group transition-all border shrink-0 ${note.highlighted
+                                            ? 'bg-yellow-200 dark:bg-yellow-600/40 border-yellow-300 dark:border-yellow-500/50 text-yellow-900 dark:text-yellow-50'
+                                            : 'bg-white/60 dark:bg-black/20 border-yellow-100 dark:border-yellow-700/20 text-yellow-900 dark:text-yellow-100'
+                                            }`}>
                                             <div className="flex justify-between items-center mb-1.5">
                                                 <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `• ${note.time}`}</span>
                                                 <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -314,12 +435,12 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                 )}
                             </div>
                             <div className="shrink-0 flex gap-2 pt-2 border-t border-yellow-200/50 dark:border-yellow-700/30">
-                                <input 
-                                    type="text" 
-                                    value={newNote} 
-                                    onChange={e => setNewNote(e.target.value)} 
+                                <input
+                                    type="text"
+                                    value={newNote}
+                                    onChange={e => setNewNote(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && addNewNote()}
-                                    placeholder="Type a new note & press Enter..." 
+                                    placeholder="Type a new note & press Enter..."
                                     className="flex-1 bg-white/60 dark:bg-black/20 border border-yellow-200/60 dark:border-yellow-700/50 rounded-lg px-3 py-1.5 text-[11px] text-yellow-900 dark:text-yellow-100 outline-none focus:border-yellow-400 focus:bg-white transition-colors"
                                 />
                                 <button onClick={addNewNote} className="bg-yellow-400 hover:bg-yellow-500 dark:bg-yellow-600 dark:hover:bg-yellow-500 text-yellow-900 dark:text-white px-3.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm">Add</button>
@@ -342,12 +463,12 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             ))}
                         </div>
                     </div>
-                    
+
                 </div>
 
                 {/* STACK 3: RIGHT (Cols 6-7) */}
                 <div className="col-span-2 flex flex-col gap-4 min-h-0">
-                    
+
                     {/* CALENDAR */}
                     <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden">
                         <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2 px-3 shrink-0 flex items-center justify-between">
@@ -362,24 +483,23 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                 {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <div key={i}>{d}</div>)}
                             </div>
                             <div className="grid grid-cols-7 gap-y-1 gap-x-1.5 text-center flex-1 min-h-0 pb-2 auto-rows-fr">
-                            {[...Array(emptySlots)].map((_, i) => <div key={`empty-${i}`} />)}
-                            {calendarDays.map(day => {
-                                const dStr = `${currentYear}-${getPadded(currentMonth + 1)}-${getPadded(day)}`;
-                                const isSelected = selectedDate === dStr;
-                                const hasTasks = tasks.some(t => t.date === dStr);
-                                const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
-                                return (
-                                    <div key={day} onClick={() => setSelectedDate(dStr)} className={`flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all border shadow-[0_1px_2px_rgba(0,0,0,0.03)] h-full ${
-                                        isSelected ? 'bg-blue-600 text-white border-blue-600 scale-105' : 
-                                        isToday ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700' : 
-                                        'bg-white dark:bg-slate-800/60 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:border-blue-300 hover:bg-slate-50'
-                                    }`}>
-                                        <span className="text-[10px] font-black">{day}</span>
-                                        {hasTasks && <div className={`w-[3px] h-[3px] rounded-full mt-0.5 ${isSelected ? 'bg-white' : 'bg-orange-500'}`} />}
-                                    </div>
-                                );
-                            })}
-                        </div>
+                                {[...Array(emptySlots)].map((_, i) => <div key={`empty-${i}`} />)}
+                                {calendarDays.map(day => {
+                                    const dStr = `${currentYear}-${getPadded(currentMonth + 1)}-${getPadded(day)}`;
+                                    const isSelected = selectedDate === dStr;
+                                    const hasTasks = tasks.some(t => t.date === dStr);
+                                    const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+                                    return (
+                                        <div key={day} onClick={() => setSelectedDate(dStr)} className={`flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all border shadow-[0_1px_2px_rgba(0,0,0,0.03)] h-full ${isSelected ? 'bg-blue-600 text-white border-blue-600 scale-105' :
+                                            isToday ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700' :
+                                                'bg-white dark:bg-slate-800/60 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:border-blue-300 hover:bg-slate-50'
+                                            }`}>
+                                            <span className="text-[10px] font-black">{day}</span>
+                                            {hasTasks && <div className={`w-[3px] h-[3px] rounded-full mt-0.5 ${isSelected ? 'bg-white' : 'bg-orange-500'}`} />}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
 
@@ -389,7 +509,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between relative z-10">
                             <div className="flex items-center gap-1.5 text-slate-500"><IconCalculator /><span className="text-[10px] font-black uppercase tracking-widest">Estimator</span></div>
                         </div>
-                        
+
                         <div className="flex flex-col gap-1.5 p-2.5 relative z-10 justify-center">
                             <div className="flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5">
                                 <label className="text-[9px] font-bold text-slate-500 w-12 shrink-0 uppercase tracking-widest">Amount</label>
@@ -416,7 +536,13 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
             </div>
 
-            <DashboardModal isOpen={activeModal !== null} onClose={closeModal} title={activeModal === 'KNOWLEDGE_BASE' ? 'Knowledge Base' : (activeModal ? activeModal.replace(/_/g, ' ') : '')}>
+            <DashboardModal isOpen={activeModal !== null} onClose={closeModal} title={
+                activeModal === 'LEAD_COUNT' ? 'My Assigned Leads' :
+                activeModal === 'FOLLOW_UPS' ? 'My Follow-ups' :
+                activeModal === 'PENDING_DOCS' ? 'Pending Documents' :
+                activeModal === 'KNOWLEDGE_BASE' ? 'Knowledge Base' :
+                (activeModal ? activeModal.replace(/_/g, ' ') : '')
+            } isWide={activeModal === 'LEAD_COUNT'}>
                 {renderModalContent()}
             </DashboardModal>
         </div>
