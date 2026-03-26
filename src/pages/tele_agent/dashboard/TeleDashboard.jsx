@@ -241,36 +241,128 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 );
             }
             case 'FOLLOW_UPS': {
+                const TASK_STATUS_COLORS = {
+                    'Completed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
+                    'Pending': 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
+                    'High Priority': 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                };
                 return (
-                    <div className="flex flex-col gap-2">
-                        {tasks.length > 0 ? tasks.slice(0, 10).map(task => {
-                            const relatedLead = MOCK_LEADS.find(l => l.name === task.leadName);
-                            return (
-                                <div 
-                                    key={task.id} 
-                                    onClick={() => { relatedLead && onViewLeadDetails && onViewLeadDetails(relatedLead); closeModal(); }}
-                                    className="p-3 bg-white dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-white/5 shadow-sm hover:border-orange-400 dark:hover:border-orange-500/50 hover:bg-orange-50/30 dark:hover:bg-orange-900/10 transition-all cursor-pointer flex items-center justify-between group"
-                                >
-                                    <div className="flex-1 min-w-0 pr-4">
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <h3 className="font-black text-[13px] dark:text-white truncate">{task.title}</h3>
-                                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded tracking-tighter shrink-0 ${task.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'}`}>
-                                                {task.time}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
-                                            <span className="truncate max-w-[150px]">{task.leadName} &bull; {task.date}</span>
-                                        </div>
-                                    </div>
-                                    <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-700/50 text-slate-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
-                                        <IconChevronRight width="14" height="14" />
-                                    </div>
-                                </div>
-                            );
-                        }) : (
-                            <div className="p-8 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">No upcoming followups</div>
+                    <div className="flex flex-col gap-3">
+                        {tasks.length > 0 ? (
+                            <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto">
+                                <table className="w-full text-left border-collapse min-w-[1000px]">
+                                    <thead>
+                                        <tr className="bg-slate-50 dark:bg-slate-800/80">
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-8">#</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead Name</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Task Title</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes / Message</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
+                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                        {(() => {
+                                            const todayStr = new Date().toISOString().split('T')[0];
+                                            return [...tasks]
+                                                .sort((a, b) => {
+                                                    const today = new Date(todayStr);
+                                                    const aDate = new Date(a.date);
+                                                    const bDate = new Date(b.date);
+                                                    
+                                                    const aIsToday = a.date === todayStr;
+                                                    const bIsToday = b.date === todayStr;
+                                                    const aIsPast = aDate < today;
+                                                    const bIsPast = bDate < today;
+                                                    const aIsFuture = aDate > today;
+                                                    const bIsFuture = bDate > today;
+
+                                                    // 1. Today first
+                                                    if (aIsToday && !bIsToday) return -1;
+                                                    if (!aIsToday && bIsToday) return 1;
+                                                    if (aIsToday && bIsToday) return new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time);
+
+                                                    // 2. Future tasks next (Descending order per request)
+                                                    if (aIsFuture && bIsPast) return -1;
+                                                    if (aIsPast && bIsFuture) return 1;
+
+                                                    // If both future or both past, sort descending by date/time
+                                                    const aDateTime = new Date(a.date + ' ' + a.time);
+                                                    const bDateTime = new Date(b.date + ' ' + b.time);
+                                                    return bDateTime - aDateTime;
+                                                })
+                                                .map((task, idx) => {
+                                                    const relatedLead = MOCK_LEADS.find(l => l.name === task.lead || l.email === task.email);
+                                                    const displayEmail = task.email || relatedLead?.email || '—';
+                                                    const displayPhone = task.phone || relatedLead?.phone || '—';
+                                                    const combinedNotes = [task.description, task.message].filter(Boolean).join(' | ');
+
+                                                    return (
+                                                        <tr
+                                                            key={task.id}
+                                                            onClick={() => { relatedLead && onViewLeadDetails && onViewLeadDetails(relatedLead); closeModal(); }}
+                                                            className="cursor-pointer bg-white dark:bg-transparent hover:bg-orange-50/50 dark:hover:bg-orange-900/10 border-l-4 border-transparent hover:border-orange-500 transition-all font-medium"
+                                                        >
+                                                            <td className="px-3 py-2 text-xs font-bold text-slate-400">{idx + 1}</td>
+                                                            <td className="px-3 py-2">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-500 text-white flex items-center justify-center text-[10px] font-black shrink-0 shadow-sm">
+                                                                        {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                                    </div>
+                                                                    <span className="text-[13px] font-bold text-slate-800 dark:text-white whitespace-nowrap">{task.lead || 'Unknown Lead'}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <div className="flex items-center gap-1.5 text-[12px] text-slate-600 dark:text-slate-400">
+                                                                    <IconMail width="13" height="13" />
+                                                                    <span className="truncate max-w-[150px]">{displayEmail}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <div className="flex items-center gap-1.5 text-[12px] text-slate-600 dark:text-slate-400 whitespace-nowrap">
+                                                                    <IconPhone width="13" height="13" />
+                                                                    <span>{displayPhone}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <span className="text-[13px] font-bold text-slate-700 dark:text-slate-200">{task.title}</span>
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <p className="text-[12px] text-slate-500 dark:text-slate-400 line-clamp-1 max-w-[200px]" title={combinedNotes}>
+                                                                    {combinedNotes || 'No notes'}
+                                                                </p>
+                                                            </td>
+                                                            <td className="px-3 py-2">
+                                                                <div className="flex flex-col leading-tight">
+                                                                    <span className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{task.date}</span>
+                                                                    <span className="text-[10px] font-black text-orange-500 uppercase tracking-tighter">{task.time}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-3 py-2 text-center">
+                                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter whitespace-nowrap ${TASK_STATUS_COLORS[task.status] || 'bg-slate-100 text-slate-600'}`}>
+                                                                    {task.status}
+                                                                </span>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                        })()}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                                No upcoming followups
+                            </div>
                         )}
-                        <button className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-slate-500 font-black py-2.5 rounded-xl mt-1 text-[10px] uppercase tracking-widest transition-all" onClick={() => { onNavigate('follow-ups'); closeModal(); }}>View Full Schedule</button>
+                        <button
+                            className="bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-black py-2.5 rounded-xl text-[10px] uppercase tracking-widest transition-all mt-1"
+                            onClick={() => { onNavigate && onNavigate('follow-ups'); closeModal(); }}
+                        >
+                            View Full Schedule →
+                        </button>
                     </div>
                 );
             }
@@ -542,7 +634,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 activeModal === 'PENDING_DOCS' ? 'Pending Documents' :
                 activeModal === 'KNOWLEDGE_BASE' ? 'Knowledge Base' :
                 (activeModal ? activeModal.replace(/_/g, ' ') : '')
-            } isWide={activeModal === 'LEAD_COUNT'}>
+            } isWide={activeModal === 'LEAD_COUNT' || activeModal === 'FOLLOW_UPS'}>
                 {renderModalContent()}
             </DashboardModal>
         </div>

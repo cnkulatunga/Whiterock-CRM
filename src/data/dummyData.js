@@ -89,10 +89,10 @@ export const INITIAL_TASKS = [
     { id: 202, title: 'Quarterly Performance Report', lead: 'Enterprise', status: 'In Progress', date: '2026-03-18', time: '09:00', type: 'Review', reminder: 'none', assignedTo: 'Self' },
 
     // Tele Agent Tasks
-    { id: 1, title: 'Follow up with Robert Miller', lead: 'Robert Miller', status: 'Pending', date: '2026-03-09', time: '14:00', type: 'Call', reminder: '15m', assignedTo: '3' },
-    { id: 2, title: "Verify Alice Huang's documents", lead: 'Alice Huang', status: 'In Progress', date: '2026-03-09', time: '16:30', type: 'Document', reminder: '1h', assignedTo: '3' },
-    { id: 3, title: 'Check loan eligibility for David Rivera', lead: 'David Rivera', status: 'Completed', date: '2026-03-08', time: '10:00', type: 'Review', reminder: 'none', assignedTo: '3' },
-    { id: 4, title: 'Send welcome email to Michael Chen', lead: 'Michael Chen', status: 'Pending', date: '2026-03-10', time: '10:00', type: 'Email', reminder: '1d', assignedTo: '3' },
+    { id: 1, title: 'Follow up with Robert Miller', lead: 'Robert Miller', email: 'robert.miller@logistics.com', phone: '+44 20 7946 0123', status: 'Pending', date: '2026-03-26', time: '14:00', type: 'Call', reminder: '15m', assignedTo: '3', description: 'Address concerns about the high interest rate on the proposed working capital loan.' },
+    { id: 2, title: "Verify Alice Huang's documents", lead: 'Alice Huang', email: 'alice.huang@techsol.com', phone: '+44 20 7946 0456', status: 'In Progress', date: '2026-03-26', time: '16:30', type: 'Document', reminder: '1h', assignedTo: '3', description: 'Check the business annual turnover figures match the submitted bank statements.' },
+    { id: 3, title: 'Check loan eligibility for David Rivera', lead: 'David Rivera', email: 'd.rivera@designstudio.uk', phone: '+44 20 7946 0789', status: 'Completed', date: '2026-03-25', time: '10:00', type: 'Review', reminder: 'none', assignedTo: '3', description: 'Eligibility confirmed. Ready to proceed to the next stage of document collection.' },
+    { id: 4, title: 'Send welcome email to Michael Chen', lead: 'Michael Chen', email: 'm.chen@financehub.com', phone: '+44 20 7946 0111', status: 'Pending', date: '2026-03-27', time: '10:00', type: 'Email', reminder: '1d', assignedTo: '3', description: 'Introduce the team and outline the next steps for documentation submission.' },
 ];
 
 /**

@@ -39,6 +39,8 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     const [newTask, setNewTask] = useState({
         title: '',
         lead: '',
+        email: '',
+        phone: '',
         date: new Date().toISOString().split('T')[0],
         time: '12:00',
         type: 'Call',
@@ -139,6 +141,8 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         setNewTask({
             title: '',
             lead: '',
+            email: '',
+            phone: '',
             date: new Date().toISOString().split('T')[0],
             time: '12:00',
             type: 'Call',
@@ -154,6 +158,8 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         setNewTask({
             title: task.title,
             lead: task.lead || '',
+            email: task.email || '',
+            phone: task.phone || '',
             date: task.date,
             time: task.time,
             type: task.type,
@@ -436,7 +442,42 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs font-bold text-[#4a5568]">Related Lead</label>
-                                    <input required type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" value={newTask.lead} onChange={e => setNewTask({...newTask, lead: e.target.value})} placeholder="Client Name" />
+                                    <input 
+                                        required 
+                                        type="text" 
+                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" 
+                                        value={newTask.lead} 
+                                        onChange={e => {
+                                            const name = e.target.value;
+                                            setNewTask(prev => ({ ...prev, lead: name }));
+                                            // Auto-fill logic
+                                            const leadMatch = (window.MOCK_LEADS || []).find(l => l.name.toLowerCase() === name.toLowerCase());
+                                            if (leadMatch) {
+                                                setNewTask(prev => ({ ...prev, email: leadMatch.email, phone: leadMatch.phone }));
+                                            }
+                                        }} 
+                                        placeholder="Client Name" 
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-bold text-[#4a5568]">Lead Email</label>
+                                    <input 
+                                        type="email" 
+                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" 
+                                        value={newTask.email} 
+                                        onChange={e => setNewTask({...newTask, email: e.target.value})} 
+                                        placeholder="email@example.com" 
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-bold text-[#4a5568]">Lead Phone</label>
+                                    <input 
+                                        type="text" 
+                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" 
+                                        value={newTask.phone} 
+                                        onChange={e => setNewTask({...newTask, phone: e.target.value})} 
+                                        placeholder="+44 ..." 
+                                    />
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs font-bold text-[#4a5568]">Task Type</label>
