@@ -1,7 +1,13 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { WORKFLOW_STAGES_LIST, AUDIT_LOG_ENTRIES } from '../../data/dummyData';
+import { 
+    WORKFLOW_STAGES_LIST, 
+    AUDIT_LOG_ENTRIES,
+    SHARED_INITIAL_USERS,
+    INITIAL_MEMBERSHIPS,
+    AM_MEMBERSHIPS
+} from '../../data/dummyData';
 import { useLeads } from '../../context/LeadsContext';
 import { useTheme } from '../../context/ThemeContext';
 
@@ -32,6 +38,32 @@ const UserProfileModal = ({ user, onClose }) => {
         if (index === -1) return 0;
         return Math.min(Math.round(((index + 1) / stages.length) * 100), 100);
     };
+
+    const getHierarchyContext = () => {
+        if (user.role === 'Tele Agent') {
+            const tlId = Object.keys(INITIAL_MEMBERSHIPS).find(key => 
+                INITIAL_MEMBERSHIPS[key].some(a => a.id === user.id)
+            );
+            const tl = SHARED_INITIAL_USERS.find(u => u.id?.toString() === tlId?.toString());
+            return tl ? { reportsTo: tl, type: 'Team Leader' } : null;
+        }
+        if (user.role === 'Team Leader') {
+            const amId = Object.keys(AM_MEMBERSHIPS).find(key => 
+                AM_MEMBERSHIPS[key].includes(user.id)
+            );
+            const am = SHARED_INITIAL_USERS.find(u => u.id?.toString() === amId?.toString());
+            const members = INITIAL_MEMBERSHIPS[user.id] || [];
+            return { reportsTo: am, members, type: 'Account Manager' };
+        }
+        if (user.role === 'Accounts Manager') {
+            const tlIds = AM_MEMBERSHIPS[user.id] || [];
+            const members = SHARED_INITIAL_USERS.filter(u => tlIds.includes(u.id));
+            return { members, type: 'Team Leaders' };
+        }
+        return null;
+    };
+
+    const hierarchy = getHierarchyContext();
 
     const handleLeadClick = (lead) => {
         onClose(); // Close performance popup first
@@ -169,6 +201,47 @@ const UserProfileModal = ({ user, onClose }) => {
                                     </div>
                                 )}
                             </div>
+
+                            {/* Hierarchy Context */}
+                            {hierarchy && (
+                                <div className="mt-8 pt-8 border-t border-gray-100">
+                                    <h3 className={`text-sm font-black uppercase tracking-widest px-1 mb-6 ${textPrimary}`}>Team Context</h3>
+                                    <div className="space-y-4">
+                                        {hierarchy.reportsTo && (
+                                            <div className={`p-4 rounded-2xl border ${sectionBg} flex items-center justify-between`}>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white" style={{ background: hierarchy.reportsTo.color }}>
+                                                        {hierarchy.reportsTo.initials}
+                                                    </div>
+                                                    <div>
+                                                        <p className={`text-[11px] font-bold ${textPrimary}`}>{hierarchy.reportsTo.name}</p>
+                                                        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-wider">Reports To ({hierarchy.type})</p>
+                                                    </div>
+                                                </div>
+                                                <button className="text-[10px] font-bold text-[#6366f1] hover:underline uppercase">View</button>
+                                            </div>
+                                        )}
+                                        {hierarchy.members && hierarchy.members.length > 0 && (
+                                            <div className="space-y-2">
+                                                <p className={`text-[10px] font-black uppercase tracking-widest px-1 ${textSecondary}`}>Direct Reports ({hierarchy.members.length})</p>
+                                                <div className="grid gap-2">
+                                                    {hierarchy.members.map(m => (
+                                                        <div key={m.id} className={`p-3 rounded-xl border ${sectionBg} flex items-center justify-between group hover:border-[#6366f1]/30 transition-all`}>
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-6 h-6 rounded-md flex items-center justify-center text-[8px] font-bold text-white shrink-0" style={{ background: m.color }}>
+                                                                    {m.initials}
+                                                                </div>
+                                                                <span className={`text-[11px] font-bold ${textPrimary}`}>{m.name}</span>
+                                                            </div>
+                                                            <span className="text-[9px] font-bold text-[#94a3b8] group-hover:text-[#6366f1] transition-colors">ACTIVE →</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

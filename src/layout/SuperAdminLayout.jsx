@@ -66,6 +66,21 @@ const AppLayout = ({ onLogout }) => {
 
     const hasReminders = myTasks.some(t => t.reminder && t.reminder !== 'none' && t.status !== 'Completed');
 
+    const getPageTitle = () => {
+        const path = location.pathname;
+        if (path.includes('dashboard')) return { title: 'Super Admin Dashboard', subtitle: `Operational Overview • ${user.first_name || 'Jane'}` };
+        if (path.includes('user-management')) return { title: 'User Management', subtitle: 'System Access Control' };
+        if (path.includes('leads')) return { title: 'Lead Performance', subtitle: 'Global Analytics' };
+        if (path.includes('audit-logs')) return { title: 'Audit Logs', subtitle: 'System Activity' };
+        if (path.includes('team-leaders')) return { title: 'Team Leaders', subtitle: 'Performance Monitoring' };
+        if (path.includes('lenders')) return { title: 'Lender Management', subtitle: 'Provider Directory' };
+        if (path.includes('operational-flow')) return { title: 'Operational Flow', subtitle: 'Cycle Management' };
+        if (path.includes('tasks')) return { title: 'Tasks & Follow-ups', subtitle: 'Priority Queue' };
+        if (path.includes('promotions')) return { title: 'Lender Promotions', subtitle: 'Active Campaigns' };
+        if (path.includes('create-lead')) return { title: 'Create New Lead', subtitle: 'Manual Entry' };
+        return { title: 'Alpha Funding CRM', subtitle: 'Super Admin Access' };
+    };
+
     const handleNavigate = (page) => {
         setSidebarOpen(false);
         switch (page) {
@@ -127,6 +142,28 @@ const AppLayout = ({ onLogout }) => {
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
+
+                    {/* NEW DYNAMIC PAGE HEADER */}
+                    <div className="flex flex-col">
+                        <h2 className={`text-md font-black uppercase tracking-tight leading-tight ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>
+                            {getPageTitle().title}
+                        </h2>
+                        <p className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? 'text-[#8ea0d4]' : 'text-[#718096]'}`}>
+                            {getPageTitle().subtitle}
+                        </p>
+                    </div>
+
+                    {location.pathname.includes('dashboard') && (
+                        <div className="flex items-center gap-2 ml-4 lg:hidden animate-fadeIn">
+                             <div className="flex flex-col items-start translate-y-0.5">
+                                <span className="text-[9px] font-black text-[#2447d7] uppercase tracking-[0.15em] bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1.5 shadow-sm">
+                                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(36,71,215,0.4)]" />
+                                    Live Processing
+                                </span>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="flex-1" />
                     <div className="flex items-center gap-4">
                         {/* Notification Bell */}

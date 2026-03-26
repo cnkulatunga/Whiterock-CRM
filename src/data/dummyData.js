@@ -49,8 +49,7 @@ export const DATE_RANGE_OPTIONS = ['Last 24 Hours', 'Last 7 Days', 'Last 30 Days
 
 export const DOCUMENT_VERIFICATION_DATES = ['All Time', 'Today', 'Yesterday', 'Last 7 Days'];
 
-export const AUDIT_LOG_CATEGORIES = ['All Categories', 'Payment', 'Lead', 'User', 'System'];
-export const AUDIT_LOG_USER_ROLES = ['Any Role', 'Admin', 'Compliance', 'Sales', 'Manager', 'Service'];
+export const AUDIT_LOG_USER_ROLES = ['Any Role', 'Super Admin', 'Account Manager', 'Team Leader', 'Tele Agent'];
 
 // Derive Tele Agent names for filters to stay consistent
 export const PERFORMANCE_AGENT_OPTIONS = ['All Agents', ...SHARED_INITIAL_USERS.filter(u => u.role === 'Tele Agent').map(u => u.name)];
@@ -61,14 +60,14 @@ export const LENDER_TYPES = ['Major Bank', 'Non-Bank', 'Credit Union', 'Building
 export { LENDER_TYPE_COLORS } from '../utils/colorSystem';
 
 export const FULL_LENDERS_LIST = [
-    { id: 1, name: 'ANZ Bank', type: 'Major Bank', interestRate: '5.89%', maxLoan: '$2,000,000', minDeposit: '10%', contact: 'lending@anz.com', status: 'Active' },
-    { id: 2, name: 'Commonwealth Bank', type: 'Major Bank', interestRate: '5.74%', maxLoan: '$3,000,000', minDeposit: '5%', contact: 'brokers@cba.com.au', status: 'Active' },
-    { id: 3, name: 'Macquarie Bank', type: 'Non-Bank', interestRate: '5.59%', maxLoan: '$5,000,000', minDeposit: '20%', contact: 'partners@macquarie.com', status: 'Active' },
-    { id: 4, name: 'Liberty Financial', type: 'Non-Bank', interestRate: '6.49%', maxLoan: '$1,500,000', minDeposit: '0%', contact: 'support@liberty.com.au', status: 'Inactive' },
-    { id: 5, name: 'Westpac', type: 'Major Bank', interestRate: '5.95%', maxLoan: '$2,500,000', minDeposit: '10%', contact: 'loans@westpac.com.au', status: 'Active' },
-    { id: 6, name: 'NAB', type: 'Major Bank', interestRate: '5.85%', maxLoan: '$2,200,000', minDeposit: '5%', contact: 'business@nab.com.au', status: 'Active' },
-    { id: 7, name: 'Suncorp', type: 'Major Bank', interestRate: '6.12%', maxLoan: '$1,800,000', minDeposit: '15%', contact: 'info@suncorp.com.au', status: 'Active' },
-    { id: 8, name: 'Heritage Bank', type: 'Credit Union', interestRate: '5.45%', maxLoan: '$1,200,000', minDeposit: '10%', contact: 'apply@heritage.com.au', status: 'Active' },
+    { id: 1, name: 'ANZ Bank', type: 'Major Bank', interestRate: '5.89%', maxLoan: '$2,000,000', minDeposit: '10%', contact: 'lending@anz.com', status: 'Active', commercial: true, secured: true, unsecured: false, refinance: true },
+    { id: 2, name: 'Commonwealth Bank', type: 'Major Bank', interestRate: '5.74%', maxLoan: '$3,000,000', minDeposit: '5%', contact: 'brokers@cba.com.au', status: 'Active', commercial: true, secured: true, unsecured: false, refinance: true },
+    { id: 3, name: 'Macquarie Bank', type: 'Non-Bank', interestRate: '5.59%', maxLoan: '$5,000,000', minDeposit: '20%', contact: 'partners@macquarie.com', status: 'Active', commercial: true, secured: true, unsecured: false, refinance: false },
+    { id: 4, name: 'Liberty Financial', type: 'Non-Bank', interestRate: '6.49%', maxLoan: '$1,500,000', minDeposit: '0%', contact: 'support@liberty.com.au', status: 'Inactive', commercial: false, secured: false, unsecured: true, refinance: true },
+    { id: 5, name: 'Westpac', type: 'Major Bank', interestRate: '5.95%', maxLoan: '$2,500,000', minDeposit: '10%', contact: 'loans@westpac.com.au', status: 'Active', commercial: true, secured: true, unsecured: false, refinance: true },
+    { id: 6, name: 'NAB', type: 'Major Bank', interestRate: '5.85%', maxLoan: '$2,200,000', minDeposit: '5%', contact: 'business@nab.com.au', status: 'Active', commercial: true, secured: true, unsecured: false, refinance: true },
+    { id: 7, name: 'Suncorp', type: 'Major Bank', interestRate: '6.12%', maxLoan: '$1,800,000', minDeposit: '15%', contact: 'info@suncorp.com.au', status: 'Active', commercial: true, secured: true, unsecured: false, refinance: false },
+    { id: 8, name: 'Heritage Bank', type: 'Credit Union', interestRate: '5.45%', maxLoan: '$1,200,000', minDeposit: '10%', contact: 'apply@heritage.com.au', status: 'Active', commercial: false, secured: true, unsecured: true, refinance: true },
 ];
 
 /**
@@ -219,12 +218,12 @@ export const TL_STATS = [
 ];
 
 export const TL_AGENT_PERFORMANCE = [
-    { name: 'Cody Lane', initials: 'CL', activeLeads: 156, closedDeals: 24, color: USER_COLORS[3].color },
-    { name: 'Leo Kumar', initials: 'LK', activeLeads: 132, closedDeals: 19, color: USER_COLORS[6].color },
-    { name: 'Priya Sharma', initials: 'PS', activeLeads: 145, closedDeals: 21, color: USER_COLORS[11].color },
-    { name: 'Jake Morrison', initials: 'JM', activeLeads: 142, closedDeals: 18, color: USER_COLORS[12].color },
-    { name: 'Elena Vasquez', initials: 'EV', activeLeads: 98, closedDeals: 22, color: USER_COLORS[13].color },
-    { name: 'Sophie Tan', initials: 'ST', activeLeads: 115, closedDeals: 12, color: USER_COLORS[15].color },
+    { name: 'Cody Lane', initials: 'CL', activeLeads: 156, closedDeals: 24, color: USER_COLORS[3].color, role: 'Tele Agent' },
+    { name: 'Leo Kumar', initials: 'LK', activeLeads: 132, closedDeals: 19, color: USER_COLORS[6].color, role: 'Tele Agent' },
+    { name: 'Priya Sharma', initials: 'PS', activeLeads: 145, closedDeals: 21, color: USER_COLORS[11].color, role: 'Tele Agent' },
+    { name: 'Jake Morrison', initials: 'JM', activeLeads: 142, closedDeals: 18, color: USER_COLORS[12].color, role: 'Tele Agent' },
+    { name: 'Elena Vasquez', initials: 'EV', activeLeads: 98, closedDeals: 22, color: USER_COLORS[13].color, role: 'Tele Agent' },
+    { name: 'Sophie Tan', initials: 'ST', activeLeads: 115, closedDeals: 12, color: USER_COLORS[15].color, role: 'Tele Agent' },
 ];
 
 export const TL_DOCUMENT_COLLECTION = [

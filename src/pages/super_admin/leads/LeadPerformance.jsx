@@ -279,16 +279,7 @@ const LeadPerformance = () => {
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full border-collapse table-fixed">
-                        <colgroup>
-                            <col style={{ width: '15%' }} /> {/* CLIENT */}
-                            <col style={{ width: '12%' }} /> {/* BUSINESS */}
-                            <col style={{ width: '20%' }} /> {/* STATUS */}
-                            <col style={{ width: '8%' }}  /> {/* AMOUNT */}
-                            <col style={{ width: '8%' }}  /> {/* BANK */}
-                            <col style={{ width: '14%' }} /> {/* LENDER */}
-                            <col style={{ width: '12%' }} /> {/* ASSIGNED AGENT */}
-                            <col style={{ width: '11%' }} /> {/* CREATED */}
-                        </colgroup>
+                        <colgroup><col style={{ width: '15%' }} /><col style={{ width: '12%' }} /><col style={{ width: '20%' }} /><col style={{ width: '8%' }}  /><col style={{ width: '8%' }}  /><col style={{ width: '14%' }} /><col style={{ width: '12%' }} /><col style={{ width: '11%' }} /></colgroup>
                         <thead>
                             <tr className="bg-[#f8fafc]">
                                 <th className="px-4 py-2.5 text-left text-[9px] font-semibold text-[#a0aec0] uppercase tracking-widest">CLIENT</th>

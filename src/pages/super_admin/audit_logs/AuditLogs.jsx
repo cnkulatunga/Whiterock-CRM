@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { AUDIT_LOG_ENTRIES as LOG_ENTRIES, AUDIT_STATS, DATE_RANGE_OPTIONS, AUDIT_LOG_CATEGORIES, AUDIT_LOG_USER_ROLES } from '../../../data/dummyData';
+import { AUDIT_LOG_ENTRIES as LOG_ENTRIES, AUDIT_STATS, DATE_RANGE_OPTIONS, AUDIT_LOG_USER_ROLES } from '../../../data/dummyData';
 
 
 const ActionIcon = ({ type }) => {
@@ -27,21 +27,12 @@ const IcoChevron = () => (
 const AuditLogs = () => {
     const [search, setSearch]       = useState('');
     const [dateRange, setDateRange] = useState('Last 24 Hours');
-    const [category, setCategory]   = useState('All Categories');
     const [userRole, setUserRole]   = useState('Any Role');
     const [currentPage, setCurrentPage] = useState(1);
     const TOTAL = AUDIT_STATS.totalLogs;
 
     const filtered = LOG_ENTRIES.filter(e => {
         if (userRole !== 'Any Role' && e.role !== userRole) return false;
-        
-        if (category !== 'All Categories') {
-            const cat = category.toLowerCase();
-            if (cat === 'payment' && e.actionIcon !== 'payment' && !e.actionText.toLowerCase().includes('payment')) return false;
-            if (cat === 'lead' && e.actionIcon !== 'edit' && !e.actionText.toLowerCase().includes('lead')) return false;
-            if (cat === 'user' && !e.actionText.toLowerCase().includes('user') && e.actionIcon !== 'verify') return false;
-            if (cat === 'system' && e.actionIcon !== 'auto') return false;
-        }
 
         if (search) {
             const searchLower = search.toLowerCase();
@@ -102,19 +93,6 @@ const AuditLogs = () => {
                         <div className="relative">
                             <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={dateRange} onChange={e => setDateRange(e.target.value)}>
                                 {DATE_RANGE_OPTIONS.map(o => <option key={o}>{o}</option>)}
-                            </select>
-                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
-                        </div>
-                    </div>
-
-                    <div className="w-px h-9 bg-[#f1f5f9] lg:hidden" />
-
-                    {/* Category */}
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">CATEGORY</span>
-                        <div className="relative">
-                            <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={category} onChange={e => setCategory(e.target.value)}>
-                                {AUDIT_LOG_CATEGORIES.map(o => <option key={o}>{o}</option>)}
                             </select>
                             <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
                         </div>

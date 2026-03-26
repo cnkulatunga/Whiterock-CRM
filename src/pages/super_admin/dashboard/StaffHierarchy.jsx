@@ -15,8 +15,8 @@ const HierarchyCard = ({ title, items, selectedId, onSelect, onViewPerformance, 
     const stat2Header = 'CLOSED DEALS';
 
     return (
-        <div className="bg-white rounded-[24px] border border-[#f1f5f9] p-7 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col h-full min-h-[450px]">
-            <h3 className="text-[15px] font-black text-[#1a202c] mb-6 tracking-tight">{title}</h3>
+        <div className="bg-white rounded-xl border border-[#f1f5f9] p-4 shadow-sm flex flex-col h-full min-h-[320px]">
+            <h3 className="text-[13px] font-bold text-[#1a202c] mb-4 tracking-tight uppercase">{title}</h3>
             
             {items.length === 0 ? (
                 <div className="flex-1 flex items-center justify-center text-[13px] text-[#a0aec0] italic">
@@ -36,47 +36,46 @@ const HierarchyCard = ({ title, items, selectedId, onSelect, onViewPerformance, 
                             return (
                                 <div
                                     key={item.id}
-                                    className={`grid grid-cols-[2fr_1fr_1fr] items-center p-3 rounded-2xl transition-all duration-300 group ${
+                                    className={`grid grid-cols-[2fr_1fr_1fr] items-center p-2 rounded-xl transition-all duration-300 group ${
                                         isSelected 
-                                        ? 'bg-[#f8faff] shadow-[0_4px_20px_rgba(36,71,215,0.08)]' 
+                                        ? 'bg-[#f8faff] shadow-sm' 
                                         : 'hover:bg-gray-50'
                                     }`}
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-3">
                                         <div 
                                             onClick={() => onSelect && onSelect(item.id)}
-                                            className={`w-12 h-12 rounded-2xl flex items-center justify-center text-[13px] font-black shrink-0 shadow-sm cursor-${onSelect ? 'pointer' : 'default'} transform transition-transform group-hover:scale-110`}
+                                            className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-bold shrink-0 shadow-sm cursor-${onSelect ? 'pointer' : 'default'} transform transition-transform group-hover:scale-105`}
                                             style={{ 
                                                 background: item.color || '#e2e8f0', 
                                                 color: item.textColor || '#ffffff',
-                                                boxShadow: `0 4px 12px ${item.color}40`
                                             }}>
                                             {item.initials}
                                         </div>
                                         <div className="flex flex-col min-w-0">
                                             <span 
                                                 onClick={() => onViewPerformance && onViewPerformance(item)}
-                                                className="text-[14px] font-black text-[#1a202c] truncate cursor-pointer hover:text-[#6366f1] transition-colors"
+                                                className="text-[12px] font-bold text-[#1a202c] truncate cursor-pointer hover:text-[#6366f1] transition-colors"
                                             >
                                                 {item.name}
                                             </span>
                                             <button 
                                                 onClick={() => onViewPerformance && onViewPerformance(item)}
-                                                className="text-[11px] font-bold text-[#94a3b8] flex items-center gap-1 hover:text-[#6366f1] transition-colors mt-0.5"
+                                                className="text-[10px] font-semibold text-[#94a3b8] flex items-center gap-1 hover:text-[#6366f1] transition-colors"
                                             >
-                                                View leads <span className="text-[12px]">→</span>
+                                                View <span className="text-[11px]">→</span>
                                             </button>
                                         </div>
                                     </div>
 
                                     <div className="text-center">
-                                        <span className={`text-[15px] font-black ${isSelected ? 'text-[#2447d7]' : 'text-[#475569]'}`}>
+                                        <span className={`text-[13px] font-bold ${isSelected ? 'text-[#2447d7]' : 'text-[#475569]'}`}>
                                             {item.ongoing}
                                         </span>
                                     </div>
 
                                     <div className="text-center">
-                                        <span className={`text-[15px] font-black ${isSelected ? 'text-[#2447d7]' : 'text-[#475569]'}`}>
+                                        <span className={`text-[13px] font-bold ${isSelected ? 'text-[#2447d7]' : 'text-[#475569]'}`}>
                                             {item.confirmed}
                                         </span>
                                     </div>
@@ -158,10 +157,10 @@ const StaffHierarchy = () => {
     const handleTlSelect = (id) => setSelectedTl(id);
 
     return (
-        <section className="animate-slideUp [animation-delay:600ms] [animation-fill-mode:both] mt-6">
-            <div className="mb-4">
-                <h2 className="text-[16px] font-bold text-[#1a202c]">Organization Hierarchy</h2>
-                <p className="text-[12px] text-[#718096]">Drill down to view team leads and performance</p>
+        <section className="animate-slideUp [animation-delay:600ms] [animation-fill-mode:both] mt-4">
+            <div className="mb-3 border-l-2 border-[#2447d7] pl-3">
+                <h2 className="text-[14px] font-bold text-[#1a202c]">Organization Hierarchy</h2>
+                <p className="text-[10px] text-[#718096]">Drill down to view team leads and performance</p>
             </div>
             
             <div className="grid grid-cols-3 gap-5 xl:grid-cols-1">
