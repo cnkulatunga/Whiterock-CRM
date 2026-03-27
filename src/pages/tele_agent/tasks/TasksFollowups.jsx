@@ -5,6 +5,25 @@ import { signIn, getCalendarEvents, getAccount } from '../../../services/outlook
 import { canManageTask } from '../../../utils/permissionUtils';
 import { usePromotions } from '../../../context/PromotionsContext';
 
+// Icon Components
+const IconPlus = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14">
+        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+);
+
+const IconEdit = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+);
+
+const IconTrash = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" />
+    </svg>
+);
+
 // Removed INITIAL_TASKS mock data, using props from layout.
 
 const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, notifyReminderSet }) => {
@@ -34,7 +53,6 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
 
     const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState('calendar'); // Default to calendar
     const [isAddingTask, setIsAddingTask] = useState(false);
     
     const [newTask, setNewTask] = useState({
@@ -256,34 +274,55 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         const selectColor = isDark ? '#e4ecff' : '#1a202c';
 
         return (
-            <div className="grid grid-cols-[1fr_300px] gap-6 lg:grid-cols-1">
-                {/* Calendar grid */}
-                <div className="rounded-2xl overflow-hidden" style={{ background: isDark ? '#141829' : '#f1f5fb', padding: '16px', gap: '8px', display: 'flex', flexDirection: 'column' }}>
-                    {/* Month/Year Navigation */}
-                    <div className="flex items-center justify-between mb-2 px-1">
-                        <button onClick={prevMonth} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:opacity-75" style={{ background: navBg, color: navColor, border: `1px solid ${navBorder}` }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+            <div className="grid grid-cols-[340px_1fr] gap-3 lg:grid-cols-1 h-full">
+                {/* Calendar Section Wrapper */}
+                <div className="flex flex-col h-full gap-3 overflow-y-auto scrollbar-thin pr-1">
+                    <div className="rounded-xl overflow-hidden flex flex-col shrink-0 shadow-sm border" style={{ background: isDark ? '#1e2347' : '#ffffff', borderColor: isDark ? 'rgba(255,255,255,0.05)' : '#f1f5f9', padding: '14px', gap: '10px' }}>
+                        {/* Local/Outlook Toggle */}
+                        <div className="flex justify-center mb-2">
+                        <div className="flex p-0.5 rounded-lg border w-fit shadow-sm" style={{ background: isDark ? '#242b50' : '#f8fafc', borderColor: isDark ? '#2c3568' : '#e2e8f0' }}>
+                            <button
+                                className={`px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-200 ${!useOutlookCalendar ? 'bg-[#0061ff] text-white shadow-md' : 'text-slate-500 hover:text-slate-700 dark:text-[#8ea0d4] dark:hover:text-[#c8d8ff]'}`}
+                                onClick={() => setUseOutlookCalendar(false)}
+                            >
+                                Local
+                            </button>
+                            <button
+                                className={`px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-200 ${useOutlookCalendar ? 'bg-[#0061ff] text-white shadow-md' : 'text-slate-500 hover:text-slate-700 dark:text-[#8ea0d4] dark:hover:text-[#c8d8ff]'}`}
+                                onClick={() => setUseOutlookCalendar(true)}
+                            >
+                                Outlook
+                            </button>
+                        </div>
+                    </div>
+
+                    {!useOutlookCalendar ? (
+                        <>
+                            {/* Month/Year Navigation */}
+                            <div className="flex items-center justify-between px-1 mt-1 mb-1">
+                        <button onClick={prevMonth} className="w-6 h-6 rounded-lg flex items-center justify-center transition-all hover:bg-slate-100 dark:hover:bg-slate-800" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10"><polyline points="15 18 9 12 15 6"/></svg>
                         </button>
-                        <div className="flex items-center gap-2">
-                            <select value={calMonth} onChange={e => setCalMonth(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border cursor-pointer" style={{ background: navBg, color: selectColor, borderColor: navBorder }}>
+                        <div className="flex items-center gap-1.5">
+                            <select value={calMonth} onChange={e => setCalMonth(Number(e.target.value))} className="text-[11px] font-black outline-none rounded-lg px-2 py-1 cursor-pointer transition-all" style={{ background: isDark ? '#242b50' : '#f8fafc', color: isDark ? '#c8d8ff' : '#334155', border: `1px solid ${isDark ? '#2c3568' : '#e2e8f0'}` }}>
                                 {MONTH_NAMES.map((name, i) => <option key={i} value={i}>{name}</option>)}
                             </select>
-                            <select value={calYear} onChange={e => setCalYear(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border cursor-pointer" style={{ background: navBg, color: selectColor, borderColor: navBorder }}>
+                            <select value={calYear} onChange={e => setCalYear(Number(e.target.value))} className="text-[11px] font-black outline-none rounded-lg px-2 py-1 cursor-pointer transition-all" style={{ background: isDark ? '#242b50' : '#f8fafc', color: isDark ? '#c8d8ff' : '#334155', border: `1px solid ${isDark ? '#2c3568' : '#e2e8f0'}` }}>
                                 {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
                             </select>
                         </div>
-                        <button onClick={nextMonth} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all hover:opacity-75" style={{ background: navBg, color: navColor, border: `1px solid ${navBorder}` }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                        <button onClick={nextMonth} className="w-6 h-6 rounded-lg flex items-center justify-center transition-all hover:bg-slate-100 dark:hover:bg-slate-800" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10"><polyline points="9 18 15 12 9 6"/></svg>
                         </button>
                     </div>
                     {/* Day headers */}
-                    <div className="grid grid-cols-7 gap-2 mb-1">
+                    <div className="grid grid-cols-7 gap-1">
                         {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                            <div key={d} className="text-center text-[10px] font-black uppercase tracking-widest py-2" style={{ color: headerText, background: headerBg, borderRadius: '8px' }}>{d}</div>
+                            <div key={d} className="text-center text-[9px] font-black uppercase tracking-widest py-1 rounded-md" style={{ color: isDark ? '#8ea0d4' : '#64748b', background: isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc' }}>{d}</div>
                         ))}
                     </div>
                     {/* Day cells */}
-                    <div className="grid grid-cols-7 gap-2">
+                    <div className="grid grid-cols-7 gap-1">
                         {cells.map((day, idx) => {
                             if (day === null) return <div key={`blank-${idx}`} />;
                             const dateStr = `${calYear}-${monthStr}-${String(day).padStart(2, '0')}`;
@@ -301,41 +340,128 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                 <div
                                     key={day}
                                     onClick={() => setSelectedDate(dateStr)}
-                                    className="aspect-square rounded-2xl flex flex-col items-center justify-center cursor-pointer transition-all duration-200 relative"
+                                    className="rounded-md flex flex-col items-center justify-center cursor-pointer transition-all duration-200 relative aspect-square"
                                     style={{
-                                        background: isSelected ? cardBgSelected : cardBg,
-                                        border: `1.5px solid ${isSelected ? cardBorderSelected : isToday ? cardBorderToday : cardBorder}`,
-                                        boxShadow: isSelected ? `0 0 0 3px rgba(36,71,215,0.15)` : 'none',
+                                        background: isSelected ? '#0061ff' : isToday ? (isDark ? 'rgba(255,255,255,0.1)' : '#f1f5f9') : 'transparent',
+                                        border: `1px solid ${isSelected ? '#0061ff' : (isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc')}`,
+                                        boxShadow: isSelected ? '0 4px 12px rgba(0,97,255,0.3)' : 'none',
                                     }}
-                                    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = cardBgHover; }}
-                                    onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = cardBg; }}
+                                    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = isDark ? 'rgba(255,255,255,0.05)' : '#f8fafc'; }}
+                                    onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = isToday ? (isDark ? 'rgba(255,255,255,0.1)' : '#f1f5f9') : 'transparent'; }}
                                 >
                                     <span
-                                        className="text-[13px] sm:text-[11px] font-bold w-7 h-7 sm:w-6 sm:h-6 flex items-center justify-center rounded-full transition-all"
+                                        className="text-[13px] font-bold"
                                         style={{
-                                            background: isToday ? '#2447d7' : 'transparent',
-                                            color: isToday ? '#ffffff' : isSelected ? '#2447d7' : dayText,
+                                            color: isSelected ? 'white' : (isDark ? '#e4ecff' : '#334155'),
                                         }}
                                     >{day}</span>
                                     {allDayItems.length > 0 && (
-                                        <div className="flex gap-1 mt-1 flex-wrap justify-center px-1">
-                                            {allDayItems.slice(0, 3).map((t, i) => (
-                                                <div key={t.id || i} className={`w-1.5 h-1.5 rounded-full ring-1 ring-white/20 ${t.isPromotion ? 'bg-[#2447d7]' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#6480c4]'}`} title={t.title || t.lenderName} />
+                                        <div className="flex gap-0.5 flex-wrap justify-center px-0.5 mt-0.5">
+                                            {allDayItems.slice(0, 4).map((t, i) => (
+                                                <div key={t.id || i} className={`w-1 h-1 rounded-full ${t.isPromotion ? 'bg-[#fbbf24]' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#f59e0b]' : 'bg-[#60a5fa]'}`} title={t.title || t.lenderName} />
                                             ))}
-                                            {allDayItems.length > 3 && <div className="w-1 h-1 rounded-full" style={{ background: mutedColor }} />}
+                                            {allDayItems.length > 4 && <span className="text-[6px] font-bold text-white leading-none">+{allDayItems.length - 4}</span>}
                                         </div>
                                     )}
                                 </div>
                             );
                         })}
                     </div>
+                        </>
+                    ) : (
+                        <div className="flex-1 rounded-xl flex flex-col items-center justify-center p-6 text-center shadow-inner mt-2 min-h-[250px]" style={{ background: 'rgba(255,255,255,0.1)', border: '1px dashed rgba(255,255,255,0.3)' }}>
+                            {!outlookAccount ? (
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2" width="24" height="24">
+                                            <rect x="2" y="4" width="20" height="16" rx="2" ry="2"/>
+                                            <path d="M2 10h20M6 14h.01M10 14h.01M14 14h.01M18 14h.01"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-[#334155] dark:text-white font-bold text-sm mb-1">Connect your Outlook</h3>
+                                        <p className="text-[10px] text-[#64748b] dark:text-white/80">Sync your calendar and manage schedules.</p>
+                                    </div>
+                                    <button 
+                                        onClick={handleOutlookLogin}
+                                        className="bg-[#0061ff] text-white px-6 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider shadow-lg shadow-blue-500/30 hover:bg-blue-700 transition-all transform hover:scale-105"
+                                    >
+                                        Connect Now
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col h-full w-full">
+                                    <div className="flex items-center justify-between mb-3 border-b border-slate-200 dark:border-white/20 pb-2 shrink-0">
+                                        <div className="flex items-center gap-1.5 min-w-0">
+                                            <div className="w-5 h-5 shrink-0 bg-[#0061ff] rounded-full flex items-center justify-center shadow-md">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>
+                                            </div>
+                                            <span className="text-[#334155] dark:text-white font-bold text-[10px] truncate">{outlookAccount.username}</span>
+                                        </div>
+                                        <button onClick={() => setOutlookAccount(null)} className="text-[9px] bg-red-50 text-red-600 dark:bg-white/20 hover:bg-red-100 px-2 py-1 rounded dark:text-white dark:hover:bg-[#ef4444] transition-all font-bold shrink-0">Disconnect</button>
+                                    </div>
+                                    
+                                    <h4 className="text-[9px] font-bold text-slate-400 dark:text-white/70 uppercase tracking-wider text-left mb-2">Upcoming Events</h4>
+                                    <div className="flex-1 overflow-y-auto scrollbar-thin text-left flex flex-col gap-2 pr-1">
+                                        {loadingEvents ? (
+                                            <p className="text-[10px] text-slate-400 dark:text-white/70 text-center italic mt-6">Syncing with Outlook...</p>
+                                        ) : outlookEvents.length > 0 ? (
+                                            outlookEvents.map((evt, i) => {
+                                                const d = new Date(evt.start.dateTime);
+                                                return (
+                                                    <div key={i} className="bg-slate-50 dark:bg-white/10 backdrop-blur-sm border border-slate-100 dark:border-white/20 p-2.5 rounded-lg flex flex-col gap-1 hover:bg-blue-50 dark:hover:bg-white/20 transition-all cursor-pointer">
+                                                        <span className="text-slate-700 dark:text-white text-[11px] font-bold leading-tight">{evt.subject}</span>
+                                                        <div className="flex items-center justify-between text-[9px] text-slate-500 dark:text-white/80">
+                                                            <div className="flex items-center gap-1">
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                                                <span>{d.toLocaleDateString()} {d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                            </div>
+                                                            {evt.location?.displayName && (
+                                                                <span className="truncate max-w-[80px] text-[8px] opacity-70">📍 {evt.location.displayName}</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })
+                                        ) : (
+                                            <p className="text-[10px] text-slate-400 dark:text-white/70 text-center italic mt-6">No upcoming events found.</p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    </div>
+                    
+                    {/* Today's Summary below Calendar */}
+                    <div className="rounded-xl p-4 flex flex-col gap-3 border shadow-sm shrink-0" style={{ background: isDark ? '#1a1e38' : '#ffffff', borderColor: isDark ? '#2c3568' : '#edf2f7' }}>
+                        <h4 className="text-[11px] font-bold uppercase tracking-wider" style={{ color: isDark ? '#8ea0d4' : '#a0aec0' }}>Overview for {selectedDate}</h4>
+                        <div className="flex justify-between items-center px-1">
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-2xl font-black" style={{ color: isDark ? '#c8d8ff' : '#2d3748' }}>{tasks.filter(t => t.date === selectedDate).length}</span>
+                                <span className="text-[10px] font-medium" style={{ color: isDark ? '#546298' : '#718096' }}>Tasks</span>
+                            </div>
+                            <div className="w-px h-8" style={{ background: isDark ? '#2c3568' : '#edf2f7' }}></div>
+                            <div className="flex flex-col gap-0.5">
+                                <span className="text-2xl font-black text-[#fbbf24]">
+                                    {promotions.filter(p => {
+                                        const start = new Date(p.startDate);
+                                        const end = new Date(p.endDate);
+                                        const current = new Date(selectedDate);
+                                        return current >= start && current <= end;
+                                    }).length}
+                                </span>
+                                <span className="text-[10px] font-medium" style={{ color: isDark ? '#546298' : '#718096' }}>Promotions</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {/* Side panel */}
-                <div className="rounded-2xl p-5 flex flex-col gap-4" style={{ background: sidePanelBg, border: `1px solid ${sidePanelBorder}` }}>
-                    <div className="flex justify-between items-center pb-3" style={{ borderBottom: `1px solid ${sidePanelBorder}` }}>
-                        <h3 className="text-sm font-bold" style={{ color: titleColor }}>Tasks for {selectedDate}</h3>
-                        <button className="w-7 h-7 bg-[#2447d7] text-white rounded-lg flex items-center justify-center hover:scale-105 transition-transform" onClick={() => {
+                {/* Task List Panel */}
+                <div className="rounded-xl p-3 flex flex-col gap-2 overflow-hidden h-full" style={{ background: isDark ? '#1a1e38' : '#f8fafc', border: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>
+                    <div className="flex justify-between items-center pb-1.5" style={{ borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>
+                        <h3 className="text-[10px] font-bold" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>Tasks for {selectedDate}</h3>
+                        <button className="flex items-center gap-1.5 bg-[#0061ff] text-white px-3 py-1.5 rounded-lg text-[10px] font-bold shadow-md hover:bg-blue-700 hover:scale-105 transition-all shadow-blue-500/30" onClick={() => {
                             setNewTask({
                                 title: '',
                                 lead: '',
@@ -349,11 +475,11 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                             setIsEditingTask(false);
                             setIsAddingTask(true);
                         }}>
-                            <IconPlus />
+                            <IconPlus /> <span>New Task</span>
                         </button>
-
                     </div>
-                    <div className="flex-1 flex flex-col gap-3 overflow-y-auto max-h-[500px] pr-1 scrollbar-thin">
+                    
+                    <div className="flex-1 overflow-y-auto pr-1 scrollbar-thin">
                         {(() => {
                             const dayTasks = tasks.filter(t => t.date === selectedDate);
                             const dayPromos = activePromotions.filter(p => {
@@ -362,46 +488,167 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                 const current = new Date(selectedDate);
                                 return current >= start && current <= end;
                             });
-                            const items = [...dayTasks, ...dayPromos];
                             
-                            return items.length > 0 ? (
-                                items.map(t => (
-                                    <div key={t.id} className="p-3 rounded-xl flex items-center gap-3 shadow-sm hover:translate-y-[-2px] transition-all" style={{ background: t.isPromotion ? (isDark ? '#1e3278' : '#e0e7ff') : taskCardBg, border: `1px solid ${t.isPromotion ? '#2447d7' : taskCardBorder}` }}>
-                                        <div className={`w-1 h-8 rounded-full shrink-0 ${t.isPromotion ? 'bg-[#2447d7]' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#ed8936]' : 'bg-[#cbd5e0]'}`}></div>
-                                        <div className="flex flex-col min-w-0 flex-1 gap-0.5">
-                                            <div className="flex items-center gap-1.5 justify-between">
-                                                <span className="text-[13px] font-bold truncate leading-tight grow" style={{ color: t.isPromotion ? (isDark ? '#e4ecff' : '#2447d7') : taskTitleColor }}>{t.title}</span>
-                                                {t.isPromotion && <span className="bg-[#2447d7] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse shrink-0">Promo</span>}
-                                            </div>
-                                            <span className="text-[11px] font-medium" style={{ color: mutedColor }}>{t.time} • {t.lead}</span>
-                                            {t.isPromotion && t.fileName && t.fileData && (
-                                                <div className="flex items-center gap-2 mt-1.5 p-1 bg-white/10 rounded-lg border border-white/10 w-fit">
-                                                    <IconDoc size={12} />
-                                                    <span className="text-[9px] font-bold text-[#4a5568] max-w-[80px] truncate">{t.fileName}</span>
-                                                    <a href={t.fileData} download={t.fileName} className="text-[#2447d7] hover:underline text-[9px] font-black uppercase">Download</a>
+                            return (
+                                <div className="grid grid-cols-2 gap-2.5 h-full min-h-0">
+                                    {/* Regular Tasks Column */}
+                                    <div className="flex flex-col gap-2 h-full">
+                                        <h4 className="text-[9px] font-black uppercase tracking-wider pb-0.5" style={{ color: isDark ? '#8ea0d4' : '#718096', borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>Tasks</h4>
+                                        {dayTasks.length > 0 ? (
+                                            dayTasks.map(t => (
+                                                <div key={t.id} className="p-2.5 rounded-lg flex flex-col gap-2 shadow-lg hover:shadow-xl hover:translate-y-[-2px] transition-all" style={{ background: isDark ? '#242b50' : '#ffffff', border: `2px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>
+                                                    <div className="flex items-start gap-2">
+                                                        <div className={`w-1 h-full rounded-full shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#f59e0b]' : 'bg-[#60a5fa]'}`}></div>
+                                                        <div className="flex flex-col min-w-0 flex-1 gap-1.5">
+                                                            <div className="flex items-start justify-between gap-2">
+                                                                <span className="text-[11px] font-bold leading-tight" style={{ color: isDark ? '#c8d8ff' : '#2d3748' }}>{t.title}</span>
+                                                                <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${t.status === 'Completed' ? 'bg-[#d1fae5] text-[#065f46]' : t.status === 'In Progress' ? 'bg-[#fed7aa] text-[#92400e]' : 'bg-[#dbeafe] text-[#1e40af]'}`}>{t.status}</span>
+                                                            </div>
+                                                            
+                                                            {/* Lead Name */}
+                                                            {t.lead && (
+                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
+                                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                                                                    </svg>
+                                                                    <span className="font-semibold">{t.lead}</span>
+                                                                </div>
+                                                            )}
+                                                            
+                                                            {/* Business Name */}
+                                                            {t.leadStatus && (
+                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
+                                                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                                                    </svg>
+                                                                    <span className="font-medium">Status: {t.leadStatus}</span>
+                                                                </div>
+                                                            )}
+                                                            
+                                                            {/* Email */}
+                                                            {t.email && (
+                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
+                                                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+                                                                    </svg>
+                                                                    <span className="font-medium truncate">{t.email}</span>
+                                                                </div>
+                                                            )}
+                                                            
+                                                            {/* Phone */}
+                                                            {t.phone && (
+                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
+                                                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                                                    </svg>
+                                                                    <span className="font-medium">{t.phone}</span>
+                                                                </div>
+                                                            )}
+                                                            
+                                                            {/* Time & Type */}
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
+                                                                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                                                                    </svg>
+                                                                    <span className="font-medium">{t.time}</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
+                                                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                                                    </svg>
+                                                                    <span className="font-medium">{t.type}</span>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {/* Notes/Message */}
+                                                            {t.message && (
+                                                                <div className="mt-0.5 p-2 rounded-lg" style={{ background: isDark ? '#1a1e38' : '#f8fafc' }}>
+                                                                    <p className="text-[8px] leading-relaxed" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>{t.message}</p>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    {canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
+                                                        <div className="flex items-center gap-1.5 pt-1.5 border-t" style={{ borderColor: isDark ? '#2c3568' : '#edf2f7' }}>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
+                                                                className="flex-1 flex items-center justify-center gap-1.5 py-1 rounded-lg text-[9px] font-bold transition-all hover:scale-105"
+                                                                style={{ background: isDark ? '#1e3a8a' : '#dbeafe', color: isDark ? '#93c5fd' : '#1e40af' }}
+                                                            >
+                                                                <IconEdit size={11} />
+                                                                <span>Edit</span>
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
+                                                                className="flex-1 flex items-center justify-center gap-1.5 py-1 rounded-lg text-[9px] font-bold transition-all hover:scale-105"
+                                                                style={{ background: isDark ? '#7f1d1d' : '#fee2e2', color: isDark ? '#fca5a5' : '#991b1b' }}
+                                                            >
+                                                                <IconTrash size={11} />
+                                                                <span>Delete</span>
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                 </div>
-                                            )}
-                                        </div>
-                                        {!t.isPromotion && canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
-                                            <div className="flex items-center gap-1.5 ml-auto">
-                                                <button 
-                                                    onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
-                                                    className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#2447d7] transition-all`}
-                                                >
-                                                    <IconEdit size={14} />
-                                                </button>
-                                                <button 
-                                                    onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
-                                                    className={`p-1 rounded-md ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#718096]'} hover:text-[#e53e3e] transition-all`}
-                                                >
-                                                    <IconTrash size={14} />
-                                                </button>
+                                            ))
+                                        ) : (
+                                            <div className="flex-1 flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl" style={{ borderColor: isDark ? '#2c3568' : '#e2e8f0', background: isDark ? '#1e2347' : '#f8fafc' }}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32" style={{ color: isDark ? '#546298' : '#cbd5e0', marginBottom: '8px' }}>
+                                                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                                                </svg>
+                                                <p className="text-[11px] font-semibold" style={{ color: isDark ? '#8ea0d4' : '#a0aec0' }}>No tasks scheduled</p>
                                             </div>
                                         )}
                                     </div>
-                                ))
-                            ) : (
-                                <p className="text-[12px] text-center mt-4 italic" style={{ color: mutedColor }}>No tasks scheduled for this day.</p>
+                                    
+                                    {/* Promotions Column */}
+                                    <div className="flex flex-col gap-2 h-full">
+                                        <h4 className="text-[10px] font-black uppercase tracking-wider pb-1" style={{ color: isDark ? '#8ea0d4' : '#718096', borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>Promotions</h4>
+                                        {dayPromos.length > 0 ? (
+                                            dayPromos.map(p => (
+                                                <div key={p.id} className="p-3 rounded-xl flex flex-col gap-2 transition-all shadow-sm hover:shadow-md cursor-pointer group" style={{ background: isDark ? 'rgba(30,58,138,0.2)' : '#eff6ff', border: `1px solid ${isDark ? 'rgba(59,130,246,0.3)' : '#bfdbfe'}` }}>
+                                                    <div className="flex items-start gap-2">
+                                                        <div className="w-1 h-full rounded-full shrink-0 bg-[#0061ff]"></div>
+                                                        <div className="flex flex-col min-w-0 flex-1 gap-1">
+                                                            <div className="flex items-center gap-2 justify-between">
+                                                                <span className="text-[12px] font-bold leading-tight" style={{ color: isDark ? '#c8d8ff' : '#1e3a8a' }}>{p.title}</span>
+                                                                <span className="bg-[#0061ff] text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-wider animate-pulse shrink-0 shadow-sm shadow-blue-500/30">Promo</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 text-[10px]" style={{ color: isDark ? '#60a5fa' : '#2563eb' }}>
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+                                                                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                                                                </svg>
+                                                                <span className="font-medium">{p.time}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-1.5 text-[10px]" style={{ color: isDark ? '#8ea0d4' : '#3b82f6' }}>
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
+                                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                                                </svg>
+                                                                <span className="font-medium leading-tight">{p.lead}</span>
+                                                            </div>
+                                                            {p.fileName && p.fileData && (
+                                                                <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-white/50 dark:bg-[#1e2347]/50 border border-blue-200/50 dark:border-blue-500/20 shadow-sm">
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-[#0061ff]" strokeWidth="2" width="14" height="14">
+                                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+                                                                    </svg>
+                                                                    <span className="text-[9px] font-bold flex-1 truncate" style={{ color: isDark ? '#c8d8ff' : '#1e3a8a' }}>{p.fileName}</span>
+                                                                    <a href={p.fileData} download={p.fileName} className="bg-[#0061ff] text-white px-2 py-1 rounded hover:bg-blue-700 text-[8px] font-black uppercase transition-all shadow-sm">Download</a>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="flex-1 flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl" style={{ borderColor: isDark ? '#2c3568' : '#e2e8f0', background: isDark ? '#1e2347' : '#f8fafc' }}>
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32" style={{ color: isDark ? '#546298' : '#cbd5e0', marginBottom: '8px' }}>
+                                                    <circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" />
+                                                </svg>
+                                                <p className="text-[11px] font-semibold" style={{ color: isDark ? '#8ea0d4' : '#a0aec0' }}>No active promotions</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             );
                         })()}
                     </div>
@@ -411,24 +658,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     };
 
     return (
-        <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
-            <div className="flex justify-between items-center mb-8 md:flex-col md:items-start md:gap-4">
-                <div className="flex flex-col">
-                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] mb-1 sm:text-2xl tracking-tight">Tasks & Follow-ups</h1>
-                    <p className="text-[0.95rem] text-[#718096]">Schedule calls, site visits and manage your daily pipeline.</p>
-                </div>
-                <div className="flex items-center gap-4 sm:w-full sm:flex-wrap">
-
-                    <div className="flex bg-[#edf2f7] p-1 rounded-xl">
-                        <button className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-bold transition-all duration-200 ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><IconList size={14} /> List</button>
-                        <button className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-[13px] font-bold transition-all duration-200 ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><IconCalendar size={14} /> Calendar</button>
-                    </div>
-                    <button className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow-[0_4px_12px_rgba(36,71,215,0.2)] hover:bg-[#1a36b1] hover:-translate-y-px transition-all sm:w-full sm:justify-center" onClick={() => { setIsAddingTask(true); setIsEditingTask(false); setEditingTask(null); setNewTask({ title: '', lead: '', date: new Date().toISOString().split('T')[0], time: '12:00', type: 'Call', reminder: 'none', message: '', assignedTo: JSON.parse(localStorage.getItem('user') || '{}').id?.toString() || '' }); }}>
-                        <IconPlus /> <span>New Task</span>
-                    </button>
-
-                </div>
-            </div>
+        <div className="flex flex-col h-full animate-fadeIn font-['Sora',sans-serif]" style={{ height: 'calc(100vh - 120px)' }}>
 
             {isAddingTask && (
                 <div className="fixed inset-0 bg-black/40 backdrop-blur-[4px] flex items-center justify-center z-[2000] animate-fadeIn p-4">
@@ -548,303 +778,13 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                 </div>
             )}
 
-            {viewMode === 'list' && (
-                <div className="flex justify-between items-center mb-6 gap-5 md:flex-col md:items-stretch">
-                    <div className="flex items-center gap-3 bg-white border border-[#edf2f7] px-4 py-2.5 rounded-2xl w-full max-w-[350px] shadow-sm md:max-w-full">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="16" height="16">
-                            <circle cx="11" cy="11" r="8" />
-                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
-                        <input
-                            type="text"
-                            className="bg-transparent border-none outline-none text-sm text-[#4a5568] w-full"
-                            placeholder="Search tasks or leads..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex bg-[#f7fafc] p-1 rounded-2xl border border-[#edf2f7] overflow-x-auto scrollbar-none sm:gap-1">
-                        {['All', 'Pending', 'In Progress', 'Completed'].map(status => (
-                            <button
-                                key={status}
-                                className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all duration-200 whitespace-nowrap ${filter === status ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                                onClick={() => setFilter(status)}
-                            >
-                                {status}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            {viewMode === 'calendar' ? (
-                <div className="animate-fadeIn flex flex-col gap-6">
-                    <div className="flex justify-center">
-                        <div className="flex bg-[#f7fafc] p-1.5 rounded-xl border border-[#edf2f7] w-fit shadow-sm relative z-10" style={{ background: isDark ? '#1e2347' : '#f7fafc', borderColor: isDark ? '#2c3568' : '#edf2f7' }}>
-                            <button
-                                className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${!useOutlookCalendar ? 'bg-[#2447d7] text-white shadow-md' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                                onClick={() => setUseOutlookCalendar(false)}
-                            >
-                                Local
-                            </button>
-                            <button
-                                className={`px-5 py-2 rounded-lg text-sm font-bold transition-all duration-200 ${useOutlookCalendar ? 'bg-[#2447d7] text-white shadow-md' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                                onClick={() => setUseOutlookCalendar(true)}
-                            >
-                                Outlook Calendar
-                            </button>
-                        </div>
-                    </div>
-                    {useOutlookCalendar ? (
-                        <div className={`relative rounded-2xl overflow-hidden min-h-[500px] shadow-sm ${isDark ? 'bg-[#1e293b] border border-[#334155]' : 'bg-white border border-[#edf2f7]'}`}>
-                            {!outlookAccount ? (
-                                <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center text-center p-8 ${isDark ? 'bg-gradient-to-br from-[#1e293b] to-[#0f172a]' : 'bg-gradient-to-br from-[#f8fafc] to-white'}`}>
-                                    <div className={`w-20 h-20 bg-[#0078d4]/10 rounded-full flex items-center justify-center mb-6 border-4 shadow-md ${isDark ? 'border-[#1e293b]' : 'border-white'}`}>
-                                        <svg viewBox="0 0 24 24" width="36" height="36">
-                                            <path d="M11 2h10v10H11V2M2 2h7v7H2V2m9 9h10v10H11V11M2 11h7v10H2v-10z" fill="#0078d4" />
-                                        </svg>
-                                    </div>
-                                    <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>Connect Your Outlook Calendar</h3>
-                                    <p className={`text-[15px] leading-relaxed max-w-[400px] mb-8 font-medium ${isDark ? 'text-[#94a3b8]' : 'text-[#718096]'}`}>Sync with your Microsoft 365 account to view and manage your schedule directly from Alpha Funding CRM.</p>
-                                    <button className="px-8 py-3.5 bg-[#0078d4] text-white rounded-xl font-bold text-sm shadow-[0_4px_16px_rgba(0,120,212,0.25)] hover:bg-[#005a9e] hover:-translate-y-px transition-all duration-200 active:translate-y-0 flex items-center gap-3" onClick={handleOutlookLogin}>
-                                        <svg width="18" height="18" viewBox="0 0 21 21"><path d="M10 0v10H0V0h10zm11 0v10H11V0h10zM10 11v10H0V11h10zm11 0v10H11V11h10z" fill="#fff" /></svg>
-                                        Sign in with Microsoft
-                                    </button>
-                                </div>
-                            ) : (
-                                <div className="absolute inset-0 z-5 bg-white flex flex-col p-6 animate-fadeIn">
-                                    <div className="flex justify-between items-center mb-6 pb-4 border-b border-[#f1f5f9]">
-                                        <div className="flex items-center gap-3 bg-[#f8fafc] px-4 py-2 rounded-xl border border-[#edf2f7]">
-                                            <div className="w-8 h-8 bg-[#0078d4] text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-sm">{outlookAccount.name?.charAt(0) || 'U'}</div>
-                                            <div className="flex flex-col">
-                                                <span className="text-xs font-bold text-[#1e293b]">{outlookAccount.name}</span>
-                                                <span className="text-[11px] font-medium text-[#64748b] truncate max-w-[200px]">{outlookAccount.username}</span>
-                                            </div>
-                                        </div>
-                                        <button className="flex items-center gap-2 px-4 py-2 bg-[#f8fafc] text-[#0078d4] rounded-xl font-bold text-sm hover:bg-[#ebf0ff] transition-all disabled:opacity-50 disabled:cursor-not-allowed" onClick={fetchOutlookEvents} disabled={loadingEvents}>
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" className={loadingEvents ? "animate-spin" : ""}><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.92-10.44l5.08 5.08" /></svg>
-                                            {loadingEvents ? 'Syncing...' : 'Refresh'}
-                                        </button>
-                                    </div>
-                                    <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4 scrollbar-thin">
-                                        {outlookEvents.length > 0 ? (
-                                            outlookEvents.map((evt, i) => (
-                                                <div key={i} className="flex gap-4 p-5 rounded-2xl border border-[#edf2f7] hover:border-[#0078d4]/30 hover:shadow-md transition-all duration-300 bg-white group relative overflow-hidden">
-                                                    <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#0078d4]"></div>
-                                                    <div className="flex flex-col items-center justify-center min-w-[70px] bg-[#f8fafc] rounded-xl p-2 border border-[#edf2f7] group-hover:bg-[#ebf0ff] transition-colors">
-                                                        <span className="text-[11px] font-bold text-[#64748b] uppercase tracking-wider group-hover:text-[#0078d4]">{new Date(evt.start.dateTime).toLocaleDateString([], { month: 'short' })}</span>
-                                                        <span className="text-xl font-black text-[#1e293b] group-hover:text-[#0078d4]">{new Date(evt.start.dateTime).getDate()}</span>
-                                                    </div>
-                                                    <div className="flex flex-col gap-1.5 min-w-0 flex-1 justify-center">
-                                                        <div className="text-[15px] font-bold text-[#1e293b] truncate leading-tight group-hover:text-[#0078d4] transition-colors">{evt.subject}</div>
-                                                        <div className="flex items-center gap-4 flex-wrap">
-                                                            <div className="flex items-center gap-1.5 text-xs font-medium text-[#64748b]">
-                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                                                {new Date(evt.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                                            </div>
-                                                            {evt.location?.displayName && (
-                                                                <div className="flex items-center gap-1.5 text-xs font-medium text-[#64748b] truncate max-w-[200px]">
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                                                                    {evt.location.displayName}
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="flex flex-col items-center justify-center py-20 bg-[#f8fafc] rounded-2xl border-2 border-dashed border-[#edf2f7]">
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" strokeWidth="1.5" width="48" height="48" className="mb-4"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                                                <p className="text-[15px] text-[#718096] font-bold">Your Outlook schedule is clear</p>
-                                                <p className="text-sm text-[#a0aec0] mt-1">No upcoming events found</p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        renderCalendar()
-                    )}
-                </div>
-            ) : (
-                <div className="flex flex-col gap-4">
-                    {displayTasks.length > 0 ? (
-                        displayTasks.map(task => (
-                            <div className={`rounded-2xl border p-5 flex justify-between items-center gap-4 hover:translate-y-[-2px] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-200 md:flex-col md:items-stretch ${task.isPromotion ? (isDark ? 'bg-[#1e3278] border-[#2447d7]' : 'bg-[#f0f7ff] border-[#2447d7]/30') : 'bg-white border-[#edf2f7]'}`} key={task.id}>
-                                <div className="flex items-center gap-5 sm:gap-3">
-                                    <div className={`w-12 h-12 sm:w-10 sm:h-10 rounded-[14px] flex items-center justify-center shrink-0 ${task.isPromotion ? 'bg-[#2447d7] text-white' : task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fef3c7] text-[#d97706]' : task.type === 'Review' ? 'bg-[#f3e8ff] text-[#7c3aed]' : task.type === 'Email' ? 'bg-[#dcfce7] text-[#166534]' : 'bg-[#e0f2fe] text-[#0369a1]'}`}>
-                                        {task.isPromotion && (
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-                                        )}
-                                        {task.type === 'Call' && <IconPhone />}
-                                        {task.type === 'Document' && <IconDoc />}
-                                        {task.type === 'Review' && <IconReview />}
-                                        {task.type === 'Email' && <IconMail />}
-                                        {task.type === 'Meeting' && <IconMeeting />}
-                                    </div>
-                                    <div className="flex flex-col gap-1 min-w-0 flex-1">
-                                        <h3 className={`text-base font-bold truncate sm:text-sm ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>{task.title}</h3>
-                                        <div className="flex flex-col gap-1.5 text-left">
-                                            <div className="flex items-center gap-4 flex-wrap sm:gap-2">
-                                                <span className={`flex items-center gap-1.5 text-[13px] font-semibold sm:text-[11px] ${isDark ? 'text-[#8ea0d4]' : 'text-[#718096]'}`}>
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
-                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                                                    </svg>
-                                                    {task.lead || 'Personal'}
-                                                </span>
-                                                <span className={`text-[12px] font-medium sm:text-[10px] ${isDark ? 'text-[#546298]' : 'text-[#a0aec0]'}`}>
-                                                    {task.date} {task.endDate ? `to ${task.endDate}` : ''} • {task.time}
-                                                </span>
-                                            </div>
-                                            {task.message && <p className={`p-2.5 px-3.5 border rounded-xl text-[0.85rem] leading-relaxed max-w-[500px] mt-1 italic sm:text-[0.75rem] ${isDark ? 'bg-[#141829] border-[#2c3568] text-[#8ea0d4]' : 'bg-[#f8fafc] border-[#e2e8f0] text-[#4a5568]'}`}><span className="font-bold text-[#2447d7] not-italic mr-1">{task.isPromotion ? 'Promo Details:' : 'Notes:'}</span>{task.message}</p>}
-                                            {task.isPromotion && task.fileName && (
-                                                <div className={`mt-2 flex items-center gap-3 p-2 px-3 rounded-lg text-xs font-bold w-fit ${isDark ? 'bg-[#2447d7]/20 text-[#7a96fa]' : 'bg-[#e0e7ff] text-[#2447d7]'}`}>
-                                                    <div className="flex items-center gap-2">
-                                                        <IconDoc /> {task.fileName}
-                                                    </div>
-                                                    {task.fileData && (
-                                                        <a href={task.fileData} download={task.fileName} className="ml-2 text-[10px] font-black uppercase tracking-wider hover:underline opacity-80 hover:opacity-100">Download</a>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4 shrink-0 sm:flex-col sm:items-stretch sm:gap-3">
-                                    {!task.isPromotion ? (
-                                        <>
-                                            <div className="flex items-center gap-2">
-                                                <div className="flex items-center">
-                                                    <select 
-                                                        className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-[#718096] bg-[#f7fafc] border border-[#edf2f7] outline-none hover:border-[#2447d7] hover:text-[#2447d7] hover:bg-white transition-all cursor-pointer"
-                                                        value={task.reminder}
-                                                        onChange={(e) => updateTaskReminder(task.id, e.target.value)}
-                                                        title="Update Reminder"
-                                                    >
-                                                        <option value="none">🔔 Off</option>
-                                                        <option value="15m">15m</option>
-                                                        <option value="1h">1h</option>
-                                                        <option value="1d">1d</option>
-                                                    </select>
-                                                </div>
-                                                <div className="relative">
-                                                    <select 
-                                                        className={`appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22currentColor%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.75rem_center] bg-[length:12px] pr-9 pl-4 py-2 rounded-xl text-[13px] font-bold border outline-none transition-all hover:translate-y-[-1px] hover:shadow-sm min-w-[140px] sm:min-w-full ${task.status === 'Completed' ? 'bg-[#f0fff4] text-[#276749] border-[#9ae6b4]' : task.status === 'In Progress' ? 'bg-[#fffbef] text-[#c05621] border-[#fbd38d]' : 'bg-[#f7fafc] text-[#4a5568] border-[#e2e8f0]'}`}
-                                                        value={task.status}
-                                                        onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                                    >
-                                                        <option>Pending</option>
-                                                        <option>In Progress</option>
-                                                        <option>Completed</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            {canManageTask(task, JSON.parse(localStorage.getItem('user') || '{}')) && (
-                                                <div className="flex items-center gap-2">
-                                                    <button 
-                                                        onClick={() => handleEditClick(task)}
-                                                        className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
-                                                        title="Edit Task"
-                                                    >
-                                                        <IconEdit />
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleDeleteTask(task.id)}
-                                                        className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
-                                                        title="Delete Task"
-                                                    >
-                                                        <IconTrash />
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <div className={`px-4 py-2 rounded-xl text-[12px] font-black uppercase tracking-widest ${isDark ? 'bg-[#2447d7] text-white' : 'bg-[#2447d7] text-white'}`}>
-                                            Active Promo
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="py-[60px] text-center text-[#a0aec0] bg-[#fdfdfd] rounded-2xl border-2 border-dashed border-[#edf2f7] italic text-sm">
-                            <p>No tasks found matching your criteria.</p>
-                        </div>
-                    )}
-                </div>
-            )}
+            {/* Unified Calendar + Tasks View */}
+            <div className="flex-1 overflow-hidden">
+                {renderCalendar()}
+            </div>
         </div>
     );
 };
-
-const IconPhone = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-    </svg>
-);
-const IconDoc = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-    </svg>
-);
-const IconReview = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-);
-const IconMail = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
-    </svg>
-);
-const IconMeeting = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-);
-const IconList = ({ size = 18 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
-        <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" />
-    </svg>
-);
-const IconCalendar = ({ size = 18 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
-    </svg>
-);
-const IconPlus = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="16" height="16">
-        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-);
-const IconBell = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-);
-const IconBellActive = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="#2447d7" strokeWidth="2.5" width="12" height="12">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-);
-const IconAlarm = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <circle cx="12" cy="13" r="8" /><path d="M12 9v4l2 2" /><path d="M5 3L2 6" /><path d="M22 6l-3-3" /><path d="M6.38 18.7l-.44 1.1a1 1 0 0 1-1.32.5l-2.2-.9a1 1 0 0 1-.5-1.32l.44-1.1" /><path d="M17.62 18.7l.44 1.1a1 1 0 0 1 1.32.5l2.2-.9a1 1 0 0 1 .5-1.32l-.44-1.1" />
-    </svg>
-);
-
-const IconEdit = ({ size = 16 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-    </svg>
-);
-
-const IconTrash = ({ size = 16 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
-        <polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" />
-    </svg>
-);
 
 export default TasksFollowups;
 
