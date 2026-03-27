@@ -3,10 +3,19 @@ import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import EditLeadModal from './EditLeadModal';
-import { IconUpload, IconAlert, IconCheck, IconDocs, IconPencil, IconTrash, IconUsers } from '../../../components/DocumentManagement/Icons';
+const IconUpload = ({ size = 18 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="17 8 12 3 7 8" /><line x1="12" y1="3" x2="12" y2="15" /></svg>;
+const IconCheck = ({ size = 16 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><polyline points="20 6 9 17 4 12" /></svg>;
+const IconAlert = ({ size = 16 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>;
+const IconTrash = ({ size = 18 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /><line x1="10" y1="11" x2="10" y2="17" /><line x1="14" y1="11" x2="14" y2="17" /></svg>;
+const IconUsers = ({ size = 18 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><path d="M17 21v-2a4 4 0 0 0-3-3H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
+const IconMail = ({ size = 14 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
+const IconPhone = ({ size = 14 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.28-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+const IconDollar = ({ size = 14 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>;
+const IconFileText = ({ size = 14 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width={size} height={size}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>;
 
 import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS } from '../../../data/dummyData';
 import { useLeads } from '../../../context/LeadsContext';
+import { useTasks } from '../../../context/TasksContext';
 
 const ITEMS_PER_PAGE = 5;
 
@@ -14,7 +23,8 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { users } = useUsers() || {};
-    const { leads, setLeads } = useLeads();
+    const { leads, setLeads } = useLeads() || { leads: [] };
+    const { tasks } = useTasks() || { tasks: [] };
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
@@ -146,33 +156,14 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
 
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>
-            <div className="mb-8 animate-headerDrop">
-                <div className="flex flex-col">
-                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Manage Leads</h1>
-                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Track, organize and manage your customer leads efficiently.</p>
-                </div>
-            </div>
-
-            <div className="flex gap-5 mb-8 flex-wrap lg:gap-4 sm:gap-3">
-                {[
-                    { label: 'Total Leads', value: (MOCK_LEAD_COUNTS.total || 0).toLocaleString() },
-                    { label: 'New Today', value: (MOCK_LEAD_COUNTS.newToday || 0) }
-                ].map((stat, i) => (
-                    <div key={i} className="bg-white p-[16px_24px] sm:p-4 rounded-xl border border-[#edf2f7] flex flex-col gap-1 flex-1 min-w-[200px] lg:min-w-[calc(33.33%-14px)] md:min-w-[calc(50%-10px)] sm:min-w-[calc(50%-6px)] hover:shadow-lg hover:-translate-y-1 transition-all duration-200 animate-kpiPop" style={{ animationDelay: `${200 + i * 80}ms`, animationFillMode: 'both' }}>
-                        <span className="text-[11px] sm:text-[9px] font-bold text-[#a0aec0] uppercase tracking-wider">{stat.label}</span>
-                        <span className="text-[1.25rem] sm:text-[1rem] font-bold text-[#1a202c]">{stat.value}</span>
-                    </div>
-                ))}
-            </div>
-
-            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden animate-slideUp [animation-delay:450ms] [animation-fill-mode:both]">
-                <div className="p-6 flex justify-between items-center border-b border-[#f7fafc] flex-wrap gap-4 md:p-4">
-                    <h2 className="text-lg font-bold text-[#1a202c]">Lead Directory</h2>
+            <div className={`rounded-2xl border overflow-hidden animate-slideUp [animation-delay:150ms] [animation-fill-mode:both] ${isDark ? 'bg-[#1e2347] border-white/5 shadow-2xl' : 'bg-white border-[#edf2f7] shadow-sm'}`}>
+                <div className={`p-6 flex justify-between items-center border-b flex-wrap gap-4 md:p-4 ${isDark ? 'border-white/5' : 'border-[#f7fafc]'}`}>
+                    <h2 className={`text-[15px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-[#1a202c]'}`}>Lead Directory</h2>
                     <div className="flex items-center gap-3 flex-wrap">
                         {/* Status Filter */}
                         <div className="relative">
                             <select
-                                className="bg-[#f7fafc] border border-[#edf2f7] rounded-[10px] px-4 py-2 text-sm font-medium text-[#4a5568] outline-none cursor-pointer appearance-none pr-10"
+                                className={`appearance-none rounded-[12px] px-4 py-2 text-[12px] font-bold outline-none cursor-pointer border transition-all pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
                                 value={statusFilter}
                                 onChange={(e) => {
                                     setStatusFilter(e.target.value);
@@ -181,9 +172,9 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                             >
                                 <option value="All">All Status</option>
                                 <option value="Document Collection">Document Collection</option>
-                                <option value="Document Verification Done">Document Verification Done</option>
-                                <option value="Document Rejected">Document Rejected</option>
-                                <option value="Lender Selection">Lender Selection</option>
+                                <option value="Document Verification Done">Docs Verified</option>
+                                <option value="Document Rejected">Docs Rejected</option>
+                                <option value="Lender Selection">Lender Select</option>
                                 <option value="Completed">Completed</option>
                                 <option value="Rejected">Rejected</option>
                             </select>
@@ -191,34 +182,38 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                         </div>
                         
                         {/* Search Bar */}
-                        <div className="flex items-center gap-2.5 bg-[#f7fafc] px-4 py-2 border border-[#edf2f7] rounded-[10px] w-[300px] md:w-full">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="#a0aec0" strokeWidth="2" width="16" height="16">
+                        <div className={`flex items-center gap-2.5 px-4 py-2 border rounded-[12px] w-[300px] md:w-full transition-all ${isDark ? 'bg-[#141829] border-white/10 focus-within:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#475569' : '#a0aec0'} strokeWidth="2.5" width="14" height="14">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
                             <input
                                 type="text"
-                                className="bg-transparent border-none outline-none text-sm text-[#4a5568] w-full"
-                                placeholder="Search leads..."
+                                className={`bg-transparent border-none outline-none text-[12px] font-medium w-full ${isDark ? 'text-white placeholder-slate-600' : 'text-[#4a5568] placeholder-[#a0aec0]'}`}
+                                placeholder="Search by name or email..."
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
-                                    setCurrentPage(1); // Reset to first page on search
+                                    setCurrentPage(1);
                                 }}
                             />
                         </div>
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto custom-scrollbar">
                     <table className="w-full border-collapse">
                         <thead>
-                            <tr className="bg-[#fbfeff]">
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">Client / Business</th>
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:hidden">EMAIL / PHONE</th>
-                                {isAccountsManager && <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">ASSIGNED TO</th>}
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">STATUS</th>
-                                <th className="text-left p-[16px_24px] text-xs font-bold text-[#a0aec0] border-b border-[#f7fafc] uppercase tracking-wider md:p-[12px_16px] sm:p-3 sm:text-[10px]">ACTION</th>
+                            <tr className={`${isDark ? 'bg-[#141829]/50' : 'bg-[#fbfeff]'}`}>
+                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>ID</th>
+                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Lead Name</th>
+                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Business Name</th>
+                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Loan Amount</th>
+                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Email / Phone</th>
+                                {isAccountsManager && <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Staff</th>}
+                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Last Note</th>
+                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Status</th>
+                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -226,44 +221,56 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                 <tr 
                                     key={lead.id} 
                                     onClick={() => onViewDetails(lead)}
-                                    className="hover:bg-[#fcfdfe] transition-colors border-b border-[#f7fafc] last:border-0 animate-rowIn cursor-pointer" 
+                                    className={`transition-colors border-b last:border-0 animate-rowIn cursor-pointer ${isDark ? 'hover:bg-white/5 border-white/5' : 'hover:bg-[#fcfdfe] border-[#f7fafc]'}`} 
                                     style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}
                                 >
-                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
-                                        <div className="flex items-center gap-3 sm:gap-2">
-                                            <div className="w-8 h-8 sm:w-6 sm:h-6 bg-[#f0f4ff] text-[#2447d7] rounded-lg flex items-center justify-center text-[11px] sm:text-[9px] font-bold">
+                                    <td className="p-4">
+                                        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 tracking-tighter">#{lead.id}</span>
+                                    </td>
+                                    <td className="p-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[12px] font-black shadow-inner ${isDark ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-[#f0f4ff] text-[#2447d7]'}`}>
                                                 {lead.name.split(' ').map(n => n[0]).join('')}
                                             </div>
-                                            <div className="flex flex-col">
-                                                <span className="text-sm sm:text-[11px] font-bold text-[#1a202c] leading-tight">{lead.name}</span>
-                                                {lead.businessName && <span className="text-[10px] sm:text-[8px] font-bold text-[#2447d7] uppercase tracking-wider">{lead.businessName}</span>}
-                                            </div>
+                                            <span className={`text-[12px] font-black truncate max-w-[150px] ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{lead.name}</span>
                                         </div>
                                     </td>
-                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3 sm:hidden">
+                                    <td className="p-4 sm:hidden">
+                                        <span className="text-[11px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-tight truncate max-w-[150px]">{lead.businessName || 'N/A'}</span>
+                                    </td>
+                                    <td className="p-4 sm:hidden">
                                         <div className="flex flex-col">
-                                            <span className="text-sm font-medium text-[#1a202c]">{lead.email}</span>
-                                            <span className="text-xs text-[#a0aec0]">{lead.phone}</span>
+                                            <span className={`text-[13px] font-black ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>${(lead.loanAmount || 0).toLocaleString()}</span>
+                                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Loan Value</span>
+                                        </div>
+                                    </td>
+                                    <td className="p-4 sm:hidden">
+                                        <div className="flex flex-col gap-0.5">
+                                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400">
+                                                <IconMail size={12} className="text-slate-400" />
+                                                <span className="truncate max-w-[140px]">{lead.email}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400">
+                                                <IconPhone size={12} className="text-slate-400" />
+                                                <span className="whitespace-nowrap">{lead.phone}</span>
+                                            </div>
                                         </div>
                                     </td>
                                     {isAccountsManager && (
-                                        <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
+                                        <td className="p-4">
                                             <div className="flex items-center gap-2">
                                                 {(() => {
                                                     const staff = users?.find(u => u.id === lead.assignedStaffId);
-                                                    if (!staff) return <span className="text-[11px] text-[#a0aec0] italic">Unassigned</span>;
-                                                    
-                                                    // Use color for background, fallback to a default color
+                                                    if (!staff) return <span className="text-[10px] text-slate-500 italic">Unassigned</span>;
                                                     const bgColor = staff.color || staff.bgColor || '#2447d7';
-                                                    
                                                     return (
                                                         <div className="flex items-center gap-2">
-                                                            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow-sm" style={{ backgroundColor: bgColor }}>
+                                                            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-black text-white shadow-sm" style={{ backgroundColor: bgColor }}>
                                                                 {staff.initials}
                                                             </div>
-                                                            <div className="flex flex-col min-w-0 flex-1">
-                                                                <span className="text-[12px] font-bold text-[#1a202c] truncate">{staff.name}</span>
-                                                                <span className="text-[9px] font-medium text-[#718096] uppercase tracking-wider">{staff.role}</span>
+                                                            <div className="flex flex-col min-w-0">
+                                                                <span className={`text-[11px] font-black truncate max-w-[80px] ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{staff.name}</span>
+                                                                <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter truncate">{staff.role}</span>
                                                             </div>
                                                         </div>
                                                     );
@@ -271,6 +278,38 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                             </div>
                                         </td>
                                     )}
+                                    <td className="p-4 sm:hidden">
+                                        {(() => {
+                                            const leadIdStr = lead.id.toString();
+                                            const leadName = lead.name.toLowerCase();
+                                            
+                                            // Filter tasks by Lead ID OR Lead Name
+                                            const leadTasks = (tasks || []).filter(t => 
+                                                t.leadId?.toString() === leadIdStr || 
+                                                t.lead?.toLowerCase() === leadName
+                                            );
+                                            
+                                            // Sort by date (handles 'date' field from new tasks and 'updatedAt' from legacy/mock)
+                                            const lastTask = [...leadTasks].sort((a, b) => {
+                                                const dateA = new Date(a.date || a.updatedAt || a.dueDate || 0);
+                                                const dateB = new Date(b.date || b.updatedAt || b.dueDate || 0);
+                                                return dateB - dateA;
+                                            })[0];
+                                            
+                                            const taskNote = lastTask?.notes || lastTask?.message;
+                                            
+                                            if (!lastTask || !taskNote) return <span className="text-[10px] text-slate-500 italic">No preview</span>;
+                                            
+                                            return (
+                                                <div className="flex items-start gap-1.5 group max-w-[200px]">
+                                                    <IconFileText size={12} className="text-blue-500 shrink-0 mt-0.5" />
+                                                    <span className={`text-[11px] font-medium leading-tight line-clamp-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
+                                                        {taskNote}
+                                                    </span>
+                                                </div>
+                                            );
+                                        })()}
+                                    </td>
                                     <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
                                         <div className="flex items-center">
                                             {(() => {
@@ -332,39 +371,39 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                     <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
                                         <div className="flex items-center gap-2 sm:gap-1">
                                             <button 
-                                                className="px-2 sm:px-1.5 py-1 sm:py-1 border border-[#edf2f7] rounded-lg text-[11px] sm:text-[9px] font-semibold text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200" 
+                                                className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all border ${isDark ? 'border-white/10 text-blue-400 hover:bg-blue-500/10' : 'border-[#edf2f7] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`} 
                                                 onClick={() => onViewDetails(lead)}
                                             >
-                                                Details
+                                                DETAILS
                                             </button>
                                             {!(lead.status === 'Document Verifications' && lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && !isAccountsManager && (
                                                 <button 
-                                                    className="p-1 sm:p-1 border border-[#edf2f7] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
+                                                    className={`p-1.5 rounded-xl transition-all border ${isDark ? 'border-white/10 text-blue-400 hover:bg-blue-500/10' : 'border-[#edf2f7] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`}
                                                     title="Upload/Manage Documents"
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         handleOpenModal(lead);
                                                     }}
                                                 >
-                                                    <IconUpload size={16} />
+                                                    <IconUpload size={14} />
                                                 </button>
                                             )}
                                             {isAccountsManager && (
                                                 <>
                                                     {['Document Verification Done', 'Lender Selection'].includes(lead.stage) && onSelectLender && (
                                                         <button
-                                                            className="px-2 py-1 text-[10px] font-semibold border border-[#e9d5ff] bg-[#f5f3ff] rounded-lg text-[#7c3aed] hover:bg-[#7c3aed] hover:text-white transition-all duration-200 whitespace-nowrap"
+                                                            className={`px-3 py-1.5 text-[10px] font-black border rounded-xl transition-all whitespace-nowrap ${isDark ? 'border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20' : 'border-[#e9d5ff] bg-[#f5f3ff] text-[#7c3aed] hover:bg-[#7c3aed] hover:text-white'}`}
                                                             title="Select Lender"
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 onSelectLender(lead);
                                                             }}
                                                         >
-                                                            Lender
+                                                            LENDER
                                                         </button>
                                                     )}
                                                     <button
-                                                        className="p-1 sm:p-0.5 border border-[#ebf0ff] bg-[#f0f4ff] rounded-lg text-[#2447d7] hover:bg-[#2447d7] hover:text-white transition-all duration-200"
+                                                        className={`p-1.5 border rounded-xl transition-all ${isDark ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : 'border-[#ebf0ff] bg-[#f0f4ff] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`}
                                                         title="Reassign Lead"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
@@ -372,17 +411,17 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                             setShowReassignModal(true);
                                                         }}
                                                     >
-                                                        <IconUsers size={16} />
+                                                        <IconUsers size={14} />
                                                     </button>
                                                     <button
-                                                        className="p-1 sm:p-0.5 border border-[#fee2e2] bg-[#fef2f2] rounded-lg text-[#ef4444] hover:bg-[#ef4444] hover:text-white transition-all duration-200"
+                                                        className={`p-1.5 border rounded-xl transition-all ${isDark ? 'border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'border-[#fee2e2] bg-[#fef2f2] text-[#ef4444] hover:bg-[#ef4444] hover:text-white'}`}
                                                         title="Delete Lead"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
                                                             handleDeleteLead(lead);
                                                         }}
                                                     >
-                                                        <IconTrash size={16} />
+                                                        <IconTrash size={14} />
                                                     </button>
                                                 </>
                                             )}
@@ -394,24 +433,24 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                     </table>
                 </div>
 
-                <div className="p-[20px_24px] flex justify-between items-center bg-[#fdfdfd] border-t border-[#f7fafc] sm:flex-col sm:gap-4">
-                    <span className="text-sm text-[#718096] font-medium">
-                        Showing {startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredLeads.length)} of {filteredLeads.length} leads
+                <div className={`p-4 flex justify-between items-center border-t sm:flex-col sm:gap-4 ${isDark ? 'bg-[#141829]/30 border-white/5' : 'bg-[#fdfdfd] border-[#f7fafc]'}`}>
+                    <span className={`text-[12px] font-bold ${isDark ? 'text-slate-500' : 'text-[#718096]'}`}>
+                        Showing <span className={isDark ? 'text-white' : 'text-[#1a202c]'}>{startIndex + 1}-{Math.min(startIndex + ITEMS_PER_PAGE, filteredLeads.length)}</span> of <span className={isDark ? 'text-white' : 'text-[#1a202c]'}>{filteredLeads.length}</span> records
                     </span>
-                    <div className="flex gap-2.5 sm:w-full">
+                    <div className="flex gap-2 sm:w-full">
                         <button 
-                            className="bg-white border border-[#e2e8f0] px-4 py-2 rounded-lg text-sm font-semibold text-[#4a5568] hover:bg-[#f7fafc] disabled:opacity-50 disabled:cursor-not-allowed sm:flex-1" 
+                            className={`px-4 py-2 rounded-xl text-[12px] font-black transition-all border disabled:opacity-30 disabled:cursor-not-allowed sm:flex-1 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 hover:bg-[#1e2347]' : 'bg-white border-[#e2e8f0] text-[#4a5568] hover:bg-[#f7fafc]'}`}
                             onClick={handlePrevPage} 
                             disabled={currentPage === 1 || filteredLeads.length === 0}
                         >
-                            Previous
+                            PREVIOUS
                         </button>
                         <button 
-                            className="bg-white border border-[#e2e8f0] px-4 py-2 rounded-lg text-sm font-semibold text-[#4a5568] hover:bg-[#f7fafc] disabled:opacity-50 disabled:cursor-not-allowed sm:flex-1" 
+                            className={`px-4 py-2 rounded-xl text-[12px] font-black transition-all border disabled:opacity-30 disabled:cursor-not-allowed sm:flex-1 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 hover:bg-[#1e2347]' : 'bg-white border-[#e2e8f0] text-[#4a5568] hover:bg-[#f7fafc]'}`}
                             onClick={handleNextPage} 
                             disabled={currentPage === totalPages || filteredLeads.length === 0}
                         >
-                            Next
+                            NEXT
                         </button>
                     </div>
                 </div>
