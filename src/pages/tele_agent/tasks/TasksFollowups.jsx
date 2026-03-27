@@ -24,6 +24,115 @@ const IconTrash = ({ size = 16 }) => (
     </svg>
 );
 
+const IconEye = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="11" height="11">
+        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" />
+    </svg>
+);
+
+const IconDownload = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="11" height="11">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" />
+    </svg>
+);
+
+const IconFileDoc = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">
+        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" />
+    </svg>
+);
+
+/* ─── DOCUMENT PREVIEW MODAL ───────────────────── */
+const PromoPreviewModal = ({ file, onClose, isDark }) => {
+    if (!file || !file.fileData) return null;
+    const isImage = file.fileData.startsWith('data:image/');
+    const isPdf   = file.fileData.startsWith('data:application/pdf');
+    return (
+        <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            style={{ background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(8px)' }}
+            onClick={onClose}
+        >
+            <div
+                className="w-full max-w-5xl flex flex-col rounded-2xl shadow-2xl overflow-hidden"
+                style={{
+                    height: '90vh',
+                    background: isDark ? '#1e2347' : '#ffffff',
+                    border: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}`,
+                }}
+                onClick={e => e.stopPropagation()}
+            >
+                {/* Header */}
+                <div className="px-6 py-4 flex justify-between items-center shrink-0" style={{ borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}`, background: isDark ? '#141829' : '#f8fafc' }}>
+                    <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: isDark ? '#242b58' : '#ffffff', color: isDark ? '#8ea0d4' : '#2447d7', boxShadow: isDark ? 'none' : '0 1px 4px rgba(0,0,0,0.1)' }}>
+                            <IconFileDoc />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[14px] font-bold truncate" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>{file.fileName}</span>
+                            <span className="text-[11px] font-semibold" style={{ color: isDark ? '#546298' : '#a0aec0' }}>Document Preview (Security Sandbox View)</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <a
+                            href={file.fileData}
+                            download={file.fileName}
+                            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all no-underline shadow-md"
+                            style={{ background: '#2447d7', color: '#ffffff' }}
+                        >
+                            <IconDownload /> Download File
+                        </a>
+                        <button
+                            onClick={onClose}
+                            className="p-2 rounded-lg ml-1 transition-colors"
+                            style={{ background: isDark ? 'rgba(239,68,68,0.1)' : '#fff1f2', color: isDark ? '#f87171' : '#dc2626' }}
+                            title="Close Preview"
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        </button>
+                    </div>
+                </div>
+                {/* Body */}
+                <div
+                    className="flex-1 overflow-auto flex items-center justify-center relative p-6"
+                    style={{
+                        background: isDark ? '#0f1222' : '#f1f5f9',
+                        backgroundImage: isDark
+                            ? 'linear-gradient(#1e2347 1px, transparent 1px), linear-gradient(90deg, #1e2347 1px, transparent 1px)'
+                            : 'linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(90deg, #e2e8f0 1px, transparent 1px)',
+                        backgroundSize: '40px 40px',
+                    }}
+                >
+                    {isImage ? (
+                        <img src={file.fileData} alt={file.fileName} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: '12px', boxShadow: '0 25px 50px rgba(0,0,0,0.4)' }} />
+                    ) : isPdf ? (
+                        <iframe src={file.fileData} title="PDF Preview" style={{ width: '100%', height: '100%', border: 'none', borderRadius: '12px' }} />
+                    ) : (
+                        <div className="text-center p-10 rounded-2xl max-w-sm" style={{ background: isDark ? '#1e2347' : '#ffffff', border: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>
+                            <div className="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center" style={{ background: isDark ? '#141829' : '#f8fafc', color: isDark ? '#8ea0d4' : '#a0aec0' }}>
+                                <IconFileDoc />
+                            </div>
+                            <h3 className="text-base font-bold mb-2" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>Preview Not Available</h3>
+                            <p className="text-sm mb-5" style={{ color: isDark ? '#8ea0d4' : '#718096' }}>This file format cannot be previewed in the browser. Please download to view the contents.</p>
+                            <a href={file.fileData} download={file.fileName} className="inline-flex items-center gap-2 px-5 py-2 rounded-xl text-sm font-bold no-underline transition-all" style={{ background: '#2447d7', color: '#ffffff' }}>
+                                <IconDownload /> Download
+                            </a>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const stringToColor = (str) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return Math.abs(hash % 360);
+};
+
 // Removed INITIAL_TASKS mock data, using props from layout.
 
 const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, notifyReminderSet }) => {
@@ -45,6 +154,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         status: 'Active',
         isPromotion: true,
         priority: 'High',
+        lenderName: p.lenderName,
         fileName: p.fileName,
         fileData: p.fileData
     })), [promotions]);
@@ -77,6 +187,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     const [loadingEvents, setLoadingEvents] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
     const [isEditingTask, setIsEditingTask] = useState(false);
+    const [previewFile, setPreviewFile] = useState(null);
 
     const todayDate = new Date();
     const [calYear, setCalYear] = useState(todayDate.getFullYear());
@@ -233,6 +344,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         type: 'Promotion',
         status: 'Active',
         isPromotion: true,
+        lenderName: p.lenderName,
         fileName: p.fileName,
         fileData: p.fileData
     })), [promotions]);
@@ -605,40 +717,42 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                     <div className="flex flex-col gap-2 h-full">
                                         <h4 className="text-[10px] font-black uppercase tracking-wider pb-1" style={{ color: isDark ? '#8ea0d4' : '#718096', borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>Promotions</h4>
                                         {dayPromos.length > 0 ? (
-                                            dayPromos.map(p => (
-                                                <div key={p.id} className="p-3 rounded-xl flex flex-col gap-2 transition-all shadow-sm hover:shadow-md cursor-pointer group" style={{ background: isDark ? 'rgba(30,58,138,0.2)' : '#eff6ff', border: `1px solid ${isDark ? 'rgba(59,130,246,0.3)' : '#bfdbfe'}` }}>
-                                                    <div className="flex items-start gap-2">
-                                                        <div className="w-1 h-full rounded-full shrink-0 bg-[#0061ff]"></div>
-                                                        <div className="flex flex-col min-w-0 flex-1 gap-1">
+                                            dayPromos.map(p => {
+                                                const hue = stringToColor(p.lenderName || p.title);
+                                                return (
+                                                <div key={p.id} className="p-3.5 rounded-2xl flex flex-col gap-2 transition-all shadow-sm hover:shadow-lg hover:-translate-y-0.5 cursor-pointer group" style={{ background: isDark ? `hsla(${hue}, 80%, 65%, 0.1)` : `hsla(${hue}, 80%, 45%, 0.05)`, border: `1px solid ${isDark ? `hsla(${hue}, 80%, 65%, 0.2)` : `hsla(${hue}, 80%, 45%, 0.15)`}` }}>
+                                                    {/* Top Color Accent */}
+                                                    <div className="h-1 w-full rounded-t-full -mt-2 mb-1" style={{ background: `linear-gradient(90deg, hsl(${hue}, 80%, 60%), hsl(${(hue + 40) % 360}, 80%, 60%))` }}></div>
+                                                    
+                                                    <div className="flex items-start gap-2 mt-0.5">
+                                                        <div className="flex flex-col min-w-0 flex-1 gap-1.5">
                                                             <div className="flex items-center gap-2 justify-between">
-                                                                <span className="text-[12px] font-bold leading-tight" style={{ color: isDark ? '#c8d8ff' : '#1e3a8a' }}>{p.title}</span>
-                                                                <span className="bg-[#0061ff] text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-wider animate-pulse shrink-0 shadow-sm shadow-blue-500/30">Promo</span>
-                                                            </div>
-                                                            <div className="flex items-center gap-1.5 text-[10px]" style={{ color: isDark ? '#60a5fa' : '#2563eb' }}>
-                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
-                                                                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                                                                </svg>
-                                                                <span className="font-medium">{p.time}</span>
+                                                                <span className="text-[12px] font-bold leading-tight" style={{ color: isDark ? '#e4ecff' : '#1e3a8a' }}>{p.title}</span>
+                                                                <span className="text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-sm" style={{ background: `hsl(${hue}, 80%, 55%)` }}>Promo</span>
                                                             </div>
                                                             <div className="flex items-center gap-1.5 text-[10px]" style={{ color: isDark ? '#8ea0d4' : '#3b82f6' }}>
-                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="12" height="12">
-                                                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12">
+                                                                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
                                                                 </svg>
-                                                                <span className="font-medium leading-tight">{p.lead}</span>
+                                                                <span className="font-bold">{p.time}</span>
+                                                            </div>
+                                                            <div className="mt-1">
+                                                                <span className="text-[10px] font-medium leading-relaxed" style={{ color: isDark ? '#c8d8ff' : '#2d3748' }}>{p.lead}</span>
                                                             </div>
                                                             {p.fileName && p.fileData && (
-                                                                <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-white/50 dark:bg-[#1e2347]/50 border border-blue-200/50 dark:border-blue-500/20 shadow-sm">
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className="text-[#0061ff]" strokeWidth="2" width="14" height="14">
+                                                                <div className="flex items-center gap-2 mt-2.5 p-2 rounded-xl bg-white/60 dark:bg-[#1e2347]/60 border shadow-sm transition-colors group-hover:bg-white dark:group-hover:bg-[#1a2244]" style={{ borderColor: isDark ? `hsla(${hue}, 80%, 65%, 0.25)` : `hsla(${hue}, 80%, 45%, 0.2)` }}>
+                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" style={{ color: `hsl(${hue}, 80%, 55%)` }}>
                                                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
                                                                     </svg>
                                                                     <span className="text-[9px] font-bold flex-1 truncate" style={{ color: isDark ? '#c8d8ff' : '#1e3a8a' }}>{p.fileName}</span>
-                                                                    <a href={p.fileData} download={p.fileName} className="bg-[#0061ff] text-white px-2 py-1 rounded hover:bg-blue-700 text-[8px] font-black uppercase transition-all shadow-sm">Download</a>
+                                                                    <button onClick={() => setPreviewFile({ fileName: p.fileName, fileData: p.fileData })} className="flex items-center gap-1 text-[8px] font-black uppercase px-2 py-1.5 rounded-lg transition-all hover:scale-[1.03] border" style={{ background: isDark ? '#1e2347' : '#f8fafc', color: isDark ? '#c8d8ff' : '#4a5568', borderColor: isDark ? '#2c3568' : '#e2e8f0' }}><IconEye /> Preview</button>
+                                                                    <a href={p.fileData} download={p.fileName} className="flex items-center gap-1 text-white px-2 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all shadow-sm hover:scale-[1.03] no-underline" style={{ background: `hsl(${hue}, 80%, 55%)` }}><IconDownload /> Download</a>
                                                                 </div>
                                                             )}
                                                         </div>
                                                     </div>
                                                 </div>
-                                            ))
+                                            );})
                                         ) : (
                                             <div className="flex-1 flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl" style={{ borderColor: isDark ? '#2c3568' : '#e2e8f0', background: isDark ? '#1e2347' : '#f8fafc' }}>
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32" style={{ color: isDark ? '#546298' : '#cbd5e0', marginBottom: '8px' }}>
@@ -776,6 +890,15 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                         </form>
                     </div>
                 </div>
+            )}
+
+            {/* Promotion Document Preview Modal */}
+            {previewFile && (
+                <PromoPreviewModal
+                    file={previewFile}
+                    onClose={() => setPreviewFile(null)}
+                    isDark={isDark}
+                />
             )}
 
             {/* Unified Calendar + Tasks View */}

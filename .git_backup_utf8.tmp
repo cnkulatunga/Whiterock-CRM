@@ -1,0 +1,30 @@
+﻿                                        <option value="1h">1 Hour Before</option>
+                                        <option value="1d">1 Day Before</option>
+                                    </select>
+                                </div>
+                                <div className="flex flex-col gap-2 col-span-2">
+                                    <label className="text-xs font-bold text-[#4a5568]">Reminder Message / Notes</label>
+                                    <textarea className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all min-h-[80px]" value={newTask.message} onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional details for the reminder..." rows="3" />
+                                </div>
+                            </div>
+
+                             <div className="flex justify-end gap-3 mt-4">
+                                <button type="button" className="px-5 py-2.5 bg-[#f7fafc] border border-[#edf2f7] rounded-xl font-bold text-[#4a5568] hover:bg-[#edf2f7] transition-all" onClick={() => { setIsAddingTask(false); setIsEditingTask(false); setEditingTask(null); }}>Cancel</button>
+                                <button type="submit" className="px-6 py-2.5 bg-[#2447d7] text-white rounded-xl font-bold hover:bg-[#1a36b1] hover:-translate-y-px shadow-lg transition-all">{isEditingTask ? 'Update Task' : 'Create Task'}</button>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Unified Calendar + Tasks View */}
+            <div className="flex-1 overflow-hidden">
+                {renderCalendar()}
+            </div>
+        </div>
+    );
+};
+
+export default TasksFollowups;
+
