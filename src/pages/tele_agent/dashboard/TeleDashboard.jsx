@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { LEADS_BY_STAGE, MOCK_LEAD_COUNTS, MOCK_LEADS, INITIAL_TASKS } from '../../../data/dummyData';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
+import { useLeads } from '../../../context/LeadsContext';
 import { usePromotions } from '../../../context/PromotionsContext';
+import { canManageTask } from '../../../utils/permissionUtils';
 
 /* ─── SVG ICONS ─── */
 const IconUserGroup = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" {...props}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
@@ -15,6 +17,9 @@ const IconTeams = (props) => <svg viewBox="0 0 24 24" fill="currentColor" width=
 const IconBulb = (props) => <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" {...props}><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z" /></svg>;
 const IconMail = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
 const IconPhone = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.28-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+const IconCalendar = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+const IconArrowRight = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+const IconFile = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>;
 
 /* ─── MODAL COMPONENT ─── */
 const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false, isWide = false }) => {
@@ -22,7 +27,7 @@ const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-4xl rounded-2xl'}`}>
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-xl rounded-2xl'}`}>
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors shrink-0">
@@ -45,6 +50,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     const isDark = theme === 'dark';
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const { promotions } = usePromotions();
+    const { leads } = useLeads();
     const safePromotions = promotions || [];
     const [outlookAccount, setOutlookAccount] = useState(null);
     const [outlookEvents, setOutlookEvents] = useState([]);
@@ -67,6 +73,23 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     const [loanAmount, setLoanAmount] = useState(100000);
     const [interestRate, setInterestRate] = useState(8.5);
     const [loanTerm, setLoanTerm] = useState(24);
+    const [localTasks, setLocalTasks] = useState(tasks);
+
+    useEffect(() => {
+        setLocalTasks(tasks);
+    }, [tasks]);
+
+    const handleUpdateTaskStatus = (taskId, newStatus) => {
+        setLocalTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+    };
+
+    const handleUpdateLeadStatus = (taskId, newLeadStatus) => {
+        setLocalTasks(prev => prev.map(t => t.id === taskId ? { ...t, leadStatus: newLeadStatus } : t));
+    };
+
+    const handleAddTask = (newTask) => {
+        setLocalTasks(prev => [newTask, ...prev]);
+    };
 
     const ASSET_PRODUCTS = [
         { name: 'Unsecured', iconColor: 'text-indigo-500', bgColor: 'bg-indigo-50/50 dark:bg-indigo-500/10', dotColor: 'bg-indigo-400', brief: 'Clean funding for rapid growth without asset pledges.', requirements: ['6+ Months Trading', '$10k+ Monthly Revenue', 'Clear Bank Statements', 'Australian Registered Business'] },
@@ -155,29 +178,70 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     const renderModalContent = () => {
         switch (activeModal) {
             case 'LEAD_COUNT': {
-                const myLeads = MOCK_LEADS.filter(l => l.assignedStaffId === user.id && l.status !== 'Completed');
-                const STATUS_COLORS_MAP = {
-                    'Document Collection': 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-                    'Document Verification Done': 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
-                    'Lender Selection': 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-                    'Completed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-                    'Rejected': 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
-                    'Pending': 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+                const myLeads = (leads || []).filter(l => l.assignedStaffId === user.id && l.status !== 'Completed');
+                const getStatusBadge = (status) => {
+                    const statusConfig = {
+                        'Document Collection': { 
+                            bg: 'bg-[#eff6ff] dark:bg-blue-900/40', 
+                            text: 'text-[#2563eb] dark:text-blue-300', 
+                            dot: 'bg-blue-400' 
+                        },
+                        'Document Verification Done': { 
+                            bg: 'bg-[#ecfdf5] dark:bg-emerald-900/30', 
+                            text: 'text-[#059669] dark:text-emerald-400', 
+                            icon: true 
+                        },
+                        'Lender Selection': { 
+                            bg: 'bg-[#fff7ed] dark:bg-amber-900/30', 
+                            text: 'text-[#d97706] dark:text-amber-400', 
+                            dot: 'bg-amber-400' 
+                        },
+                        'Completed': { 
+                            bg: 'bg-[#f0fdf4] dark:bg-emerald-900/40', 
+                            text: 'text-[#16a34a] dark:text-emerald-300', 
+                            icon: true 
+                        },
+                        'Rejected': { 
+                            bg: 'bg-[#fef2f2] dark:bg-red-900/30', 
+                            text: 'text-[#dc2626] dark:text-red-400', 
+                            dot: 'bg-red-400' 
+                        },
+                        'Pending': { 
+                            bg: 'bg-slate-50 dark:bg-slate-800', 
+                            text: 'text-slate-500', 
+                            dot: 'bg-slate-400' 
+                        },
+                    };
+
+                    const config = statusConfig[status] || statusConfig['Pending'];
+                    return (
+                        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight ${config.bg} ${config.text}`}>
+                            {config.icon ? (
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" className="w-2.5 h-2.5">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            ) : (
+                                <span className={`w-1.5 h-1.5 rounded-full ${config.dot}`} />
+                            )}
+                            {status}
+                        </span>
+                    );
                 };
+
                 return (
                     <div className="flex flex-col gap-3">
                         {myLeads.length > 0 ? (
-                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-hidden">
+                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-hidden shadow-sm">
                                 <table className="w-full text-left border-collapse">
                                     <thead>
-                                        <tr className="bg-slate-50 dark:bg-slate-800/80">
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-8">#</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Name</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business Name</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loan Amount</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                        <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Contact Name</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Business Name</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Loan Amount</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
@@ -185,39 +249,37 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                             <tr
                                                 key={lead.id}
                                                 onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
-                                                className="cursor-pointer bg-white dark:bg-transparent hover:bg-blue-50/50 dark:hover:bg-blue-900/10 border-l-2 border-transparent hover:border-blue-500 transition-all"
+                                                className="group cursor-pointer bg-white dark:bg-transparent hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-all"
                                             >
-                                                <td className="px-3 py-2 text-[11px] font-bold text-slate-400">{idx + 1}</td>
-                                                <td className="px-3 py-2">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-[9px] font-black shrink-0 shadow-sm">
+                                                <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-2.5">
+                                                        <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
                                                             {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                                         </div>
-                                                        <span className="text-[12px] font-bold text-slate-800 dark:text-white">{lead.name}</span>
+                                                        <span className="text-[12px] font-bold text-[#0061ff] dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">{lead.name}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-3 py-2">
-                                                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                                                        <IconMail width="11" height="11" className="shrink-0" />
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                        <IconMail width="13" height="13" className="text-slate-300 dark:text-slate-600" />
                                                         <span className="truncate max-w-[160px]">{lead.email || '—'}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-3 py-2">
-                                                    <div className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                                                        <IconPhone width="11" height="11" className="shrink-0" />
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                        <IconPhone width="13" height="13" className="text-slate-300 dark:text-slate-600" />
                                                         <span>{lead.phone || '—'}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-3 py-2">
-                                                    <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">{lead.businessName || '—'}</span>
+                                                <td className="px-4 py-3">
+                                                    <span className="text-[12px] font-semibold text-slate-700 dark:text-slate-300">{lead.businessName || '—'}</span>
                                                 </td>
-                                                <td className="px-3 py-2">
-                                                    <span className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400">{lead.loanAmount || '—'}</span>
+                                                <td className="px-4 py-3">
+                                                    <span className="text-[12px] font-black text-emerald-600 dark:text-emerald-400">{lead.loanAmount || '—'}</span>
                                                 </td>
-                                                <td className="px-3 py-2 text-center">
-                                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tight ${STATUS_COLORS_MAP[lead.status] || 'bg-slate-100 text-slate-600'}`}>
-                                                        {lead.status}
-                                                    </span>
+                                                <td className="px-4 py-3 text-center">
+                                                    {getStatusBadge(lead.status)}
                                                 </td>
                                             </tr>
                                         ))}
@@ -241,113 +303,173 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 );
             }
             case 'FOLLOW_UPS': {
-                const TASK_STATUS_COLORS = {
-                    'Completed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-                    'Pending': 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-                    'High Priority': 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+                const getProgressBadge = (task) => {
+                    const statusConfig = {
+                        'Complete': { 
+                            bg: 'bg-[#ecfdf5] dark:bg-emerald-900/40', 
+                            text: 'text-[#059669] dark:text-emerald-400', 
+                            dot: 'bg-emerald-400' 
+                        },
+                        'Pending': { 
+                            bg: 'bg-[#fff7ed] dark:bg-amber-900/30', 
+                            text: 'text-[#d97706] dark:text-amber-400', 
+                            dot: 'bg-amber-400' 
+                        },
+                        'In Progress': { 
+                            bg: 'bg-[#eff6ff] dark:bg-blue-900/30', 
+                            text: 'text-[#2563eb] dark:text-blue-400', 
+                            dot: 'bg-blue-400' 
+                        },
+                    };
+
+                    const config = statusConfig[task.status] || statusConfig['Pending'];
+                    return (
+                        <select 
+                            value={task.status}
+                            onChange={(e) => {
+                                e.stopPropagation();
+                                handleUpdateTaskStatus(task.id, e.target.value);
+                            }}
+                            className={`appearance-none cursor-pointer outline-none inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight transition-all border-none ${config.bg} ${config.text} hover:ring-2 ring-blue-500/20 shadow-sm`}
+                        >
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Complete">Complete</option>
+                        </select>
+                    );
                 };
+
+                const getLeadStatusBadge = (task) => {
+                    const statusConfig = {
+                        'Hot': { 
+                            bg: 'bg-[#fef2f2] dark:bg-red-900/40', 
+                            text: 'text-[#dc2626] dark:text-red-400', 
+                            dot: 'bg-red-500 animate-pulse' 
+                        },
+                        'Warm': { 
+                            bg: 'bg-[#fffbeb] dark:bg-amber-900/30', 
+                            text: 'text-[#d97706] dark:text-amber-400', 
+                            dot: 'bg-amber-500' 
+                        },
+                        'Cool': { 
+                            bg: 'bg-[#f0f9ff] dark:bg-sky-900/30', 
+                            text: 'text-[#0284c7] dark:text-sky-400', 
+                            dot: 'bg-sky-500' 
+                        },
+                    };
+
+                    const currentLeadStatus = task.leadStatus || 'Cool';
+                    const config = statusConfig[currentLeadStatus];
+
+                    return (
+                        <select 
+                            value={currentLeadStatus}
+                            onChange={(e) => {
+                                e.stopPropagation();
+                                handleUpdateLeadStatus(task.id, e.target.value);
+                            }}
+                                className={`appearance-none cursor-pointer outline-none inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight transition-all border-none ${config.bg} ${config.text} hover:ring-2 ring-blue-500/20 shadow-sm`}
+                        >
+                            <option value="Hot">Hot</option>
+                            <option value="Warm">Warm</option>
+                            <option value="Cool">Cool</option>
+                        </select>
+                    );
+                };
+
                 return (
                     <div className="flex flex-col gap-3">
-                        {tasks.length > 0 ? (
-                            <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto">
-                                <table className="w-full text-left border-collapse min-w-[1000px]">
+                        <div className="flex flex-col gap-0.5 mb-2 px-1">
+                            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Management</h3>
+                            <div className="text-[20px] font-black dark:text-white uppercase tracking-tight">Active Follow-ups</div>
+                        </div>
+                        {localTasks.length > 0 ? (
+                            <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
+                                <table className="w-full text-left border-collapse min-w-[1200px]">
                                     <thead>
-                                        <tr className="bg-slate-50 dark:bg-slate-800/80">
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest w-8">#</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead Name</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Phone</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Task Title</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Notes / Message</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date</th>
-                                            <th className="px-3 py-2.5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                                        <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Lead Name</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Lead Status</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone Number</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Note / Message</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Schedule</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Progress</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                                         {(() => {
                                             const todayStr = new Date().toISOString().split('T')[0];
-                                            return [...tasks]
-                                                .sort((a, b) => {
-                                                    const today = new Date(todayStr);
-                                                    const aDate = new Date(a.date);
-                                                    const bDate = new Date(b.date);
-                                                    
-                                                    const aIsToday = a.date === todayStr;
-                                                    const bIsToday = b.date === todayStr;
-                                                    const aIsPast = aDate < today;
-                                                    const bIsPast = bDate < today;
-                                                    const aIsFuture = aDate > today;
-                                                    const bIsFuture = bDate > today;
+                                            const sortedTasks = [...localTasks].sort((a, b) => {
+                                                const aComplete = a.status === 'Complete';
+                                                const bComplete = b.status === 'Complete';
+                                                
+                                                if (aComplete && !bComplete) return 1;
+                                                if (!aComplete && bComplete) return -1;
+                                                
+                                                if (a.date === todayStr && b.date !== todayStr) return -1;
+                                                if (a.date !== todayStr && b.date === todayStr) return 1;
+                                                
+                                                const aDateTime = new Date(a.date + ' ' + (a.time || '00:00'));
+                                                const bDateTime = new Date(b.date + ' ' + (b.time || '00:00'));
+                                                return bDateTime - aDateTime;
+                                            });
 
-                                                    // 1. Today first
-                                                    if (aIsToday && !bIsToday) return -1;
-                                                    if (!aIsToday && bIsToday) return 1;
-                                                    if (aIsToday && bIsToday) return new Date(a.date + ' ' + a.time) - new Date(b.date + ' ' + b.time);
+                                            return sortedTasks.slice(0, 6).map((task, idx) => {
+                                                const relatedLead = (leads || []).find(l => l.name === task.lead || l.email === task.email);
+                                                const displayEmail = task.email || relatedLead?.email || '—';
+                                                const displayPhone = task.phone || relatedLead?.phone || '—';
+                                                const combinedNotes = [task.title, task.description, task.message].filter(Boolean).join(' - ');
 
-                                                    // 2. Future tasks next (Descending order per request)
-                                                    if (aIsFuture && bIsPast) return -1;
-                                                    if (aIsPast && bIsFuture) return 1;
-
-                                                    // If both future or both past, sort descending by date/time
-                                                    const aDateTime = new Date(a.date + ' ' + a.time);
-                                                    const bDateTime = new Date(b.date + ' ' + b.time);
-                                                    return bDateTime - aDateTime;
-                                                })
-                                                .map((task, idx) => {
-                                                    const relatedLead = MOCK_LEADS.find(l => l.name === task.lead || l.email === task.email);
-                                                    const displayEmail = task.email || relatedLead?.email || '—';
-                                                    const displayPhone = task.phone || relatedLead?.phone || '—';
-                                                    const combinedNotes = [task.description, task.message].filter(Boolean).join(' | ');
-
-                                                    return (
-                                                        <tr
-                                                            key={task.id}
-                                                            onClick={() => { relatedLead && onViewLeadDetails && onViewLeadDetails(relatedLead); closeModal(); }}
-                                                            className="cursor-pointer bg-white dark:bg-transparent hover:bg-orange-50/50 dark:hover:bg-orange-900/10 border-l-4 border-transparent hover:border-orange-500 transition-all font-medium"
-                                                        >
-                                                            <td className="px-3 py-2 text-xs font-bold text-slate-400">{idx + 1}</td>
-                                                            <td className="px-3 py-2">
-                                                                <div className="flex items-center gap-2">
-                                                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-500 text-white flex items-center justify-center text-[10px] font-black shrink-0 shadow-sm">
-                                                                        {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                                                                    </div>
-                                                                    <span className="text-[13px] font-bold text-slate-800 dark:text-white whitespace-nowrap">{task.lead || 'Unknown Lead'}</span>
+                                                return (
+                                                    <tr
+                                                        key={task.id}
+                                                        className={`group bg-white dark:bg-transparent hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-all border-b border-slate-50 dark:border-white/5 last:border-0 ${task.status === 'Complete' ? 'opacity-60 grayscale-[0.3]' : ''}`}
+                                                    >
+                                                        <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex items-center gap-2.5">
+                                                                <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
+                                                                    {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                                                 </div>
-                                                            </td>
-                                                            <td className="px-3 py-2">
-                                                                <div className="flex items-center gap-1.5 text-[12px] text-slate-600 dark:text-slate-400">
-                                                                    <IconMail width="13" height="13" />
-                                                                    <span className="truncate max-w-[150px]">{displayEmail}</span>
+                                                                <span className="text-[12px] font-bold text-[#0061ff] dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors uppercase tracking-tight">{task.lead || 'Unknown Lead'}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
+                                                            {getLeadStatusBadge(task)}
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                                <IconMail width="13" height="13" className="text-slate-300 dark:text-slate-600" />
+                                                                <span className="truncate max-w-[160px]">{displayEmail}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                                <IconPhone width="13" height="13" className="text-slate-300 dark:text-slate-600" />
+                                                                <span>{displayPhone}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 max-w-[200px] leading-relaxed" title={combinedNotes}>
+                                                                {combinedNotes}
+                                                            </p>
+                                                        </td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex flex-col leading-tight text-right">
+                                                                <span className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{task.date}</span>
+                                                                <div className="flex items-center justify-end gap-1 text-[10px] font-black text-[#0061ff] dark:text-blue-400 uppercase tracking-tighter">
+                                                                    <IconClock width="10" height="10" /> {task.time}
                                                                 </div>
-                                                            </td>
-                                                            <td className="px-3 py-2">
-                                                                <div className="flex items-center gap-1.5 text-[12px] text-slate-600 dark:text-slate-400 whitespace-nowrap">
-                                                                    <IconPhone width="13" height="13" />
-                                                                    <span>{displayPhone}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-3 py-2">
-                                                                <span className="text-[13px] font-bold text-slate-700 dark:text-slate-200">{task.title}</span>
-                                                            </td>
-                                                            <td className="px-3 py-2">
-                                                                <p className="text-[12px] text-slate-500 dark:text-slate-400 line-clamp-1 max-w-[200px]" title={combinedNotes}>
-                                                                    {combinedNotes || 'No notes'}
-                                                                </p>
-                                                            </td>
-                                                            <td className="px-3 py-2">
-                                                                <div className="flex flex-col leading-tight">
-                                                                    <span className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{task.date}</span>
-                                                                    <span className="text-[10px] font-black text-orange-500 uppercase tracking-tighter">{task.time}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-3 py-2 text-center">
-                                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter whitespace-nowrap ${TASK_STATUS_COLORS[task.status] || 'bg-slate-100 text-slate-600'}`}>
-                                                                    {task.status}
-                                                                </span>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">
+                                                            {getProgressBadge(task)}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            });
                                         })()}
                                     </tbody>
                                 </table>
@@ -358,43 +480,179 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             </div>
                         )}
                         <button
-                            className="bg-orange-50 hover:bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 font-black py-2.5 rounded-xl text-[10px] uppercase tracking-widest transition-all mt-1"
+                            className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 font-black py-3 rounded-2xl mt-1 border border-slate-100 dark:border-white/5"
                             onClick={() => { onNavigate && onNavigate('follow-ups'); closeModal(); }}
                         >
-                            View Full Schedule →
+                            View All Follow-ups →
                         </button>
                     </div>
                 );
             }
-            case 'PENDING_DOCS': {
-                const pendingLeads = MOCK_LEADS.filter(l => l.documents.some(d => d.status === 'Pending'));
+            case 'ADD_TASK': {
                 return (
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-4 max-w-[500px] mx-auto p-2">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Lead Name</label>
+                                <select 
+                                    id="newTaskLead"
+                                    className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
+                                >
+                                            <option value="">Select a Lead</option>
+                                        {(leads || [])
+                                            .filter(l => {
+                                                const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                                                return l.assignedStaffId?.toString() === currentUser.id?.toString();
+                                            })
+                                            .map(l => (
+                                                <option key={l.id} value={l.name}>{l.name} ({l.businessName})</option>
+                                            ))
+                                        }
+                                </select>
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Lead Status</label>
+                                <select 
+                                    id="newTaskLeadStatus"
+                                    className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
+                                >
+                                    <option value="Hot">Hot</option>
+                                    <option value="Warm">Warm</option>
+                                    <option value="Cool">Cool</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Title</label>
+                            <input 
+                                id="newTaskTitle"
+                                type="text" 
+                                placeholder="e.g., Initial Consultation"
+                                className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Note / Message</label>
+                            <textarea 
+                                id="newTaskMessage"
+                                rows="3"
+                                placeholder="Details about this follow-up..."
+                                className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20 resize-none"
+                            ></textarea>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Schedule Date</label>
+                                <input 
+                                    id="newTaskDate"
+                                    type="date" 
+                                    defaultValue={todayStr}
+                                    className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Schedule Time</label>
+                                <input 
+                                    id="newTaskTime"
+                                    type="time" 
+                                    defaultValue="10:00"
+                                    className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 mt-2">
+                            <button 
+                                onClick={() => setActiveModal('FOLLOW_UPS')}
+                                className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-500 font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    const lead = document.getElementById('newTaskLead').value;
+                                    const leadStatus = document.getElementById('newTaskLeadStatus').value;
+                                    const title = document.getElementById('newTaskTitle').value;
+                                    const message = document.getElementById('newTaskMessage').value;
+                                    const date = document.getElementById('newTaskDate').value;
+                                    const time = document.getElementById('newTaskTime').value;
+                                    
+                                    if(!title) return alert('Please enter a task title');
+
+                                    handleAddTask({
+                                        id: Date.now(),
+                                        lead,
+                                        leadStatus,
+                                        title,
+                                        message,
+                                        date,
+                                        time,
+                                        status: 'Pending'
+                                    });
+                                    setActiveModal('FOLLOW_UPS');
+                                }}
+                                className="flex-2 bg-[#0061ff] hover:bg-blue-700 text-white font-black py-3 px-8 rounded-2xl text-[10px] uppercase tracking-widest transition-all shadow-lg shadow-blue-500/30"
+                            >
+                                Confirm Task
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+            case 'PENDING_DOCS': {
+                const pendingLeads = (leads || []).filter(l => 
+                    l.assignedStaffId === user.id && 
+                    (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))
+                );
+                return (
+                    <div className="flex flex-col gap-3">
                         {pendingLeads.length > 0 ? pendingLeads.map(lead => (
                             <div 
                                 key={lead.id} 
                                 onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
-                                className="p-3 bg-white dark:bg-slate-800/40 rounded-xl border border-slate-100 dark:border-white/5 shadow-sm hover:border-emerald-400 dark:hover:border-emerald-500/50 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10 transition-all cursor-pointer flex items-center justify-between group"
+                                className="p-5 bg-white dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm hover:border-[#0061ff] dark:hover:border-blue-500/50 hover:bg-blue-50/10 dark:hover:bg-blue-900/10 transition-all cursor-pointer flex items-center justify-between group"
                             >
-                                <div className="flex-1 min-w-0 pr-4">
-                                    <div className="flex items-center gap-2 mb-0.5">
-                                        <h3 className="font-black text-[13px] dark:text-white truncate">{lead.name}</h3>
-                                        <span className="text-[8px] font-black px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 rounded uppercase tracking-tighter shrink-0">
-                                            {lead.documents.filter(d => d.status === 'Pending').length} Pending
-                                        </span>
+                                <div className="flex items-center gap-4 flex-1 min-w-0 pr-4">
+                                    <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[#0061ff] dark:text-blue-400 flex items-center justify-center text-[13px] font-black shrink-0 border border-blue-100 dark:border-blue-800/50 group-hover:scale-105 transition-transform shadow-sm">
+                                        {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                     </div>
-                                    <div className="flex items-center gap-3 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
-                                        <span className="truncate max-w-[150px]">{lead.businessName}</span>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2.5 mb-1.5">
+                                            <h3 className="font-bold text-[15px] dark:text-white truncate group-hover:text-[#0061ff] transition-colors">{lead.name}</h3>
+                                            <span className="text-[10px] font-black px-2.5 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full uppercase tracking-tighter shrink-0 border border-blue-200 dark:border-blue-700/50">
+                                                {lead.documents.filter(d => d.status === 'Pending').length} Pending
+                                            </span>
+                                        </div>
+                                        
+                                        <div className="flex flex-col gap-1.5">
+                                            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                                <span className="truncate max-w-[200px]">{lead.businessName}</span>
+                                            </div>
+                                            <div className="flex items-center gap-4 flex-wrap">
+                                                <div className="flex items-center gap-2 text-[12px] text-slate-500 dark:text-slate-400">
+                                                    <IconMail width="14" height="14" className="text-slate-300 dark:text-slate-600" />
+                                                    <span className="truncate max-w-[180px] font-medium">{lead.email || '—'}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[12px] text-slate-500 dark:text-slate-400">
+                                                    <IconPhone width="14" height="14" className="text-slate-300 dark:text-slate-600" />
+                                                    <span className="font-medium">{lead.phone || '—'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="p-1.5 rounded-lg bg-slate-50 dark:bg-slate-700/50 text-slate-400 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
-                                    <IconChevronRight width="14" height="14" />
+                                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-300 group-hover:bg-[#0061ff] group-hover:text-white transition-all transform group-hover:translate-x-1 shadow-sm">
+                                    <IconChevronRight width="20" height="20" />
                                 </div>
                             </div>
                         )) : (
-                            <div className="p-8 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">All documents verified!</div>
+                            <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                                All documents verified!
+                            </div>
                         )}
-                        <button className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-slate-500 font-black py-2.5 rounded-xl mt-1 text-[10px] uppercase tracking-widest transition-all" onClick={() => { onNavigate('documents'); closeModal(); }}>Manage Documents</button>
                     </div>
                 );
             }
@@ -430,7 +688,9 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 {/* === ROW 1: 7 SMALL SQUARES === (Cols 1 to 7) */}
                 <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">{(MOCK_LEAD_COUNTS[user.id] || 0).toLocaleString()}</h2>
+                    <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">
+                        {(leads || []).filter(l => l.assignedStaffId === user.id && l.status !== 'Completed').length.toLocaleString()}
+                    </h2>
                     <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MY LEAD COUNT</span>
                 </div>
 
@@ -442,7 +702,9 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                 <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconFolder width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">{MOCK_LEADS.filter(l => l.documents.some(d => d.status === 'Pending')).length}</h2>
+                    <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">
+                        {(leads || []).filter(l => l.assignedStaffId === user.id && (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))).length}
+                    </h2>
                     <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">PENDING DOCUMENTS</span>
                 </div>
 
@@ -479,18 +741,87 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                     <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar flex-1 p-2">
                         {todayPromos.map(promo => (
-                            <div key={promo.id} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 shrink-0">
-                                <div className="flex justify-between items-center mb-1"><span className="text-[11px] font-bold text-blue-800 dark:text-blue-300">{promo.lenderName}</span><span className="text-[7px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-bold tracking-widest">PROMO</span></div>
-                                <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-tight">{promo.description}</p>
+                            <div key={promo.id} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 shrink-0 hover:border-blue-400 transition-all cursor-pointer group">
+                                <div className="flex justify-between items-center mb-1.5 gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded bg-blue-600 text-white flex items-center justify-center text-[8px] font-black">
+                                            {promo.lenderName.slice(0, 1).toUpperCase()}
+                                        </div>
+                                        <span className="text-[11px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-tight">{promo.lenderName}</span>
+                                    </div>
+                                    <span className="text-[7px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black tracking-widest uppercase">PROMO</span>
+                                </div>
+                                <p className="text-[10px] text-slate-700 dark:text-slate-300 font-bold leading-tight mb-2 line-clamp-2">{promo.description}</p>
+                                
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 border-t border-blue-200/50 dark:border-blue-500/10">
+                                    <div className="flex items-center gap-1 text-[9px] font-medium text-blue-600 dark:text-blue-400">
+                                        <IconCalendar width="10" height="10" />
+                                        <span>{promo.startDate}</span>
+                                        <IconArrowRight width="8" height="8" />
+                                        <span>{promo.endDate}</span>
+                                    </div>
+                                    {promo.fileName && (
+                                        <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800/50 ml-auto">
+                                            <IconFile width="10" height="10" />
+                                            <span className="truncate max-w-[80px]">{promo.fileName}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ))}
                         {tasks.filter(t => t.date === selectedDate).length > 0 ? (
-                            tasks.filter(t => t.date === selectedDate).map((item) => (
-                                <div key={item.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 shrink-0">
-                                    <div className="text-[11px] font-bold dark:text-white mb-0.5 leading-tight">{item.title}</div>
-                                    <div className="text-[9px] font-medium text-slate-500 flex items-center gap-1.5"><IconClock />{item.time} &bull; {item.leadName}</div>
-                                </div>
-                            ))
+                            tasks.filter(t => t.date === selectedDate).map((item) => {
+                                const leadObj = (leads || []).find(l => l.name === item.lead || l.name === item.leadName);
+                                return (
+                                    <div key={item.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 shrink-0 hover:border-[#0061ff] dark:hover:border-blue-500 transition-all cursor-pointer group">
+                                        <div className="flex justify-between items-start mb-1.5 gap-2">
+                                            <div className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#0061ff] transition-colors">{item.title}</div>
+                                            <div className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase tracking-tighter shrink-0 border border-blue-200 dark:border-blue-700/50">
+                                                {item.type || 'TASK'}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex flex-col gap-1.5 mb-2">
+                                            {/* Lead & Business Info */}
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[#0061ff] dark:text-blue-400 flex items-center justify-center text-[8px] font-black shrink-0 border border-blue-100 dark:border-blue-800/50">
+                                                    { (item.lead || item.leadName || '?').slice(0, 1).toUpperCase() }
+                                                </div>
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-[10px] font-black text-[#0061ff] dark:text-blue-400 truncate leading-none mb-0.5">{item.lead || item.leadName || 'No Lead'}</span>
+                                                    {leadObj?.businessName && <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight truncate">{leadObj.businessName}</span>}
+                                                </div>
+                                            </div>
+
+                                            {/* Contact Details Grid */}
+                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pl-6">
+                                                <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
+                                                    <IconClock width="10" height="10" className="text-slate-300" />
+                                                    <span className="font-bold">{item.time}</span>
+                                                </div>
+                                                {leadObj?.email && (
+                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
+                                                        <IconMail width="10" height="10" className="text-slate-300" />
+                                                        <span className="truncate max-w-[100px]">{leadObj.email}</span>
+                                                    </div>
+                                                )}
+                                                {leadObj?.phone && (
+                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
+                                                        <IconPhone width="10" height="10" className="text-slate-300" />
+                                                        <span>{leadObj.phone}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {(item.message || item.description) && (
+                                            <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-snug line-clamp-2 pt-1.5 border-t border-slate-100 dark:border-white/5 italic">
+                                                "{item.message || item.description}"
+                                            </p>
+                                        )}
+                                    </div>
+                                );
+                            })
                         ) : <div className="text-[9px] text-slate-400 italic p-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl mt-1">Clear calendar. Take a break!</div>}
                     </div>
                 </div>
@@ -620,7 +951,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         </div>
                         <div className="mt-0.5 pt-1.5 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between relative z-10 shrink-0 px-3 pb-2">
                             <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Est. EMI</span>
-                            <span className="text-sm font-black text-indigo-600 dark:text-indigo-400">${calculateRepayment()} / mo</span>
+                            <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">${calculateRepayment()} / mo</span>
                         </div>
                     </div>
 
