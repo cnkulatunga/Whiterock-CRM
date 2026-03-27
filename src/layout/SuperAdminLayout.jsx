@@ -60,7 +60,12 @@ const AppLayout = ({ onLogout }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const myTasks = tasks.filter(t => t.assignedTo?.toString() === user.id?.toString() || t.assignedTo === 'Self');
+    const myTasks = tasks.filter(t => {
+        if (Array.isArray(t.assignedTo)) {
+            return t.assignedTo.includes(user.id?.toString()) || t.assignedTo.includes('Self') || t.assignedTo.includes('All');
+        }
+        return t.assignedTo?.toString() === user.id?.toString() || t.assignedTo === 'Self' || t.assignedTo === 'All';
+    });
 
     const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(myTasks, setTasks);
 

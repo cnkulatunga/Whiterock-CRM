@@ -23,16 +23,23 @@ const TeleAgentLayout = ({ onLogout }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     
     // Filter tasks for this agent
-    const tasks = allTasks.filter(t => 
-        t.assignedTo?.toString() === user.id?.toString() || 
-        (t.assignedTo === 'Self' && user.role === 'Tele Agent')
-    );
+    const tasks = allTasks.filter(t => {
+        if (Array.isArray(t.assignedTo)) {
+            return t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All');
+        }
+        return t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All';
+    });
 
     const setTasks = (newTasksOrFn) => {
         if (typeof newTasksOrFn === 'function') {
             setAllTasks(prev => {
-                const currentRelevantTasks = prev.filter(t => t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent'));
-                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent')));
+                const currentRelevantTasks = prev.filter(t => {
+                    if (Array.isArray(t.assignedTo)) {
+                        return t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All');
+                    }
+                    return t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All';
+                });
+                const otherTasks = prev.filter(t => !((Array.isArray(t.assignedTo) ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All')) : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All'))));
                 const updatedRelevantTasks = newTasksOrFn(currentRelevantTasks);
                 return [...otherTasks, ...updatedRelevantTasks];
             });

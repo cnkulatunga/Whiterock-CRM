@@ -32,11 +32,13 @@ const AccountsManagerLayout = ({ onLogout }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     // Filter tasks for this manager
-    const tasks = allTasks.filter(t =>
-        t.assignedTo?.toString() === user.id?.toString() ||
-        t.createdBy === 'Accounts Manager' ||
-        (t.assignedTo === 'Self' && user.role === 'Accounts Manager')
-    );
+    const tasks = allTasks.filter(t => {
+        const isAssignedToMe = Array.isArray(t.assignedTo)
+            ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Accounts Manager') || t.assignedTo.includes('All'))
+            : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Accounts Manager') || t.assignedTo === 'All');
+        
+        return isAssignedToMe || t.createdBy === 'Accounts Manager';
+    });
 
     const setTasks = (newTasksOrFn) => {
         if (typeof newTasksOrFn === 'function') {
