@@ -319,12 +319,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     );
 
     return (
-        <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
-            {/* HEADER */}
-            <div className="my-6 mb-8 md:my-4">
-                <h1 className="text-[1.75rem] font-bold text-[#1a202c] mb-2 sm:text-2xl tracking-tight">Create New Lead</h1>
-                <p className="text-[0.95rem] text-[#718096] max-w-2xl leading-relaxed">Initialize a new prospect record by providing the mandatory identity and financial details.</p>
-            </div>
+        <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif] pt-2">
 
             {/* FORM CARD */}
             <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
