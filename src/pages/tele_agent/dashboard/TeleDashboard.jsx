@@ -17,6 +17,9 @@ const IconTeams = (props) => <svg viewBox="0 0 24 24" fill="currentColor" width=
 const IconBulb = (props) => <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" {...props}><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z" /></svg>;
 const IconMail = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
 const IconPhone = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.28-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
+const IconCalendar = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
+const IconArrowRight = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+const IconFile = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>;
 
 /* ─── MODAL COMPONENT ─── */
 const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false, isWide = false }) => {
@@ -738,18 +741,87 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                     <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar flex-1 p-2">
                         {todayPromos.map(promo => (
-                            <div key={promo.id} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 shrink-0">
-                                <div className="flex justify-between items-center mb-1"><span className="text-[11px] font-bold text-blue-800 dark:text-blue-300">{promo.lenderName}</span><span className="text-[7px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-bold tracking-widest">PROMO</span></div>
-                                <p className="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2 leading-tight">{promo.description}</p>
+                            <div key={promo.id} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 shrink-0 hover:border-blue-400 transition-all cursor-pointer group">
+                                <div className="flex justify-between items-center mb-1.5 gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-5 h-5 rounded bg-blue-600 text-white flex items-center justify-center text-[8px] font-black">
+                                            {promo.lenderName.slice(0, 1).toUpperCase()}
+                                        </div>
+                                        <span className="text-[11px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-tight">{promo.lenderName}</span>
+                                    </div>
+                                    <span className="text-[7px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black tracking-widest uppercase">PROMO</span>
+                                </div>
+                                <p className="text-[10px] text-slate-700 dark:text-slate-300 font-bold leading-tight mb-2 line-clamp-2">{promo.description}</p>
+                                
+                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 border-t border-blue-200/50 dark:border-blue-500/10">
+                                    <div className="flex items-center gap-1 text-[9px] font-medium text-blue-600 dark:text-blue-400">
+                                        <IconCalendar width="10" height="10" />
+                                        <span>{promo.startDate}</span>
+                                        <IconArrowRight width="8" height="8" />
+                                        <span>{promo.endDate}</span>
+                                    </div>
+                                    {promo.fileName && (
+                                        <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800/50 ml-auto">
+                                            <IconFile width="10" height="10" />
+                                            <span className="truncate max-w-[80px]">{promo.fileName}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         ))}
                         {tasks.filter(t => t.date === selectedDate).length > 0 ? (
-                            tasks.filter(t => t.date === selectedDate).map((item) => (
-                                <div key={item.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 shrink-0">
-                                    <div className="text-[11px] font-bold dark:text-white mb-0.5 leading-tight">{item.title}</div>
-                                    <div className="text-[9px] font-medium text-slate-500 flex items-center gap-1.5"><IconClock />{item.time} &bull; {item.leadName}</div>
-                                </div>
-                            ))
+                            tasks.filter(t => t.date === selectedDate).map((item) => {
+                                const leadObj = (leads || []).find(l => l.name === item.lead || l.name === item.leadName);
+                                return (
+                                    <div key={item.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 shrink-0 hover:border-[#0061ff] dark:hover:border-blue-500 transition-all cursor-pointer group">
+                                        <div className="flex justify-between items-start mb-1.5 gap-2">
+                                            <div className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#0061ff] transition-colors">{item.title}</div>
+                                            <div className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase tracking-tighter shrink-0 border border-blue-200 dark:border-blue-700/50">
+                                                {item.type || 'TASK'}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex flex-col gap-1.5 mb-2">
+                                            {/* Lead & Business Info */}
+                                            <div className="flex items-center gap-1.5">
+                                                <div className="w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[#0061ff] dark:text-blue-400 flex items-center justify-center text-[8px] font-black shrink-0 border border-blue-100 dark:border-blue-800/50">
+                                                    { (item.lead || item.leadName || '?').slice(0, 1).toUpperCase() }
+                                                </div>
+                                                <div className="flex flex-col min-w-0">
+                                                    <span className="text-[10px] font-black text-[#0061ff] dark:text-blue-400 truncate leading-none mb-0.5">{item.lead || item.leadName || 'No Lead'}</span>
+                                                    {leadObj?.businessName && <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight truncate">{leadObj.businessName}</span>}
+                                                </div>
+                                            </div>
+
+                                            {/* Contact Details Grid */}
+                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pl-6">
+                                                <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
+                                                    <IconClock width="10" height="10" className="text-slate-300" />
+                                                    <span className="font-bold">{item.time}</span>
+                                                </div>
+                                                {leadObj?.email && (
+                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
+                                                        <IconMail width="10" height="10" className="text-slate-300" />
+                                                        <span className="truncate max-w-[100px]">{leadObj.email}</span>
+                                                    </div>
+                                                )}
+                                                {leadObj?.phone && (
+                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
+                                                        <IconPhone width="10" height="10" className="text-slate-300" />
+                                                        <span>{leadObj.phone}</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {(item.message || item.description) && (
+                                            <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-snug line-clamp-2 pt-1.5 border-t border-slate-100 dark:border-white/5 italic">
+                                                "{item.message || item.description}"
+                                            </p>
+                                        )}
+                                    </div>
+                                );
+                            })
                         ) : <div className="text-[9px] text-slate-400 italic p-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl mt-1">Clear calendar. Take a break!</div>}
                     </div>
                 </div>
