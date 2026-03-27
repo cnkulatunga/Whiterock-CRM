@@ -46,12 +46,7 @@ const AuditLogs = () => {
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
-            {/* ── HEADER ── */}
-            <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
-                <div>
-                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">System Audit Logs</h1>
-                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Review comprehensive history of all administrative and system-level actions.</p>
-                </div>
+            <header className="flex justify-end items-center mb-2 animate-headerDrop">
                 <div className="flex items-center gap-2">
                     <button className="flex items-center gap-2 bg-white border border-[#edf2f7] text-[#4a5568] px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#f8fafc] transition-colors">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>

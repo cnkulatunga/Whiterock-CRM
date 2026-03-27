@@ -163,11 +163,7 @@ const LenderPromotions = () => {
 
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
-            <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
-                <div>
-                    <h1 className={`text-[1.6rem] font-bold mb-1 ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>Lender Promotions</h1>
-                    <p className={`text-sm ${isDark ? 'text-[#8ea0d4]' : 'text-[#718096]'}`}>Manage special offers and promotions from various lenders.</p>
-                </div>
+            <header className="flex justify-end items-center mb-2 animate-headerDrop">
                 <button
                     className="flex items-center gap-2 bg-[#2447d7] text-white px-4 py-2.5 rounded-xl text-[13px] font-semibold hover:bg-[#1732a3] transition-all shadow-[0_4px_12px_rgba(36,71,215,0.3)]"
                     onClick={() => { setShowAddModal(true); setForm({ lenderName: '', description: '', fileName: '', fileData: '', startDate: '', endDate: '' }); setError(''); }}

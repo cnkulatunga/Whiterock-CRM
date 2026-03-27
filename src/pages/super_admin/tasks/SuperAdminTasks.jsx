@@ -271,12 +271,8 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
 
     return (
         <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
-            <header className="flex justify-between items-center mb-10 sm:flex-col sm:items-start sm:gap-6">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-2xl">Global Tasks & Followups</h1>
-                    <p className="text-[0.95rem] text-[#718096] font-medium">Monitor and manage all system tasks and assignments.</p>
-                </div>
-                <div className="flex items-center gap-4 sm:flex-wrap">
+            <header className="flex justify-between items-center mb-6 sm:flex-col sm:items-start sm:gap-4">
+                <div className="flex items-center gap-4 sm:flex-wrap ml-auto">
 
                     <div className="flex p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0]">
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><div className="flex items-center gap-2"><IconList size={14} /> List</div></button>

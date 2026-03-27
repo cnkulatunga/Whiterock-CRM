@@ -81,16 +81,7 @@ const Lenders = ({ readOnly = false }) => {
     return (
         <div className="flex flex-col gap-8 animate-fadeIn font-['Sora',sans-serif]">
 
-            {/* ── Header ── */}
-            <header className="flex justify-between items-start gap-4 sm:flex-col animate-headerDrop">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] tracking-tight">Lender Management</h1>
-                    <p className="text-[0.9rem] text-[#718096] font-medium">
-                        {readOnly
-                            ? 'Browse available lenders and their lending criteria.'
-                            : 'Add, edit and manage lenders available for loan applications.'}
-                    </p>
-                </div>
+            <header className="flex justify-end items-center mb-2 animate-headerDrop">
                 {!readOnly && (
                     <button
                         onClick={openAdd}
