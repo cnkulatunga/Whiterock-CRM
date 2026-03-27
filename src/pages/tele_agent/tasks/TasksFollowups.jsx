@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
+import { useLeads } from '../../../context/LeadsContext';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { canManageTask } from '../../../utils/permissionUtils';
 import { usePromotions } from '../../../context/PromotionsContext';
-
 
 // Removed INITIAL_TASKS mock data, using props from layout.
 
@@ -12,6 +12,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { promotions } = usePromotions();
+    const { leads } = useLeads();
     
     // Merge promotions as pseudo-tasks
     const memoizedPromotions = React.useMemo(() => promotions.map(p => ({
@@ -39,6 +40,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
     const [newTask, setNewTask] = useState({
         title: '',
         lead: '',
+        leadStatus: 'Cool',
         email: '',
         phone: '',
         date: new Date().toISOString().split('T')[0],
@@ -141,6 +143,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         setNewTask({
             title: '',
             lead: '',
+            leadStatus: 'Cool',
             email: '',
             phone: '',
             date: new Date().toISOString().split('T')[0],
@@ -158,6 +161,7 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
         setNewTask({
             title: task.title,
             lead: task.lead || '',
+            leadStatus: task.leadStatus || 'Cool',
             email: task.email || '',
             phone: task.phone || '',
             date: task.date,
@@ -442,22 +446,44 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs font-bold text-[#4a5568]">Related Lead</label>
-                                    <input 
+                                    <select 
                                         required 
-                                        type="text" 
-                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all" 
+                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" 
                                         value={newTask.lead} 
                                         onChange={e => {
                                             const name = e.target.value;
-                                            setNewTask(prev => ({ ...prev, lead: name }));
-                                            // Auto-fill logic
-                                            const leadMatch = (window.MOCK_LEADS || []).find(l => l.name.toLowerCase() === name.toLowerCase());
-                                            if (leadMatch) {
-                                                setNewTask(prev => ({ ...prev, email: leadMatch.email, phone: leadMatch.phone }));
-                                            }
+                                            const leadMatch = (leads || []).find(l => l.name === name);
+                                            setNewTask(prev => ({ 
+                                                ...prev, 
+                                                lead: name,
+                                                email: leadMatch?.email || '',
+                                                phone: leadMatch?.phone || ''
+                                            }));
                                         }} 
-                                        placeholder="Client Name" 
-                                    />
+                                    >
+                                        <option value="">Select a Lead</option>
+                                        {(leads || [])
+                                            .filter(l => {
+                                                const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                                                return l.assignedStaffId?.toString() === currentUser.id?.toString();
+                                            })
+                                            .map(l => (
+                                                <option key={l.id} value={l.name}>{l.name} ({l.businessName})</option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-bold text-[#4a5568]">Lead Status</label>
+                                    <select 
+                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" 
+                                        value={newTask.leadStatus} 
+                                        onChange={e => setNewTask({...newTask, leadStatus: e.target.value})}
+                                    >
+                                        <option value="Hot">Hot</option>
+                                        <option value="Warm">Warm</option>
+                                        <option value="Cool">Cool</option>
+                                    </select>
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs font-bold text-[#4a5568]">Lead Email</label>
