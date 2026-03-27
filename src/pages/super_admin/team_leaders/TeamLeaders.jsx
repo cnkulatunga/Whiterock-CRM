@@ -920,12 +920,9 @@ const TeamLeaders = ({ onNavigate }) => {
                 document.getElementById('mobile-header-portal')
             )}
 
-            {/* ── PAGE HEADER ── */}
-            <div className="tl-page-header" style={{ animation: 'headerDrop 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
-                <div>
-                    <h1 style={{ fontSize: '26px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>Team Leaders</h1>
-                    <p style={{ fontSize: '14px', color: isDark ? '#94abda' : '#64748b', fontWeight: 500, margin: '5px 0 0', animation: 'fadeIn 0.6s 0.15s both' }}>Manage team leaders and their tele agent members.</p>
-                </div>
+            <div className="tl-page-header" style={{ justifyContent: 'flex-end', animation: 'headerDrop 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
+                <div />
+
                 {!selectedLeader && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         {/* Search bar */}

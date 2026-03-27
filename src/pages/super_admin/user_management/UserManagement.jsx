@@ -371,12 +371,8 @@ const UserManagement = () => {
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
-            {/* ── HEADER ── */}
-            <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
-                <div>
-                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">User Management</h1>
-                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Manage and audit team members, roles, and access permissions.</p>
-                </div>
+            <header className="flex justify-end items-center mb-2 animate-headerDrop">
+
                 <div className="flex items-center gap-2 md:hidden">
                     <button
                         className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium border transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] border-[#2447d7]/20 shadow-sm' : 'text-[#718096] border-[#edf2f7] bg-white hover:bg-[#f8fafc]'}`}

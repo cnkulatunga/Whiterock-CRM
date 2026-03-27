@@ -135,13 +135,7 @@ const LeadPerformance = () => {
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
-            {/* ── HEADER ── */}
-            <header className="flex justify-between items-start gap-4 flex-wrap animate-headerDrop">
-                <div>
-                    <h1 className="text-[1.6rem] font-bold text-[#1a202c] mb-1">Lead Performance Report</h1>
-                    <p className="text-sm text-[#718096] animate-fadeIn [animation-delay:150ms] [animation-fill-mode:both]">Detailed analysis of lead acquisition and conversion metrics.</p>
-                </div>
-            </header>
+            <div className="h-2" /> {/* Small spacer instead of header */}
 
             {/* ── FINANCE: KPI CARDS ── */}
             <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1 animate-kpiPop [animation-delay:100ms] [animation-fill-mode:both]">

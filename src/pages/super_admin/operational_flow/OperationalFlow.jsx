@@ -230,14 +230,7 @@ const OperationalFlow = () => {
                 flexDirection: window.innerWidth > 768 ? 'row' : 'column',
                 gap: '20px' 
             }}>
-                <div>
-                    <h1 style={{ fontSize: '28px', fontWeight: 900, color: isDark ? '#e4ecff' : '#0f172a', margin: 0, letterSpacing: '-0.5px' }}>
-                        Operational Flow
-                    </h1>
-                    <p style={{ fontSize: '15px', color: isDark ? '#94abda' : '#64748b', fontWeight: 500, margin: '6px 0 0' }}>
-                        Monitor the complete lifecycle of client engagement.
-                    </p>
-                </div>
+                <div /> {/* Empty space where title was */}
 
                 <div style={{ 
                     display: 'flex', 
