@@ -24,7 +24,7 @@ const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-4xl rounded-2xl'}`}>
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-xl rounded-2xl'}`}>
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors shrink-0">
@@ -600,39 +600,56 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 );
             }
             case 'PENDING_DOCS': {
-                const pendingLeads = MOCK_LEADS.filter(l => l.documents.some(d => d.status === 'Pending'));
+                const pendingLeads = (leads || []).filter(l => 
+                    l.assignedStaffId === user.id && 
+                    (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))
+                );
                 return (
-                    <div className="flex flex-col gap-2.5">
+                    <div className="flex flex-col gap-3">
                         {pendingLeads.length > 0 ? pendingLeads.map(lead => (
                             <div 
                                 key={lead.id} 
                                 onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
-                                className="p-4 bg-white dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm hover:border-blue-400 dark:hover:border-blue-500/50 hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-all cursor-pointer flex items-center justify-between group"
+                                className="p-5 bg-white dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm hover:border-[#0061ff] dark:hover:border-blue-500/50 hover:bg-blue-50/10 dark:hover:bg-blue-900/10 transition-all cursor-pointer flex items-center justify-between group"
                             >
-                                <div className="flex items-center gap-3 flex-1 min-w-0 pr-4">
-                                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center text-[12px] font-black shrink-0 border border-blue-100 dark:border-blue-800/50 group-hover:scale-110 transition-transform">
+                                <div className="flex items-center gap-4 flex-1 min-w-0 pr-4">
+                                    <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[#0061ff] dark:text-blue-400 flex items-center justify-center text-[13px] font-black shrink-0 border border-blue-100 dark:border-blue-800/50 group-hover:scale-105 transition-transform shadow-sm">
                                         {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                     </div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-0.5">
-                                            <h3 className="font-bold text-[14px] dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{lead.name}</h3>
-                                            <span className="text-[9px] font-black px-2 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full uppercase tracking-tighter shrink-0 border border-blue-200 dark:border-blue-700/50">
+                                        <div className="flex items-center gap-2.5 mb-1.5">
+                                            <h3 className="font-bold text-[15px] dark:text-white truncate group-hover:text-[#0061ff] transition-colors">{lead.name}</h3>
+                                            <span className="text-[10px] font-black px-2.5 py-1 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded-full uppercase tracking-tighter shrink-0 border border-blue-200 dark:border-blue-700/50">
                                                 {lead.documents.filter(d => d.status === 'Pending').length} Pending
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-3 text-[11px] text-slate-500 font-bold uppercase tracking-tight">
-                                            <span className="truncate">{lead.businessName}</span>
+                                        
+                                        <div className="flex flex-col gap-1.5">
+                                            <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
+                                                <span className="truncate max-w-[200px]">{lead.businessName}</span>
+                                            </div>
+                                            <div className="flex items-center gap-4 flex-wrap">
+                                                <div className="flex items-center gap-2 text-[12px] text-slate-500 dark:text-slate-400">
+                                                    <IconMail width="14" height="14" className="text-slate-300 dark:text-slate-600" />
+                                                    <span className="truncate max-w-[180px] font-medium">{lead.email || '—'}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-[12px] text-slate-500 dark:text-slate-400">
+                                                    <IconPhone width="14" height="14" className="text-slate-300 dark:text-slate-600" />
+                                                    <span className="font-medium">{lead.phone || '—'}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-300 group-hover:bg-blue-500 group-hover:text-white transition-all transform group-hover:translate-x-1 shadow-sm">
-                                    <IconChevronRight width="16" height="16" />
+                                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-700/50 text-slate-300 group-hover:bg-[#0061ff] group-hover:text-white transition-all transform group-hover:translate-x-1 shadow-sm">
+                                    <IconChevronRight width="20" height="20" />
                                 </div>
                             </div>
                         )) : (
-                            <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">All documents verified!</div>
+                            <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                                All documents verified!
+                            </div>
                         )}
-                        <button className="w-full bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-black py-3 rounded-2xl mt-1 text-[10px] uppercase tracking-widest transition-all border border-slate-100 dark:border-white/5" onClick={() => { onNavigate('documents'); closeModal(); }}>Manage Documents</button>
                     </div>
                 );
             }
@@ -668,7 +685,9 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 {/* === ROW 1: 7 SMALL SQUARES === (Cols 1 to 7) */}
                 <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">{(MOCK_LEAD_COUNTS[user.id] || 0).toLocaleString()}</h2>
+                    <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">
+                        {(leads || []).filter(l => l.assignedStaffId === user.id && l.status !== 'Completed').length.toLocaleString()}
+                    </h2>
                     <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MY LEAD COUNT</span>
                 </div>
 
@@ -680,7 +699,9 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                 <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconFolder width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">{MOCK_LEADS.filter(l => l.documents.some(d => d.status === 'Pending')).length}</h2>
+                    <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">
+                        {(leads || []).filter(l => l.assignedStaffId === user.id && (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))).length}
+                    </h2>
                     <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">PENDING DOCUMENTS</span>
                 </div>
 
