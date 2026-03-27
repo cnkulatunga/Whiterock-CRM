@@ -4,16 +4,19 @@ const TasksContext = createContext(null);
 
 import { INITIAL_TASKS } from '../data/dummyData';
 
+const filterRealTasks = (taskList) => taskList.filter(t => !t.isPromotion && !String(t.id).startsWith('promo-'));
+
 export const TasksProvider = ({ children }) => {
     // Load tasks from localStorage if available, otherwise use INITIAL_TASKS
+    // Filter out any stale promo pseudo-tasks that may have been saved previously
     const [tasks, setTasks] = useState(() => {
         const savedTasks = localStorage.getItem('global_tasks');
-        return savedTasks ? JSON.parse(savedTasks) : INITIAL_TASKS;
+        return savedTasks ? filterRealTasks(JSON.parse(savedTasks)) : INITIAL_TASKS;
     });
 
-    // Persist tasks to localStorage whenever they change
+    // Persist tasks to localStorage whenever they change (strip any promos before saving)
     useEffect(() => {
-        localStorage.setItem('global_tasks', JSON.stringify(tasks));
+        localStorage.setItem('global_tasks', JSON.stringify(filterRealTasks(tasks)));
     }, [tasks]);
 
     // Handle cross-tab sync

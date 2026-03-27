@@ -28,11 +28,13 @@ const TeamLeaderLayout = ({ onLogout }) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     // Filter tasks: assigned to self OR created by self (so they can see team assignments)
-    const tasks = allTasks.filter(t => 
-        t.assignedTo?.toString() === user.id?.toString() || 
-        t.createdBy === 'Team Leader' || 
-        (t.assignedTo === 'Self' && user.role === 'Team Leader')
-    );
+    const tasks = allTasks.filter(t => {
+        const isAssignedToMe = Array.isArray(t.assignedTo) 
+            ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Team Leader') || t.assignedTo.includes('All'))
+            : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Team Leader') || t.assignedTo === 'All');
+        
+        return isAssignedToMe || t.createdBy === 'Team Leader';
+    });
 
     const setTasks = (newTasksOrFn) => {
         if (typeof newTasksOrFn === 'function') {

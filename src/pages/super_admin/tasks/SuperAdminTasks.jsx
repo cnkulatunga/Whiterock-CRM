@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { signIn, createCalendarEvent, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
 import { canManageTask } from '../../../utils/permissionUtils';
 import { usePromotions } from '../../../context/PromotionsContext';
+import TaskModal from '../../../components/modals/TaskModal';
 
 const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyReminderSet }) => {
     const { promotions } = usePromotions();
-    
-    // Merge promotions as pseudo-tasks
+
+    // Merge promotions as pseudo-tasks (read-only, never persisted to localStorage)
     const memoizedPromotions = React.useMemo(() => promotions.map(p => ({
         id: `promo-${p.id}`,
         title: `PROMO: ${p.lenderName}`,
         lead: p.description,
-        date: p.startDate, // Shows on start date
+        date: p.startDate,
         endDate: p.endDate,
         time: '09:00',
         type: 'Promotion',
@@ -36,15 +38,26 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All'); // All, Personal, Team
     const [searchTerm, setSearchTerm] = useState('');
-    const [viewMode, setViewMode] = useState('calendar'); // Default to calendar
+    const location = useLocation();
+    const [viewMode, setViewMode] = useState('list');
     const [isAddingTask, setIsAddingTask] = useState(false);
-    const [addToOutlook, setAddToOutlook] = useState(false);
-    const [isSyncingOutlook, setIsSyncingOutlook] = useState(false);
-    const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);
-    const [outlookEvents, setOutlookEvents] = useState([]);
-    const [loadingEvents, setLoadingEvents] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
-    const [isEditingTask, setIsEditingTask] = useState(false);
+    const [highlightTaskId, setHighlightTaskId] = useState(null);
+    const taskRefs = useRef({});
+
+    // Auto-highlight and scroll to task linked from dashboard
+    useEffect(() => {
+        if (location.state?.taskId) {
+            setHighlightTaskId(location.state.taskId);
+            setTimeout(() => {
+                const el = taskRefs.current[location.state.taskId];
+                if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+            const timer = setTimeout(() => setHighlightTaskId(null), 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [location.state]);
+
 
     const todayDate = new Date();
     const [calYear, setCalYear] = useState(todayDate.getFullYear());
@@ -52,123 +65,21 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
     const prevMonth = () => { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); };
     const nextMonth = () => { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); };
 
-
-    useEffect(() => {
-        const acc = getAccount();
-        if (acc) {
-            setOutlookAccount(acc);
-            fetchOutlookEvents();
-        }
-    }, [useOutlookCalendar]);
-
-    const fetchOutlookEvents = async () => {
-        setLoadingEvents(true);
-        try {
-            const evts = await getCalendarEvents();
-            setOutlookEvents(evts);
-        } catch (error) {
-            console.error("Failed to fetch events", error);
-        } finally {
-            setLoadingEvents(false);
-        }
-    };
-
-    const handleOutlookLogin = async () => {
-        try {
-            const acc = await signIn();
-            setOutlookAccount(acc);
-            fetchOutlookEvents();
-        } catch (error) {
-            console.error("Login failed", error);
-        }
-    };
-    
-    const [newTask, setNewTask] = useState({
-        title: '',
-        lead: '',
-        date: new Date().toISOString().split('T')[0],
-        time: '12:00',
-        type: 'Call',
-        reminder: 'none',
-        assignedTo: 'Self',
-        message: ''
-    });
-
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
-    const handleAddTask = async (e) => {
-        e.preventDefault();
-        
-        if (isEditingTask && editingTask) {
-            const taskToUpdate = {
-                ...editingTask,
-                ...newTask
-            };
-            setTasks(tasks.map(t => t.id === taskToUpdate.id ? taskToUpdate : t));
-            setIsEditingTask(false);
-            setEditingTask(null);
+    const handleSaveTask = (taskToSave) => {
+        if (editingTask) {
+            setTasks(tasks.map(t => t.id === taskToSave.id ? taskToSave : t));
         } else {
-            const taskToAdd = {
-                ...newTask,
-                id: Date.now(),
-                status: 'Pending',
-                createdBy: 'Super Admin',
-                creatorId: user.id
-            };
-            setTasks([taskToAdd, ...tasks]);
-            if (notifyReminderSet) notifyReminderSet(taskToAdd);
-            
-            if (addToOutlook) {
-                setIsSyncingOutlook(true);
-                try {
-                    if (!getAccount()) {
-                        await signIn();
-                    }
-                    const startTime = new Date(`${newTask.date}T${newTask.time}`);
-                    const endTime = new Date(startTime.getTime() + 60 * 60 * 1000);
-                    
-                    await createCalendarEvent({
-                        subject: newTask.title,
-                        body: { contentType: "HTML", content: newTask.message || `Task: ${newTask.title}` },
-                        start: { dateTime: startTime.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-                        end: { dateTime: endTime.toISOString(), timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone },
-                    });
-                } catch (error) {
-                    console.error("Failed to sync with outlook", error);
-                } finally {
-                    setIsSyncingOutlook(false);
-                }
-            }
+            setTasks([taskToSave, ...tasks]);
+            if (notifyReminderSet) notifyReminderSet(taskToSave);
         }
-
         setIsAddingTask(false);
-
-        setNewTask({
-            title: '',
-            lead: '',
-            date: new Date().toISOString().split('T')[0],
-            time: '12:00',
-            type: 'Call',
-            reminder: 'none',
-            assignedTo: 'Self',
-            message: ''
-        });
-        setAddToOutlook(false);
+        setEditingTask(null);
     };
 
     const handleEditClick = (task) => {
         setEditingTask(task);
-        setIsEditingTask(true);
-        setNewTask({
-            title: task.title,
-            lead: task.lead || '',
-            date: task.date,
-            time: task.time,
-            type: task.type,
-            reminder: task.reminder || 'none',
-            assignedTo: task.assignedTo || 'Self',
-            message: task.message || ''
-        });
         setIsAddingTask(true);
     };
 
@@ -202,9 +113,9 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
         
         let matchesAssignment = true;
         if (assignmentFilter === 'Personal') {
-            matchesAssignment = task.assignedTo === 'Self';
+            matchesAssignment = Array.isArray(task.assignedTo) ? task.assignedTo.includes('Self') : task.assignedTo === 'Self';
         } else if (assignmentFilter === 'Team') {
-            matchesAssignment = task.assignedTo !== 'Self';
+            matchesAssignment = Array.isArray(task.assignedTo) ? (task.assignedTo.length > 1 || (task.assignedTo.length === 1 && task.assignedTo[0] !== 'Self')) : task.assignedTo !== 'Self';
         }
         
         return matchesSearch && matchesStatus && matchesAssignment;
@@ -283,17 +194,7 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                         <div className="flex justify-between items-center pb-4 border-b border-[#f7fafc]">
                             <h3 className="text-[15px] font-bold text-[#1a202c]">Tasks for {selectedDate}</h3>
                             <button className="w-8 h-8 bg-[#2447d7] text-white rounded-lg flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-[#2447d7]/20" onClick={() => {
-                                setNewTask({
-                                    title: '',
-                                    lead: '',
-                                    date: selectedDate,
-                                    time: '12:00',
-                                    type: 'Call',
-                                    reminder: 'none',
-                                    assignedTo: 'Self',
-                                    message: ''
-                                });
-                                setIsEditingTask(false);
+                                setEditingTask(null);
                                 setIsAddingTask(true);
                             }}>
                                 <IconPlus />
@@ -381,109 +282,19 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><div className="flex items-center gap-2"><IconList size={14} /> List</div></button>
                         <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><div className="flex items-center gap-2"><IconCalendar size={14} /> Calendar</div></button>
                     </div>
-                    <button className="bg-[#2447d7] text-white p-[10px_20px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center gap-2 sm:w-full sm:justify-center" onClick={() => { setIsAddingTask(true); setIsEditingTask(false); setEditingTask(null); setNewTask({ title: '', lead: '', date: new Date().toISOString().split('T')[0], time: '12:00', type: 'Call', reminder: 'none', assignedTo: 'Self', message: '' }); }}>
+                    <button className="bg-[#2447d7] text-white p-[10px_20px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center gap-2 sm:w-full sm:justify-center" onClick={() => { setIsAddingTask(true); setEditingTask(null); }}>
                         <IconPlus /> <span>New Task</span>
                     </button>
 
                 </div>
             </header>
 
-            {isAddingTask && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-6 animate-fadeIn" role="dialog" aria-modal="true">
-                    <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
-                        <div className="p-6 px-8 border-b border-[#f1f5f9] flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-[#1a202c]">{isEditingTask ? 'Edit Task' : 'Create New Task'}</h2>
-                            <button className="w-10 h-10 border border-[#f1f5f9] text-[#a0aec0] hover:text-[#e53e3e] hover:bg-[#fff5f5] rounded-xl flex items-center justify-center transition-all text-2xl font-light" onClick={() => { setIsAddingTask(false); setIsEditingTask(false); setEditingTask(null); }}>&times;</button>
-                        </div>
-
-                        <form onSubmit={handleAddTask} className="p-8 md:p-6 overflow-y-auto max-h-[80vh] custom-scrollbar">
-                            <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
-                                <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Task Title</label>
-                                    <input required type="text" value={newTask.title} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g. System Wide Sync..." />
-                                </div>
-                                <div className="flex flex-col gap-2 col-span-2">
-                                    <label className="text-xs font-bold text-[#4a5568]">Assign To</label>
-                                    <select 
-                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white transition-all appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]"
-                                        value={newTask.assignedTo}
-                                        onChange={e => setNewTask({...newTask, assignedTo: e.target.value})}
-                                    >
-                                        <option value="Self">Self (Admin)</option>
-                                        <optgroup label="Team Leaders">
-                                            {assignableUsers.filter(u => u.role === 'Team Leader').map(user => (
-                                                <option key={user.id} value={user.id}>{user.name}</option>
-                                            ))}
-                                        </optgroup>
-                                        <optgroup label="Account Managers">
-                                            {assignableUsers.filter(u => u.role === 'Accounts Manager').map(user => (
-                                                <option key={user.id} value={user.id}>{user.name}</option>
-                                            ))}
-                                        </optgroup>
-                                        <optgroup label="Members (Tele Agents)">
-                                            {assignableUsers.filter(u => u.role === 'Tele Agent').map(user => (
-                                                <option key={user.id} value={user.id}>{user.name}</option>
-                                            ))}
-                                        </optgroup>
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Task Type</label>
-                                    <select value={newTask.type} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, type: e.target.value})}>
-                                        <option>Call</option>
-                                        <option>Document</option>
-                                        <option>Review</option>
-                                        <option>Meeting</option>
-                                        <option>Email</option>
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Related Lead</label>
-                                    <input type="text" value={newTask.lead} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, lead: e.target.value})} placeholder="Client Name" />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Date</label>
-                                    <input required type="date" value={newTask.date} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, date: e.target.value})} />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Time</label>
-                                    <input required type="time" value={newTask.time} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, time: e.target.value})} />
-                                </div>
-                                <div className="flex flex-col gap-2 col-span-2 md:col-span-1">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Set Reminder</label>
-                                    <select value={newTask.reminder} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, reminder: e.target.value})}>
-                                        <option value="none">No Reminder</option>
-                                        <option value="15m">15 Minutes Before</option>
-                                        <option value="1h">1 Hour Before</option>
-                                        <option value="1d">1 Day Before</option>
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-2 col-span-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Reminder Message / Notes</label>
-                                    <textarea value={newTask.message} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full min-h-[100px]" onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional details..." />
-                                </div>
-                                <div className="flex items-center gap-3 col-span-2 p-4 bg-[#f8faff] rounded-2xl border border-[#ebf0ff] cursor-pointer" onClick={() => setAddToOutlook(!addToOutlook)}>
-                                    <div className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-all ${addToOutlook ? 'bg-[#2447d7] border-[#2447d7]' : 'bg-white border-[#cbd5e0]'}`}>
-                                        {addToOutlook && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>}
-                                    </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-[13px] font-bold text-[#1a202c]">Add to Outlook Calendar</span>
-                                        <span className="text-[11px] font-medium text-[#718096]">Sync this task with your Microsoft 365 schedule</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end gap-3 mt-10">
-                                <button type="button" className="p-[12px_24px] rounded-xl text-sm font-bold text-[#718096] hover:bg-[#f8fafc] transition-all" onClick={() => setIsAddingTask(false)}>Discard</button>
-                                <button type="submit" disabled={isSyncingOutlook} className="bg-[#2447d7] text-white p-[12px_32px] rounded-xl text-sm font-bold shadow-lg shadow-[#2447d7]/25 hover:bg-[#1732a3] hover:translate-y-[-2px] active:translate-y-0 transition-all disabled:opacity-70 flex items-center gap-2">
-                                    {isSyncingOutlook && <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}
-                                    {isSyncingOutlook ? 'Syncing...' : 'Save Task'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <TaskModal 
+                isOpen={isAddingTask} 
+                onClose={() => { setIsAddingTask(false); setEditingTask(null); }}
+                onSave={handleSaveTask}
+                editingTask={editingTask}
+            />
 
             {viewMode === 'list' && (
                 <div className="flex flex-wrap justify-between items-center mb-8 gap-5 md:flex-col md:items-stretch">
@@ -528,7 +339,15 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                 <div className="flex flex-col gap-4">
                     {filteredTasks.length > 0 ? (
                         filteredTasks.map(task => (
-                            <div key={task.id} className="bg-white rounded-2xl border border-[#edf2f7] p-6 flex items-center justify-between gap-6 hover:translate-y-[-2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300 group">
+                            <div 
+                                key={task.id} 
+                                ref={el => taskRefs.current[task.id] = el}
+                                className={`bg-white rounded-2xl border p-6 flex items-center justify-between gap-6 hover:translate-y-[-2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300 group ${
+                                    highlightTaskId === task.id 
+                                        ? 'border-[#2447d7] ring-4 ring-[#2447d7]/20 shadow-[0_0_0_4px_rgba(36,71,215,0.1)] animate-pulse' 
+                                        : 'border-[#edf2f7]'
+                                }`}
+                            >
                                 <div className="flex items-center gap-5">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fff7ed] text-[#ea580c]' : task.type === 'Promotion' ? 'bg-[#2447d7] text-white' : 'bg-[#f0fdf4] text-[#16a34a]'}`}>
                                         {task.type === 'Call' && <IconPhone />}
