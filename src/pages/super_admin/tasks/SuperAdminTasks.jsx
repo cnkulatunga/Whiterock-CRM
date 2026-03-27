@@ -37,6 +37,7 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
 
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All'); // All, Personal, Team
+    const [categoryFilter, setCategoryFilter] = useState('All'); // All, Tasks, Promotions
     const [searchTerm, setSearchTerm] = useState('');
     const location = useLocation();
     const [viewMode, setViewMode] = useState('list');
@@ -111,6 +112,11 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
         
         const matchesStatus = filter === 'All' || task.status === filter;
         
+        const isPromotionItem = task.isPromotion;
+        const matchesCategory = categoryFilter === 'All' || 
+            (categoryFilter === 'Promotions' && isPromotionItem) || 
+            (categoryFilter === 'Tasks' && !isPromotionItem);
+        
         let matchesAssignment = true;
         if (assignmentFilter === 'Personal') {
             matchesAssignment = Array.isArray(task.assignedTo) ? task.assignedTo.includes('Self') : task.assignedTo === 'Self';
@@ -118,8 +124,16 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
             matchesAssignment = Array.isArray(task.assignedTo) ? (task.assignedTo.length > 1 || (task.assignedTo.length === 1 && task.assignedTo[0] !== 'Self')) : task.assignedTo !== 'Self';
         }
         
-        return matchesSearch && matchesStatus && matchesAssignment;
+        return matchesSearch && matchesStatus && matchesAssignment && matchesCategory;
     });
+
+    // Calculate Stats
+    const stats = {
+        total: filteredTasks.length,
+        pending: filteredTasks.filter(t => t.status !== 'Completed').length,
+        completed: filteredTasks.filter(t => t.status === 'Completed').length,
+        urgent: filteredTasks.filter(t => t.priority === 'High' && t.status !== 'Completed').length
+    };
 
     const renderCalendar = () => {
         const todayStr = new Date().toISOString().split('T')[0];
@@ -128,162 +142,261 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
         const monthStr = String(calMonth + 1).padStart(2, '0');
         const cells = [...Array(firstDayOfWeek).fill(null), ...Array.from({ length: totalDays }, (_, i) => i + 1)];
         const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-        const baseYear = new Date().getFullYear();
-        const YEAR_OPTIONS = Array.from({ length: 10 }, (_, i) => baseYear - 3 + i);
-
+        
         return (
-            <div className="grid grid-cols-[1fr_320px] gap-8 xl:grid-cols-1">
-                <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm">
-                    {/* Month/Year Navigation */}
-                    <div className="flex items-center justify-between mb-4">
-                        <button onClick={prevMonth} className="w-8 h-8 rounded-lg border border-[#edf2f7] bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:border-[#2447d7] hover:text-[#2447d7] transition-all">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6"/></svg>
+            <div className={`p-5 rounded-3xl border transition-all duration-300 ${isDark ? 'bg-[#1e2347] border-[#2c3568] shadow-[0_8px_32px_rgba(0,0,0,0.3)]' : 'bg-white border-[#edf2f7] shadow-sm hover:shadow-md'}`}>
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className={`text-[15px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`}>
+                        Operational Calendar
+                    </h3>
+                    <div className="flex items-center gap-2">
+                        <button onClick={prevMonth} className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-all ${isDark ? 'bg-[#2a3258] border-[#36407a] text-[#94abda] hover:text-[#6366f1]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#718096] hover:border-[#2447d7] hover:text-[#2447d7]'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12"><polyline points="15 18 9 12 15 6"/></svg>
                         </button>
-                        <div className="flex items-center gap-2">
-                            <select value={calMonth} onChange={e => setCalMonth(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border border-[#edf2f7] bg-white text-[#1a202c] cursor-pointer focus:border-[#2447d7]">
-                                {MONTH_NAMES.map((name, i) => <option key={i} value={i}>{name}</option>)}
-                            </select>
-                            <select value={calYear} onChange={e => setCalYear(Number(e.target.value))} className="text-sm font-bold outline-none rounded-lg px-2 py-1 border border-[#edf2f7] bg-white text-[#1a202c] cursor-pointer focus:border-[#2447d7]">
-                                {YEAR_OPTIONS.map(y => <option key={y} value={y}>{y}</option>)}
-                            </select>
-                        </div>
-                        <button onClick={nextMonth} className="w-8 h-8 rounded-lg border border-[#edf2f7] bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:border-[#2447d7] hover:text-[#2447d7] transition-all">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6"/></svg>
+                        <span className={`text-xs font-black uppercase tracking-widest min-w-[100px] text-center ${isDark ? 'text-[#94abda]' : 'text-[#64748b]'}`}>
+                            {MONTH_NAMES[calMonth]} {calYear}
+                        </span>
+                        <button onClick={nextMonth} className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-all ${isDark ? 'bg-[#2a3258] border-[#36407a] text-[#94abda] hover:text-[#6366f1]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#718096] hover:border-[#2447d7] hover:text-[#2447d7]'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
                         </button>
-                    </div>
-                    <div className="grid grid-cols-7 gap-2">
-                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => (
-                            <div key={d} className="text-center text-[10px] font-black text-[#cbd5e0] tracking-widest pb-4 uppercase">{d}</div>
-                        ))}
-                        {cells.map((day, idx) => {
-                            if (day === null) return <div key={`blank-${idx}`} />;
-                            const dateStr = `${calYear}-${monthStr}-${String(day).padStart(2, '0')}`;
-                            const dayTasks = tasks.filter(t => t.date === dateStr);
-                            const isSelected = selectedDate === dateStr;
-                            const isToday = dateStr === todayStr;
-                            return (
-                                <div
-                                    key={day}
-                                    className={`aspect-square rounded-2xl border flex flex-col items-center justify-center relative cursor-pointer transition-all duration-300 group hover:border-[#2447d7] hover:shadow-md
-                                        ${isToday && !isSelected ? 'bg-[#eef2ff] border-[#2447d7]/30' : dayTasks.length > 0 ? 'bg-[#f8faff]' : 'bg-white'}
-                                        ${isSelected ? 'border-[#2447d7] ring-4 ring-[#2447d7]/5 z-10' : isToday ? '' : 'border-[#edf2f7]'}
-                                    `}
-                                    onClick={() => setSelectedDate(dateStr)}
-                                >
-                                    <span className={`text-[13px] font-bold w-6 h-6 flex items-center justify-center rounded-full
-                                        ${isToday ? 'bg-[#2447d7] text-white' : isSelected ? 'text-[#2447d7]' : 'text-[#718096] group-hover:text-[#2447d7]'}
-                                    `}>{day}</span>
-                                    <div className="flex gap-1 mt-1.5 flex-wrap justify-center px-1">
-                                        {dayTasks.slice(0, 3).map(t => (
-                                            <div
-                                                key={t.id}
-                                                className={`w-1.5 h-1.5 rounded-full ring-2 ring-white ${t.isPromotion ? 'bg-[#2447d7] animate-pulse' : t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'} ${t.assignedTo !== 'Self' && !t.isPromotion ? 'animate-pulse' : ''}`}
-                                                title={t.title}
-                                            ></div>
-                                        ))}
-                                        {dayTasks.length > 3 && <div className="w-1 h-1 bg-[#cbd5e0] rounded-full"></div>}
-                                    </div>
-                                </div>
-                            );
-                        })}
                     </div>
                 </div>
-                
-                <div className="flex flex-col gap-6">
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] p-6 shadow-sm flex flex-col gap-5">
-                        <div className="flex justify-between items-center pb-4 border-b border-[#f7fafc]">
-                            <h3 className="text-[15px] font-bold text-[#1a202c]">Tasks for {selectedDate}</h3>
-                            <button className="w-8 h-8 bg-[#2447d7] text-white rounded-lg flex items-center justify-center transition-transform hover:scale-110 shadow-lg shadow-[#2447d7]/20" onClick={() => {
-                                setEditingTask(null);
-                                setIsAddingTask(true);
-                            }}>
-                                <IconPlus />
-                            </button>
 
-                        </div>
-                        <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                            {tasks.filter(t => t.date === selectedDate).length > 0 ? (
-                                tasks.filter(t => t.date === selectedDate).map(t => (
-                                    <div key={t.id} className="p-4 bg-[#f8faff] rounded-xl border border-[#edf2f7] group hover:border-[#2447d7]/20 transition-all duration-300">
-                                        <div className="flex items-start gap-3">
-                                            <div className={`w-2 h-10 rounded-full shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#3b82f6]' : 'bg-[#f59e0b]'}`}></div>
-                                            <div className="flex flex-col gap-1 flex-1">
-                                                <div className="flex items-center justify-between gap-2">
-                                                    <span className="text-[13px] font-bold text-[#1a202c] leading-tight">
-                                                        {t.title}
-                                                    </span>
-                                                    {t.isPromotion && <span className="bg-[#2447d7] text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider animate-pulse">Active Promo</span>}
-                                                    {t.assignedTo !== 'Self' && !t.isPromotion && <span className="bg-[#ebf0ff] text-[#2447d7] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Assigned</span>}
-                                                </div>
-                                                <span className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider">{t.time} • {t.lead || 'Personal'}</span>
-                                                {t.assignedTo && t.assignedTo !== 'Self' && (
-                                                    <span className="text-[10px] font-bold mt-1 px-2 py-0.5 rounded-md w-fit" style={{ background: isDark ? 'rgba(36,71,215,0.15)' : '#f0f4ff', color: '#2447d7' }}>
-                                                        Assignee: {users.find(u => u.id.toString() === t.assignedTo.toString())?.name || t.assignedTo}
-                                                    </span>
-                                                )}
-                                                {t.isPromotion && t.fileName && (
-                                                    <div className="flex items-center gap-2 mt-1">
-                                                        <span className="text-[10px] text-[#718096] truncate max-w-[150px]">{t.fileName}</span>
-                                                        {t.fileData && (
-                                                            <a href={t.fileData} download={t.fileName} className="text-[#2447d7] hover:underline text-[10px] font-bold uppercase transition-all">Download</a>
-                                                        )}
-                                                    </div>
-                                                )}
-                                                {t.createdBy && t.createdBy !== 'Super Admin' && !t.isPromotion && (
-                                                    <span className="text-[9px] font-black mt-1 px-1.5 py-0.5 rounded uppercase tracking-wider w-fit" style={{ background: '#fff7ed', color: '#ea580c', border: '1px solid #ffedd5' }}>
-                                                        By: {t.createdBy}
-                                                    </span>
-                                                )}
-                                                {canManageTask(t, user) && !t.isPromotion && (
-                                                    <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[#f1f5f9]">
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
-                                                            className="p-1 px-2 rounded-md bg-[#f8fafc] text-[#718096] hover:text-[#2447d7] hover:bg-[#eef2ff] transition-all text-[10px] font-bold border border-[#edf2f7]"
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button 
-                                                            onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
-                                                            className="p-1 px-2 rounded-md bg-[#f8fafc] text-[#718096] hover:text-[#e53e3e] hover:bg-[#fff5f5] transition-all text-[10px] font-bold border border-[#edf2f7]"
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                )}
-
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))
-                            ) : (
-                                <div className="py-12 flex flex-col items-center gap-3 text-center grayscale opacity-60">
-                                    <IconCalendar size={32} />
-                                    <p className="text-[13px] font-bold text-[#718096]">No tasks scheduled</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                <div className="grid grid-cols-7 gap-1.5">
+                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, idx) => (
+                        <div key={idx} className={`text-center text-[10px] font-black tracking-widest pb-3 transition-colors ${isDark ? 'text-[#4b5563]' : 'text-[#cbd5e0]'}`}>{d}</div>
+                    ))}
+                    {cells.map((day, idx) => {
+                        if (day === null) return <div key={`blank-${idx}`} />;
+                        const dateStr = `${calYear}-${monthStr}-${String(day).padStart(2, '0')}`;
+                        const dayTasks = tasks.filter(t => t.date === dateStr);
+                        const isSelected = selectedDate === dateStr;
+                        const isToday = dateStr === todayStr;
+                        
+                        return (
+                            <div
+                                key={day}
+                                onClick={() => setSelectedDate(dateStr)}
+                                className={`aspect-square rounded-xl border flex flex-col items-center justify-center relative cursor-pointer transition-all duration-200 group
+                                    ${isToday && !isSelected 
+                                        ? (isDark ? 'bg-[#2a3258] border-[#6366f1]/50' : 'bg-[#f0f4ff] border-[#2447d7]/30') 
+                                        : (dayTasks.length > 0 
+                                            ? (isDark ? 'bg-[#242b50]' : 'bg-[#f8faff]') 
+                                            : (isDark ? 'bg-transparent' : 'bg-white'))
+                                    }
+                                    ${isSelected 
+                                        ? (isDark ? 'border-[#6366f1] ring-4 ring-[#6366f1]/10 bg-[#312e81]' : 'border-[#2447d7] ring-4 ring-[#2447d7]/5 bg-[#f5f8ff]') 
+                                        : (isDark ? 'border-[#2c3568]' : 'border-[#edf2f7]')
+                                    }
+                                    hover:border-[#6366f1] hover:scale-105 active:scale-95
+                                `}
+                            >
+                                <span className={`text-[12px] font-bold ${isToday ? (isDark ? 'text-[#818cf8]' : 'text-[#2447d7]') : (isDark ? 'text-[#94abda]' : 'text-[#718096]')} group-hover:text-[#6366f1]`}>
+                                    {day}
+                                </span>
+                                {dayTasks.length > 0 && (
+                                    <div className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#6366f1] shadow-[0_0_8px_rgba(99,102,241,0.6)]" />
+                                )}
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         );
     };
 
     return (
-        <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]">
-            <header className="flex justify-between items-center mb-6 sm:flex-col sm:items-start sm:gap-4">
-                <div className="flex items-center gap-4 sm:flex-wrap ml-auto">
-
-                    <div className="flex p-1 bg-[#f1f5f9] rounded-xl border border-[#e2e8f0]">
-                        <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('list')}><div className="flex items-center gap-2"><IconList size={14} /> List</div></button>
-                        <button className={`p-[6px_16px] rounded-lg text-xs font-bold transition-all ${viewMode === 'calendar' ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`} onClick={() => setViewMode('calendar')}><div className="flex items-center gap-2"><IconCalendar size={14} /> Calendar</div></button>
+        <div className={`flex flex-col gap-8 animate-fadeIn font-['Sora',sans-serif] ${isDark ? 'text-[#e4ecff]' : 'text-[#0f172a]'}`}>
+            
+            {/* KPI STATS */}
+            <div className="grid grid-cols-4 gap-3 md:grid-cols-2 sm:grid-cols-1">
+                {[
+                    { label: 'Total Tasks', value: stats.total, icon: <IconList size={14} />, color: 'from-[#6366f1] to-[#4f46e5]', shadow: 'shadow-indigo-500/20' },
+                    { label: 'Pending Items', value: stats.pending, icon: <IconClock size={14} />, color: 'from-[#f59e0b] to-[#d97706]', shadow: 'shadow-amber-500/20' },
+                    { label: 'Urgent Action', value: stats.urgent, icon: <IconPlus size={14} />, color: 'from-[#ef4444] to-[#dc2626]', shadow: 'shadow-rose-500/20' },
+                    { label: 'Completed Today', value: stats.completed, icon: <IconPlus size={14} />, color: 'from-[#10b981] to-[#059669]', shadow: 'shadow-emerald-500/20' }
+                ].map((kpi, idx) => (
+                    <div key={idx} className={`p-2.5 rounded-xl border flex items-center gap-2.5 transition-all duration-300 hover:scale-[1.01] ${isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7] shadow-sm'}`}>
+                        <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${kpi.color} flex items-center justify-center text-white ${kpi.shadow} shadow-lg shrink-0`}>
+                            {kpi.icon}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className={`text-[18px] font-black leading-tight ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`}>{kpi.value}</span>
+                            <span className={`text-[8.5px] font-black uppercase tracking-widest ${isDark ? 'text-[#94abda]' : 'text-[#64748b]'}`}>{kpi.label}</span>
+                        </div>
                     </div>
-                    <button className="bg-[#2447d7] text-white p-[10px_20px] rounded-xl text-sm font-bold shadow-[0_8px_16px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:translate-y-[-2px] transition-all duration-300 flex items-center gap-2 sm:w-full sm:justify-center" onClick={() => { setIsAddingTask(true); setEditingTask(null); }}>
-                        <IconPlus /> <span>New Task</span>
-                    </button>
+                ))}
+            </div>
 
+            {/* ACTION BAR */}
+            <div className={`p-1.5 rounded-[20px] border flex items-center justify-between gap-3 flex-wrap ${isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7] shadow-sm'}`}>
+                <div className="flex items-center gap-3 flex-1 min-w-[280px]">
+                    <div className={`flex items-center gap-2.5 px-3.5 py-2 rounded-xl border flex-1 transition-all focus-within:ring-4 ${isDark ? 'bg-[#2a3258] border-[#36407a] focus-within:border-[#6366f1] focus-within:ring-[#6366f1]/10' : 'bg-[#f8fafc] border-[#edf2f7] focus-within:border-[#2447d7] focus-within:ring-[#2447d7]/5'}`}>
+                        <IconSearch size={14} />
+                        <input
+                            type="text"
+                            className="bg-transparent border-none outline-none text-[12px] font-medium w-full placeholder:text-[#94a3b8] tracking-tight"
+                            placeholder="Search operations..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
+                    <div className={`hidden md:flex p-1 rounded-xl border ${isDark ? 'bg-[#2a3258] border-[#36407a]' : 'bg-[#f1f5f9] border-[#e2e8f0]'}`}>
+                        <button className={`p-1.5 rounded-lg transition-all ${viewMode === 'list' ? (isDark ? 'bg-[#6366f1] text-white shadow-lg shadow-[#6366f1]/20' : 'bg-[#2447d7] text-white') : (isDark ? 'text-[#94abda]' : 'text-[#718096]')}`} onClick={() => setViewMode('list')}><IconList size={14}/></button>
+                        <button className={`p-1.5 rounded-lg transition-all ${viewMode === 'calendar' ? (isDark ? 'bg-[#6366f1] text-white shadow-lg shadow-[#6366f1]/20' : 'bg-[#2447d7] text-white') : (isDark ? 'text-[#94abda]' : 'text-[#718096]')}`} onClick={() => setViewMode('calendar')}><IconCalendar size={14}/></button>
+                    </div>
                 </div>
-            </header>
+                
+                <div className="flex items-center gap-2">
+                    <div className={`flex p-1 rounded-xl border ${isDark ? 'bg-[#2a3258] border-[#36407a]' : 'bg-[#f1f5f9] border-[#e2e8f0]'}`}>
+                        {['All', 'Pending', 'Progress', 'Done'].map(s => (
+                            <button
+                                key={s}
+                                className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${filter === (s === 'Done' ? 'Completed' : s === 'Progress' ? 'In Progress' : s) ? (isDark ? 'bg-[#6366f1] text-white shadow-md' : 'bg-white text-[#2447d7] shadow-sm') : (isDark ? 'text-[#94abda] hover:text-[#e4ecff]' : 'text-[#718096] hover:text-[#1e293b]')}`}
+                                onClick={() => setFilter(s === 'Done' ? 'Completed' : s === 'Progress' ? 'In Progress' : s)}
+                            >
+                                {s}
+                            </button>
+                        ))}
+                    </div>
+                    <button 
+                        className={`p-[8px_18px] rounded-xl text-[11px] font-black uppercase tracking-widest text-white shadow-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2 bg-gradient-to-r from-[#6366f1] to-[#4f46e5] shadow-[#6366f1]/25`} 
+                        onClick={() => { setIsAddingTask(true); setEditingTask(null); }}
+                    >
+                        <IconPlus size={14} /> <span>New</span>
+                    </button>
+                </div>
+            </div>
+
+            {/* MAIN CONTENT GRID */}
+            <div className="grid grid-cols-12 gap-6">
+                {/* LIST View (8 cols) */}
+                <div className={`${viewMode === 'list' ? 'col-span-8 lg:col-span-12' : 'hidden lg:block lg:col-span-12'} flex flex-col gap-4`}>
+                    <div className="flex items-center justify-between px-1 flex-wrap gap-4">
+                        <div className="flex items-center gap-5">
+                            {[
+                                { id: 'All', label: 'All Operations' },
+                                { id: 'Tasks', label: 'Workflows' },
+                                { id: 'Promotions', label: 'Promos' }
+                            ].map(cat => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setCategoryFilter(cat.id)}
+                                    className={`relative py-1.5 text-[13px] font-black uppercase tracking-widest transition-all ${categoryFilter === cat.id ? (isDark ? 'text-[#818cf8]' : 'text-[#2447d7]') : (isDark ? 'text-[#4b5563] hover:text-[#94abda]' : 'text-[#94a3b8] hover:text-[#1e293b]')}`}
+                                >
+                                    {cat.label}
+                                    {categoryFilter === cat.id && (
+                                        <div className={`absolute -bottom-0.5 left-0 right-0 h-0.5 rounded-full ${isDark ? 'bg-[#818cf8] shadow-[0_0_8px_rgba(129,140,248,0.5)]' : 'bg-[#2447d7] shadow-[0_4px_12px_rgba(36,71,215,0.3)]'}`} />
+                                    )}
+                                </button>
+                            ))}
+                        </div>
+                        <div className={`flex p-0.5 rounded-lg border ${isDark ? 'bg-[#2a3258] border-[#36407a]' : 'bg-[#f1f5f9] border-[#e2e8f0]'}`}>
+                            {['All', 'Personal', 'Team'].map(type => (
+                                <button
+                                    key={type}
+                                    className={`px-3 py-1 rounded-[6px] text-[10px] font-black uppercase tracking-wider transition-all ${assignmentFilter === type ? (isDark ? 'bg-[#6366f1] text-white shadow-md' : 'bg-white text-[#2447d7] shadow-sm') : (isDark ? 'text-[#94abda] hover:text-[#e4ecff]' : 'text-[#1e293b]')}`}
+                                    onClick={() => setAssignmentFilter(type)}
+                                >
+                                    {type}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2.5 max-h-[calc(100vh-400px)] overflow-y-auto pr-2 custom-scrollbar">
+                        {filteredTasks.length > 0 ? (
+                            filteredTasks.map(task => (
+                                <div 
+                                    key={task.id} 
+                                    ref={el => taskRefs.current[task.id] = el}
+                                    className={`p-2.5 rounded-xl border transition-all duration-300 group hover:translate-y-[-0.5px] ${
+                                        isDark 
+                                            ? 'bg-[#1e2347] border-[#2c3568] hover:border-[#6366f1]/30 hover:shadow-[0_4px_20px_rgba(0,0,0,0.3)]' 
+                                            : 'bg-white border-[#edf2f7] hover:border-[#2447d7]/20 hover:shadow-[0_4px_20px_rgba(0,0,0,0.01)]'
+                                    } ${highlightTaskId === task.id ? (isDark ? 'border-[#6366f1] ring-4 ring-[#6366f1]/20' : 'border-[#2447d7] ring-4 ring-[#2447d7]/20 shadow-[0_0_0_4px_rgba(36,71,215,0.1)] animate-pulse') : ''}`}
+                                >
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${
+                                                    task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : 
+                                                    task.type === 'Document' ? 'bg-[#fff7ed] text-[#ea580c]' : 
+                                                    task.type === 'Promotion' ? 'bg-[#2447d7] text-white' : 
+                                                    'bg-[#f0fdf4] text-[#16a34a]'
+                                                }`}>
+                                                    {task.type === 'Call' && <IconPhone size={13} />}
+                                                    {task.type === 'Document' && <IconDoc size={13} />}
+                                                    {task.type === 'Promotion' ? <IconPlus size={13} /> : (task.type !== 'Call' && task.type !== 'Document' && <IconMeeting size={13} />)}
+                                                </div>
+                                                <div className="flex flex-col min-w-0">
+                                                    <h3 className={`text-[12.5px] font-black leading-tight truncate ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`} title={task.title}>{task.title}</h3>
+                                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                                        {task.isPromotion && (
+                                                            <span className="bg-[#2447d7] text-white text-[6px] font-black px-1 py-0.5 rounded uppercase leading-none">Promo</span>
+                                                        )}
+                                                        <span className={`text-[8.5px] font-black uppercase tracking-widest ${isDark ? 'text-[#4b5563]' : 'text-[#94a3b8]'}`}>
+                                                            {task.time}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-1 shrink-0">
+                                                {canManageTask(task, user) && (
+                                                    <button 
+                                                        onClick={() => handleEditClick(task)}
+                                                        className={`w-7 h-7 rounded-lg border flex items-center justify-center transition-all ${isDark ? 'bg-[#2a3258] border-[#36407a] text-[#94abda] hover:text-[#6366f1]' : 'bg-[#f1f3f9] border-[#e2e8f0] text-[#718096] hover:text-[#2447d7]'}`}
+                                                    >
+                                                        <IconEdit size={11} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-between gap-3 pt-2 border-t border-dashed border-[#edf2f7] dark:border-[#2c3568]">
+                                            <div className="flex flex-col">
+                                                <span className={`text-[9.5px] font-bold truncate max-w-[80px] ${isDark ? 'text-[#94abda]' : 'text-[#718096]'}`}>
+                                                    {task.lead || 'Strategy'}
+                                                </span>
+                                            </div>
+                                            {!task.isPromotion ? (
+                                                <select 
+                                                    className={`p-[4px_10px] rounded-lg text-[9px] font-black uppercase tracking-wider border outline-none transition-all cursor-pointer appearance-none bg-no-repeat bg-[right_0.4rem_center] bg-[length:7px] pr-6
+                                                        ${task.status === 'Completed' ? (isDark ? 'bg-[#064e3b] text-[#34d399] border-[#065f46]' : 'bg-[#f0fdf4] text-[#166534] border-[#dcfce7]') : 
+                                                          task.status === 'In Progress' ? (isDark ? 'bg-[#1e3a8a] text-[#60a5fa] border-[#1e40af]' : 'bg-[#eff6ff] text-[#1d4ed8] border-[#dbeafe]') : 
+                                                          (isDark ? 'bg-[#1e2347] text-[#94abda] border-[#2c3568]' : 'bg-[#f8fafc] text-[#718096] border-[#edf2f7]')
+                                                        }
+                                                    `}
+                                                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22${task.status === 'Completed' ? (isDark ? '%2334d399' : '%23166534') : task.status === 'In Progress' ? (isDark ? '%2360a5fa' : '%231d4ed8') : (isDark ? '%2394abda' : '%23718096')}%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E")` }}
+                                                    value={task.status}
+                                                    onChange={(e) => updateTaskStatus(task.id, e.target.value)}
+                                                >
+                                                    <option>Pending</option>
+                                                    <option>Progress</option>
+                                                    <option>Done</option>
+                                                </select>
+                                            ) : (
+                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full border ${isDark ? 'bg-[#2a3258] text-[#818cf8] border-[#36407a]' : 'bg-[#f0f4ff] text-[#2447d7] border-[#dbeafe]'}`}>Active</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className={`py-32 text-center rounded-[40px] border-4 border-dashed animate-pulse ${isDark ? 'bg-[#1e2347]/50 border-[#2c3568]' : 'bg-[#fdfdfd] border-[#edf2f7]'}`}>
+                                <IconCalendar size={56} className="mx-auto text-[#cbd5e0] mb-6 opacity-20" />
+                                <p className={`text-xl font-black ${isDark ? 'text-[#4b5563]' : 'text-[#cbd5e0]'}`}>No matching tasks found</p>
+                                <p className={`text-sm font-medium mt-2 ${isDark ? 'text-[#2c3568]' : 'text-[#e2e8f0]'}`}>Try adjusting your filters or search terms</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* CALENDAR View (4 cols) */}
+                <div className={`${viewMode === 'calendar' ? 'col-span-12' : 'col-span-4 lg:hidden'} sticky top-8 h-fit`}>
+                    {renderCalendar()}
+                </div>
+            </div>
 
             <TaskModal 
                 isOpen={isAddingTask} 
@@ -291,149 +404,10 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                 onSave={handleSaveTask}
                 editingTask={editingTask}
             />
-
-            {viewMode === 'list' && (
-                <div className="flex flex-wrap justify-between items-center mb-8 gap-5 md:flex-col md:items-stretch">
-                    <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] w-fit shrink-0 sm:w-full overflow-x-auto no-scrollbar">
-                        {['All', 'Personal', 'Team'].map(type => (
-                            <button
-                                key={type}
-                                className={`p-[10px_24px] rounded-xl text-[13px] font-bold transition-all whitespace-nowrap ${assignmentFilter === type ? 'bg-white text-[#2447d7] shadow-sm ring-1 ring-[#2447d7]/10' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                                onClick={() => setAssignmentFilter(type)}
-                            >
-                                {type} Views
-                            </button>
-                        ))}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-4 flex-1 justify-end max-w-[800px] md:max-w-full">
-                        <div className="flex-1 min-w-[200px] bg-white border border-[#edf2f7] p-3 px-4 rounded-2xl flex items-center gap-3 shadow-sm focus-within:ring-4 focus-within:ring-[#2447d7]/5 focus-within:border-[#2447d7] transition-all">
-                            <IconSearch />
-                            <input
-                                type="text"
-                                className="bg-transparent border-none outline-none text-sm w-full text-[#1a202c] placeholder:text-[#a0aec0]"
-                                placeholder="Search all tasks..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-                        <div className="flex bg-[#f1f5f9] p-1 rounded-2xl border border-[#e2e8f0] shrink-0 overflow-x-auto no-scrollbar max-w-full">
-                            {['All', 'Pending', 'In Progress', 'Completed'].map(s => (
-                                <button
-                                    key={s}
-                                    className={`px-4 py-2 rounded-xl text-[13px] font-bold transition-all ${filter === s ? 'bg-white text-[#2447d7] shadow-sm' : 'text-[#718096] hover:text-[#4a5568]'}`}
-                                    onClick={() => setFilter(s)}
-                                >
-                                    {s}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {viewMode === 'list' ? (
-                <div className="flex flex-col gap-4">
-                    {filteredTasks.length > 0 ? (
-                        filteredTasks.map(task => (
-                            <div 
-                                key={task.id} 
-                                ref={el => taskRefs.current[task.id] = el}
-                                className={`bg-white rounded-2xl border p-6 flex items-center justify-between gap-6 hover:translate-y-[-2px] hover:shadow-[0_8px_30px_rgba(0,0,0,0.04)] transition-all duration-300 group ${
-                                    highlightTaskId === task.id 
-                                        ? 'border-[#2447d7] ring-4 ring-[#2447d7]/20 shadow-[0_0_0_4px_rgba(36,71,215,0.1)] animate-pulse' 
-                                        : 'border-[#edf2f7]'
-                                }`}
-                            >
-                                <div className="flex items-center gap-5">
-                                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : task.type === 'Document' ? 'bg-[#fff7ed] text-[#ea580c]' : task.type === 'Promotion' ? 'bg-[#2447d7] text-white' : 'bg-[#f0fdf4] text-[#16a34a]'}`}>
-                                        {task.type === 'Call' && <IconPhone />}
-                                        {task.type === 'Document' && <IconDoc />}
-                                        {task.type === 'Promotion' ? <IconPlus /> : (task.type !== 'Call' && task.type !== 'Document' && <IconMeeting />)}
-                                    </div>
-                                    <div className="flex flex-col gap-1.5">
-                                        <div className="flex items-center gap-3">
-                                            <h3 className="text-lg font-bold text-[#1a202c]">{task.title}</h3>
-                                            {task.isPromotion && <span className="bg-[#2447d7] text-white text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider animate-pulse">Active Promo</span>}
-                                            {task.assignedTo === 'Self' && !task.isPromotion ? (
-                                                <span className="text-[9px] font-black text-[#a0aec0] bg-[#f8fafc] px-2 py-0.5 rounded border border-[#edf2f7] uppercase tracking-wider whitespace-nowrap">Personal</span>
-                                            ) : task.assignedTo && !task.isPromotion ? (
-                                                <span className="flex items-center gap-1.5 text-[0.8rem] font-bold text-[#2447d7] bg-[#f0f4ff] px-2.5 py-1 rounded-lg">
-                                                    Assignee: {users.find(u => u.id.toString() === task.assignedTo.toString())?.name || task.assignedTo}
-                                                </span>
-                                            ) : null}
-                                            {task.createdBy && task.createdBy !== 'Super Admin' && !task.isPromotion && (
-                                                <span className="bg-[#fff7ed] text-[#ea580c] text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border border-[#ffedd5]">By: {task.createdBy}</span>
-                                            )}
-
-                                        </div>
-                                        <div className="flex items-center gap-4 flex-wrap">
-                                            <span className="flex items-center gap-1.5 text-[13px] font-bold text-[#718096]">
-                                                <IconUser size={14} />
-                                                {task.lead || 'Administrative'}
-                                            </span>
-                                            <span className="text-[12px] font-bold text-[#a0aec0] uppercase tracking-widest">{task.date} • {task.time}</span>
-                                            {task.isPromotion && task.fileName && (
-                                                <div className="flex items-center gap-3 mt-1 p-2 rounded-lg bg-[#f0f4ff]/50 border border-[#2447d7]/10">
-                                                    <IconDoc />
-                                                    <span className="text-[11px] font-medium text-[#4a5568]">{task.fileName}</span>
-                                                    {task.fileData && (
-                                                        <a href={task.fileData} download={task.fileName} className="ml-auto text-[10px] font-black text-[#2447d7] hover:underline uppercase tracking-wider">Download</a>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                    {!task.isPromotion && (
-                                        <div className="flex items-center gap-6">
-                                            <select 
-                                                className={`p-[10px_20px] rounded-xl text-sm font-bold border-2 outline-none transition-all cursor-pointer appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:12px] pr-10
-                                                    ${task.status === 'Completed' ? 'bg-[#f0fdf4] text-[#166534] border-[#dcfce7]' : task.status === 'In Progress' ? 'bg-[#eff6ff] text-[#1d4ed8] border-[#dbeafe]' : 'bg-[#f8fafc] text-[#718096] border-[#edf2f7]'}
-                                                `}
-                                                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22${task.status === 'Completed' ? '%23166534' : task.status === 'In Progress' ? '%231d4ed8' : '%23718096'}%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E")` }}
-                                                value={task.status}
-                                                onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                            >
-                                                <option>Pending</option>
-                                                <option>In Progress</option>
-                                                <option>Completed</option>
-                                            </select>
-                                            {canManageTask(task, user) && (
-                                                <div className="flex items-center gap-2">
-                                                    <button 
-                                                        onClick={() => handleEditClick(task)}
-                                                        className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#eef2ff] hover:text-[#2447d7] transition-all group/btn"
-                                                        title="Edit Task"
-                                                    >
-                                                        <IconEdit />
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleDeleteTask(task.id)}
-                                                        className="w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-[#fff5f5] hover:text-[#e53e3e] transition-all group/btn"
-                                                        title="Delete Task"
-                                                    >
-                                                        <IconTrash />
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-                            </div>
-                        ))
-                    ) : (
-                        <div className="py-24 text-center bg-[#fdfdfd] rounded-[32px] border-2 border-dashed border-[#edf2f7]">
-                            <IconCalendar size={48} className="mx-auto text-[#cbd5e0] mb-4" />
-                            <p className="text-lg font-bold text-[#718096]">No tasks found</p>
-                        </div>
-                    )}
-                </div>
-            ) : (
-                renderCalendar()
-            )}
         </div>
     );
 };
+
 
 /* ── ICONS ── */
 const IconPhone = () => (
@@ -459,6 +433,11 @@ const IconList = ({ size = 20 }) => (
 const IconCalendar = ({ size = 20 }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
         <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
+const IconClock = ({ size = 20 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
     </svg>
 );
 const IconPlus = () => (
