@@ -73,7 +73,7 @@ const TeleAgentLayout = ({ onLogout }) => {
             case 'create-lead': navigate('/tele-agent/create-lead'); break;
             case 'follow-ups': navigate('/tele-agent/follow-ups'); break;
             case 'promotions': navigate('/tele-agent/promotions'); break;
-            case 'leave': navigate('/leave-management/login'); break;
+            // case 'leave': navigate('/leave-management/login'); break; // COMMENTED OUT
             default: navigate('/tele-agent/dashboard');
         }
     };

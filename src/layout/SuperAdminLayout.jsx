@@ -225,7 +225,8 @@ const AppLayout = ({ onLogout }) => {
                             )}
                         </div>
                         <ThemeToggle compact={isMobile} />
-                        <button
+                        {/* Leave button — COMMENTED OUT */}
+                        {/* <button
                             className="text-white border-none h-10 px-4 rounded-xl text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
                             style={{
                                 background: isDark ? 'linear-gradient(135deg, #059669, #047857)' : 'linear-gradient(135deg, #10b981, #059669)',
@@ -237,7 +238,7 @@ const AppLayout = ({ onLogout }) => {
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
                             </svg>
                             <span className="lg:hidden">Leave </span>
-                        </button>
+                        </button> */}
                         <button
                             className="text-white border-none h-10 px-4 rounded-xl text-sm font-extrabold flex items-center gap-2 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
                             style={{
