@@ -12,6 +12,30 @@ const IconPlus = () => (
     </svg>
 );
 
+const IconPhone = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </svg>
+);
+
+const IconDoc = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+    </svg>
+);
+
+const IconMeeting = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" />
+    </svg>
+);
+
+const IconUser = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+    </svg>
+);
+
 const IconEdit = ({ size = 16 }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -135,7 +159,215 @@ const stringToColor = (str) => {
 
 // Removed INITIAL_TASKS mock data, using props from layout.
 
-const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, notifyReminderSet }) => {
+const StatusSelector = ({ status, onStatusChange, isDark, isPromotion }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const options = isPromotion ? ['Active', 'Expired', 'Ended'] : ['Pending', 'In Progress', 'Completed'];
+
+    const getStatusStyle = (s) => {
+        if (s === 'Completed' || s === 'Active') return { bg: 'bg-[#ecfdf5]', text: 'text-[#059669]', border: 'border-[#d1fae5]' };
+        if (s === 'In Progress') return { bg: 'bg-[#ebf5ff]', text: 'text-[#2447d7]', border: 'border-[#d9ebff]' };
+        return { bg: 'bg-[#fff7ed]', text: 'text-[#ea580c]', border: 'border-[#ffedd5]' };
+    };
+
+    const currentStyle = getStatusStyle(status);
+
+    return (
+        <div className="relative shrink-0">
+            <button
+                onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+                className={`p-[4px_12px] rounded-full text-[10px] font-black uppercase tracking-wider border transition-all shadow-sm flex items-center gap-2 ${currentStyle.bg} ${currentStyle.text} ${currentStyle.border}`}
+            >
+                {status}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="8" height="8" className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
+            </button>
+
+            {isOpen && (
+                <div 
+                    className="absolute right-0 bottom-full mb-2 z-[100] w-36 rounded-xl border shadow-2xl overflow-hidden animate-fadeIn"
+                    style={{ background: isDark ? '#1e2347' : '#ffffff', borderColor: isDark ? '#2c3568' : '#e2e8f0', backdropFilter: 'blur(10px)' }}
+                >
+                    {options.map(opt => {
+                        const isActive = opt === status;
+                        return (
+                            <button
+                                key={opt}
+                                onClick={(e) => { e.stopPropagation(); onStatusChange(opt); setIsOpen(false); }}
+                                className={`w-full text-left px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-[#2447d7] text-white' : (isDark ? 'text-[#ea580c] hover:bg-white/5' : 'text-[#ea580c] hover:bg-slate-50')}`}
+                            >
+                                {opt}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+            {isOpen && <div className="fixed inset-0 z-[99]" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} />}
+        </div>
+    );
+};
+
+const TaskCard = ({ task, user, users, isDark, highlightTaskId, handleEditClick, updateTaskStatus }) => {
+    const [showAllNames, setShowAllNames] = useState(false);
+    const assignedIds = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? [task.assignedTo] : ['Self']);
+
+    const getAssignedInfo = () => {
+        const fullNames = assignedIds.map(id => id === 'Self' ? 'Self' : users?.find(usr => usr.id?.toString() === id?.toString() || usr.name === id)?.name || 'User');
+        const firstId = assignedIds[0];
+        const firstUser = firstId === 'Self' ? user : users?.find(usr => usr.id?.toString() === firstId?.toString() || usr.name === firstId);
+        
+        const rawRole = firstUser?.role || 'Tele Agent';
+        const norm = rawRole.toLowerCase().trim();
+        
+        const roleThemes = {
+            'super admin': { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500', hex: '#2447d7' },
+            'super_admin': { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500', hex: '#2447d7' },
+            'team leader': { bg: 'bg-purple-50', text: 'text-purple-600', dot: 'bg-purple-500', hex: '#8b5cf6' },
+            'team_leader': { bg: 'bg-purple-50', text: 'text-purple-600', dot: 'bg-purple-500', hex: '#8b5cf6' },
+            'accounts manager': { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500', hex: '#f59e0b' },
+            'accounts_manager': { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500', hex: '#f59e0b' },
+            'tele agent': { bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-500', hex: '#10b981' },
+            'tele_agent': { bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-500', hex: '#10b981' }
+        };
+
+        const roleTheme = roleThemes[norm] || roleThemes['tele agent'];
+        const displayRole = norm === 'tele agent' ? 'Tele Agent' : 
+                          norm === 'accounts manager' ? 'Accounts Manager' :
+                          norm === 'team leader' ? 'Team Leader' :
+                          norm === 'super admin' ? 'Super Admin' : rawRole;
+
+        return { 
+            fullNames, 
+            summary: fullNames.length > 1 ? `${fullNames[0]}, +${fullNames.length - 1}` : fullNames[0], 
+            role: displayRole,
+            theme: roleTheme
+        };
+    };
+
+    const info = getAssignedInfo();
+
+    return (
+        <div
+            className={`p-4 rounded-3xl border transition-all duration-300 group relative ${isDark
+                ? 'bg-[#1e2347] border-[#2c3568] hover:border-[#6366f1]/30'
+                : 'bg-white border-slate-100 hover:shadow-xl hover:-translate-y-1'
+                } ${highlightTaskId === task.id ? 'border-[#2447d7] ring-4 ring-[#2447d7]/10 animate-pulse' : ''}`}
+        >
+            <div className={`absolute left-0 top-0 w-1.5 h-full ${info.theme.dot}`} />
+            <div className="flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' :
+                            task.type === 'Document' ? 'bg-[#fff7ed] text-[#ea580c]' :
+                                'bg-[#f0fdf4] text-[#16a34a]'
+                            }`}>
+                            {task.type === 'Call' && <IconPhone size={14} />}
+                            {task.type === 'Document' && <IconDoc size={14} />}
+                            {(task.type !== 'Call' && task.type !== 'Document' && <IconMeeting size={14} />)}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                            <h3 className={`text-[14px] font-extrabold leading-tight truncate ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`} title={task.title}>{task.title}</h3>
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-[#818cf8]' : 'text-[#64748b]'}`}>{task.time}</span>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                        {canManageTask(task, user) && (
+                            <button
+                                onClick={() => handleEditClick(task)}
+                                className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-all ${isDark ? 'bg-[#2a3258] border-[#36407a] text-[#94abda] hover:text-[#6366f1]' : 'bg-[#f8fafc] border-[#e2e8f0] text-[#718096] hover:text-[#2447d7]'}`}
+                            >
+                                <IconEdit size={12} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+                <div className="flex flex-col gap-2.5 pt-3 border-t border-[#f1f5f9] dark:border-[#2c3568]">
+                    <div className="flex flex-col gap-1.5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-[12px] font-bold" style={{ color: isDark ? '#e4ecff' : '#1e3a8a' }}>
+                                <IconUser size={12} />
+                                <span className="truncate">{task.lead || 'Strategic Task'}</span>
+                            </div>
+                            {task.leadStatus && (
+                                <span className={`text-[9px] font-black uppercase px-2.5 py-1 rounded-full border shadow-sm ${task.leadStatus === 'Hot' ? 'bg-[#fff1f2] text-[#f43f5e] border-[#ffe4e6]' :
+                                        task.leadStatus === 'Warm' ? 'bg-[#fffbeb] text-[#f59e0b] border-[#fef3c7]' :
+                                            'bg-[#f0f9ff] text-[#0ea5e9] border-[#e0f2fe]'
+                                    }`}>
+                                    {task.leadStatus === 'Hot' ? '🔥' : task.leadStatus === 'Warm' ? '☀️' : '❄️'} {task.leadStatus}
+                                </span>
+                            )}
+                        </div>
+
+                        {(task.leadEmail || task.leadPhone) && (
+                            <div className="flex flex-col gap-1.5 pl-5">
+                                {task.leadEmail && (
+                                    <div className="flex items-center gap-2 text-[10px] font-semibold" style={{ color: isDark ? '#94abda' : '#64748b' }}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="10" height="10"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2-2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
+                                        {task.leadEmail}
+                                    </div>
+                                )}
+                                {task.leadPhone && (
+                                    <div className="flex items-center gap-2 text-[10px] font-semibold" style={{ color: isDark ? '#94abda' : '#64748b' }}>
+                                        <IconPhone size={10} />
+                                        {task.leadPhone}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {(task.message || task.description || task.notes || task.note) && (
+                            <div className={`mt-2 p-3 rounded-xl text-[11px] font-medium leading-relaxed border-l-2 italic ${isDark ? 'bg-white/5 border-[#4f46e5]/40 text-[#8ea0d4]' : 'bg-[#f8fafc] border-[#2447d7]/20 text-[#475569]'
+                                }`}>
+                                <div className="flex items-center gap-1.5 mb-1 opacity-60">
+                                    <IconDoc size={10} />
+                                    <span className="text-[9px] font-black uppercase tracking-widest">Notes / Message</span>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    {task.message && <div>{task.message}</div>}
+                                    {task.description && <div>{task.description}</div>}
+                                    {(task.notes || task.note) && <div>{task.notes || task.note}</div>}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-[#f1f5f9] dark:border-[#2c3568]">
+                        <div 
+                            className="flex items-center gap-3 cursor-pointer group/names min-w-0 flex-1"
+                            onClick={() => setShowAllNames(!showAllNames)}
+                        >
+                            <div className="flex -space-x-2.5 overflow-hidden shrink-0">
+                                {assignedIds.slice(0, 3).map((id, idx) => {
+                                    const u = id === 'Self' ? user : users?.find(usr => usr.id?.toString() === id?.toString() || usr.name === id);
+                                    return (
+                                        <div key={idx} className={`w-8 h-8 rounded-lg ring-2 ring-white dark:ring-[#1e2347] flex items-center justify-center text-[10px] font-black shadow-md ${isDark ? 'bg-[#2a3258] text-[#818cf8]' : 'bg-[#f1f5f9] text-[#2447d7]'}`} title={u?.name || 'Self'}>
+                                            {u?.initials || u?.name?.charAt(0) || 'U'}
+                                        </div>
+                                    );
+                                })}
+                                {(assignedIds.length > 3) && (
+                                    <div className={`w-8 h-8 rounded-lg ring-2 ring-white dark:ring-[#1e2347] flex items-center justify-center text-[10px] font-black shadow-md ${isDark ? 'bg-[#141829] text-slate-400' : 'bg-slate-100 text-slate-500'}`}>
+                                        +{assignedIds.length - 3}
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                                <span className={`text-[11px] font-extrabold uppercase leading-none mb-1 transition-colors ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'} group-hover/names:text-[#2447d7]`}>
+                                    {showAllNames ? info.fullNames.join(', ') : (info.summary === 'Self' ? user.name : info.summary)}
+                                </span>
+                                <span className={`text-[8px] font-black uppercase tracking-widest ${info.theme.text}`}>
+                                    {info.role}
+                                </span>
+                            </div>
+                        </div>
+
+                        <StatusSelector status={task.status} onStatusChange={(newStatus) => updateTaskStatus(task.id, newStatus)} isDark={isDark} />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyReminderSet }) => {
 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
@@ -608,100 +840,16 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                         <h4 className="text-[9px] font-black uppercase tracking-wider pb-0.5" style={{ color: isDark ? '#8ea0d4' : '#718096', borderBottom: `1px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>Tasks</h4>
                                         {dayTasks.length > 0 ? (
                                             dayTasks.map(t => (
-                                                <div key={t.id} className="p-2.5 rounded-lg flex flex-col gap-2 shadow-lg hover:shadow-xl hover:translate-y-[-2px] transition-all" style={{ background: isDark ? '#242b50' : '#ffffff', border: `2px solid ${isDark ? '#2c3568' : '#edf2f7'}` }}>
-                                                    <div className="flex items-start gap-2">
-                                                        <div className={`w-1 h-full rounded-full shrink-0 ${t.status === 'Completed' ? 'bg-[#10b981]' : t.status === 'In Progress' ? 'bg-[#f59e0b]' : 'bg-[#60a5fa]'}`}></div>
-                                                        <div className="flex flex-col min-w-0 flex-1 gap-1.5">
-                                                            <div className="flex items-start justify-between gap-2">
-                                                                <span className="text-[11px] font-bold leading-tight" style={{ color: isDark ? '#c8d8ff' : '#2d3748' }}>{t.title}</span>
-                                                                <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full whitespace-nowrap ${t.status === 'Completed' ? 'bg-[#d1fae5] text-[#065f46]' : t.status === 'In Progress' ? 'bg-[#fed7aa] text-[#92400e]' : 'bg-[#dbeafe] text-[#1e40af]'}`}>{t.status}</span>
-                                                            </div>
-                                                            
-                                                            {/* Lead Name */}
-                                                            {t.lead && (
-                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
-                                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-                                                                    </svg>
-                                                                    <span className="font-semibold">{t.lead}</span>
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {/* Business Name */}
-                                                            {t.leadStatus && (
-                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
-                                                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
-                                                                    </svg>
-                                                                    <span className="font-medium">Status: {t.leadStatus}</span>
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {/* Email */}
-                                                            {t.email && (
-                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
-                                                                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                                                                    </svg>
-                                                                    <span className="font-medium truncate">{t.email}</span>
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {/* Phone */}
-                                                            {t.phone && (
-                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
-                                                                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                                                                    </svg>
-                                                                    <span className="font-medium">{t.phone}</span>
-                                                                </div>
-                                                            )}
-                                                            
-                                                            {/* Time & Type */}
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
-                                                                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                                                                    </svg>
-                                                                    <span className="font-medium">{t.time}</span>
-                                                                </div>
-                                                                <div className="flex items-center gap-1.5 text-[9px]" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="11" height="11">
-                                                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-                                                                    </svg>
-                                                                    <span className="font-medium">{t.type}</span>
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            {/* Notes/Message */}
-                                                            {t.message && (
-                                                                <div className="mt-0.5 p-2 rounded-lg" style={{ background: isDark ? '#1a1e38' : '#f8fafc' }}>
-                                                                    <p className="text-[8px] leading-relaxed" style={{ color: isDark ? '#8ea0d4' : '#64748b' }}>{t.message}</p>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                    {canManageTask(t, JSON.parse(localStorage.getItem('user') || '{}')) && (
-                                                        <div className="flex items-center gap-1.5 pt-1.5 border-t" style={{ borderColor: isDark ? '#2c3568' : '#edf2f7' }}>
-                                                            <button 
-                                                                onClick={(e) => { e.stopPropagation(); handleEditClick(t); }}
-                                                                className="flex-1 flex items-center justify-center gap-1.5 py-1 rounded-lg text-[9px] font-bold transition-all hover:scale-105"
-                                                                style={{ background: isDark ? '#1e3a8a' : '#dbeafe', color: isDark ? '#93c5fd' : '#1e40af' }}
-                                                            >
-                                                                <IconEdit size={11} />
-                                                                <span>Edit</span>
-                                                            </button>
-                                                            <button 
-                                                                onClick={(e) => { e.stopPropagation(); handleDeleteTask(t.id); }}
-                                                                className="flex-1 flex items-center justify-center gap-1.5 py-1 rounded-lg text-[9px] font-bold transition-all hover:scale-105"
-                                                                style={{ background: isDark ? '#7f1d1d' : '#fee2e2', color: isDark ? '#fca5a5' : '#991b1b' }}
-                                                            >
-                                                                <IconTrash size={11} />
-                                                                <span>Delete</span>
-                                                            </button>
-                                                        </div>
-                                                    )}
-                                                </div>
+                                                <TaskCard 
+                                                    key={t.id} 
+                                                    task={t} 
+                                                    user={user} 
+                                                    users={users} 
+                                                    isDark={isDark} 
+                                                    highlightTaskId={null} 
+                                                    handleEditClick={handleEditClick} 
+                                                    updateTaskStatus={(taskId, status) => updateTaskStatus(taskId, status)} 
+                                                />
                                             ))
                                         ) : (
                                             <div className="flex-1 flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl" style={{ borderColor: isDark ? '#2c3568' : '#e2e8f0', background: isDark ? '#1e2347' : '#f8fafc' }}>
@@ -720,39 +868,51 @@ const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, noti
                                             dayPromos.map(p => {
                                                 const hue = stringToColor(p.lenderName || p.title);
                                                 return (
-                                                <div key={p.id} className="p-3.5 rounded-2xl flex flex-col gap-2 transition-all shadow-sm hover:shadow-lg hover:-translate-y-0.5 cursor-pointer group" style={{ background: isDark ? `hsla(${hue}, 80%, 65%, 0.1)` : `hsla(${hue}, 80%, 45%, 0.05)`, border: `1px solid ${isDark ? `hsla(${hue}, 80%, 65%, 0.2)` : `hsla(${hue}, 80%, 45%, 0.15)`}` }}>
-                                                    {/* Top Color Accent */}
-                                                    <div className="h-1 w-full rounded-t-full -mt-2 mb-1" style={{ background: `linear-gradient(90deg, hsl(${hue}, 80%, 60%), hsl(${(hue + 40) % 360}, 80%, 60%))` }}></div>
-                                                    
-                                                    <div className="flex items-start gap-2 mt-0.5">
-                                                        <div className="flex flex-col min-w-0 flex-1 gap-1.5">
-                                                            <div className="flex items-center gap-2 justify-between">
-                                                                <span className="text-[12px] font-bold leading-tight" style={{ color: isDark ? '#e4ecff' : '#1e3a8a' }}>{p.title}</span>
-                                                                <span className="text-white text-[8px] font-black px-2 py-1 rounded-full uppercase tracking-wider shadow-sm" style={{ background: `hsl(${hue}, 80%, 55%)` }}>Promo</span>
+                                                    <div key={p.id} className="p-3 rounded-2xl flex flex-col gap-2 transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer group" style={{ background: isDark ? `hsla(${hue}, 80%, 65%, 0.08)` : `hsla(${hue}, 80%, 45%, 0.04)`, border: `1px solid ${isDark ? `hsla(${hue}, 80%, 65%, 0.15)` : `hsla(${hue}, 80%, 45%, 0.12)}`}` }}>
+                                                        <div className="h-1 w-full rounded-full transition-all group-hover:h-1.5" style={{ background: `linear-gradient(90deg, hsl(${hue}, 80%, 60%), hsl(${(hue + 60) % 360}, 80%, 60%))` }}></div>
+                                                        <div className="flex flex-col gap-2">
+                                                            <div className="flex justify-between items-start">
+                                                                <span className="text-[12px] font-black leading-tight" style={{ color: isDark ? '#e4ecff' : '#1e3a8a' }}>{p.title?.replace('PROMO: ', '')}</span>
+                                                                <span className="text-white text-[8px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider" style={{ background: `hsl(${hue}, 80%, 55%)` }}>Promo</span>
                                                             </div>
-                                                            <div className="flex items-center gap-1.5 text-[10px]" style={{ color: isDark ? '#8ea0d4' : '#3b82f6' }}>
-                                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12">
-                                                                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                                                                </svg>
-                                                                <span className="font-bold">{p.time}</span>
-                                                            </div>
-                                                            <div className="mt-1">
-                                                                <span className="text-[10px] font-medium leading-relaxed" style={{ color: isDark ? '#c8d8ff' : '#2d3748' }}>{p.lead}</span>
-                                                            </div>
-                                                            {p.fileName && p.fileData && (
-                                                                <div className="flex items-center gap-2 mt-2.5 p-2 rounded-xl bg-white/60 dark:bg-[#1e2347]/60 border shadow-sm transition-colors group-hover:bg-white dark:group-hover:bg-[#1a2244]" style={{ borderColor: isDark ? `hsla(${hue}, 80%, 65%, 0.25)` : `hsla(${hue}, 80%, 45%, 0.2)` }}>
-                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" style={{ color: `hsl(${hue}, 80%, 55%)` }}>
-                                                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
-                                                                    </svg>
-                                                                    <span className="text-[9px] font-bold flex-1 truncate" style={{ color: isDark ? '#c8d8ff' : '#1e3a8a' }}>{p.fileName}</span>
-                                                                    <button onClick={() => setPreviewFile({ fileName: p.fileName, fileData: p.fileData })} className="flex items-center gap-1 text-[8px] font-black uppercase px-2 py-1.5 rounded-lg transition-all hover:scale-[1.03] border" style={{ background: isDark ? '#1e2347' : '#f8fafc', color: isDark ? '#c8d8ff' : '#4a5568', borderColor: isDark ? '#2c3568' : '#e2e8f0' }}><IconEye /> Preview</button>
-                                                                    <a href={p.fileData} download={p.fileName} className="flex items-center gap-1 text-white px-2 py-1.5 rounded-lg text-[8px] font-black uppercase transition-all shadow-sm hover:scale-[1.03] no-underline" style={{ background: `hsl(${hue}, 80%, 55%)` }}><IconDownload /> Download</a>
+                                                            <div className="flex justify-between items-center mt-auto pt-2 border-t border-current/10">
+                                                                <div className="flex items-center gap-2 text-[10px] font-bold" style={{ color: isDark ? '#8ea0d4' : '#3b82f6' }}>
+                                                                    <IconMeeting size={11} /> {p.time}
                                                                 </div>
+                                                                <StatusSelector 
+                                                                    status={p.status} 
+                                                                    onStatusChange={(newStatus) => updateTaskStatus(p.id, newStatus)} 
+                                                                    isDark={isDark} 
+                                                                    isPromotion={true} 
+                                                                />
+                                                            </div>
+                                                            {(p.description || p.lead || p.message || p.notes || p.note) && (
+                                                                <div className={`mt-1 p-2.5 rounded-xl text-[10px] font-medium leading-relaxed border-l-2 italic ${isDark ? 'bg-white/5 border-current/20 text-[#8ea0d4]' : 'bg-black/5 border-current/20 text-[#475569]'}`}>
+                                                                    <div className="flex items-center gap-1.5 mb-1 opacity-60">
+                                                                        <IconDoc size={10} />
+                                                                        <span className="text-[8px] font-black uppercase tracking-widest">Description / Notes</span>
+                                                                    </div>
+                                                                    <div className="flex flex-col gap-1">
+                                                                        {p.description && <div>{p.description}</div>}
+                                                                        {(p.lead && p.lead !== p.description) && <div>{p.lead}</div>}
+                                                                        {(p.notes || p.note) && <div>{p.notes || p.note}</div>}
+                                                                        {p.message && <div>{p.message}</div>}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            {p.fileName && p.fileData && (
+                                                                <button 
+                                                                    onClick={(e) => { e.stopPropagation(); setPreviewFile({ fileName: p.fileName, fileData: p.fileData }); }}
+                                                                    className="flex items-center gap-2 mt-2 p-2 rounded-xl bg-white/50 dark:bg-black/20 border border-current/20 hover:bg-white dark:hover:bg-white/10 transition-all font-bold text-[9px] uppercase tracking-wider"
+                                                                    style={{ color: `hsl(${hue}, 80%, 50%)` }}
+                                                                >
+                                                                    <IconEye /> View Promotion
+                                                                </button>
                                                             )}
                                                         </div>
                                                     </div>
-                                                </div>
-                                            );})
+                                                );
+                                            })
                                         ) : (
                                             <div className="flex-1 flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-xl" style={{ borderColor: isDark ? '#2c3568' : '#e2e8f0', background: isDark ? '#1e2347' : '#f8fafc' }}>
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32" style={{ color: isDark ? '#546298' : '#cbd5e0', marginBottom: '8px' }}>

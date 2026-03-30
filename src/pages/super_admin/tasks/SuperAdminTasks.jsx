@@ -140,26 +140,85 @@ const PromoPreviewModal = ({ file, onClose, isDark }) => {
     );
 };
 
+const StatusSelector = ({ status, onStatusChange, isDark, isPromotion }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const options = isPromotion ? ['Active', 'Expired', 'Ended'] : ['Pending', 'In Progress', 'Completed'];
+
+    const getStatusStyle = (s) => {
+        if (s === 'Completed' || s === 'Active') return { bg: 'bg-[#ecfdf5]', text: 'text-[#059669]', border: 'border-[#d1fae5]' };
+        if (s === 'In Progress') return { bg: 'bg-[#ebf5ff]', text: 'text-[#2447d7]', border: 'border-[#d9ebff]' };
+        return { bg: 'bg-[#fff7ed]', text: 'text-[#ea580c]', border: 'border-[#ffedd5]' };
+    };
+
+    const currentStyle = getStatusStyle(status);
+
+    return (
+        <div className="relative shrink-0">
+            <button
+                onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+                className={`p-[4px_12px] rounded-full text-[10px] font-black uppercase tracking-wider border transition-all shadow-sm flex items-center gap-2 ${currentStyle.bg} ${currentStyle.text} ${currentStyle.border}`}
+            >
+                {status}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="8" height="8" className={`transition-transform ${isOpen ? 'rotate-180' : ''}`}><polyline points="6 9 12 15 18 9" /></svg>
+            </button>
+
+            {isOpen && (
+                <div 
+                    className="absolute right-0 bottom-full mb-2 z-[100] w-36 rounded-xl border shadow-2xl overflow-hidden animate-fadeIn"
+                    style={{ background: isDark ? '#1e2347' : '#ffffff', borderColor: isDark ? '#2c3568' : '#e2e8f0', backdropFilter: 'blur(10px)' }}
+                >
+                    {options.map(opt => {
+                        const isActive = opt === status;
+                        return (
+                            <button
+                                key={opt}
+                                onClick={(e) => { e.stopPropagation(); onStatusChange(opt); setIsOpen(false); }}
+                                className={`w-full text-left px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${isActive ? 'bg-[#2447d7] text-white' : (isDark ? 'text-[#ea580c] hover:bg-white/5' : 'text-[#ea580c] hover:bg-slate-50')}`}
+                            >
+                                {opt}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+            {isOpen && <div className="fixed inset-0 z-[99]" onClick={(e) => { e.stopPropagation(); setIsOpen(false); }} />}
+        </div>
+    );
+};
+
 const TaskCard = ({ task, user, users, isDark, highlightTaskId, handleEditClick, updateTaskStatus }) => {
     const [showAllNames, setShowAllNames] = useState(false);
-    const assignedIds = Array.isArray(task.assignedTo) ? task.assignedTo : [task.assignedTo];
+    const assignedIds = Array.isArray(task.assignedTo) ? task.assignedTo : (task.assignedTo ? [task.assignedTo] : ['Self']);
 
     const getAssignedInfo = () => {
-        const fullNames = assignedIds.map(id => id === 'Self' ? 'Self' : users.find(usr => usr.id?.toString() === id?.toString() || usr.name === id)?.name || 'User');
+        const fullNames = assignedIds.map(id => id === 'Self' ? 'Self' : users?.find(usr => usr.id?.toString() === id?.toString() || usr.name === id)?.name || 'User');
         const firstId = assignedIds[0];
-        const firstUser = firstId === 'Self' ? user : users.find(usr => usr.id?.toString() === firstId?.toString() || usr.name === firstId);
+        const firstUser = firstId === 'Self' ? user : users?.find(usr => usr.id?.toString() === firstId?.toString() || usr.name === firstId);
         
-        const roleTheme = {
-            'Super Admin': { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500', hex: '#2447d7' },
-            'Team Leader': { bg: 'bg-purple-50', text: 'text-purple-600', dot: 'bg-purple-500', hex: '#8b5cf6' },
-            'Accounts Manager': { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500', hex: '#f59e0b' },
-            'Tele Agent': { bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-500', hex: '#10b981' }
-        }[firstUser?.role || 'Tele Agent'] || { bg: 'bg-slate-50', text: 'text-slate-600', dot: 'bg-slate-500', hex: '#64748b' };
+        const rawRole = firstUser?.role || 'Tele Agent';
+        const norm = rawRole.toLowerCase().trim();
+        
+        const roleThemes = {
+            'super admin': { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500', hex: '#2447d7' },
+            'super_admin': { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500', hex: '#2447d7' },
+            'team leader': { bg: 'bg-purple-50', text: 'text-purple-600', dot: 'bg-purple-500', hex: '#8b5cf6' },
+            'team_leader': { bg: 'bg-purple-50', text: 'text-purple-600', dot: 'bg-purple-500', hex: '#8b5cf6' },
+            'accounts manager': { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500', hex: '#f59e0b' },
+            'accounts_manager': { bg: 'bg-orange-50', text: 'text-orange-600', dot: 'bg-orange-500', hex: '#f59e0b' },
+            'tele agent': { bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-500', hex: '#10b981' },
+            'tele_agent': { bg: 'bg-emerald-50', text: 'text-emerald-600', dot: 'bg-emerald-500', hex: '#10b981' }
+        };
+
+        const roleTheme = roleThemes[norm] || roleThemes['tele agent'];
+        const displayRole = norm === 'tele agent' ? 'Tele Agent' : 
+                          norm === 'accounts manager' ? 'Accounts Manager' :
+                          norm === 'team leader' ? 'Team Leader' :
+                          norm === 'super admin' ? 'Super Admin' : rawRole;
 
         return { 
             fullNames, 
             summary: fullNames.length > 1 ? `${fullNames[0]}, +${fullNames.length - 1}` : fullNames[0], 
-            role: firstUser?.role || 'Team Member',
+            role: displayRole,
             theme: roleTheme
         };
     };
@@ -168,9 +227,9 @@ const TaskCard = ({ task, user, users, isDark, highlightTaskId, handleEditClick,
 
     return (
         <div
-            className={`p-4 rounded-2xl border transition-all duration-300 group relative overflow-hidden ${isDark
+            className={`p-4 rounded-3xl border transition-all duration-300 group relative ${isDark
                 ? 'bg-[#1e2347] border-[#2c3568] hover:border-[#6366f1]/30'
-                : 'bg-white border-[#edf2f7] hover:shadow-md'
+                : 'bg-white border-slate-100 hover:shadow-xl hover:-translate-y-1'
                 } ${highlightTaskId === task.id ? 'border-[#2447d7] ring-4 ring-[#2447d7]/10 animate-pulse' : ''}`}
         >
             <div className={`absolute left-0 top-0 w-1.5 h-full ${info.theme.dot}`} />
@@ -235,15 +294,23 @@ const TaskCard = ({ task, user, users, isDark, highlightTaskId, handleEditClick,
                             </div>
                         )}
 
-                        {(task.message || task.description) && (
-                            <div className={`mt-1 p-3 rounded-xl text-[11px] font-medium leading-relaxed border-l-2 italic line-clamp-3 ${isDark ? 'bg-white/5 border-[#4f46e5]/40 text-[#8ea0d4]' : 'bg-[#f8fafc] border-[#2447d7]/20 text-[#475569]'
+                        {(task.message || task.description || task.notes || task.note) && (
+                            <div className={`mt-2 p-3 rounded-xl text-[11px] font-medium leading-relaxed border-l-2 italic ${isDark ? 'bg-white/5 border-[#4f46e5]/40 text-[#8ea0d4]' : 'bg-[#f8fafc] border-[#2447d7]/20 text-[#475569]'
                                 }`}>
-                                {task.message || task.description}
+                                <div className="flex items-center gap-1.5 mb-1 opacity-60">
+                                    <IconDoc size={10} />
+                                    <span className="text-[9px] font-black uppercase tracking-widest">Notes / Message</span>
+                                </div>
+                                <div className="flex flex-col gap-1">
+                                    {task.message && <div>{task.message}</div>}
+                                    {task.description && <div>{task.description}</div>}
+                                    {(task.notes || task.note) && <div>{task.notes || task.note}</div>}
+                                </div>
                             </div>
                         )}
                     </div>
 
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-[#f1f5f9] dark:border-[#2c3568]">
+                    <div className="flex items-center justify-between mt-auto pt-3 border-t border-[#f1f5f9] dark:border-[#2c3568]">
                         <div 
                             className="flex items-center gap-3 cursor-pointer group/names min-w-0 flex-1"
                             onClick={() => setShowAllNames(!showAllNames)}
@@ -265,7 +332,7 @@ const TaskCard = ({ task, user, users, isDark, highlightTaskId, handleEditClick,
                             </div>
                             <div className="flex flex-col min-w-0">
                                 <span className={`text-[11px] font-extrabold uppercase leading-none mb-1 transition-colors ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'} group-hover/names:text-[#2447d7]`}>
-                                    {showAllNames ? info.fullNames.join(', ') : info.summary}
+                                    {showAllNames ? info.fullNames.join(', ') : (info.summary === 'Self' ? user.name : info.summary)}
                                 </span>
                                 <span className={`text-[8px] font-black uppercase tracking-widest ${info.theme.text}`}>
                                     {info.role}
@@ -273,19 +340,7 @@ const TaskCard = ({ task, user, users, isDark, highlightTaskId, handleEditClick,
                             </div>
                         </div>
 
-                        <select
-                            className={`p-[4px_10px] rounded-xl text-[10px] font-black uppercase tracking-wider border outline-none transition-all cursor-pointer appearance-none bg-no-repeat bg-[right_0.5rem_center] bg-[length:8px] pr-7 shadow-sm shrink-0
-                                                                            ${task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' :
-                                    task.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' :
-                                        'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5]'}
-                                                                        `}
-                            value={task.status}
-                            onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                        >
-                            <option>Pending</option>
-                            <option>In Progress</option>
-                            <option>Completed</option>
-                        </select>
+                        <StatusSelector status={task.status} onStatusChange={(newStatus) => updateTaskStatus(task.id, newStatus)} isDark={isDark} />
                     </div>
                 </div>
             </div>
@@ -650,14 +705,35 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                                                         <span className="text-[14px] font-black leading-tight" style={{ color: isDark ? '#e4ecff' : '#1e3a8a' }}>{p.title.replace('PROMO: ', '')}</span>
                                                         <span className="text-white text-[9px] font-black px-3 py-1 rounded-xl uppercase tracking-wider" style={{ background: `hsl(${hue}, 80%, 55%)` }}>Promo</span>
                                                     </div>
-                                                    <div className="flex items-center gap-2 text-[11px] font-bold" style={{ color: isDark ? '#8ea0d4' : '#3b82f6' }}>
-                                                        <IconMeeting size={12} /> {p.time}
-                                                    </div>
-                                                    <p className="text-[11px] font-medium leading-relaxed" style={{ color: isDark ? '#c8d8ff' : '#475569' }}>{p.lead}</p>
+                                                        <div className="flex justify-between items-center mt-auto pt-2 border-t border-current/10">
+                                                            <div className="flex items-center gap-2 text-[11px] font-bold" style={{ color: isDark ? '#8ea0d4' : '#3b82f6' }}>
+                                                                <IconMeeting size={12} /> {p.time}
+                                                            </div>
+                                                            <StatusSelector 
+                                                                status={p.status} 
+                                                                onStatusChange={(newStatus) => updateTaskStatus(p.id, newStatus)} 
+                                                                isDark={isDark} 
+                                                                isPromotion={true} 
+                                                            />
+                                                        </div>
+                                                    {(p.description || p.lead || p.message || p.notes || p.note) && (
+                                                        <div className={`mt-1 p-3 rounded-xl text-[11px] font-medium leading-relaxed border-l-2 italic ${isDark ? 'bg-white/5 border-current/20 text-[#8ea0d4]' : 'bg-black/5 border-current/20 text-[#475569]'}`}>
+                                                            <div className="flex items-center gap-1.5 mb-1 opacity-60">
+                                                                <IconDoc size={10} />
+                                                                <span className="text-[9px] font-black uppercase tracking-widest">Description / Notes</span>
+                                                            </div>
+                                                            <div className="flex flex-col gap-1">
+                                                                {p.description && <div>{p.description}</div>}
+                                                                {(p.lead && p.lead !== p.description) && <div>{p.lead}</div>}
+                                                                {(p.notes || p.note) && <div>{p.notes || p.note}</div>}
+                                                                {p.message && <div>{p.message}</div>}
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                     {p.fileName && p.fileData && (
                                                         <button 
                                                             onClick={(e) => { e.stopPropagation(); setPreviewFile({ fileName: p.fileName, fileData: p.fileData }); }}
-                                                            className="flex items-center gap-2 mt-2 p-2 rounded-2xl bg-white/50 dark:bg-black/20 border border-current/20 hover:bg-white dark:hover:bg-white/10 transition-all"
+                                                            className="flex items-center gap-2 mt-2.5 p-2 rounded-2xl bg-white/50 dark:bg-black/20 border border-current/20 hover:bg-white dark:hover:bg-white/10 transition-all"
                                                             style={{ color: `hsl(${hue}, 80%, 50%)` }}
                                                         >
                                                             <IconEye />
