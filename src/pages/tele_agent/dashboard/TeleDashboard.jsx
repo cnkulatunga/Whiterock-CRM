@@ -15,11 +15,13 @@ const IconCalculator = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="c
 const IconStickyNote = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" {...props}><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" ry="1" /><line x1="9" y1="14" x2="15" y2="14" /><line x1="9" y1="18" x2="15" y2="18" /><line x1="9" y1="10" x2="9.01" y2="10" /></svg>;
 const IconTeams = (props) => <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" {...props}><path d="M12.5 13.5c1.38 0 2.5 1.12 2.5 2.5v1h-5v-1c0-1.38 1.12-2.5 2.5-2.5zm0-4.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm.5 11c1.93 0 3.5-1.57 3.5-3.5v-1c0-.28-.22-.5-.5-.5H9c-.28 0-.5.22-.5.5v1c0 1.93 1.57 3.5 3.5 3.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /></svg>;
 const IconBulb = (props) => <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" {...props}><path d="M12 2a7 7 0 0 0-4 12.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 12 2z" /></svg>;
-const IconMail = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>;
-const IconPhone = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.28-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>;
-const IconCalendar = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>;
-const IconArrowRight = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
-const IconFile = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>;
+const IconMail = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>;
+const IconPhone = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...props}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.28-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>;
+const IconCalendar = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>;
+const IconArrowRight = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>;
+const IconFile = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>;
+const IconPin = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12" {...props}><path d="M21 4.5a2.5 2.5 0 0 0-2.5-2.5h-13a2.5 2.5 0 0 0-2.5 2.5V8c0 1.25.9 2.3 2.1 2.5l2.4.4V14l-1.5 1.5 1.5 1.5 1.5-1.5L10 14V10.9l2.4-.4c1.2-.2 2.1-1.25 2.1-2.5V4.5z" /></svg>;
+
 
 /* ─── MODAL COMPONENT ─── */
 const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false, isWide = false }) => {
@@ -64,7 +66,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
             if (existingArr && existingArr.length > 0) return existingArr;
             const oldText = localStorage.getItem('tele_notes_v3');
             if (oldText && oldText.trim()) {
-                return [{ id: Date.now(), text: oldText, date: 'Legacy', time: '', highlighted: false }];
+                return [{ id: Date.now(), text: oldText, date: 'Legacy', time: '', isPinned: false }];
             }
             return [];
         } catch { return []; }
@@ -138,7 +140,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
             text: newNote.trim(),
             date: `${now.getFullYear()}-${getPadded(now.getMonth() + 1)}-${getPadded(now.getDate())}`,
             time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            highlighted: false
+            isPinned: false
         };
         const updated = [createdNote, ...notesList];
         setNotesList(updated);
@@ -146,8 +148,16 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
         setNewNote('');
     };
 
-    const toggleNoteHighlight = (id) => {
-        const updated = notesList.map(n => n.id === id ? { ...n, highlighted: !n.highlighted } : n);
+    const toggleNotePin = (id) => {
+        const currentlyPinnedCount = notesList.filter(n => n.isPinned).length;
+        const noteToToggle = notesList.find(n => n.id === id);
+        
+        if (!noteToToggle.isPinned && currentlyPinnedCount >= 3) {
+            alert("You can only pin up to 3 notes at a time.");
+            return;
+        }
+
+        const updated = notesList.map(n => n.id === id ? { ...n, isPinned: !n.isPinned } : n);
         setNotesList(updated);
         localStorage.setItem('tele_notes_list', JSON.stringify(updated));
     };
@@ -181,35 +191,35 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 const myLeads = (leads || []).filter(l => l.assignedStaffId === user.id && l.status !== 'Completed');
                 const getStatusBadge = (status) => {
                     const statusConfig = {
-                        'Document Collection': { 
-                            bg: 'bg-[#eff6ff] dark:bg-blue-900/40', 
-                            text: 'text-[#2563eb] dark:text-blue-300', 
-                            dot: 'bg-blue-400' 
+                        'Document Collection': {
+                            bg: 'bg-[#eff6ff] dark:bg-blue-900/40',
+                            text: 'text-[#2563eb] dark:text-blue-300',
+                            dot: 'bg-blue-400'
                         },
-                        'Document Verification Done': { 
-                            bg: 'bg-[#ecfdf5] dark:bg-emerald-900/30', 
-                            text: 'text-[#059669] dark:text-emerald-400', 
-                            icon: true 
+                        'Document Verification Done': {
+                            bg: 'bg-[#ecfdf5] dark:bg-emerald-900/30',
+                            text: 'text-[#059669] dark:text-emerald-400',
+                            icon: true
                         },
-                        'Lender Selection': { 
-                            bg: 'bg-[#fff7ed] dark:bg-amber-900/30', 
-                            text: 'text-[#d97706] dark:text-amber-400', 
-                            dot: 'bg-amber-400' 
+                        'Lender Selection': {
+                            bg: 'bg-[#fff7ed] dark:bg-amber-900/30',
+                            text: 'text-[#d97706] dark:text-amber-400',
+                            dot: 'bg-amber-400'
                         },
-                        'Completed': { 
-                            bg: 'bg-[#f0fdf4] dark:bg-emerald-900/40', 
-                            text: 'text-[#16a34a] dark:text-emerald-300', 
-                            icon: true 
+                        'Completed': {
+                            bg: 'bg-[#f0fdf4] dark:bg-emerald-900/40',
+                            text: 'text-[#16a34a] dark:text-emerald-300',
+                            icon: true
                         },
-                        'Rejected': { 
-                            bg: 'bg-[#fef2f2] dark:bg-red-900/30', 
-                            text: 'text-[#dc2626] dark:text-red-400', 
-                            dot: 'bg-red-400' 
+                        'Rejected': {
+                            bg: 'bg-[#fef2f2] dark:bg-red-900/30',
+                            text: 'text-[#dc2626] dark:text-red-400',
+                            dot: 'bg-red-400'
                         },
-                        'Pending': { 
-                            bg: 'bg-slate-50 dark:bg-slate-800', 
-                            text: 'text-slate-500', 
-                            dot: 'bg-slate-400' 
+                        'Pending': {
+                            bg: 'bg-slate-50 dark:bg-slate-800',
+                            text: 'text-slate-500',
+                            dot: 'bg-slate-400'
                         },
                     };
 
@@ -305,26 +315,26 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
             case 'FOLLOW_UPS': {
                 const getProgressBadge = (task) => {
                     const statusConfig = {
-                        'Complete': { 
-                            bg: 'bg-[#ecfdf5] dark:bg-emerald-900/40', 
-                            text: 'text-[#059669] dark:text-emerald-400', 
-                            dot: 'bg-emerald-400' 
+                        'Complete': {
+                            bg: 'bg-[#ecfdf5] dark:bg-emerald-900/40',
+                            text: 'text-[#059669] dark:text-emerald-400',
+                            dot: 'bg-emerald-400'
                         },
-                        'Pending': { 
-                            bg: 'bg-[#fff7ed] dark:bg-amber-900/30', 
-                            text: 'text-[#d97706] dark:text-amber-400', 
-                            dot: 'bg-amber-400' 
+                        'Pending': {
+                            bg: 'bg-[#fff7ed] dark:bg-amber-900/30',
+                            text: 'text-[#d97706] dark:text-amber-400',
+                            dot: 'bg-amber-400'
                         },
-                        'In Progress': { 
-                            bg: 'bg-[#eff6ff] dark:bg-blue-900/30', 
-                            text: 'text-[#2563eb] dark:text-blue-400', 
-                            dot: 'bg-blue-400' 
+                        'In Progress': {
+                            bg: 'bg-[#eff6ff] dark:bg-blue-900/30',
+                            text: 'text-[#2563eb] dark:text-blue-400',
+                            dot: 'bg-blue-400'
                         },
                     };
 
                     const config = statusConfig[task.status] || statusConfig['Pending'];
                     return (
-                        <select 
+                        <select
                             value={task.status}
                             onChange={(e) => {
                                 e.stopPropagation();
@@ -341,20 +351,20 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                 const getLeadStatusBadge = (task) => {
                     const statusConfig = {
-                        'Hot': { 
-                            bg: 'bg-[#fef2f2] dark:bg-red-900/40', 
-                            text: 'text-[#dc2626] dark:text-red-400', 
-                            dot: 'bg-red-500 animate-pulse' 
+                        'Hot': {
+                            bg: 'bg-[#fef2f2] dark:bg-red-900/40',
+                            text: 'text-[#dc2626] dark:text-red-400',
+                            dot: 'bg-red-500 animate-pulse'
                         },
-                        'Warm': { 
-                            bg: 'bg-[#fffbeb] dark:bg-amber-900/30', 
-                            text: 'text-[#d97706] dark:text-amber-400', 
-                            dot: 'bg-amber-500' 
+                        'Warm': {
+                            bg: 'bg-[#fffbeb] dark:bg-amber-900/30',
+                            text: 'text-[#d97706] dark:text-amber-400',
+                            dot: 'bg-amber-500'
                         },
-                        'Cool': { 
-                            bg: 'bg-[#f0f9ff] dark:bg-sky-900/30', 
-                            text: 'text-[#0284c7] dark:text-sky-400', 
-                            dot: 'bg-sky-500' 
+                        'Cool': {
+                            bg: 'bg-[#f0f9ff] dark:bg-sky-900/30',
+                            text: 'text-[#0284c7] dark:text-sky-400',
+                            dot: 'bg-sky-500'
                         },
                     };
 
@@ -362,13 +372,13 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     const config = statusConfig[currentLeadStatus];
 
                     return (
-                        <select 
+                        <select
                             value={currentLeadStatus}
                             onChange={(e) => {
                                 e.stopPropagation();
                                 handleUpdateLeadStatus(task.id, e.target.value);
                             }}
-                                className={`appearance-none cursor-pointer outline-none inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight transition-all border-none ${config.bg} ${config.text} hover:ring-2 ring-blue-500/20 shadow-sm`}
+                            className={`appearance-none cursor-pointer outline-none inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight transition-all border-none ${config.bg} ${config.text} hover:ring-2 ring-blue-500/20 shadow-sm`}
                         >
                             <option value="Hot">Hot</option>
                             <option value="Warm">Warm</option>
@@ -404,13 +414,13 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                             const sortedTasks = [...localTasks].sort((a, b) => {
                                                 const aComplete = a.status === 'Complete';
                                                 const bComplete = b.status === 'Complete';
-                                                
+
                                                 if (aComplete && !bComplete) return 1;
                                                 if (!aComplete && bComplete) return -1;
-                                                
+
                                                 if (a.date === todayStr && b.date !== todayStr) return -1;
                                                 if (a.date !== todayStr && b.date === todayStr) return 1;
-                                                
+
                                                 const aDateTime = new Date(a.date + ' ' + (a.time || '00:00'));
                                                 const bDateTime = new Date(b.date + ' ' + (b.time || '00:00'));
                                                 return bDateTime - aDateTime;
@@ -494,25 +504,25 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Lead Name</label>
-                                <select 
+                                <select
                                     id="newTaskLead"
                                     className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
                                 >
-                                            <option value="">Select a Lead</option>
-                                        {(leads || [])
-                                            .filter(l => {
-                                                const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-                                                return l.assignedStaffId?.toString() === currentUser.id?.toString();
-                                            })
-                                            .map(l => (
-                                                <option key={l.id} value={l.name}>{l.name} ({l.businessName})</option>
-                                            ))
-                                        }
+                                    <option value="">Select a Lead</option>
+                                    {(leads || [])
+                                        .filter(l => {
+                                            const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+                                            return l.assignedStaffId?.toString() === currentUser.id?.toString();
+                                        })
+                                        .map(l => (
+                                            <option key={l.id} value={l.name}>{l.name} ({l.businessName})</option>
+                                        ))
+                                    }
                                 </select>
                             </div>
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Lead Status</label>
-                                <select 
+                                <select
                                     id="newTaskLeadStatus"
                                     className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
                                 >
@@ -525,9 +535,9 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Task Title</label>
-                            <input 
+                            <input
                                 id="newTaskTitle"
-                                type="text" 
+                                type="text"
                                 placeholder="e.g., Initial Consultation"
                                 className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
                             />
@@ -535,7 +545,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                         <div className="flex flex-col gap-1.5">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Note / Message</label>
-                            <textarea 
+                            <textarea
                                 id="newTaskMessage"
                                 rows="3"
                                 placeholder="Details about this follow-up..."
@@ -546,18 +556,18 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Schedule Date</label>
-                                <input 
+                                <input
                                     id="newTaskDate"
-                                    type="date" 
+                                    type="date"
                                     defaultValue={todayStr}
                                     className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
                                 />
                             </div>
                             <div className="flex flex-col gap-1.5">
                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Schedule Time</label>
-                                <input 
+                                <input
                                     id="newTaskTime"
-                                    type="time" 
+                                    type="time"
                                     defaultValue="10:00"
                                     className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20"
                                 />
@@ -565,13 +575,13 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         </div>
 
                         <div className="flex gap-3 mt-2">
-                            <button 
+                            <button
                                 onClick={() => setActiveModal('FOLLOW_UPS')}
                                 className="flex-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-500 font-black py-3 rounded-2xl text-[10px] uppercase tracking-widest transition-all"
                             >
                                 Cancel
                             </button>
-                            <button 
+                            <button
                                 onClick={() => {
                                     const lead = document.getElementById('newTaskLead').value;
                                     const leadStatus = document.getElementById('newTaskLeadStatus').value;
@@ -579,8 +589,8 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                     const message = document.getElementById('newTaskMessage').value;
                                     const date = document.getElementById('newTaskDate').value;
                                     const time = document.getElementById('newTaskTime').value;
-                                    
-                                    if(!title) return alert('Please enter a task title');
+
+                                    if (!title) return alert('Please enter a task title');
 
                                     handleAddTask({
                                         id: Date.now(),
@@ -603,15 +613,15 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 );
             }
             case 'PENDING_DOCS': {
-                const pendingLeads = (leads || []).filter(l => 
-                    l.assignedStaffId === user.id && 
+                const pendingLeads = (leads || []).filter(l =>
+                    l.assignedStaffId === user.id &&
                     (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))
                 );
                 return (
                     <div className="flex flex-col gap-3">
                         {pendingLeads.length > 0 ? pendingLeads.map(lead => (
-                            <div 
-                                key={lead.id} 
+                            <div
+                                key={lead.id}
                                 onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
                                 className="p-5 bg-white dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm hover:border-[#0061ff] dark:hover:border-blue-500/50 hover:bg-blue-50/10 dark:hover:bg-blue-900/10 transition-all cursor-pointer flex items-center justify-between group"
                             >
@@ -626,7 +636,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                                 {lead.documents.filter(d => d.status === 'Pending').length} Pending
                                             </span>
                                         </div>
-                                        
+
                                         <div className="flex flex-col gap-1.5">
                                             <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
                                                 <span className="truncate max-w-[200px]">{lead.businessName}</span>
@@ -752,7 +762,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                     <span className="text-[7px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black tracking-widest uppercase">PROMO</span>
                                 </div>
                                 <p className="text-[10px] text-slate-700 dark:text-slate-300 font-bold leading-tight mb-2 line-clamp-2">{promo.description}</p>
-                                
+
                                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 border-t border-blue-200/50 dark:border-blue-500/10">
                                     <div className="flex items-center gap-1 text-[9px] font-medium text-blue-600 dark:text-blue-400">
                                         <IconCalendar width="10" height="10" />
@@ -780,12 +790,12 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                                 {item.type || 'TASK'}
                                             </div>
                                         </div>
-                                        
+
                                         <div className="flex flex-col gap-1.5 mb-2">
                                             {/* Lead & Business Info */}
                                             <div className="flex items-center gap-1.5">
                                                 <div className="w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[#0061ff] dark:text-blue-400 flex items-center justify-center text-[8px] font-black shrink-0 border border-blue-100 dark:border-blue-800/50">
-                                                    { (item.lead || item.leadName || '?').slice(0, 1).toUpperCase() }
+                                                    {(item.lead || item.leadName || '?').slice(0, 1).toUpperCase()}
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
                                                     <span className="text-[10px] font-black text-[#0061ff] dark:text-blue-400 truncate leading-none mb-0.5">{item.lead || item.leadName || 'No Lead'}</span>
@@ -829,6 +839,22 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 {/* STACK 2: MIDDLE (Cols 3-5) */}
                 <div className="col-span-3 flex flex-col gap-4 min-h-0">
 
+                    {/* ASSET CLASSES (Calculates tight height automatically) */}
+                    <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden">
+                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
+                            <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Asset Products</h2>
+                            <span className="text-[8px] bg-indigo-50 dark:bg-indigo-900/30 font-bold px-1.5 py-0.5 rounded text-indigo-500">4 Types</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3 p-3">
+                            {ASSET_PRODUCTS.map(p => (
+                                <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-3 px-3 py-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition w-full h-full min-h-[42px]">
+                                    <div className={`w-2 h-2 rounded-full shrink-0 ${p.dotColor}`} />
+                                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate">{p.name}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* NOTES (Absorbs remaining space) */}
                     <div className="bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden">
                         <div className="bg-[#fff9c4] dark:bg-[#4d4826] border-b border-yellow-200/50 dark:border-yellow-700/30 p-2.5 px-4 shrink-0 flex items-center justify-between">
@@ -840,15 +866,20 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                 {notesList.length === 0 ? (
                                     <div className="text-xs text-yellow-700/50 italic text-center mt-4 border border-dashed border-yellow-200 dark:border-yellow-800 p-4 rounded-xl">No notes yet. Type below to start!</div>
                                 ) : (
-                                    notesList.map(note => (
-                                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group transition-all border shrink-0 ${note.highlighted
-                                            ? 'bg-yellow-200 dark:bg-yellow-600/40 border-yellow-300 dark:border-yellow-500/50 text-yellow-900 dark:text-yellow-50'
+                                    [...notesList].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)).map(note => (
+                                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group transition-all border shrink-0 ${note.isPinned
+                                            ? 'bg-yellow-100 dark:bg-yellow-600/30 border-yellow-300 dark:border-yellow-500/50 text-yellow-900 dark:text-yellow-50 shadow-sm'
                                             : 'bg-white/60 dark:bg-black/20 border-yellow-100 dark:border-yellow-700/20 text-yellow-900 dark:text-yellow-100'
                                             }`}>
                                             <div className="flex justify-between items-center mb-1.5">
-                                                <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `• ${note.time}`}</span>
+                                                <div className="flex items-center gap-1.5">
+                                                    {note.isPinned && <IconPin className="text-yellow-600 dark:text-yellow-400" />}
+                                                    <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `• ${note.time}`}</span>
+                                                </div>
                                                 <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => toggleNoteHighlight(note.id)} className="text-[9px] px-1.5 py-0.5 rounded bg-yellow-100 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-300 font-bold hover:bg-yellow-300 transition-colors shadow-sm" title="Highlight">HL</button>
+                                                    <button onClick={() => toggleNotePin(note.id)} className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors shadow-sm ${note.isPinned ? 'bg-yellow-400 text-yellow-950 hover:bg-yellow-500' : 'bg-yellow-100 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-300'}`} title={note.isPinned ? "Unpin" : "Pin"}>
+                                                        {note.isPinned ? 'UNPIN' : 'PIN'}
+                                                    </button>
                                                     <button onClick={() => clearNote(note.id)} className="text-[9px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-bold hover:bg-red-200 transition-colors shadow-sm" title="Clear Note">CLEAR</button>
                                                 </div>
                                             </div>
@@ -871,26 +902,41 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         </div>
                     </div>
 
-                    {/* ASSET CLASSES (Calculates tight height automatically) */}
-                    <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden">
-                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
-                            <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Asset Products</h2>
-                            <span className="text-[8px] bg-indigo-50 dark:bg-indigo-900/30 font-bold px-1.5 py-0.5 rounded text-indigo-500">4 Types</span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-1.5 p-2.5">
-                            {ASSET_PRODUCTS.map(p => (
-                                <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-2 px-2 py-1.5 bg-slate-50 dark:bg-slate-800/80 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition w-full h-full min-h-[22px]">
-                                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${p.dotColor}`} />
-                                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 truncate">{p.name}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
+
 
                 </div>
 
                 {/* STACK 3: RIGHT (Cols 6-7) */}
                 <div className="col-span-2 flex flex-col gap-4 min-h-0">
+
+                    {/* LOAN ESTIMATOR */}
+                    <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden relative">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 dark:bg-indigo-500/5 rounded-full blur-2xl -mr-5 -mt-5 pointer-events-none" />
+                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between relative z-10">
+                            <div className="flex items-center gap-1.5 text-slate-500"><IconCalculator /><span className="text-[10px] font-black uppercase tracking-widest">Estimator</span></div>
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 p-2.5 relative z-10 justify-center">
+                            <div className="flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5">
+                                <label className="text-[9px] font-bold text-slate-500 w-12 shrink-0 uppercase tracking-widest">Amount</label>
+                                <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
+                            </div>
+                            <div className="flex gap-1.5 w-full">
+                                <div className="flex-1 flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5 min-w-0">
+                                    <label className="text-[9px] font-bold text-slate-500 w-8 shrink-0 uppercase tracking-widest">Rate</label>
+                                    <input type="number" value={interestRate} onChange={e => setInterestRate(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
+                                </div>
+                                <div className="flex-1 flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5 min-w-0">
+                                    <label className="text-[9px] font-bold text-slate-500 w-10 shrink-0 uppercase tracking-widest">Term</label>
+                                    <input type="number" value={loanTerm} onChange={e => setLoanTerm(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
+                                </div>
+                            </div>
+                        </div>
+                        <div className="mt-0.5 pt-1.5 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between relative z-10 shrink-0 px-3 pb-2">
+                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Est. EMI</span>
+                            <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">${calculateRepayment()} / mo</span>
+                        </div>
+                    </div>
 
                     {/* CALENDAR */}
                     <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden">
@@ -926,34 +972,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         </div>
                     </div>
 
-                    {/* LOAN ESTIMATOR */}
-                    <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 dark:bg-indigo-500/5 rounded-full blur-2xl -mr-5 -mt-5 pointer-events-none" />
-                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between relative z-10">
-                            <div className="flex items-center gap-1.5 text-slate-500"><IconCalculator /><span className="text-[10px] font-black uppercase tracking-widest">Estimator</span></div>
-                        </div>
 
-                        <div className="flex flex-col gap-1.5 p-2.5 relative z-10 justify-center">
-                            <div className="flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5">
-                                <label className="text-[9px] font-bold text-slate-500 w-12 shrink-0 uppercase tracking-widest">Amount</label>
-                                <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
-                            </div>
-                            <div className="flex gap-1.5 w-full">
-                                <div className="flex-1 flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5 min-w-0">
-                                    <label className="text-[9px] font-bold text-slate-500 w-8 shrink-0 uppercase tracking-widest">Rate</label>
-                                    <input type="number" value={interestRate} onChange={e => setInterestRate(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
-                                </div>
-                                <div className="flex-1 flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5 min-w-0">
-                                    <label className="text-[9px] font-bold text-slate-500 w-10 shrink-0 uppercase tracking-widest">Term</label>
-                                    <input type="number" value={loanTerm} onChange={e => setLoanTerm(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="mt-0.5 pt-1.5 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between relative z-10 shrink-0 px-3 pb-2">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Est. EMI</span>
-                            <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">${calculateRepayment()} / mo</span>
-                        </div>
-                    </div>
 
                 </div>
 
@@ -961,10 +980,10 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
             <DashboardModal isOpen={activeModal !== null} onClose={closeModal} title={
                 activeModal === 'LEAD_COUNT' ? 'My Assigned Leads' :
-                activeModal === 'FOLLOW_UPS' ? 'My Follow-ups' :
-                activeModal === 'PENDING_DOCS' ? 'Pending Documents' :
-                activeModal === 'KNOWLEDGE_BASE' ? 'Knowledge Base' :
-                (activeModal ? activeModal.replace(/_/g, ' ') : '')
+                    activeModal === 'FOLLOW_UPS' ? 'My Follow-ups' :
+                        activeModal === 'PENDING_DOCS' ? 'Pending Documents' :
+                            activeModal === 'KNOWLEDGE_BASE' ? 'Knowledge Base' :
+                                (activeModal ? activeModal.replace(/_/g, ' ') : '')
             } isWide={activeModal === 'LEAD_COUNT' || activeModal === 'FOLLOW_UPS'}>
                 {renderModalContent()}
             </DashboardModal>

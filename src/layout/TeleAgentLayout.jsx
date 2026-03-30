@@ -196,26 +196,28 @@ const TeleAgentLayout = ({ onLogout }) => {
                             )}
                         </div>
                         <ThemeToggle compact={isMobile} />
-                        <button
-                            className="text-white border-none h-11 sm:h-10 px-6 sm:px-3 rounded-xl text-sm font-extrabold flex items-center gap-2.5 sm:gap-1 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
-                            style={{
-                                background: isDark
-                                    ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
-                                    : 'linear-gradient(135deg, #2447d7, #1a38b8)',
-                                boxShadow: isDark
-                                    ? '0 8px 20px rgba(59,130,246,0.3)'
-                                    : '0 8px 20px rgba(36,71,215,0.25)',
-                            }}
-                            onClick={() => navigate('/tele-agent/create-lead')}
-                        >
-                            <div className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
-                                    <line x1="12" y1="5" x2="12" y2="19" />
-                                    <line x1="5" y1="12" x2="19" y2="12" />
-                                </svg>
-                            </div>
-                            <span className="md:hidden lg:inline-block">Create Lead</span>
-                        </button>
+                        {!location.pathname.includes('dashboard') && (
+                            <button
+                                className="text-white border-none h-11 sm:h-10 px-6 sm:px-3 rounded-xl text-sm font-extrabold flex items-center gap-2.5 sm:gap-1 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
+                                style={{
+                                    background: isDark
+                                        ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
+                                        : 'linear-gradient(135deg, #2447d7, #1a38b8)',
+                                    boxShadow: isDark
+                                        ? '0 8px 20px rgba(59,130,246,0.3)'
+                                        : '0 8px 20px rgba(36,71,215,0.25)',
+                                }}
+                                onClick={() => navigate('/tele-agent/create-lead')}
+                            >
+                                <div className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                </div>
+                                <span className="md:hidden lg:inline-block">Create Lead</span>
+                            </button>
+                        )}
                     </div>
                 </div>
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4 sm:p-5 sm:px-3">
