@@ -3,14 +3,13 @@ import React, { useState } from 'react';
 import { useLenders } from '../../../context/LendersContext';
 
 
-const EMPTY_FORM = { name: '', contact: '', status: 'Active', unsecured: false, secured: false, commercial: false, refinance: false };
+const EMPTY_FORM = { name: '', contact: '', status: 'Active', unsecured: false, secured: false, commercial: false, refinance: false, managerName: '', managerEmail: '' };
 
 const StatusBadge = ({ status }) => (
-    <span className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest border ${
-        status === 'Active'
+    <span className={`inline-flex items-center gap-1.5 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-widest border ${status === 'Active'
             ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]'
             : 'bg-[#f1f5f9] text-[#94a3b8] border-[#e2e8f0]'
-    }`}>
+        }`}>
         <span className={`w-1.5 h-1.5 rounded-full inline-block ${status === 'Active' ? 'bg-[#059669]' : 'bg-[#94a3b8]'}`} />
         {status}
     </span>
@@ -79,53 +78,67 @@ const Lenders = ({ readOnly = false }) => {
     };
 
     return (
-        <div className="flex flex-col gap-8 animate-fadeIn font-['Sora',sans-serif]">
+        <div className="flex flex-col gap-5 animate-fadeIn font-['Sora',sans-serif]">
 
-            <header className="flex justify-end items-center mb-2 animate-headerDrop">
-                {!readOnly && (
-                    <button
-                        onClick={openAdd}
-                        className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl text-[13px] font-bold shadow-[0_4px_14px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:-translate-y-px transition-all shrink-0"
-                    >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="15" height="15">
-                            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                        Add Lender
-                    </button>
-                )}
-            </header>
 
             {/* ── KPI Cards ── */}
-            <div className="grid grid-cols-3 gap-5 md:grid-cols-1">
+            <div className="grid grid-cols-4 gap-4 md:grid-cols-1">
                 {[
-                    { label: 'Total Lenders', value: stats.total, color: '#2447d7', bg: 'rgba(36,71,215,0.07)', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> },
-                    { label: 'Active', value: stats.active, color: '#10b981', bg: 'rgba(16,185,129,0.07)', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
-                    { label: 'Inactive', value: stats.inactive, color: '#94a3b8', bg: '#f1f5f9', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg> },
+                    { label: 'Total Lenders', value: stats.total.toLocaleString(), color: 'text-blue-700', bg: 'bg-blue-100/40', border: 'border-blue-200', iconBg: 'bg-blue-600', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> },
+                    { label: 'Active Partners', value: stats.active, color: 'text-emerald-700', bg: 'bg-emerald-100/40', border: 'border-emerald-200', iconBg: 'bg-emerald-500', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
+                    { label: 'Inactive / Pending', value: stats.inactive, color: 'text-slate-700', bg: 'bg-slate-100/30', border: 'border-slate-200', iconBg: 'bg-slate-500', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg> },
                 ].map((card, i) => (
-                    <div key={card.label} className="bg-white rounded-2xl border border-[#edf2f7] p-5 flex items-center justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 animate-kpiPop"
+                    <div key={card.label} className={`${card.bg} ${card.border} border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop`}
                         style={{ animationDelay: `${150 + i * 70}ms`, animationFillMode: 'both' }}>
-                        <div className="flex flex-col gap-1.5">
-                            <span className="text-[11px] font-black text-[#a0aec0] uppercase tracking-widest">{card.label}</span>
-                            <span className="text-[2rem] font-extrabold leading-none tracking-tight" style={{ color: card.color }}>{card.value}</span>
-                        </div>
-                        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: card.bg, color: card.color }}>
+                        
+                        <div className={`w-12 h-12 rounded-full ${card.iconBg} text-white flex-shrink-0 flex items-center justify-center shadow-md`}>
                             {card.icon}
+                        </div>
+                        
+                        <div className="flex flex-col min-w-0">
+                            <span className={`text-[10px] font-black ${card.color} uppercase tracking-widest leading-none mb-1 opacity-70`}>
+                                {card.label}
+                            </span>
+                            <h2 className={`text-[28px] font-black leading-none tracking-tight ${card.color}`}>
+                                {card.value}
+                            </h2>
                         </div>
                     </div>
                 ))}
+                {!readOnly && (
+                    <button 
+                        onClick={openAdd}
+                        className="bg-rose-100/40 border-rose-200 border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop group"
+                        style={{ animationDelay: `${150 + 3 * 70}ms`, animationFillMode: 'both' }}
+                    >
+                        <div className="w-12 h-12 rounded-full bg-rose-600 text-white flex-shrink-0 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="20" height="20">
+                                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                        </div>
+                        <div className="flex flex-col text-left">
+                            <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest leading-none mb-1 opacity-70">
+                                Quick Action
+                            </span>
+                            <h2 className="text-[16px] font-black leading-none text-rose-700 uppercase tracking-tighter">
+                                ADD LENDER
+                            </h2>
+                        </div>
+                    </button>
+                )}
             </div>
 
             {/* ── Table Card ── */}
             <div className="bg-white rounded-3xl border border-[#edf2f7] shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden animate-slideUp [animation-delay:350ms] [animation-fill-mode:both]">
 
                 {/* Filters */}
-                <div className="px-6 py-5 border-b border-[#f7fafc] bg-[#fcfdff] flex flex-wrap items-end gap-4">
+                <div className="px-6 py-3 border-b border-[#f7fafc] bg-[#fcfdff] flex flex-wrap items-end gap-4">
                     <div className="flex flex-col gap-1.5 flex-1 min-w-[200px]">
                         <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest pl-0.5">Search</label>
                         <div className="relative group">
                             <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0] group-focus-within:text-[#2447d7] transition-colors pointer-events-none">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="15" height="15">
-                                    <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
                                 </svg>
                             </div>
                             <input type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] pl-10 pr-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7] focus:shadow-[0_0_0_3px_rgba(36,71,215,0.08)] transition-all placeholder:text-[#a0aec0]"
@@ -144,22 +157,25 @@ const Lenders = ({ readOnly = false }) => {
                                 <option>Inactive</option>
                             </select>
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="6 9 12 15 18 9"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><polyline points="6 9 12 15 18 9" /></svg>
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-end pb-0.5">
-                        <span className="text-[11px] font-black text-[#94a3b8] bg-[#f1f5f9] px-3 py-2 rounded-xl border border-[#edf2f7] whitespace-nowrap">
-                            {filtered.length} result{filtered.length !== 1 ? 's' : ''}
-                        </span>
+                    <div className="flex flex-col gap-1.5 ml-auto">
+                        <label className="text-[10px] font-black text-transparent uppercase tracking-widest pl-0.5 select-none">Count</label>
+                        <div className="flex items-center h-[42px]">
+                            <span className="text-[11px] font-black text-[#94a3b8] bg-[#f1f5f9] px-4 py-2 rounded-xl border border-[#edf2f7] whitespace-nowrap">
+                                {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 {/* Table Header */}
-                <div className="grid gap-4 px-8 py-3.5 bg-[#f8fafc] border-b border-[#f1f5f9]"
-                    style={{ gridTemplateColumns: readOnly ? '1.5fr 2fr 1fr' : '1.5fr 2fr 1fr 120px' }}>
-                    {['Lender Name', 'Mail', 'Status', ...(readOnly ? [] : ['Actions'])].map((h, i) => (
-                        <div key={i} className={`text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ${!readOnly && i === 3 ? 'text-right' : ''}`}>{h}</div>
+                <div className="grid gap-4 px-8 py-2.5 bg-[#f8fafc] border-b border-[#f1f5f9]"
+                    style={{ gridTemplateColumns: readOnly ? '1.1fr 1.4fr 1.3fr 1.2fr 1.2fr 1fr' : '1.1fr 1.4fr 1.3fr 1.2fr 1.2fr 0.8fr 90px' }}>
+                    {['Lender Name', 'Categories', 'Mail', 'Account Manager', 'Manager Email', 'Status', ...(readOnly ? [] : ['Actions'])].map((h, i) => (
+                        <div key={i} className={`text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ${!readOnly && i === 6 ? 'text-right' : ''}`}>{h}</div>
                     ))}
                 </div>
 
@@ -169,7 +185,7 @@ const Lenders = ({ readOnly = false }) => {
                         <div className="py-20 flex flex-col items-center gap-4 text-center">
                             <div className="w-14 h-14 bg-[#f1f5f9] rounded-2xl flex items-center justify-center">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" strokeWidth="2" width="28" height="28">
-                                    <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                    <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                                 </svg>
                             </div>
                             <div>
@@ -179,51 +195,77 @@ const Lenders = ({ readOnly = false }) => {
                         </div>
                     ) : (
                         filtered.map((lender, idx) => (
-                            <div
-                                key={lender.id}
-                                className="group grid gap-4 px-8 py-4 items-center hover:bg-[#f8faff] transition-all duration-200 animate-rowIn"
-                                style={{
-                                    gridTemplateColumns: readOnly ? '1.5fr 2fr 1fr' : '1.5fr 2fr 1fr 120px',
-                                    animationDelay: `${400 + idx * 50}ms`,
-                                    animationFillMode: 'both',
-                                }}
-                            >
-                                {/* Name */}
-                                <div className="flex flex-col gap-0.5 min-w-0">
-                                    <button
-                                        onClick={() => openDetails(lender)}
-                                        className="text-[13px] font-bold text-[#2447d7] hover:underline text-left truncate group-hover:text-[#1732a3] transition-colors"
-                                    >
-                                        {lender.name}
-                                    </button>
-                                </div>
-
-                                {/* Mail */}
-                                <div className="min-w-0">
-                                    <span className="text-[12px] text-[#4a5568] truncate font-medium">{lender.contact}</span>
-                                </div>
-
-
-
-                                {/* Status */}
-                                <div><StatusBadge status={lender.status} /></div>
-
-                                {/* Actions (super admin only) */}
-                                {!readOnly && (
-                                    <div className="flex items-center justify-end gap-2">
+                                <div
+                                    key={lender.id}
+                                    className="group grid gap-4 px-8 py-2.5 items-center hover:bg-[#f8faff] transition-all duration-200 animate-rowIn"
+                                    style={{
+                                        gridTemplateColumns: readOnly ? '1.1fr 1.4fr 1.3fr 1.2fr 1.2fr 1fr' : '1.1fr 1.4fr 1.3fr 1.2fr 1.2fr 0.8fr 90px',
+                                        animationDelay: `${400 + idx * 50}ms`,
+                                        animationFillMode: 'both',
+                                    }}
+                                >
+                                    {/* Name */}
+                                    <div className="flex flex-col gap-0.5 min-w-0">
                                         <button
-                                            onClick={() => setDeleteConfirmId(lender.id)}
-                                            className="w-8 h-8 rounded-lg bg-[#fef2f2] text-[#ef4444] flex items-center justify-center hover:bg-[#ef4444] hover:text-white transition-all"
-                                            title="Delete"
+                                            onClick={() => openDetails(lender)}
+                                            className="text-[12px] font-bold text-[#2447d7] hover:underline text-left truncate group-hover:text-[#1732a3] transition-colors uppercase tracking-tight"
                                         >
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13">
-                                                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                                <path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
-                                            </svg>
+                                            {lender.name}
                                         </button>
                                     </div>
-                                )}
-                            </div>
+
+                                    {/* Categories */}
+                                    <div className="flex flex-wrap gap-1.5 min-w-0">
+                                        {[
+                                            { id: 'unsecured', label: 'Unsecured', color: '#6366f1', bg: '#eef2ff' },
+                                            { id: 'secured', label: 'Secured', color: '#10b981', bg: '#ecfdf5' },
+                                            { id: 'commercial', label: 'Commercial', color: '#f59e0b', bg: '#fffbeb' },
+                                            { id: 'refinance', label: 'Refinance', color: '#f43f5e', bg: '#fff1f2' }
+                                        ].filter(cat => lender[cat.id]).map(cat => (
+                                            <span key={cat.id} className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter shrink-0 border"
+                                                style={{ color: cat.color, backgroundColor: cat.bg, borderColor: `${cat.color}20` }}>
+                                                {cat.label}
+                                            </span>
+                                        ))}
+                                        {![lender.unsecured, lender.secured, lender.commercial, lender.refinance].some(Boolean) && (
+                                            <span className="text-[10px] font-bold text-slate-300 italic">No categories</span>
+                                        )}
+                                    </div>
+
+                                    {/* Mail */}
+                                    <div className="min-w-0">
+                                        <span className="text-[11px] text-[#4a5568] truncate font-bold" title={lender.contact}>{lender.contact || '—'}</span>
+                                    </div>
+
+                                    {/* Manager Name */}
+                                    <div className="min-w-0">
+                                        <span className="text-[11px] text-indigo-700 font-black uppercase tracking-tight truncate border-l-2 border-indigo-100 pl-3">{lender.managerName || '—'}</span>
+                                    </div>
+
+                                    {/* Manager Email */}
+                                    <div className="min-w-0">
+                                        <span className="text-[11px] text-indigo-500 font-bold truncate opacity-80" title={lender.managerEmail}>{lender.managerEmail || '—'}</span>
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="flex justify-center"><StatusBadge status={lender.status} /></div>
+
+                                    {/* Actions (super admin only) */}
+                                    {!readOnly && (
+                                        <div className="flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => setDeleteConfirmId(lender.id)}
+                                                className="w-8 h-8 rounded-lg bg-[#fef2f2] text-[#ef4444] flex items-center justify-center hover:bg-[#ef4444] hover:text-white transition-all shadow-sm"
+                                                title="Delete"
+                                            >
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13">
+                                                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                                    <path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                         ))
                     )}
                 </div>
@@ -238,7 +280,7 @@ const Lenders = ({ readOnly = false }) => {
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] flex items-center justify-center text-[#2447d7] shadow-inner">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" />
                                     </svg>
                                 </div>
                                 <div>
@@ -247,7 +289,7 @@ const Lenders = ({ readOnly = false }) => {
                                 </div>
                             </div>
                             <button onClick={() => setShowDetails(false)} className="w-10 h-10 rounded-xl flex items-center justify-center text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#1a202c] transition-all duration-200">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                             </button>
                         </div>
 
@@ -267,25 +309,48 @@ const Lenders = ({ readOnly = false }) => {
                                         className="flex items-center gap-2 bg-[#f0f4ff] text-[#2447d7] px-4 py-2 rounded-xl text-[12px] font-bold hover:bg-[#2447d7] hover:text-white transition-all shadow-sm"
                                     >
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14">
-                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                                         </svg>
                                         Edit Profile
                                     </button>
                                 )}
                             </div>
 
-                            <div className="bg-[#f8fafc] rounded-2xl p-5 border border-[#f1f5f9] flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#2447d7] shadow-sm border border-[#f1f5f9]">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-[#f8fafc] rounded-2xl p-5 border border-[#f1f5f9] flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-[#2447d7] shadow-sm border border-[#f1f5f9]">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest leading-none mb-1">Company Email</span>
+                                        <span className="text-[12px] font-bold text-[#1a202c] truncate max-w-[120px]" title={viewingLender.contact}>{viewingLender.contact}</span>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest leading-none mb-1">Contact Email</span>
-                                    <span className="text-[14px] font-bold text-[#1a202c]">{viewingLender.contact}</span>
+                                <div className="bg-[#f8fafc] rounded-2xl p-5 border border-[#f1f5f9] flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-indigo-600 shadow-sm border border-[#f1f5f9]">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Account Manager</span>
+                                        <span className="text-[12px] font-bold text-[#1a202c] truncate max-w-[120px]">{viewingLender.managerName || '—'}</span>
+                                    </div>
                                 </div>
                             </div>
 
+                            {viewingLender.managerEmail && (
+                                <div className="bg-indigo-50/30 rounded-2xl p-4 border border-indigo-100 flex items-center gap-4 -mt-4">
+                                    <div className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-sm">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Manager Direct Email</span>
+                                        <span className="text-[13px] font-bold text-indigo-900">{viewingLender.managerEmail}</span>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex flex-col gap-4">
-                                <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Approved Categories</label>
+                                <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Lending Categories</label>
                                 <div className="grid grid-cols-2 gap-3">
                                     {[
                                         { id: 'unsecured', label: 'Unsecured' },
@@ -293,18 +358,16 @@ const Lenders = ({ readOnly = false }) => {
                                         { id: 'commercial', label: 'Commercial' },
                                         { id: 'refinance', label: 'Refinance' },
                                     ].map(item => (
-                                        <div key={item.id} className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all duration-300 ${
-                                            viewingLender[item.id] 
-                                                ? 'bg-[#eef2ff] border-[#2447d7] text-[#2447d7]' 
+                                        <div key={item.id} className={`flex items-center gap-3 p-3.5 rounded-2xl border-2 transition-all duration-300 ${viewingLender[item.id]
+                                                ? 'bg-[#eef2ff] border-[#2447d7] text-[#2447d7]'
                                                 : 'bg-[#fcfdff] border-[#f1f5f9] text-[#cbd5e0] opacity-60'
-                                        }`}>
-                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                                                viewingLender[item.id] ? 'bg-[#2447d7] text-white' : 'bg-[#f1f5f9] text-[#cbd5e0]'
                                             }`}>
+                                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${viewingLender[item.id] ? 'bg-[#2447d7] text-white' : 'bg-[#f1f5f9] text-[#cbd5e0]'
+                                                }`}>
                                                 {viewingLender[item.id] ? (
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
                                                 ) : (
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                                                 )}
                                             </div>
                                             <span className="text-[13px] font-bold">{item.label}</span>
@@ -333,7 +396,7 @@ const Lenders = ({ readOnly = false }) => {
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] flex items-center justify-center text-[#2447d7] shadow-inner">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22">
-                                        <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                                        <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
                                     </svg>
                                 </div>
                                 <div>
@@ -342,7 +405,7 @@ const Lenders = ({ readOnly = false }) => {
                                 </div>
                             </div>
                             <button onClick={() => setShowModal(false)} className="w-10 h-10 rounded-xl flex items-center justify-center text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#1a202c] transition-all duration-200 group">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18" className="group-hover:rotate-90 transition-transform duration-300"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18" className="group-hover:rotate-90 transition-transform duration-300"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                             </button>
                         </div>
 
@@ -364,7 +427,7 @@ const Lenders = ({ readOnly = false }) => {
                                             <option>Inactive</option>
                                         </select>
                                         <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8] group-hover:text-[#2447d7] transition-colors">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9" /></svg>
                                         </div>
                                     </div>
                                 </div>
@@ -375,29 +438,39 @@ const Lenders = ({ readOnly = false }) => {
                                         placeholder="lender@alphafunding.com" value={form.contact} onChange={e => setForm(f => ({ ...f, contact: e.target.value }))} />
                                 </div>
 
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Account Manager Name</label>
+                                    <input type="text" className="bg-[#f8fafc] border-2 border-[#f1f5f9] px-5 py-3 rounded-2xl text-[14px] font-semibold text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7] focus:shadow-[0_0_0_4px_rgba(36,71,215,0.1)] transition-all duration-200 placeholder:text-[#cbd5e0]"
+                                        placeholder="e.g. John Smith" value={form.managerName} onChange={e => setForm(f => ({ ...f, managerName: e.target.value }))} />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Account Manager Email</label>
+                                    <input type="email" className="bg-[#f8fafc] border-2 border-[#f1f5f9] px-5 py-3 rounded-2xl text-[14px] font-semibold text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7] focus:shadow-[0_0_0_4px_rgba(36,71,215,0.1)] transition-all duration-200 placeholder:text-[#cbd5e0]"
+                                        placeholder="john@alphafunding.com" value={form.managerEmail} onChange={e => setForm(f => ({ ...f, managerEmail: e.target.value }))} />
+                                </div>
+
                                 <div className="col-span-2 flex flex-col gap-4 mt-2">
                                     <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Lending Categories</label>
                                     <div className="grid grid-cols-2 gap-3">
                                         {[
-                                            { id: 'unsecured', label: 'Unsecured', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M12 15v3"/></svg> },
-                                            { id: 'secured', label: 'Secured', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><path d="M12 15v3"/></svg> },
-                                            { id: 'commercial', label: 'Commercial', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M3 21h18"/><path d="M9 8h1"/><path d="M9 12h1"/><path d="M9 16h1"/><path d="M14 8h1"/><path d="M14 12h1"/><path d="M14 16h1"/><rect x="5" y="3" width="14" height="18" rx="2"/></svg> },
-                                            { id: 'refinance', label: 'Refinance', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> },
+                                            { id: 'unsecured', label: 'Unsecured', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M7 11V7a5 5 0 0 1 10 0v4" /><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M12 15v3" /></svg> },
+                                            { id: 'secured', label: 'Secured', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /><path d="M12 15v3" /></svg> },
+                                            { id: 'commercial', label: 'Commercial', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M3 21h18" /><path d="M9 8h1" /><path d="M9 12h1" /><path d="M9 16h1" /><path d="M14 8h1" /><path d="M14 12h1" /><path d="M14 16h1" /><rect x="5" y="3" width="14" height="18" rx="2" /></svg> },
+                                            { id: 'refinance', label: 'Refinance', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg> },
                                         ].map(item => (
-                                            <label key={item.id} className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer group ${
-                                                form[item.id] 
-                                                    ? 'bg-[#eef2ff] border-[#2447d7] text-[#2447d7] shadow-sm' 
+                                            <label key={item.id} className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer group ${form[item.id]
+                                                    ? 'bg-[#eef2ff] border-[#2447d7] text-[#2447d7] shadow-sm'
                                                     : 'bg-white border-[#f1f5f9] text-[#718096] hover:border-[#cbd5e0] hover:bg-[#f8fafc]'
-                                            }`}>
+                                                }`}>
                                                 <input
                                                     type="checkbox"
                                                     className="hidden"
                                                     checked={form[item.id] || false}
                                                     onChange={e => setForm(f => ({ ...f, [item.id]: e.target.checked }))}
                                                 />
-                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-300 ${
-                                                    form[item.id] ? 'bg-[#2447d7] text-white' : 'bg-[#f1f5f9] text-[#94a3b8] group-hover:bg-[#e2e8f0]'
-                                                }`}>
+                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-300 ${form[item.id] ? 'bg-[#2447d7] text-white' : 'bg-[#f1f5f9] text-[#94a3b8] group-hover:bg-[#e2e8f0]'
+                                                    }`}>
                                                     {item.icon}
                                                 </div>
                                                 <div className="flex flex-col">
@@ -406,7 +479,7 @@ const Lenders = ({ readOnly = false }) => {
                                                 </div>
                                                 {form[item.id] && (
                                                     <div className="ml-auto animate-fadeIn">
-                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" width="14" height="14"><polyline points="20 6 9 17 4 12"/></svg>
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>
                                                     </div>
                                                 )}
                                             </label>
@@ -439,8 +512,8 @@ const Lenders = ({ readOnly = false }) => {
                     <div className="bg-white w-full max-w-[400px] rounded-[2rem] shadow-[0_25px_70px_rgba(0,0,0,0.15)] p-8 text-center animate-slideUp border border-white/20">
                         <div className="w-20 h-20 bg-[#fef2f2] rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner text-[#ef4444]">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="40" height="40">
-                                <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-                                <path d="M10 11v6"/><path d="M14 11v6"/>
+                                <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                <path d="M10 11v6" /><path d="M14 11v6" />
                             </svg>
                         </div>
                         <h3 className="text-[20px] font-bold text-[#1a202c] mb-3">Remove Partner?</h3>
