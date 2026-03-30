@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLeads } from '../../../context/LeadsContext';
+import { useUsers } from '../../../context/UsersContext';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { canManageTask } from '../../../utils/permissionUtils';
 import { usePromotions } from '../../../context/PromotionsContext';
@@ -367,31 +368,14 @@ const TaskCard = ({ task, user, users, isDark, highlightTaskId, handleEditClick,
     );
 };
 
-const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyReminderSet }) => {
+const TasksFollowups = ({ tasks, setTasks, initialDate, onClearPendingDate, notifyReminderSet }) => {
 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { promotions } = usePromotions();
     const { leads } = useLeads();
-    
-    // Merge promotions as pseudo-tasks
-    const memoizedPromotions = React.useMemo(() => promotions.map(p => ({
-        id: `promo-${p.id}`,
-        title: `PROMO: ${p.lenderName}`,
-        lead: p.description,
-        date: p.startDate, // Shows on start date
-        endDate: p.endDate,
-        time: '09:00',
-        type: 'Promotion',
-        status: 'Active',
-        isPromotion: true,
-        priority: 'High',
-        lenderName: p.lenderName,
-        fileName: p.fileName,
-        fileData: p.fileData
-    })), [promotions]);
-
-    const allTasks = React.useMemo(() => [...(tasks || []), ...memoizedPromotions], [tasks, memoizedPromotions]);
+    const { users } = useUsers();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
 
     const [filter, setFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
