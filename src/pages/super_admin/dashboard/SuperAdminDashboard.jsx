@@ -140,18 +140,16 @@ const OnlineUsersPopup = ({ onClose, onUserClick, onNavigate }) => {
         </div>
     );
 };
-
-/* ─── TASK SCHEDULE ──────────────────────── */
+/* ─── TASK SCHEDULE ──────────────────────── */
 const TaskSchedule = () => {
     const navigate = useNavigate();
     const { tasks, addTask } = useTasks();
     const [isAddingTask, setIsAddingTask] = useState(false);
     
-    // Sort tasks by date and time (newest first) and show only personal and team tasks
-    const personalTasks = tasks
-        .filter(t => Array.isArray(t.assignedTo) ? (t.assignedTo.includes('Self') || t.assignedTo.includes('All')) : (t.assignedTo === 'Self' || t.assignedTo === 'All'))
+    // Show all tasks for Super Admin to provide a global operational overview
+    const allRecentTasks = tasks
         .sort((a, b) => new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`))
-        .slice(0, 5);
+        .slice(0, 8);
 
     const handleSaveTask = (task) => {
         addTask(task);
@@ -161,7 +159,7 @@ const TaskSchedule = () => {
     return (
         <>
         <Card className="h-full">
-            <CardHeader dotColor="#8b5cf6" title="Task Schedule" badge="Assign" badgeClass="bg-violet-100 text-violet-600"
+            <CardHeader dotColor="#8b5cf6" title="Global Task Queue" badge="Live" badgeClass="bg-red-100 text-red-600 animate-pulse"
                 action={
                     <button onClick={() => setIsAddingTask(true)}
                         className="w-6 h-6 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center hover:bg-violet-200 transition-colors">
@@ -170,24 +168,38 @@ const TaskSchedule = () => {
                 }
             />
             <div className="p-3 flex flex-col gap-2.5 flex-1 overflow-y-auto custom-scrollbar">
-                {personalTasks.map(t => (
-                    <div
-                        key={t.id}
-                        className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group"
-                        onClick={() => navigate('/super-admin/tasks', { state: { taskId: t.id } })}
-                    >
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${t.status === 'Completed' ? 'bg-emerald-500' : t.status === 'In Progress' ? 'bg-amber-500' : 'bg-slate-300'}`} />
-                        <div className="flex-1 min-w-0">
-                            <p className="text-[12px] font-bold text-slate-700 truncate leading-tight tracking-wide mb-1">{t.title}</p>
-                            <p className="text-[10px] font-medium text-slate-400 leading-normal tracking-wider">{t.date} · {t.time}</p>
+                {allRecentTasks.map(t => {
+                    const assignedUser = t.assignedTo === 'Self' ? { initials: 'SA', name: 'Super Admin', color: '#2447d7' } : SHARED_INITIAL_USERS.find(u => u.id?.toString() === t.assignedTo?.toString() || u.name === t.assignedTo) || { initials: 'U', name: 'Unassigned', color: '#cbd5e1' };
+                    return (
+                        <div
+                            key={t.id}
+                            className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-slate-100"
+                            onClick={() => navigate('/super-admin/tasks', { state: { taskId: t.id } })}
+                        >
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[9px] font-black text-white shrink-0 shadow-sm" style={{ background: assignedUser.color }}>
+                                {assignedUser.initials}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-bold text-slate-700 truncate leading-tight mb-1">{t.title}</p>
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-[9px] font-medium text-slate-400">{t.date} · {t.time}</span>
+                                    <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">{assignedUser.name}</span>
+                                </div>
+                            </div>
+                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full shrink-0 tracking-widest ${
+                                t.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                                t.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
+                                'bg-slate-100 text-slate-500'
+                            }`}>{t.status === 'In Progress' ? 'IN PRG' : t.status.toUpperCase()}</span>
                         </div>
-                        <span className={`text-[9.5px] font-black px-2 py-0.5 rounded-full shrink-0 tracking-widest ${
-                            t.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
-                            t.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
-                            'bg-slate-100 text-slate-500'
-                        }`}>{t.status}</span>
+                    );
+                })}
+                {allRecentTasks.length === 0 && (
+                    <div className="flex-1 flex flex-col items-center justify-center p-6 text-center border-2 border-dashed border-slate-100 rounded-2xl">
+                        <p className="text-[10px] text-slate-400 font-bold italic">No active tasks in the queue</p>
                     </div>
-                ))}
+                )}
             </div>
         </Card>
         <TaskModal 

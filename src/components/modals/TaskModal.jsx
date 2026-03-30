@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { signIn, createCalendarEvent, getAccount } from '../../services/outlookService';
 import { useUsers } from '../../context/UsersContext';
+import { useLeads } from '../../context/LeadsContext';
+
 
 /* ── ICONS ── */
 const IconPlus = () => (
@@ -23,19 +25,28 @@ const IconChevronDown = () => (
 
 const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
     const { users } = useUsers();
+    const { leads } = useLeads();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const assignableUsers = users.filter(u => u.role !== 'Super Admin');
+
 
     const [newTask, setNewTask] = useState({
         title: '',
         lead: '',
+        leadEmail: '',
+        leadPhone: '',
         date: new Date().toISOString().split('T')[0],
         time: '12:00',
         type: 'Call',
         reminder: 'none',
         assignedTo: ['Self'],
-        message: ''
+        message: '',
+        leadStatus: 'Warm'
     });
+
+    const [isLeadDropdownOpen, setIsLeadDropdownOpen] = useState(false);
+    const leadDropdownRef = useRef(null);
+
 
     const [addToOutlook, setAddToOutlook] = useState(false);
     const [isSyncingOutlook, setIsSyncingOutlook] = useState(false);
@@ -47,6 +58,9 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
                 setIsAssignDropdownOpen(false);
             }
+            if (leadDropdownRef.current && !leadDropdownRef.current.contains(event.target)) {
+                setIsLeadDropdownOpen(false);
+            }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -57,23 +71,29 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
             setNewTask({
                 title: editingTask.title,
                 lead: editingTask.lead || '',
+                leadEmail: editingTask.leadEmail || editingTask.email || '',
+                leadPhone: editingTask.leadPhone || editingTask.phone || '',
                 date: editingTask.date,
                 time: editingTask.time,
                 type: editingTask.type,
                 reminder: editingTask.reminder || 'none',
                 assignedTo: Array.isArray(editingTask.assignedTo) ? editingTask.assignedTo : [editingTask.assignedTo || 'Self'],
-                message: editingTask.message || ''
+                message: editingTask.message || '',
+                leadStatus: editingTask.leadStatus || 'Warm'
             });
         } else {
             setNewTask({
                 title: '',
                 lead: '',
+                leadEmail: '',
+                leadPhone: '',
                 date: new Date().toISOString().split('T')[0],
                 time: '12:00',
                 type: 'Call',
                 reminder: 'none',
                 assignedTo: ['Self'],
-                message: ''
+                message: '',
+                leadStatus: 'Warm'
             });
         }
     }, [editingTask, isOpen]);
@@ -229,8 +249,72 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
                             </select>
                         </div>
                         <div className="flex flex-col gap-1.5 col-span-1">
-                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest">Lead</label>
-                            <input type="text" value={newTask.lead} className="bg-[#f8fafc] border border-[#e2e8f0] p-2.5 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full transition-all" onChange={e => setNewTask({...newTask, lead: e.target.value})} placeholder="Client Name" />
+                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest">Lead Status</label>
+                            <select value={newTask.leadStatus} className="bg-[#f8fafc] border border-[#e2e8f0] p-2.5 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full appearance-none bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20fill%3D%22none%22%20viewBox%3D%220%200%2024%2024%22%20stroke%3D%22%23718096%22%20stroke-width%3D%223%22%3E%3Cpath%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20d%3D%22M19%209l-7%207-7-7%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center] bg-[length:12px]" onChange={e => setNewTask({...newTask, leadStatus: e.target.value})}>
+                                <option value="Hot">🔥 Hot</option>
+                                <option value="Warm">☀️ Warm</option>
+                                <option value="Cool">❄️ Cool</option>
+                            </select>
+                        </div>
+                        <div className="flex flex-col gap-1.5 col-span-2 md:col-span-1 relative" ref={leadDropdownRef}>
+                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest">Lead / Client</label>
+                            <div 
+                                className={`w-full bg-[#f8fafc] border border-[#edf2f7] px-4 py-2.5 rounded-xl text-sm outline-none cursor-pointer flex items-center justify-between transition-all ${isLeadDropdownOpen ? 'bg-white border-[#2447d7] ring-4 ring-[#2447d7]/5' : ''}`}
+                                onClick={() => setIsLeadDropdownOpen(!isLeadDropdownOpen)}
+                            >
+                                <span className="font-semibold text-slate-700 truncate mr-2">
+                                    {newTask.lead || 'Select a Lead'}
+                                </span>
+                                <div className={`transition-transform duration-300 ${isLeadDropdownOpen ? 'rotate-180' : ''}`}>
+                                    <IconChevronDown />
+                                </div>
+                            </div>
+
+                            {isLeadDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#edf2f7] rounded-2xl shadow-2xl z-[1001] max-h-[300px] overflow-y-auto custom-scrollbar animate-fadeIn">
+                                    <div className="p-2 flex flex-col gap-1">
+                                        {leads.length > 0 ? (
+                                            leads.map(lead => (
+                                                <div 
+                                                    key={lead.id}
+                                                    className={`flex flex-col p-3 px-4 rounded-xl cursor-pointer transition-all hover:bg-slate-50 ${newTask.lead === lead.name ? 'bg-[#f0f4ff] text-[#2447d7]' : 'text-slate-600'}`}
+                                                    onClick={() => {
+                                                        setNewTask({
+                                                            ...newTask,
+                                                            lead: lead.name,
+                                                            leadEmail: lead.email || '',
+                                                            leadPhone: lead.phone || ''
+                                                        });
+                                                        setIsLeadDropdownOpen(false);
+                                                    }}
+                                                >
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-bold">{lead.name}</span>
+                                                        {newTask.lead === lead.name && <IconCheck />}
+                                                    </div>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-[10px] font-medium text-slate-400">{lead.businessName}</span>
+                                                        <span className="text-[10px] text-slate-300">•</span>
+                                                        <span className="text-[10px] font-medium text-slate-400">{lead.email}</span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-4 text-center text-xs text-slate-400 font-bold uppercase tracking-widest">No leads found</div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 col-span-1">
+                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest">Lead Phone</label>
+                            <input type="text" value={newTask.leadPhone} className="bg-[#f8fafc] border border-[#e2e8f0] p-2.5 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, leadPhone: e.target.value})} placeholder="Phone Number" />
+                        </div>
+
+                        <div className="flex flex-col gap-1.5 col-span-2 md:col-span-1">
+                            <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest">Lead Email</label>
+                            <input type="text" value={newTask.leadEmail} className="bg-[#f8fafc] border border-[#e2e8f0] p-2.5 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full" onChange={e => setNewTask({...newTask, leadEmail: e.target.value})} placeholder="Email Address" />
                         </div>
 
                         <div className="flex flex-col gap-1.5 col-span-1">
