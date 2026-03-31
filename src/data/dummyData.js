@@ -18,22 +18,22 @@ import {
  * Centralized user data used across Context Providers and Dashboards.
  */
 export const SHARED_INITIAL_USERS = [
-    { id: 1, name: 'Jane Doe', email: 'jane.doe@alphafunding.com', initials: 'JD', ...USER_COLORS[1], role: 'Super Admin', roleColor: 'role--super', status: 'Active' },
-    { id: 2, name: 'Marcus Smith', email: 'm.smith@alphafunding.com', initials: 'MS', ...USER_COLORS[2], role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 3, name: 'Cody Lane', email: 'cody.l@alphafunding.com', initials: 'CL', ...USER_COLORS[3], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 4, name: 'Sarah White', email: 'sarah.w@alphafunding.com', initials: 'SW', ...USER_COLORS[4], role: 'Accounts Manager', roleColor: 'role--accounts', status: 'Active' },
-    { id: 5, name: 'Diana Fernandez', email: 'd.fernandez@alphafunding.com', initials: 'DF', ...USER_COLORS[5], role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 6, name: 'Leo Kumar', email: 'leo.k@alphafunding.com', initials: 'LK', ...USER_COLORS[6], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 7, name: 'Nina Hassan', email: 'nina.h@alphafunding.com', initials: 'NH', ...USER_COLORS[7], role: 'Tele Agent', roleColor: 'role--agent', status: 'Inactive' },
-    { id: 8, name: 'Ryan Patel', email: 'r.patel@alphafunding.com', initials: 'RP', ...USER_COLORS[8], role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 9, name: 'Aisha Nkosi', email: 'a.nkosi@alphafunding.com', initials: 'AN', ...USER_COLORS[9], role: 'Team Leader', roleColor: 'role--leader', status: 'Active' },
-    { id: 10, name: 'Tom Brennan', email: 't.brennan@alphafunding.com', initials: 'TB', ...USER_COLORS[10], role: 'Team Leader', roleColor: 'role--leader', status: 'Inactive' },
-    { id: 11, name: 'Priya Sharma', email: 'p.sharma@alphafunding.com', initials: 'PS', ...USER_COLORS[11], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 12, name: 'Jake Morrison', email: 'j.morrison@alphafunding.com', initials: 'JM', ...USER_COLORS[12], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 13, name: 'Elena Vasquez', email: 'e.vasquez@alphafunding.com', initials: 'EV', ...USER_COLORS[13], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 14, name: 'Omar Khalil', email: 'o.khalil@alphafunding.com', initials: 'OK', ...USER_COLORS[14], role: 'Tele Agent', roleColor: 'role--agent', status: 'Inactive' },
-    { id: 15, name: 'Sophie Tan', email: 's.tan@alphafunding.com', initials: 'ST', ...USER_COLORS[15], role: 'Tele Agent', roleColor: 'role--agent', status: 'Active' },
-    { id: 16, name: 'Alex Johnson', email: 'a.johnson@alphafunding.com', initials: 'AJ', color: '#8b5cf6', textColor: '#ffffff', role: 'Accounts Manager', roleColor: 'role--accounts', status: 'Active' },
+    { id: 1,  name: 'Jane Doe',        email: 'jane.doe@alphafunding.com',      initials: 'JD', ...USER_COLORS[1],  role: 'Super Admin',      roleColor: 'bg-[#dbeafe] text-[#1d4ed8] border-[#bfdbfe]',  status: 'Active' },
+    { id: 2,  name: 'Marcus Smith',    email: 'm.smith@alphafunding.com',        initials: 'MS', ...USER_COLORS[2],  role: 'Team Leader',      roleColor: 'bg-[#ede9fe] text-[#5b21b6] border-[#ddd6fe]',  status: 'Active' },
+    { id: 3,  name: 'Cody Lane',       email: 'cody.l@alphafunding.com',         initials: 'CL', ...USER_COLORS[3],  role: 'Tele Agent',       roleColor: 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',  status: 'Active' },
+    { id: 4,  name: 'Sarah White',     email: 'sarah.w@alphafunding.com',        initials: 'SW', ...USER_COLORS[4],  role: 'Accounts Manager', roleColor: 'bg-[#fef3c7] text-[#92400e] border-[#fde68a]',  status: 'Active' },
+    { id: 5,  name: 'Diana Fernandez', email: 'd.fernandez@alphafunding.com',    initials: 'DF', ...USER_COLORS[5],  role: 'Team Leader',      roleColor: 'bg-[#ede9fe] text-[#5b21b6] border-[#ddd6fe]',  status: 'Active' },
+    { id: 6,  name: 'Leo Kumar',       email: 'leo.k@alphafunding.com',          initials: 'LK', ...USER_COLORS[6],  role: 'Tele Agent',       roleColor: 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',  status: 'Active' },
+    { id: 7,  name: 'Nina Hassan',     email: 'nina.h@alphafunding.com',         initials: 'NH', ...USER_COLORS[7],  role: 'Tele Agent',       roleColor: 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',  status: 'Inactive' },
+    { id: 8,  name: 'Ryan Patel',      email: 'r.patel@alphafunding.com',        initials: 'RP', ...USER_COLORS[8],  role: 'Team Leader',      roleColor: 'bg-[#ede9fe] text-[#5b21b6] border-[#ddd6fe]',  status: 'Active' },
+    { id: 9,  name: 'Aisha Nkosi',     email: 'a.nkosi@alphafunding.com',        initials: 'AN', ...USER_COLORS[9],  role: 'Team Leader',      roleColor: 'bg-[#ede9fe] text-[#5b21b6] border-[#ddd6fe]',  status: 'Active' },
+    { id: 10, name: 'Tom Brennan',     email: 't.brennan@alphafunding.com',      initials: 'TB', ...USER_COLORS[10], role: 'Team Leader',      roleColor: 'bg-[#ede9fe] text-[#5b21b6] border-[#ddd6fe]',  status: 'Inactive' },
+    { id: 11, name: 'Priya Sharma',    email: 'p.sharma@alphafunding.com',       initials: 'PS', ...USER_COLORS[11], role: 'Tele Agent',       roleColor: 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',  status: 'Active' },
+    { id: 12, name: 'Jake Morrison',   email: 'j.morrison@alphafunding.com',     initials: 'JM', ...USER_COLORS[12], role: 'Tele Agent',       roleColor: 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',  status: 'Active' },
+    { id: 13, name: 'Elena Vasquez',   email: 'e.vasquez@alphafunding.com',      initials: 'EV', ...USER_COLORS[13], role: 'Tele Agent',       roleColor: 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',  status: 'Active' },
+    { id: 14, name: 'Omar Khalil',     email: 'o.khalil@alphafunding.com',       initials: 'OK', ...USER_COLORS[14], role: 'Tele Agent',       roleColor: 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',  status: 'Inactive' },
+    { id: 15, name: 'Sophie Tan',      email: 's.tan@alphafunding.com',          initials: 'ST', ...USER_COLORS[15], role: 'Tele Agent',       roleColor: 'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',  status: 'Active' },
+    { id: 16, name: 'Alex Johnson',    email: 'a.johnson@alphafunding.com',      initials: 'AJ', color: '#00897b', textColor: '#ffffff',       role: 'Accounts Manager', roleColor: 'bg-[#fef3c7] text-[#92400e] border-[#fde68a]', status: 'Active' },
 ];
 
 /**
@@ -540,6 +540,12 @@ export const REVENUE_BAR_DATA = [
     { label: 'APR', revenue: 78, target: 90 },
     { label: 'MAY', revenue: 94, target: 90 },
     { label: 'JUN', revenue: 91, target: 90 },
+    { label: 'JUL', revenue: 88, target: 95 },
+    { label: 'AUG', revenue: 76, target: 95 },
+    { label: 'SEP', revenue: 92, target: 100 },
+    { label: 'OCT', revenue: 98, target: 100 },
+    { label: 'NOV', revenue: 85, target: 100 },
+    { label: 'DEC', revenue: 105, target: 110 },
 ];
 
 export const PAYMENT_STATUS_DONUT = [

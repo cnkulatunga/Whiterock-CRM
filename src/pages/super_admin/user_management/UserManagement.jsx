@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useUsers } from '../../../context/UsersContext';
+import UserProfileModal from '../../../components/modals/UserProfileModal';
 
 import { ALL_ROLES, ALL_STATUSES } from '../../../data/dummyData';
 
@@ -22,6 +23,12 @@ const IconPlus = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
         strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
         <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+);
+const IconSearch = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"
+        strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
+        <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
 );
 const IconEdit = () => (
@@ -82,19 +89,19 @@ const IconList = () => (
 
 /* ─── MODAL ─────────────────────────────────────── */
 const UserModal = ({ title, children, onClose, onSubmit, submitLabel, submitClass }) => (
-    <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-sm z-[9999] flex items-center justify-center animate-fadeIn p-6" onClick={onClose}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[480px] overflow-hidden animate-slideUp" onClick={(e) => e.stopPropagation()}>
-            <div className="px-6 py-4 border-b border-[#f1f5f9] flex justify-between items-center">
-                <h3 className="text-[15px] font-semibold text-[#1a202c]">{title}</h3>
-                <button className="text-[#a0aec0] hover:text-[#1a202c] transition-colors p-1.5 rounded-lg hover:bg-[#f8fafc]" onClick={onClose}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-sm z-[9999] flex items-center justify-center animate-fadeIn p-4" onClick={onClose}>
+        <div className="bg-white rounded-[20px] shadow-2xl w-full max-w-[400px] overflow-hidden animate-slideUp" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-3.5 border-b border-[#f1f5f9] flex justify-between items-center">
+                <h3 className="text-[14px] font-bold text-[#1a202c] uppercase tracking-tight">{title}</h3>
+                <button className="text-[#a0aec0] hover:text-[#1a202c] transition-colors p-1 rounded-lg hover:bg-[#f8fafc]" onClick={onClose}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
             </div>
-            <form onSubmit={onSubmit} noValidate className="p-6">
-                <div className="flex flex-col gap-4">{children}</div>
-                <div className="mt-6 flex gap-3">
-                    <button type="button" className="flex-1 py-2.5 bg-white border border-[#edf2f7] rounded-xl text-[13px] font-medium text-[#718096] hover:bg-[#f8fafc] transition-all" onClick={onClose}>Cancel</button>
-                    <button type="submit" className={`flex-1 py-2.5 rounded-xl text-[13px] font-semibold text-white transition-all ${submitClass}`}>{submitLabel}</button>
+            <form onSubmit={onSubmit} noValidate className="p-5">
+                <div className="flex flex-col gap-3.5">{children}</div>
+                <div className="mt-5 flex gap-2.5">
+                    <button type="button" className="flex-1 py-2 bg-white border border-[#edf2f7] rounded-xl text-[12px] font-bold text-[#718096] hover:bg-[#f8fafc] transition-all" onClick={onClose}>Cancel</button>
+                    <button type="submit" className={`flex-1 py-2 rounded-xl text-[12px] font-bold text-white transition-all ${submitClass}`}>{submitLabel}</button>
                 </div>
             </form>
         </div>
@@ -103,35 +110,35 @@ const UserModal = ({ title, children, onClose, onSubmit, submitLabel, submitClas
 
 const UserFormFields = ({ form, setForm, error }) => (
     <>
-        <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Full Name</label>
-            <input type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="e.g. John Smith" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+        <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Full Name</label>
+            <input type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 rounded-xl text-[12px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all placeholder:text-[#cbd5e1]" placeholder="e.g. John Smith" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         </div>
-        <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Email Address</label>
-            <input type="email" className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="e.g. john@alphafunding.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+        <div className="flex flex-col gap-1">
+            <label className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Email Address</label>
+            <input type="email" className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 rounded-xl text-[12px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all placeholder:text-[#cbd5e1]" placeholder="e.g. john@alphafunding.com" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
         </div>
         <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Role</label>
+            <div className="flex flex-col gap-1">
+                <label className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Role</label>
                 <div className="relative">
-                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:bg-white focus:border-[#2447d7]/30 transition-all" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-8 rounded-xl text-[12px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:bg-white focus:border-[#2447d7]/30 transition-all" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
                         {ALL_ROLES.slice(1).map(r => <option key={r}>{r}</option>)}
                     </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0] scale-90"><IconChevronDown /></div>
                 </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Status</label>
+            <div className="flex flex-col gap-1">
+                <label className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Status</label>
                 <div className="relative">
-                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:bg-white focus:border-[#2447d7]/30 transition-all" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                        {ALL_STATUSES.slice(1).map(s => <option key={s} value={s}>{s}</option>)}
+                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-8 rounded-xl text-[12px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:bg-white focus:border-[#2447d7]/30 transition-all" value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
+                        {['Active', 'Inactive'].map(s => <option key={s} value={s}>{s}</option>)}
                     </select>
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0] scale-90"><IconChevronDown /></div>
                 </div>
             </div>
         </div>
-        {error && <div className="p-3 bg-[#fef2f2] border border-[#fee2e2] text-[#dc2626] text-[12px] font-medium text-center rounded-xl animate-shake">{error}</div>}
+        {error && <div className="p-2.5 bg-[#fef2f2] border border-[#fee2e2] text-[#dc2626] text-[11px] font-bold text-center rounded-xl animate-shake">{error}</div>}
     </>
 );
 
@@ -152,27 +159,27 @@ const EditUserModal = ({ user, onClose, onEdit }) => {
         <UserModal title={`Edit User: ${user.name}`} onClose={onClose} onSubmit={handle} submitLabel="Update User" submitClass="bg-[#2447d7] hover:bg-[#1732a3]">
             <UserFormFields form={form} setForm={setForm} error={error} />
             <div className="border-t border-[#f1f5f9] pt-4 flex flex-col gap-3">
-                <p className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Reset Password <span className="normal-case font-normal text-[#c4cdd8]">(leave blank to keep current)</span></p>
-                <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">New Password</label>
+                <p className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Reset Password <span className="normal-case font-normal text-[#c4cdd8] font-medium">(optional)</span></p>
+                <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">New Password</label>
                     <div className="relative">
-                        <input type={showPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-10 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Min. 8 characters" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                        <input type={showPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-10 rounded-xl text-[12px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Min. 8 characters" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
                         <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#4a5568] transition-colors" onClick={() => setShowPw(v => !v)}>
                             {showPw
-                                ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                                : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             }
                         </button>
                     </div>
                 </div>
-                <div className="flex flex-col gap-1.5">
-                    <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Confirm New Password</label>
+                <div className="flex flex-col gap-1">
+                    <label className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Confirm New Password</label>
                     <div className="relative">
-                        <input type={showConfirmPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-10 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Re-enter new password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
+                        <input type={showConfirmPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-10 rounded-xl text-[12px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Re-enter password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
                         <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#4a5568] transition-colors" onClick={() => setShowConfirmPw(v => !v)}>
                             {showConfirmPw
-                                ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                                : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             }
                         </button>
                     </div>
@@ -199,26 +206,26 @@ const CreateUserModal = ({ onClose, onCreate }) => {
     return (
         <UserModal title="Create New User" onClose={onClose} onSubmit={handle} submitLabel="Create User" submitClass="bg-[#2447d7] hover:bg-[#1732a3]">
             <UserFormFields form={form} setForm={setForm} error={error} />
-            <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Password</label>
+            <div className="flex flex-col gap-1">
+                <label className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Password</label>
                 <div className="relative">
-                    <input type={showPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-10 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Min. 8 characters" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+                    <input type={showPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-10 rounded-xl text-[12px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Min. 8 characters" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
                     <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#4a5568] transition-colors" onClick={() => setShowPw(v => !v)}>
                         {showPw
-                            ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         }
                     </button>
                 </div>
             </div>
-            <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">Confirm Password</label>
+            <div className="flex flex-col gap-1">
+                <label className="text-[9px] font-bold text-[#a0aec0] uppercase tracking-widest">Confirm Password</label>
                 <div className="relative">
-                    <input type={showConfirmPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-10 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Re-enter password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
+                    <input type={showConfirmPw ? 'text' : 'password'} className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-10 rounded-xl text-[12px] font-medium text-[#1a202c] outline-none focus:bg-white focus:border-[#2447d7]/30 transition-all" placeholder="Re-enter password" value={form.confirmPassword} onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })} />
                     <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#4a5568] transition-colors" onClick={() => setShowConfirmPw(v => !v)}>
                         {showConfirmPw
-                            ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                            ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                         }
                     </button>
                 </div>
@@ -230,40 +237,38 @@ const CreateUserModal = ({ onClose, onCreate }) => {
 /* ─── DELETE CONFIRMATION MODAL ───────────────── */
 const DeleteConfirmModal = ({ user, onClose, onConfirm }) => (
     <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-sm z-[9999] flex items-center justify-center animate-fadeIn p-6" onClick={onClose}>
-        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[420px] overflow-hidden animate-slideUp" onClick={(e) => e.stopPropagation()}>
-            <div className="px-6 py-5 border-b border-[#f1f5f9]">
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-[#fef2f2] flex items-center justify-center flex-shrink-0">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" width="24" height="24">
+        <div className="bg-white rounded-[20px] shadow-2xl w-full max-w-[380px] overflow-hidden animate-slideUp" onClick={(e) => e.stopPropagation()}>
+            <div className="px-5 py-4 border-b border-[#f1f5f9]">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#fef2f2] flex items-center justify-center flex-shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="2" width="20" height="20">
                             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
-                            <line x1="12" y1="9" x2="12" y2="13"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
                         </svg>
                     </div>
                     <div>
-                        <h3 className="text-[16px] font-bold text-[#1a202c]">Delete User</h3>
-                        <p className="text-[13px] text-[#718096] mt-1">This action cannot be undone</p>
+                        <h3 className="text-[15px] font-bold text-[#1a202c]">Delete User</h3>
+                        <p className="text-[11px] font-medium text-[#718096]">Permanent action</p>
                     </div>
                 </div>
             </div>
-            <div className="p-6">
-                <p className="text-[14px] text-[#4a5568] leading-relaxed">
-                    Are you sure you want to delete <span className="font-bold text-[#1a202c]">{user.name}</span>? 
-                    All data associated with this user will be permanently removed.
+            <div className="p-5">
+                <p className="text-[13px] text-[#4a5568] leading-relaxed">
+                    Delete <span className="font-bold text-[#1a202c]">{user.name}</span>? 
+                    This cannot be undone.
                 </p>
             </div>
-            <div className="px-6 pb-6 flex gap-3">
+            <div className="px-5 pb-5 flex gap-2.5">
                 <button 
-                    className="flex-1 py-2.5 bg-white border border-[#edf2f7] rounded-xl text-[13px] font-medium text-[#718096] hover:bg-[#f8fafc] transition-all" 
+                    className="flex-1 py-1.5 bg-white border border-[#edf2f7] rounded-xl text-[12px] font-bold text-[#718096] hover:bg-[#f8fafc] transition-all" 
                     onClick={onClose}
                 >
                     Cancel
                 </button>
                 <button 
-                    className="flex-1 py-2.5 bg-[#dc2626] rounded-xl text-[13px] font-semibold text-white hover:bg-[#b91c1c] transition-all shadow-sm"
+                    className="flex-1 py-1.5 bg-[#dc2626] rounded-xl text-[12px] font-bold text-white hover:bg-[#b91c1c] transition-all shadow-sm"
                     onClick={onConfirm}
                 >
-                    Delete User
+                    Delete
                 </button>
             </div>
         </div>
@@ -281,13 +286,14 @@ const UserManagement = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingUser, setEditingUser] = useState(null);
     const [deletingUser, setDeletingUser] = useState(null);
+    const [selectedProfileUser, setSelectedProfileUser] = useState(null);
     const totalPages = 3;
 
     const roleColorMap = {
-        'Super Admin':      'bg-[#ebf0ff] text-[#2447d7] border-[#d9e8ff]',
-        'Team Leader':      'bg-[#f3e8ff] text-[#7c3aed] border-[#e9d5ff]',
-        'Tele Agent':       'bg-[#f1f5f9] text-[#64748b] border-[#e2e8f0]',
-        'Accounts Manager': 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]',
+        'Super Admin':      'bg-[#dbeafe] text-[#1d4ed8] border-[#bfdbfe]',
+        'Team Leader':      'bg-[#ede9fe] text-[#5b21b6] border-[#ddd6fe]',
+        'Tele Agent':       'bg-[#f0fdf4] text-[#166534] border-[#bbf7d0]',
+        'Accounts Manager': 'bg-[#fef3c7] text-[#92400e] border-[#fde68a]',
     };
     const avatarColors = AVATAR_COLORS;
     const getInitials = (name) => (name || '').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -369,29 +375,26 @@ const UserManagement = () => {
     };
 
     return (
-        <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
-
-            <header className="flex justify-end items-center mb-2 animate-headerDrop">
-
-                <div className="flex items-center gap-2 md:hidden">
-                    <button
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium border transition-all ${viewMode === 'list' ? 'bg-white text-[#2447d7] border-[#2447d7]/20 shadow-sm' : 'text-[#718096] border-[#edf2f7] bg-white hover:bg-[#f8fafc]'}`}
-                        onClick={() => setViewMode('list')}
-                    >
-                        <IconList /> List View
-                    </button>
-                    <button
-                        className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-medium border transition-all ${viewMode === 'grid' ? 'bg-white text-[#2447d7] border-[#2447d7]/20 shadow-sm' : 'text-[#718096] border-[#edf2f7] bg-white hover:bg-[#f8fafc]'}`}
-                        onClick={() => setViewMode('grid')}
-                    >
-                        <IconGrid /> Grid View
-                    </button>
-                </div>
-            </header>
+        <div className="flex flex-col gap-5 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* ── FILTERS ── */}
             <div className="bg-white rounded-2xl border border-[#edf2f7] px-5 py-4 shadow-sm flex items-center justify-between gap-4 flex-wrap animate-slideDown [animation-delay:100ms] [animation-fill-mode:both]">
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="flex items-center gap-3 flex-wrap min-w-0">
+                    <div className="relative min-w-[240px]">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0]">
+                            <IconSearch />
+                        </div>
+                        <input 
+                            type="text" 
+                            className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 pl-10 pr-4 rounded-xl text-[13px] font-medium text-[#4a5568] placeholder-[#a0aec0] outline-none focus:bg-white focus:border-[#2447d7]/30 focus:shadow-[0_0_15px_-5px_rgba(36,71,215,0.1)] transition-all"
+                            placeholder="Search by name or email..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="w-px h-6 bg-[#edf2f7] mx-1" />
+
                     <span className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest whitespace-nowrap">Filter By:</span>
                     <div className="relative">
                         <select className="bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-7 rounded-xl text-[13px] font-medium text-[#4a5568] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
@@ -401,7 +404,7 @@ const UserManagement = () => {
                     </div>
                     <div className="relative">
                         <select className="bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-7 rounded-xl text-[13px] font-medium text-[#4a5568] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                            {ALL_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                            {['All', 'Active', 'Inactive'].map(s => <option key={s} value={s}>{s}</option>)}
                         </select>
                         <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
                     </div>
@@ -411,9 +414,33 @@ const UserManagement = () => {
                         </button>
                     )}
                 </div>
-                <button className="flex items-center gap-2 bg-[#2447d7] text-white px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#1732a3] transition-colors shadow-sm" onClick={() => setShowModal(true)}>
-                    <IconPlus /> Create New User
-                </button>
+
+                <div className="flex items-center gap-3">
+                    {/* View Toggle */}
+                    <div className="flex items-center bg-[#f8fafc] p-1 rounded-[14px] border border-[#f1f5f9]">
+                        <button 
+                            onClick={() => setViewMode('list')}
+                            className={`flex items-center gap-2 px-4 py-1.5 rounded-[10px] text-[12px] font-semibold transition-all duration-200 ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-[0_2px_10px_-3px_rgba(36,71,215,0.15)] border border-[#2447d7]/5' : 'text-[#94a3b8] hover:text-[#64748b]'}`}
+                        >
+                            <IconList /> List View
+                        </button>
+                        <button 
+                            onClick={() => setViewMode('grid')}
+                            className={`flex items-center gap-2 px-4 py-1.5 rounded-[10px] text-[12px] font-semibold transition-all duration-200 ${viewMode === 'grid' ? 'bg-white text-[#2447d7] shadow-[0_2px_10px_-3px_rgba(36,71,215,0.15)] border border-[#2447d7]/5' : 'text-[#94a3b8] hover:text-[#64748b]'}`}
+                        >
+                            <IconGrid /> Grid View
+                        </button>
+                    </div>
+
+                    <div className="w-px h-8 bg-[#edf2f7] mx-1" />
+
+                    <button className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl text-[13px] font-semibold hover:bg-[#1732a3] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] transition-all" onClick={() => setShowModal(true)}>
+                        <div className="bg-white/20 p-1 rounded-lg">
+                            <IconPlus />
+                        </div>
+                        Create New User
+                    </button>
+                </div>
             </div>
 
             {/* ── TABLE (List View) ── */}
@@ -423,10 +450,10 @@ const UserManagement = () => {
                         <table className="w-full border-collapse">
                             <thead>
                                 <tr className="bg-[#f8fafc]">
-                                    <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">USER DETAILS</th>
-                                    <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">ROLE</th>
-                                    <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">STATUS</th>
-                                    <th className="px-6 py-3 text-left text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">ACTIONS</th>
+                                    <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">USER DETAILS</th>
+                                    <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ROLE</th>
+                                    <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">STATUS</th>
+                                    <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ACTIONS</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[#f7fafc]">
@@ -437,30 +464,33 @@ const UserManagement = () => {
                                 ) : (
                                     filtered.map((user, i) => (
                                         <tr key={user.id} className={`hover:bg-[#f8faff] transition-colors animate-rowIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`} style={{ animationDelay: `${250 + i * 50}ms`, animationFillMode: 'both' }}>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[11px] font-bold shrink-0" style={{ background: user.color, color: user.textColor }}>{user.initials}</div>
+                                            <td className="px-5 py-3">
+                                                <div 
+                                                    className="flex items-center gap-2.5 cursor-pointer group"
+                                                    onClick={() => setSelectedProfileUser(user)}
+                                                >
+                                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 transition-transform group-hover:scale-105 shadow-sm" style={{ background: user.color, color: user.textColor }}>{user.initials}</div>
                                                     <div className="flex flex-col min-w-0">
-                                                        <span className="text-[13px] font-semibold text-[#1a202c] truncate">{user.name}</span>
-                                                        <span className="text-[12px] text-[#a0aec0] truncate">{user.email}</span>
+                                                        <span className="text-[12px] font-bold text-[#1a202c] truncate group-hover:text-[#2447d7] transition-colors">{user.name}</span>
+                                                        <span className="text-[11px] text-[#a0aec0] font-medium truncate">{user.email}</span>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-lg border uppercase tracking-wider ${user.roleColor}`}>{user.role}</span>
+                                            <td className="px-5 py-3">
+                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border uppercase tracking-wider ${user.roleColor}`}>{user.role}</span>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className={`flex items-center gap-1.5 text-[12px] font-medium ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#64748b]'}`}>
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
+                                            <td className="px-5 py-3">
+                                                <div className={`flex items-center gap-1.5 text-[11px] font-bold ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#64748b]'}`}>
+                                                    <div className={`w-1 h-1 rounded-full ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
                                                     {user.status}
                                                 </div>
                                             </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2">
-                                                    <button className="w-8 h-8 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#2447d7] hover:text-white hover:border-[#2447d7] transition-all" title="Edit user" onClick={() => setEditingUser(user)}><IconEdit /></button>
-                                                    <button className="w-8 h-8 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#dc2626] hover:text-white hover:border-[#dc2626] transition-all" title="Delete user" onClick={() => handleDelete(user)}><IconTrash /></button>
+                                            <td className="px-5 py-3">
+                                                <div className="flex items-center gap-1.5">
+                                                    <button className="w-7 h-7 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#2447d7] hover:text-white hover:border-[#2447d7] transition-all" title="Edit user" onClick={() => setEditingUser(user)}><IconEdit /></button>
+                                                    <button className="w-7 h-7 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#dc2626] hover:text-white hover:border-[#dc2626] transition-all" title="Delete user" onClick={() => handleDelete(user)}><IconTrash /></button>
                                                     <button
-                                                        className={`w-8 h-8 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
+                                                        className={`w-7 h-7 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
                                                         title={user.status === 'Active' ? 'Deactivate' : 'Activate'}
                                                         onClick={() => toggleStatus(user.id)}
                                                     >
@@ -502,29 +532,35 @@ const UserManagement = () => {
 
             {/* ── GRID VIEW ── */}
             {viewMode === 'grid' && (
-                <div className="grid grid-cols-4 gap-5 lg:grid-cols-2 sm:grid-cols-1">
+                <div className="grid grid-cols-5 gap-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
                     {filtered.length === 0 ? (
-                        <div className="col-span-full py-16 text-center bg-white rounded-2xl border border-[#edf2f7] text-[#a0aec0] text-[13px] font-medium">No users match the current filters.</div>
+                        <div className="col-span-full py-12 text-center bg-white rounded-2xl border border-[#edf2f7] text-[#a0aec0] text-[12px] font-bold">No users match the current filters.</div>
                     ) : (
                         filtered.map((user, i) => (
-                            <div key={user.id} className={`bg-white rounded-2xl border border-[#edf2f7] p-6 flex flex-col items-center gap-4 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all animate-popIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`} style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'both' }}>
-                                <div className="w-14 h-14 rounded-xl flex items-center justify-center font-bold text-xl transition-transform duration-300 hover:scale-110 hover:rotate-3 animate-avatarPop" style={{ background: user.color, color: user.textColor, animationDelay: `${i * 60 + 80}ms`, animationFillMode: 'both' }}>{user.initials}</div>
-                                <div className="flex flex-col items-center gap-1 text-center">
-                                    <div className="text-[14px] font-semibold text-[#1a202c]">{user.name}</div>
-                                    <div className="text-[12px] text-[#a0aec0]">{user.email}</div>
+                            <div key={user.id} className={`bg-white rounded-2xl border border-[#edf2f7] p-4 flex flex-col items-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all animate-popIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`} style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'both' }}>
+                                <div 
+                                    className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg transition-transform duration-300 hover:scale-105 cursor-pointer animate-avatarPop shadow-sm" 
+                                    style={{ background: user.color, color: user.textColor, animationDelay: `${i * 60 + 80}ms`, animationFillMode: 'both' }}
+                                    onClick={() => setSelectedProfileUser(user)}
+                                >
+                                    {user.initials}
                                 </div>
-                                <div className="flex flex-col items-center gap-2 w-full">
-                                    <span className={`text-[10px] font-semibold px-3 py-1 rounded-lg border uppercase tracking-wider ${user.roleColor}`}>{user.role}</span>
-                                    <div className={`flex items-center gap-1.5 text-[11px] font-medium ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#64748b]'}`}>
-                                        <div className={`w-1.5 h-1.5 rounded-full ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
+                                <div className="flex flex-col items-center gap-0.5 text-center cursor-pointer group" onClick={() => setSelectedProfileUser(user)}>
+                                    <div className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#2447d7] transition-colors truncate w-full max-w-[140px]">{user.name}</div>
+                                    <div className="text-[11px] text-[#a0aec0] font-medium truncate w-full max-w-[140px]">{user.email}</div>
+                                </div>
+                                <div className="flex flex-col items-center gap-1.5 w-full">
+                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-md border uppercase tracking-widest ${user.roleColor}`}>{user.role}</span>
+                                    <div className={`flex items-center gap-1.5 text-[10px] font-bold ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#64748b]'}`}>
+                                        <div className={`w-1 h-1 rounded-full ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
                                         {user.status}
                                     </div>
                                 </div>
                                 <div className="w-full h-px bg-[#f1f5f9]" />
-                                <div className="flex items-center gap-2">
-                                    <button className="w-8 h-8 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#2447d7] hover:text-white transition-all" title="Edit" onClick={() => setEditingUser(user)}><IconEdit /></button>
-                                    <button className="w-8 h-8 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#dc2626] hover:text-white transition-all" title="Delete" onClick={() => handleDelete(user)}><IconTrash /></button>
-                                    <button className={`w-8 h-8 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
+                                <div className="flex items-center gap-1.5">
+                                    <button className="w-7 h-7 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#2447d7] hover:text-white transition-all border border-[#edf2f7]/50" title="Edit" onClick={() => setEditingUser(user)}><IconEdit /></button>
+                                    <button className="w-7 h-7 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#dc2626] hover:text-white transition-all border border-[#edf2f7]/50" title="Delete" onClick={() => handleDelete(user)}><IconTrash /></button>
+                                    <button className={`w-7 h-7 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
                                         title={user.status === 'Active' ? 'Deactivate' : 'Activate'} onClick={() => toggleStatus(user.id)}>
                                         {user.status === 'Active' ? <IconBan /> : <IconActivate />}
                                     </button>
@@ -538,6 +574,7 @@ const UserManagement = () => {
             {showModal && <CreateUserModal onClose={() => setShowModal(false)} onCreate={handleCreate} />}
             {editingUser && <EditUserModal user={editingUser} onClose={() => setEditingUser(null)} onEdit={handleEdit} />}
             {deletingUser && <DeleteConfirmModal user={deletingUser} onClose={() => setDeletingUser(null)} onConfirm={confirmDelete} />}
+            {selectedProfileUser && <UserProfileModal user={selectedProfileUser} onUserClick={setSelectedProfileUser} onClose={() => setSelectedProfileUser(null)} />}
         </div>
     );
 };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -11,11 +11,16 @@ import {
 import { useLeads } from '../../context/LeadsContext';
 import { useTheme } from '../../context/ThemeContext';
 
-const UserProfileModal = ({ user, onClose }) => {
+const UserProfileModal = ({ user, onClose, onUserClick }) => {
     const navigate = useNavigate();
     const { leads } = useLeads();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
+    const [activeTab, setActiveTab] = React.useState('leads');
+
+    useEffect(() => {
+        setActiveTab('leads');
+    }, [user?.id]);
 
     if (!user) return null;
 
@@ -48,18 +53,10 @@ const UserProfileModal = ({ user, onClose }) => {
             return tl ? { reportsTo: tl, type: 'Team Leader' } : null;
         }
         if (user.role === 'Team Leader') {
-            const amId = Object.keys(AM_MEMBERSHIPS).find(key => 
-                AM_MEMBERSHIPS[key].includes(user.id)
-            );
-            const am = SHARED_INITIAL_USERS.find(u => u.id?.toString() === amId?.toString());
             const members = INITIAL_MEMBERSHIPS[user.id] || [];
-            return { reportsTo: am, members, type: 'Account Manager' };
+            return { members, type: 'Team Leader' };
         }
-        if (user.role === 'Accounts Manager') {
-            const tlIds = AM_MEMBERSHIPS[user.id] || [];
-            const members = SHARED_INITIAL_USERS.filter(u => tlIds.includes(u.id));
-            return { members, type: 'Team Leaders' };
-        }
+        // Account Managers do not handle teams in this model
         return null;
     };
 
@@ -91,21 +88,21 @@ const UserProfileModal = ({ user, onClose }) => {
             <div className="absolute inset-0" onClick={onClose}></div>
             
             {/* Modal Content */}
-            <div className={`relative ${modalBg} rounded-[32px] w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl flex flex-col animate-slideUp border`} onClick={e => e.stopPropagation()}>
+            <div className={`relative ${modalBg} rounded-[24px] w-full max-w-[700px] max-h-[90vh] overflow-hidden shadow-2xl flex flex-col animate-slideUp border`} onClick={e => e.stopPropagation()}>
                 {/* Header */}
-                <div className={`p-8 border-b flex justify-between items-start ${headerBg}`}>
-                    <div className="flex gap-6 items-center">
-                        <div className="w-20 h-20 rounded-3xl flex items-center justify-center text-2xl font-black text-white shadow-2xl transform transition-transform duration-500 hover:rotate-3 flex-shrink-0"
-                             style={{ background: user.color || '#2563eb', boxShadow: `0 20px 40px ${user.color || '#2563eb'}40` }}>
+                <div className={`p-5 border-b flex justify-between items-start ${headerBg}`}>
+                    <div className="flex gap-4 items-center">
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black text-white shadow-xl transform transition-transform duration-500 hover:rotate-2 flex-shrink-0"
+                             style={{ background: user.color || '#2563eb', boxShadow: `0 10px 20px ${user.color || '#2563eb'}30` }}>
                             {user.initials || user.name?.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
                         </div>
-                        <div className="space-y-1">
-                            <h2 className={`text-3xl font-black tracking-tight ${textPrimary}`}>{user.name}</h2>
-                            <div className="flex items-center gap-3">
-                                <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${user.status === 'Active' ? activeBadge : 'bg-[#2563eb]/10 text-[#2563eb]'}`}>
+                        <div className="space-y-0.5">
+                            <h2 className={`text-xl font-black tracking-tight ${textPrimary}`}>{user.name}</h2>
+                            <div className="flex items-center gap-2">
+                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${user.status === 'Active' ? activeBadge : 'bg-[#2563eb]/10 text-[#2563eb]'}`}>
                                     {user.role} {user.status === 'Active' ? '• Active' : ''}
                                 </span>
-                                <span className={`text-[12px] font-bold ${textSecondary}`}>{user.email}</span>
+                                <span className={`text-[11px] font-bold ${textSecondary}`}>{user.email}</span>
                             </div>
                         </div>
                     </div>
@@ -117,128 +114,125 @@ const UserProfileModal = ({ user, onClose }) => {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-8 pt-6 custom-scrollbar">
-                    <div className="grid grid-cols-[1.5fr_1fr] gap-8">
-                        {/* Left Column: Leads */}
-                        <div className="space-y-6">
-                            <div className="flex items-center justify-between px-1">
-                                <h3 className={`text-sm font-black uppercase tracking-widest ${textPrimary}`}>Active Leads</h3>
-                                <span className="text-[11px] font-bold text-[#2563eb] bg-[#2563eb]/10 px-3 py-1 rounded-full">{userLeads.length} Cases</span>
+                <div className="flex-1 overflow-y-auto p-6 pt-5 custom-scrollbar">
+                    <div className="flex flex-col gap-4">
+                        {/* Tab Switcher if has team */}
+                        {hierarchy?.members && hierarchy.members.length > 0 && (
+                            <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-xl w-fit border border-slate-100 dark:border-white/5 mb-2">
+                                <button 
+                                    onClick={() => setActiveTab('leads')}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'leads' ? 'bg-white dark:bg-[#2563eb] text-[#2563eb] dark:text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                >
+                                    Active Leads ({userLeads.length})
+                                </button>
+                                <button 
+                                    onClick={() => setActiveTab('team')}
+                                    className={`px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'team' ? 'bg-white dark:bg-[#2563eb] text-[#2563eb] dark:text-white shadow-sm' : 'text-slate-400 hover:text-slate-600'}`}
+                                >
+                                    Direct Reports ({hierarchy.members.length})
+                                </button>
                             </div>
+                        )}
+
+                        <div className="space-y-4">
+                            {activeTab === 'leads' ? (
+                                <>
+                                    {(!hierarchy?.members || hierarchy.members.length === 0) && (
+                                        <div className="flex items-center justify-between px-1">
+                                            <h3 className={`text-[11px] font-black uppercase tracking-widest ${textPrimary}`}>Active Leads</h3>
+                                            <span className="text-[10px] font-bold text-[#2563eb] bg-[#2563eb]/10 px-2.5 py-0.5 rounded-full">{userLeads.length} Cases</span>
+                                        </div>
+                                    )}
                             
-                            <div className="grid gap-3">
-                                {userLeads.length > 0 ? (
-                                    userLeads.map((lead) => {
-                                        const progress = calculateProgress(lead.stage || lead.status);
-                                        return (
-                                            <div 
-                                                key={lead.id} 
-                                                onClick={() => handleLeadClick(lead)}
-                                                className={`p-5 rounded-3xl border transition-all cursor-pointer group relative overflow-hidden ${sectionBg} ${cardHover}`}
-                                            >
-                                                <div className="absolute top-0 left-0 w-1 h-full bg-[#2563eb] opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                <div className="flex justify-between items-start mb-4">
-                                                    <div className="flex flex-col gap-1">
-                                                        <span className={`text-[15px] font-black group-hover:text-[#2563eb] transition-colors ${textPrimary}`}>{lead.clientName || lead.name}</span>
-                                                        <div className="flex items-center gap-2">
-                                                            <span className={`text-[10px] font-bold uppercase tracking-wider ${textSecondary}`}>{lead.stage || lead.status}</span>
-                                                            <span className="w-1 h-1 rounded-full bg-gray-300" />
-                                                            <span className={`text-[10px] font-bold uppercase tracking-wider ${textSecondary}`}>{lead.loanAmount || lead.amount || 'N/A'}</span>
-                                                        </div>
-                                                    </div>
-                                                    <span className="text-[13px] font-black text-[#2563eb]">{progress}%</span>
-                                                </div>
-                                                
-                                                <div className={`w-full h-1.5 rounded-full overflow-hidden ${progressBg}`}>
-                                                    <div 
-                                                        className="h-full bg-gradient-to-r from-[#2563eb] to-[#3b82f6] transition-all duration-1000 ease-out rounded-full"
-                                                        style={{ width: `${progress}%` }}
-                                                    />
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                ) : (
-                                    <div className={`py-12 flex flex-col items-center justify-center border-2 border-dashed rounded-[32px] ${emptyBorder}`}>
-                                        <span className={`text-[11px] font-bold uppercase tracking-widest text-center px-4 ${textSecondary}`}>No Leads Currently Managed By This Profile</span>
-                                    </div>
-                                )}
+                            <div className="bg-white rounded-2xl border border-[#edf2f7] overflow-hidden shadow-sm">
+                                <div className="overflow-x-auto overflow-y-auto max-h-[380px] custom-scrollbar">
+                                    <table className="w-full border-collapse text-left">
+                                        <thead>
+                                            <tr className={`${headerBg} border-b`}>
+                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400">CLIENT</th>
+                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400">STATUS</th>
+                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">LOAN AMT</th>
+                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">PROGRESS</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-[#f7fafc]">
+                                            {userLeads.length > 0 ? (
+                                                userLeads.map((lead) => {
+                                                    const progress = calculateProgress(lead.stage || lead.status);
+                                                    return (
+                                                        <tr 
+                                                            key={lead.id} 
+                                                            onClick={() => handleLeadClick(lead)}
+                                                            className="hover:bg-[#f8faff] transition-colors cursor-pointer group"
+                                                        >
+                                                            <td className="px-4 py-2.5 min-w-[200px]">
+                                                                <div className="flex flex-col">
+                                                                    <span className={`text-[12px] font-bold group-hover:text-[#2563eb] transition-colors truncate ${textPrimary}`}>{lead.clientName || lead.name}</span>
+                                                                    <span className="text-[9px] font-bold text-slate-400 tracking-tight uppercase leading-none mt-0.5">#{lead.id}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-4 py-2.5">
+                                                                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border uppercase tracking-wider whitespace-nowrap bg-blue-50/50 text-[#2563eb] border-blue-100/50`}>
+                                                                    {lead.status || lead.stage}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-2.5 text-center whitespace-nowrap">
+                                                                <span className={`text-[11px] font-black ${textPrimary}`}>{lead.loanAmount || lead.amount || '—'}</span>
+                                                            </td>
+                                                            <td className="px-4 py-2.5">
+                                                                <div className="flex items-center justify-end gap-2.5">
+                                                                    <div className={`w-16 h-1.5 rounded-full overflow-hidden ${progressBg}`}>
+                                                                        <div className="h-full bg-[#2563eb] rounded-full" style={{ width: `${progress}%` }} />
+                                                                    </div>
+                                                                    <span className="text-[10px] font-black text-[#2563eb] w-7 text-right">{progress}%</span>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })
+                                            ) : (
+                                                <tr><td colSpan={4} className="py-16 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400 italic">No Leads Managed</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-
-                        {/* Right Column: Activities */}
-                        <div className="space-y-6">
-                            <h3 className={`text-sm font-black uppercase tracking-widest px-1 ${textPrimary}`}>Recent Activities</h3>
-                            <div className="space-y-4">
-                                {(AUDIT_LOG_ENTRIES || []).filter(entry => entry.name === user.name).length > 0 ? (
-                                    AUDIT_LOG_ENTRIES
-                                        .filter(entry => entry.name === user.name)
-                                        .slice(0, 10) // Show up to 10 recent activities
-                                        .map((activity, idx, arr) => (
-                                            <div key={idx} className="flex gap-4 group">
-                                                <div className="relative flex flex-col items-center">
-                                                    <div className={`w-2.5 h-2.5 rounded-full mt-1.5 ${activity.actionIcon === 'reject' ? 'bg-red-500 shadow-[0_0_8px_#ef4444]' : (activity.actionIcon === 'verify' ? 'bg-green-500 shadow-[0_0_8px_#22c55e]' : 'bg-[#2563eb] shadow-[0_0_8px_#2563eb]')}`} />
-                                                    {idx !== arr.length - 1 && (
-                                                        <div className={`w-px flex-1 my-1 ${timelineLine}`} />
-                                                    )}
-                                                </div>
-                                                <div className="pb-6 space-y-1">
-                                                    <p className={`text-[12px] font-bold leading-tight ${textPrimary}`}>
-                                                        {activity.actionText} <span className="text-[#2563eb]">#{activity.refId}</span>
-                                                    </p>
-                                                    <p className={`text-[10px] font-bold uppercase tracking-wider ${textSecondary}`}>{activity.date} • {activity.time}</p>
-                                                    {activity.actionIcon === 'reject' && activity.note && (
-                                                        <div className={`mt-2 p-2 rounded-lg text-[10px] font-bold ${isDark ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-red-50 border-red-100/50 text-red-600'} border`}>
-                                                            Reason: {activity.note}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))
-                                ) : (
-                                    <div className={`py-12 flex flex-col items-center justify-center border-2 border-dashed rounded-[32px] ${emptyBorder}`}>
-                                        <span className={`text-[11px] font-bold uppercase tracking-widest text-center px-4 ${textSecondary}`}>No Recorded History</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Hierarchy Context */}
-                            {hierarchy && (
-                                <div className="mt-8 pt-8 border-t border-gray-100">
-                                    <h3 className={`text-sm font-black uppercase tracking-widest px-1 mb-6 ${textPrimary}`}>Team Context</h3>
-                                    <div className="space-y-4">
-                                        {hierarchy.reportsTo && (
-                                            <div className={`p-4 rounded-2xl border ${sectionBg} flex items-center justify-between`}>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white" style={{ background: hierarchy.reportsTo.color }}>
-                                                        {hierarchy.reportsTo.initials}
-                                                    </div>
-                                                    <div>
-                                                        <p className={`text-[11px] font-bold ${textPrimary}`}>{hierarchy.reportsTo.name}</p>
-                                                        <p className="text-[9px] font-bold text-blue-500 uppercase tracking-wider">Reports To ({hierarchy.type})</p>
-                                                    </div>
-                                                </div>
-                                                <button className="text-[10px] font-bold text-[#2563eb] hover:underline uppercase">View</button>
-                                            </div>
-                                        )}
-                                        {hierarchy.members && hierarchy.members.length > 0 && (
-                                            <div className="space-y-2">
-                                                <p className={`text-[10px] font-black uppercase tracking-widest px-1 ${textSecondary}`}>Direct Reports ({hierarchy.members.length})</p>
-                                                <div className="grid gap-2">
-                                                    {hierarchy.members.map(m => (
-                                                        <div key={m.id} className={`p-3 rounded-xl border ${sectionBg} flex items-center justify-between group hover:border-[#2563eb]/30 transition-all`}>
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-6 h-6 rounded-md flex items-center justify-center text-[8px] font-bold text-white shrink-0" style={{ background: m.color }}>
+                                </>
+                            ) : (
+                                <div className="bg-white rounded-2xl border border-[#edf2f7] overflow-hidden shadow-sm">
+                                    <div className="overflow-x-auto overflow-y-auto max-h-[380px] custom-scrollbar">
+                                        <table className="w-full border-collapse text-left">
+                                            <thead>
+                                                <tr className={`${headerBg} border-b`}>
+                                                    <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400">TEAM MEMBER</th>
+                                                    <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">ACTION</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-[#f7fafc]">
+                                                {hierarchy?.members?.map((m) => (
+                                                    <tr 
+                                                        key={m.id} 
+                                                        onClick={() => onUserClick && onUserClick(m)}
+                                                        className="hover:bg-[#f8faff] transition-colors cursor-pointer group"
+                                                    >
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-sm" style={{ background: m.color }}>
                                                                     {m.initials}
                                                                 </div>
-                                                                <span className={`text-[11px] font-bold ${textPrimary}`}>{m.name}</span>
+                                                                <div className="flex flex-col">
+                                                                    <span className={`text-[13px] font-black group-hover:text-[#2563eb] transition-colors ${textPrimary}`}>{m.name}</span>
+                                                                    <span className="text-[10px] font-bold text-slate-400">{m.email}</span>
+                                                                </div>
                                                             </div>
-                                                            <span className="text-[9px] font-bold text-[#94a3b8] group-hover:text-[#2563eb] transition-colors">ACTIVE →</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
+                                                        </td>
+                                                        <td className="px-4 py-3 text-right">
+                                                            <span className="text-[10px] font-black text-[#2563eb] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">View Profile →</span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             )}
@@ -246,9 +240,49 @@ const UserProfileModal = ({ user, onClose }) => {
                     </div>
                 </div>
 
-                {/* Footer */}
-                <div className={`p-6 border-t flex justify-end items-center ${footerBg}`}>
-                    <button onClick={onClose} className="px-10 py-3.5 bg-[#2563eb] text-white rounded-2xl text-sm font-bold hover:bg-[#1d4ed8] transition-all shadow-[0_4px_14px_rgba(99,102,241,0.3)]">
+                {/* Footer: Compact Team Context + Action */}
+                <div className={`p-4 px-6 border-t flex justify-between items-center ${footerBg}`}>
+                    <div className="flex items-center gap-6">
+                        {hierarchy?.reportsTo && (
+                            <div 
+                                className="flex items-center gap-2.5 group cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 p-1 px-2 rounded-xl transition-all"
+                                onClick={() => onUserClick && onUserClick(hierarchy.reportsTo)}
+                            >
+                                <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold text-white shadow-sm" style={{ background: hierarchy.reportsTo.color }}>
+                                    {hierarchy.reportsTo.initials}
+                                </div>
+                                <div className="flex flex-col">
+                                    <p className="text-[9px] font-bold text-[#2563eb] uppercase tracking-widest leading-none mb-0.5">Team Leader</p>
+                                    <p className={`text-[11px] font-black group-hover:text-blue-600 transition-colors ${textPrimary}`}>{hierarchy.reportsTo.name}</p>
+                                </div>
+                            </div>
+                        )}
+                        {hierarchy?.members && hierarchy.members.length > 0 && (
+                            <div 
+                                className="flex items-center gap-3 pl-4 border-l border-[#edf2f7] group cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 p-1 px-2 rounded-xl transition-all"
+                                onClick={() => setActiveTab('team')}
+                            >
+                                <div className="flex -space-x-2">
+                                    {hierarchy.members.slice(0, 3).map((m, i) => (
+                                        <div key={i} className="w-7 h-7 rounded-lg border-2 border-white flex items-center justify-center text-[8px] font-bold text-white shadow-sm ring-1 ring-black/5" style={{ background: m.color, zIndex: 10 - i }}>
+                                            {m.initials}
+                                        </div>
+                                    ))}
+                                    {hierarchy.members.length > 3 && (
+                                        <div className="w-7 h-7 rounded-lg border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-400 shadow-sm ring-1 ring-black/5" style={{ zIndex: 0 }}>
+                                            +{hierarchy.members.length - 3}
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex flex-col">
+                                    <p className={`text-[9px] font-bold uppercase tracking-widest leading-none mb-0.5 transition-colors ${activeTab === 'team' ? 'text-[#2563eb]' : 'text-slate-400'}`}>Team Size</p>
+                                    <p className={`text-[11px] font-black ${textPrimary}`}>{hierarchy.members.length} Agents</p>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    <button onClick={onClose} className="px-6 py-2.5 bg-[#2563eb] text-white rounded-xl text-[12px] font-black hover:bg-[#1d4ed8] transition-all shadow-lg active:scale-95 uppercase tracking-wider">
                         Close Profile
                     </button>
                 </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LEADS_BY_STAGE, MOCK_LEAD_COUNTS, MOCK_LEADS, INITIAL_TASKS } from '../../../data/dummyData';
+import { LEADS_BY_STAGE, MOCK_LEAD_COUNTS, MOCK_LEADS, INITIAL_TASKS, INITIAL_MEMBERSHIPS, SHARED_INITIAL_USERS } from '../../../data/dummyData';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLeads } from '../../../context/LeadsContext';
@@ -59,6 +59,13 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
     const [activeModal, setActiveModal] = useState(null);
     const [selectedProduct, setSelectedProduct] = useState(null);
+
+    const teamLeader = (() => {
+        const tlId = Object.keys(INITIAL_MEMBERSHIPS).find(key => 
+            INITIAL_MEMBERSHIPS[key].some(a => a.id === user.id)
+        );
+        return SHARED_INITIAL_USERS.find(u => u.id?.toString() === tlId?.toString());
+    })();
 
     const [notesList, setNotesList] = useState(() => {
         try {
@@ -691,6 +698,26 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
     return (
         <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-[calc(100vh-116px)] sm:h-[calc(100vh-108px)]">
+
+            {/* HEADER ROW */}
+            <div className="flex justify-between items-end px-3 pt-1 shrink-0">
+                <div className="flex flex-col">
+                    <h1 className={`text-2xl font-black tracking-tight leading-none ${isDark ? 'text-white' : 'text-slate-900'}`}>My Dashboard</h1>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.25em] leading-none mt-2">Operational Performance Overview</p>
+                </div>
+
+                {teamLeader && (
+                    <div className="flex items-center gap-3 bg-white dark:bg-[#1e2347] p-2 px-4 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm hover:shadow-md transition-all cursor-default group">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black text-white shadow-sm ring-4 ring-blue-500/5 group-hover:scale-105 transition-transform" style={{ background: teamLeader.color }}>
+                            {teamLeader.initials}
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest leading-none mb-1.5">Your Team Leader</span>
+                            <span className={`text-[13px] font-black leading-none ${isDark ? 'text-white' : 'text-slate-900'}`}>{teamLeader.name}</span>
+                        </div>
+                    </div>
+                )}
+            </div>
 
             {/* STRICT SINGLE SCREEN GRID (Row 1: Tiles, Row 2: Main Stacks) */}
             <div className="grid grid-cols-7 grid-rows-[min-content_1fr] flex-1 gap-4 min-h-0 w-full mb-1">
