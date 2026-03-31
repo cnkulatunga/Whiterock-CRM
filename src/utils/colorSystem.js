@@ -116,10 +116,11 @@ export const LEAD_AVATAR_COLORS = {
 /* ─── ROLE COLORS (for audit logs) ──────────────────────── */
 
 export const ROLE_COLORS = {
-    'Super Admin': { bg: '#2447d7', roleCls: 'bg-[#ebf0ff] text-[#2447d7]' },
-    'Team Leader': { bg: '#8b5cf6', roleCls: 'bg-[#f5f3ff] text-[#8b5cf6]' },
-    'Accounts Manager': { bg: '#f59e0b', roleCls: 'bg-[#fffbeb] text-[#f59e0b]' },
-    'Automation': { bg: '#64748b', roleCls: 'bg-[#f1f5f9] text-[#64748b]' },
+    'Super Admin':      { bg: '#5c6bc0', roleCls: 'bg-[#dbeafe] text-[#1d4ed8] border border-[#bfdbfe]' },
+    'Team Leader':      { bg: '#7c4dff', roleCls: 'bg-[#ede9fe] text-[#5b21b6] border border-[#ddd6fe]' },
+    'Accounts Manager': { bg: '#f39c12', roleCls: 'bg-[#fef3c7] text-[#92400e] border border-[#fde68a]' },
+    'Tele Agent':       { bg: '#00b894', roleCls: 'bg-[#f0fdf4] text-[#166534] border border-[#bbf7d0]' },
+    'Automation':       { bg: '#546e7a', roleCls: 'bg-[#f1f5f9] text-[#475569] border border-[#e2e8f0]' },
 };
 
 /* ─── QUALIFIED LENDER COLORS ──────────────────────────── */

@@ -198,15 +198,16 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
 
     return (
         <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-start justify-center z-[1000] p-4 overflow-y-auto font-['Sora',sans-serif]"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-4 font-['Sora',sans-serif]"
             onMouseDown={onClose}
         >
             <div
-                className="relative w-full max-w-5xl my-8 bg-white rounded-2xl shadow-2xl"
+                className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl flex flex-col"
+                style={{ maxHeight: 'calc(100vh - 2rem)' }}
                 onMouseDown={e => e.stopPropagation()}
             >
-                {/* Header */}
-                <div className="sticky top-0 z-10 bg-white border-b border-[#f1f5f9] p-6 px-8 rounded-t-2xl flex justify-between items-center">
+                {/* Header — fixed inside modal */}
+                <div className="flex-shrink-0 bg-white border-b border-[#f1f5f9] p-6 px-8 rounded-t-2xl flex justify-between items-center">
                     <div>
                         <h2 className="text-2xl font-bold text-[#1a202c]">Edit Lead Details</h2>
                         <p className="text-sm text-[#718096] mt-1">Update information for {lead.name}</p>
@@ -216,8 +217,8 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
                     </button>
                 </div>
 
-                {/* Form Body */}
-                <div className="p-8">
+                {/* Form Body — scrollable */}
+                <div className="overflow-y-auto flex-1 p-8">
 
                     {/* ── CONTACT INFORMATION ── */}
                     <div className={sectionCls}>
@@ -436,7 +437,7 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 px-8 border-t border-[#f1f5f9] bg-[#f8fafc] rounded-b-2xl flex justify-end gap-4">
+                <div className="flex-shrink-0 p-6 px-8 border-t border-[#f1f5f9] bg-[#f8fafc] rounded-b-2xl flex justify-end gap-4">
                     <button className="px-6 py-2.5 rounded-xl font-bold text-[#64748b] bg-white border border-[#e2e8f0] hover:bg-[#f1f5f9] transition-all" onClick={onClose}>
                         Cancel
                     </button>
