@@ -189,8 +189,34 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
         }
     };
 
+    const totalLeads = leads.length;
+    const sentToLenders = leads.filter(l => l.selectedLenders?.length > 0).length;
+    const newLeads = leads.filter(l => !l.selectedLenders?.length && (l.stage || l.status) === 'Document Verification Done').length;
+    const pipelineStats = [
+        { label: 'Total Leads',     value: totalLeads,    bg: 'bg-blue-50 border-blue-100',    iconBg: 'bg-blue-600',    icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
+        { label: 'Sent to Lenders', value: sentToLenders, bg: 'bg-emerald-50 border-emerald-100', iconBg: 'bg-emerald-600', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
+        { label: 'Pending to Lenders',   value: newLeads,      bg: 'bg-amber-50 border-amber-100',   iconBg: 'bg-amber-500',   icon: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></> },
+    ];
+
     return (
-        <div className="flex flex-col animate-fadeIn font-['Sora',sans-serif]" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>
+        <>
+            {/* Pipeline KPI Cards */}
+            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1 animate-fadeIn font-['Sora',sans-serif] mb-4">
+                {pipelineStats.map((stat, i) => (
+                    <div key={i} className={`rounded-xl border p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ${stat.bg}`}>
+                        <div className="flex items-center gap-3">
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform shrink-0 ${stat.iconBg}`}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">{stat.icon}</svg>
+                            </div>
+                            <div className="min-w-0">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{stat.label}</div>
+                                <div className="text-base font-black text-slate-900 leading-none">{stat.value}</div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
             <div className={`rounded-2xl border overflow-hidden animate-slideUp [animation-delay:150ms] [animation-fill-mode:both] ${isDark ? 'bg-[#1e2347] border-white/5 shadow-2xl' : 'bg-white border-[#edf2f7] shadow-sm'}`}>
                 <div className={`p-6 flex justify-between items-center border-b flex-wrap gap-4 md:p-4 ${isDark ? 'border-white/5' : 'border-[#f7fafc]'}`}>
                     <h2 className={`text-[15px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-[#1a202c]'}`}>Lead Directory</h2>
@@ -255,19 +281,19 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                     </div>
                 </div>
 
-                <div className="overflow-x-auto custom-scrollbar">
+                <div className="overflow-hidden">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className={`${isDark ? 'bg-[#141829]/50' : 'bg-[#fbfeff]'}`}>
-                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>ID</th>
-                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Lead Name</th>
-                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Business Name</th>
-                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Loan Amount</th>
-                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Email / Phone</th>
-                                {isAccountsManager && <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Staff</th>}
-                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Last Note</th>
-                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Status</th>
-                                <th className={`text-left p-4 text-[10px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Actions</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[70px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>ID</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Lead Name</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Business</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b sm:hidden w-[100px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Amount</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Email / Phone</th>
+                                {isAccountsManager && <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Staff</th>}
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Last Note</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Status</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[130px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -278,40 +304,40 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                     className={`transition-colors border-b last:border-0 animate-rowIn cursor-pointer ${isDark ? 'hover:bg-white/5 border-white/5' : 'hover:bg-[#fcfdfe] border-[#f7fafc]'}`} 
                                     style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}
                                 >
-                                    <td className="p-4">
+                                    <td className="px-3 py-2.5">
                                         <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 tracking-tighter">#{lead.id}</span>
                                     </td>
-                                    <td className="p-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[12px] font-black shadow-inner ${isDark ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-[#f0f4ff] text-[#2447d7]'}`}>
+                                    <td className="px-3 py-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black shadow-inner shrink-0 ${isDark ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-[#f0f4ff] text-[#2447d7]'}`}>
                                                 {lead.name.split(' ').map(n => n[0]).join('')}
                                             </div>
-                                            <span className={`text-[12px] font-black truncate max-w-[150px] ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{lead.name}</span>
+                                            <span className={`text-[11px] font-black truncate max-w-[110px] ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{lead.name}</span>
                                         </div>
                                     </td>
-                                    <td className="p-4 sm:hidden">
-                                        <span className="text-[11px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-tight truncate max-w-[150px]">{lead.businessName || 'N/A'}</span>
+                                    <td className="px-3 py-2.5 sm:hidden">
+                                        <span className="text-[10px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-tight truncate max-w-[120px] block">{lead.businessName || 'N/A'}</span>
                                     </td>
-                                    <td className="p-4 sm:hidden">
+                                    <td className="px-3 py-2.5 sm:hidden">
                                         <div className="flex flex-col">
-                                            <span className={`text-[13px] font-black ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>${(lead.loanAmount || 0).toLocaleString()}</span>
-                                            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Loan Value</span>
+                                            <span className={`text-[11px] font-black ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>${(lead.loanAmount || 0).toLocaleString()}</span>
+                                            <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter">Loan</span>
                                         </div>
                                     </td>
-                                    <td className="p-4 sm:hidden">
+                                    <td className="px-3 py-2.5 sm:hidden">
                                         <div className="flex flex-col gap-0.5">
-                                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                                                <IconMail size={12} className="text-slate-400" />
-                                                <span className="truncate max-w-[140px]">{lead.email}</span>
+                                            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                                                <IconMail size={11} className="text-slate-400" />
+                                                <span className="truncate max-w-[120px]">{lead.email}</span>
                                             </div>
-                                            <div className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600 dark:text-slate-400">
-                                                <IconPhone size={12} className="text-slate-400" />
+                                            <div className="flex items-center gap-1 text-[10px] font-bold text-slate-600 dark:text-slate-400">
+                                                <IconPhone size={11} className="text-slate-400" />
                                                 <span className="whitespace-nowrap">{lead.phone}</span>
                                             </div>
                                         </div>
                                     </td>
                                     {isAccountsManager && (
-                                        <td className="p-4">
+                                        <td className="px-3 py-2.5">
                                             <div className="flex items-center gap-2">
                                                 {(() => {
                                                     const staff = users?.find(u => u.id === lead.assignedStaffId);
@@ -332,7 +358,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                             </div>
                                         </td>
                                     )}
-                                    <td className="p-4 sm:hidden">
+                                    <td className="px-3 py-2.5 sm:hidden">
                                         {(() => {
                                             const leadIdStr = lead.id.toString();
                                             const leadName = lead.name.toLowerCase();
@@ -364,7 +390,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                             );
                                         })()}
                                     </td>
-                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
+                                    <td className="px-3 py-2.5">
                                         <div className="flex items-center">
                                             {(() => {
                                                 const isDecisionMade = ['Loan Confirmed', 'Loan Rejected', 'Lender Selection'].includes(lead.status);
@@ -422,60 +448,41 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                             })()}
                                         </div>
                                     </td>
-                                    <td className="p-[16px_24px] md:p-[12px_16px] sm:p-3">
-                                        <div className="flex items-center gap-2 sm:gap-1">
-                                            <button 
-                                                className={`px-3 py-1.5 rounded-xl text-[11px] font-black transition-all border ${isDark ? 'border-white/10 text-blue-400 hover:bg-blue-500/10' : 'border-[#edf2f7] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`} 
-                                                onClick={() => onViewDetails(lead)}
-                                            >
-                                                DETAILS
-                                            </button>
+                                    <td className="px-3 py-2.5">
+                                        <div className="flex items-center gap-1">
                                             {!(lead.status === 'Document Verifications' && lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && !isAccountsManager && (
                                                 <button 
-                                                    className={`p-1.5 rounded-xl transition-all border ${isDark ? 'border-white/10 text-blue-400 hover:bg-blue-500/10' : 'border-[#edf2f7] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`}
-                                                    title="Upload/Manage Documents"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleOpenModal(lead);
-                                                    }}
+                                                    className={`p-1.5 rounded-lg transition-all border ${isDark ? 'border-white/10 text-blue-400 hover:bg-blue-500/10' : 'border-[#edf2f7] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`}
+                                                    title="Upload Documents"
+                                                    onClick={(e) => { e.stopPropagation(); handleOpenModal(lead); }}
                                                 >
-                                                    <IconUpload size={14} />
+                                                    <IconUpload size={13} />
                                                 </button>
                                             )}
                                             {isAccountsManager && (
                                                 <>
                                                     {['Document Verification Done', 'Lender Selection'].includes(lead.stage) && onSelectLender && (
                                                         <button
-                                                            className={`px-3 py-1.5 text-[10px] font-black border rounded-xl transition-all whitespace-nowrap ${isDark ? 'border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20' : 'border-[#e9d5ff] bg-[#f5f3ff] text-[#7c3aed] hover:bg-[#7c3aed] hover:text-white'}`}
+                                                            className={`p-1.5 rounded-lg transition-all border ${isDark ? 'border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20' : 'border-[#e9d5ff] bg-[#f5f3ff] text-[#7c3aed] hover:bg-[#7c3aed] hover:text-white'}`}
                                                             title="Select Lender"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                onSelectLender(lead);
-                                                            }}
+                                                            onClick={(e) => { e.stopPropagation(); onSelectLender(lead); }}
                                                         >
-                                                            LENDER
+                                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                                                         </button>
                                                     )}
                                                     <button
-                                                        className={`p-1.5 border rounded-xl transition-all ${isDark ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : 'border-[#ebf0ff] bg-[#f0f4ff] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`}
+                                                        className={`p-1.5 rounded-lg transition-all border ${isDark ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : 'border-[#ebf0ff] bg-[#f0f4ff] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`}
                                                         title="Reassign Lead"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setLeadToReassign(lead);
-                                                            setShowReassignModal(true);
-                                                        }}
+                                                        onClick={(e) => { e.stopPropagation(); setLeadToReassign(lead); setShowReassignModal(true); }}
                                                     >
-                                                        <IconUsers size={14} />
+                                                        <IconUsers size={13} />
                                                     </button>
                                                     <button
-                                                        className={`p-1.5 border rounded-xl transition-all ${isDark ? 'border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'border-[#fee2e2] bg-[#fef2f2] text-[#ef4444] hover:bg-[#ef4444] hover:text-white'}`}
+                                                        className={`p-1.5 rounded-lg transition-all border ${isDark ? 'border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20' : 'border-[#fee2e2] bg-[#fef2f2] text-[#ef4444] hover:bg-[#ef4444] hover:text-white'}`}
                                                         title="Delete Lead"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleDeleteLead(lead);
-                                                        }}
+                                                        onClick={(e) => { e.stopPropagation(); handleDeleteLead(lead); }}
                                                     >
-                                                        <IconTrash size={14} />
+                                                        <IconTrash size={13} />
                                                     </button>
                                                 </>
                                             )}
@@ -645,7 +652,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                 lead={leadToEdit} 
                 onSave={handleSaveEditedLead} 
             />
-        </div>
+        </>
     );
 };
 
