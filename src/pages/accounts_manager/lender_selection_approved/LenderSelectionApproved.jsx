@@ -133,10 +133,10 @@ const LenderSelectionApproved = () => {
         }, 0);
 
     const stats = [
-        { label: 'Total Leads',  value: approvedLeads.length,     bg: '#ebf0ff', color: '#2447d7', icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
-        { label: 'Approved',     value: totalApproved,   bg: '#ecfdf5', color: '#16a34a', icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></> },
-        { label: 'Rejected',     value: totalRejected,   bg: '#fff1f2', color: '#e11d48', icon: <><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></> },
-        { label: 'Pending',      value: totalPending,    bg: '#fff7ed', color: '#f97316', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
+        { label: 'Total Leads', value: approvedLeads.length,  bg: 'bg-blue-50 border-blue-100',    iconBg: 'bg-blue-600',    icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
+        { label: 'Approved',    value: totalApproved,         bg: 'bg-emerald-50 border-emerald-100', iconBg: 'bg-emerald-600', icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></> },
+        { label: 'Rejected',    value: totalRejected,         bg: 'bg-rose-50 border-rose-100',     iconBg: 'bg-rose-600',    icon: <><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></> },
+        { label: 'Pending',     value: totalPending,          bg: 'bg-amber-50 border-amber-100',   iconBg: 'bg-amber-500',   icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
     ];
 
     return (
@@ -157,13 +157,15 @@ const LenderSelectionApproved = () => {
             {/* Stats */}
             <div className="grid grid-cols-4 gap-4 xl:grid-cols-3 lg:grid-cols-2 sm:grid-cols-1">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex items-center gap-3 animate-kpiPop min-w-0" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: stat.bg }}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke={stat.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">{stat.icon}</svg>
-                        </div>
-                        <div className="min-w-0">
-                            <div className="text-[15px] font-bold text-[#1a202c] leading-none mb-0.5 truncate">{stat.value}</div>
-                            <div className="text-[11px] font-medium text-[#a0aec0]">{stat.label}</div>
+                    <div key={i} className={`rounded-xl border p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ${stat.bg}`} style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
+                        <div className="flex items-center gap-3">
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform shrink-0 ${stat.iconBg}`}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">{stat.icon}</svg>
+                            </div>
+                            <div className="min-w-0">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{stat.label}</div>
+                                <div className="text-base font-black text-slate-900 leading-none">{stat.value}</div>
+                            </div>
                         </div>
                     </div>
                 ))}

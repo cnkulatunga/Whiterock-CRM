@@ -1,12 +1,47 @@
 import React, { useState } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
-import { useReminders } from '../../../hooks/useReminders';
 import { canManageTask } from '../../../utils/permissionUtils';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 import { IconDocs, IconCheck, IconAlert, IconEye, IconPencil } from '../../../components/DocumentManagement/Icons';
 import EditLeadModal from './EditLeadModal';
 import { useTasks } from '../../../context/TasksContext';
 import { useLeads } from '../../../context/LeadsContext';
+
+/* ── tiny inline icons ── */
+const Ico = ({ d, size = 16, color }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke={color || 'currentColor'} strokeWidth="2" width={size} height={size}><path d={d} strokeLinecap="round" strokeLinejoin="round" /></svg>
+);
+const IconInfo   = () => <Ico d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />;
+const IconEmail  = () => <Ico d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />;
+const IconPhone  = () => <Ico d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />;
+const IconBank   = () => <Ico d="M3 10h18M3 14h18M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z" />;
+const IconUser   = () => <Ico d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />;
+const IconBell   = ({ color }) => <Ico d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" color={color} />;
+const IconPlus   = () => <Ico d="M12 4v16m8-8H4" size={14} />;
+const IconClose  = ({ size = 16 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={size} height={size}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
+const IconFile   = ({ size = 16 }) => <Ico d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" size={size} />;
+
+/* ── reusable table row ── */
+const Row = ({ label, value, span, highlight }) => (
+    <tr className={`border-b border-[#f1f5f9] last:border-0 ${highlight ? 'bg-[#f8faff]' : ''}`}>
+        <td className="py-2 pr-3 pl-4 text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider whitespace-nowrap w-[38%]">{label}</td>
+        <td className={`py-2 pr-4 text-[13px] font-semibold text-[#1a202c] ${span ? 'col-span-2' : ''}`}>{value || <span className="text-[#cbd5e1]">—</span>}</td>
+    </tr>
+);
+
+/* ── section card ── */
+const Card = ({ icon, iconBg, iconColor, title, children, action }) => (
+    <div className="bg-white rounded-xl border border-[#edf2f7] shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#f1f5f9]">
+            <div className="flex items-center gap-2.5">
+                <span className={`w-7 h-7 ${iconBg} ${iconColor} rounded-lg flex items-center justify-center flex-shrink-0`}>{icon}</span>
+                <span className="text-[13px] font-bold text-[#1a202c]">{title}</span>
+            </div>
+            {action}
+        </div>
+        {children}
+    </div>
+);
 
 const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const { theme } = useTheme();
@@ -17,15 +52,9 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const isManagerOrAbove = safeRole.includes('manager') || safeRole.includes('admin');
     const isTeamLeader = safeRole.includes('leader');
     const canApproveReject = isManagerOrAbove || isTeamLeader;
-    
-    // Use initialLead or a fallback
-    const [lead, setLead] = useState(initialLead || { 
-        id: 'AF-2026-0000', 
-        name: 'Guest Lead', 
-        businessName: '',
-        email: 'no-email@example.com', 
-        phone: 'N/A', 
-        documents: [] 
+
+    const [lead, setLead] = useState(initialLead || {
+        id: 'AF-2026-0000', name: 'Guest Lead', businessName: '', email: 'no-email@example.com', phone: 'N/A', documents: []
     });
 
     const leadId = lead.id?.toString().startsWith('AF-') ? lead.id : `AF-2026-${String(lead.id).padStart(4, '0')}`;
@@ -42,24 +71,15 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
     const handleAddNote = () => {
         if (!newNote.trim()) return;
-        
         const now = new Date();
-        const timestamp = {
+        const noteObj = {
+            id: Date.now(), text: newNote, author: currentUser.name || 'Tele Agent',
+            role: (currentUser.role || 'Tele Agent').toUpperCase(),
             date: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
             time: now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
         };
-
-        const noteObj = {
-            id: Date.now(),
-            text: newNote,
-            author: currentUser.name || 'Tele Agent',
-            role: (currentUser.role || 'Tele Agent').toUpperCase(),
-            ...timestamp
-        };
-
         const updatedHistory = [noteObj, ...(lead.noteHistory || [])];
         const updatedLead = { ...lead, noteHistory: updatedHistory, notes: newNote };
-        
         setLead(updatedLead);
         updateLead(lead.id, { noteHistory: updatedHistory, notes: newNote });
         setNewNote('');
@@ -67,13 +87,10 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
     const handleUpload = (leadId, docId, docName, file) => {
         const targetDocId = docId || Date.now();
-        // Capture locally to avoid stale-closure on state reads
         const previewUrl = file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
         const fileName = file?.name || docName;
         const today = new Date().toISOString().split('T')[0];
-
         setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0, file, previewUrl } }));
-
         let progress = 0;
         const interval = setInterval(() => {
             progress += 10;
@@ -86,7 +103,6 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                         ? prev.documents.map(d => d.id === targetDocId ? { ...newDoc, ...d, status: 'Pending', url: previewUrl, fileName } : d)
                         : [...prev.documents, newDoc];
                     const updated = { ...prev, documents: newDocs };
-                    // Sync to global context so Document Verification and Lead Monitoring see the change
                     updateLead(prev.id, { documents: newDocs });
                     return updated;
                 });
@@ -96,875 +112,397 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
             }
         }, 150);
     };
+
     const [newTask, setNewTask] = useState({
-        title: '',
-        lead: leadName,
-        email: lead.email || '',
-        phone: lead.phone || '',
-        date: new Date().toISOString().split('T')[0],
-        time: '12:00',
-        type: 'Call',
-        reminder: 'none',
-        message: ''
+        title: '', lead: leadName, email: lead.email || '', phone: lead.phone || '',
+        date: new Date().toISOString().split('T')[0], time: '12:00', type: 'Call', reminder: 'none', message: ''
     });
 
     const handleAddTask = (e) => {
         e.preventDefault();
-        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
-        const taskToAdd = {
-            ...newTask,
-            id: Date.now(),
-            status: 'Pending',
-            lead: lead.name,
-            leadId: leadId,
-            assignedTo: currentUser.id?.toString() || 'Self',
-            createdBy: currentUser.role || 'System',
-            creatorId: currentUser.id
-        };
-        
-        addTask(taskToAdd);
+        const cu = JSON.parse(localStorage.getItem('user') || '{}');
+        addTask({ ...newTask, id: Date.now(), status: 'Pending', lead: lead.name, leadId, assignedTo: cu.id?.toString() || 'Self', createdBy: cu.role || 'System', creatorId: cu.id });
         setIsAddingTask(false);
-        setNewTask({
-            title: '',
-            lead: leadName,
-            email: lead.email || '',
-            phone: lead.phone || '',
-            date: new Date().toISOString().split('T')[0],
-            time: '12:00',
-            type: 'Call',
-            reminder: 'none',
-            message: ''
-        });
+        setNewTask({ title: '', lead: leadName, email: lead.email || '', phone: lead.phone || '', date: new Date().toISOString().split('T')[0], time: '12:00', type: 'Call', reminder: 'none', message: '' });
     };
 
-    const updateTaskStatus = (id, newStatus) => {
-        updateTask({ ...tasks.find(t => t.id === id), status: newStatus });
-    };
+    const updateTaskStatus   = (id, s) => updateTask({ ...tasks.find(t => t.id === id), status: s });
+    const updateTaskReminder = (id, r) => updateTask({ ...tasks.find(t => t.id === id), reminder: r });
 
-    const updateTaskReminder = (id, newReminder) => {
-        updateTask({ ...tasks.find(t => t.id === id), reminder: newReminder });
+    /* ── status badge ── */
+    const statusColors = {
+        'Document Collection': 'bg-blue-50 text-blue-600 border-blue-100',
+        'Document Verification Done': 'bg-teal-50 text-teal-600 border-teal-100',
+        'Lender Selection': 'bg-purple-50 text-purple-600 border-purple-100',
+        'Completed': 'bg-green-50 text-green-600 border-green-100',
+        'Loan Confirmed': 'bg-green-50 text-green-600 border-green-100',
+        'Rejected': 'bg-red-50 text-red-600 border-red-100',
+        'Loan Rejected': 'bg-red-50 text-red-600 border-red-100',
     };
+    const currentStatus = lead.status || lead.stage || 'Document Collection';
+    const statusCls = statusColors[currentStatus] || 'bg-gray-50 text-gray-600 border-gray-100';
+
+    /* ── progress stages ── */
+    const stages = [
+        { id: 'Document Collection', label: 'Doc Collected' },
+        { id: 'Document Verification Done', label: 'Doc Verified' },
+        { id: 'Lender Selection', label: 'Lender Selection' },
+        { id: 'Loan Confirmed', label: 'Loan Confirmed' },
+        { id: 'Loan Rejected', label: 'Loan Rejected' },
+    ];
+    const stageIndex = { 'Document Collection': 0, 'Document Verification Done': 1, 'Lender Selection': 2, 'Completed': 3, 'Loan Confirmed': 3, 'Rejected': 4, 'Loan Rejected': 4 };
+    const currentIdx = stageIndex[currentStatus] ?? 0;
 
     return (
-        <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
+        <div className="flex flex-col gap-4 animate-fadeIn font-['Sora',sans-serif]">
+
             {/* ── HEADER ── */}
-            <div className="flex justify-between items-center mb-2 md:flex-col md:items-start md:gap-4">
-                <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-3">
-                        <button onClick={onBack} className="p-2 -ml-2 rounded-lg hover:bg-gray-100 transition-colors md:hidden">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20" className="text-gray-600"><polyline points="15 18 9 12 15 6" /></svg>
-                        </button>
-                        <h1 className="text-[1.75rem] font-bold text-[#1a202c] tracking-tight sm:text-xl">Lead: {leadId}</h1>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                    <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><polyline points="15 18 9 12 15 6" /></svg>
+                    </button>
+                    <div>
+                        <div className="flex items-center gap-2.5">
+                            <h1 className="text-xl font-bold text-[#1a202c]">{leadId}</h1>
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${statusCls}`}>{currentStatus}</span>
+                        </div>
+                        <p className="text-xs text-[#94a3b8] mt-0.5">
+                            Created {lead.submissionDate || lead.date || '—'} · Agent: <strong className="text-[#4a5568]">{lead.agentName || lead.agent || '—'}</strong>
+                        </p>
                     </div>
-                    <p className="flex items-center gap-1.5 text-sm text-[#718096] flex-wrap">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
-                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                            <line x1="16" y1="2" x2="16" y2="6" />
-                            <line x1="8" y1="2" x2="8" y2="6" />
-                            <line x1="3" y1="10" x2="21" y2="10" />
-                        </svg>
-                        Created on {lead.submissionDate || lead.date || 'Oct 24, 2023'} • Assigned to <strong className="text-[#1a202c]">{lead.agentName || lead.agent || 'Sarah Jenkins'}</strong>
-                    </p>
+                </div>
+                {isManagerOrAbove && (
+                    <button onClick={() => setShowEditModal(true)} className="flex items-center gap-1.5 bg-[#f0f4ff] text-[#2447d7] px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#2447d7] hover:text-white transition-all">
+                        <IconPencil size={13} /> Edit Lead
+                    </button>
+                )}
+            </div>
+
+            {/* ── PROGRESS BAR ── */}
+            <div className="bg-white rounded-xl border border-[#edf2f7] px-6 py-4 shadow-sm overflow-x-auto">
+                <div className="flex items-center min-w-[520px]">
+                    {stages.map((s, i) => {
+                        const done = i < currentIdx;
+                        const active = i === currentIdx;
+                        const rejected = s.id === 'Loan Rejected' && active;
+                        const dot = done ? 'bg-[#10b981]' : active ? (rejected ? 'bg-red-500' : 'bg-[#2447d7]') : 'bg-[#e2e8f0]';
+                        const txt = done ? 'text-[#10b981]' : active ? (rejected ? 'text-red-500' : 'text-[#2447d7]') : 'text-[#cbd5e1]';
+                        const line = i < currentIdx ? 'bg-[#10b981]' : 'bg-[#e2e8f0]';
+                        return (
+                            <React.Fragment key={s.id}>
+                                <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                                    <div className={`w-7 h-7 ${dot} rounded-full flex items-center justify-center ${active ? 'ring-4 ring-offset-1 ring-current/20' : ''}`}>
+                                        {done && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="12" height="12"><polyline points="20 6 9 17 4 12" /></svg>}
+                                        {active && rejected && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                                    </div>
+                                    <span className={`text-[9px] font-bold uppercase tracking-tight ${txt} text-center max-w-[64px] leading-tight`}>{s.label}</span>
+                                </div>
+                                {i < stages.length - 1 && <div className={`flex-1 h-0.5 ${line} mx-1 mt-[-14px]`} />}
+                            </React.Fragment>
+                        );
+                    })}
                 </div>
             </div>
 
-            {/* ── PROGRESS TRACKER ── */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] p-8 px-12 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-x-auto md:p-6 md:px-4 md:mx-[-12px] md:rounded-none">
-                <div className="flex items-start justify-between min-w-[750px] sm:min-w-[600px]">
-                    {(() => {
-                        const stages = [
-                            { id: 'Document Collection', label: 'Document Collected' },
-                            { id: 'Document Verification Done', label: 'Document Verification Done' },
-                            { id: 'Lender Selection', label: 'Lender Selection' },
-                            { id: 'Loan Confirmed', label: 'Loan Confirmed' },
-                            { id: 'Loan Rejected', label: 'Loan Rejected' }
-                        ];
+            {/* ── MAIN GRID: 3 columns on large, 2 on md, 1 on sm ── */}
+            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1">
 
-                        const currentStatus = lead.status || lead.stage || 'Document Collection';
-                        
-                        // Map status to index
-                        let currentIndex = 0;
-                        if (currentStatus === 'Document Verification Done') currentIndex = 1;
-                        else if (currentStatus === 'Lender Selection') currentIndex = 2;
-                        else if (['Completed', 'Loan Confirmed'].includes(currentStatus)) currentIndex = 3;
-                        else if (['Rejected', 'Loan Rejected'].includes(currentStatus)) currentIndex = 4;
+                {/* ── COL 1: Contact & Personal ── */}
+                <div className="flex flex-col gap-4">
 
-                        return stages.map((stage, index) => {
-                            const isCompleted = index < currentIndex;
-                            const isCurrent = index === currentIndex;
-                            const isLast = index === stages.length - 1;
-                            
-                            // Special handling for final stages
-                            const isRejected = ['Rejected', 'Loan Rejected'].includes(currentStatus);
-                            const isConfirmed = ['Completed', 'Loan Confirmed'].includes(currentStatus);
-                            
-                            let bgColor = 'bg-[#edf2f7]';
-                            let textColor = 'text-[#a0aec0]';
-                            let icon = null;
+                    {/* Contact Info */}
+                    <Card icon={<IconUser />} iconBg="bg-[#ebf0ff]" iconColor="text-[#2447d7]" title="Contact Info">
+                        <table className="w-full text-left">
+                            <tbody>
+                                <Row label="Full Name"   value={<span className="font-bold text-[#1a202c]">{leadName}</span>} />
+                                {lead.businessName && <Row label="Business"  value={lead.businessName} highlight />}
+                                <Row label="Email"       value={<a href={`mailto:${lead.email}`} className="text-[#2447d7] hover:underline">{lead.email || lead.emailAddress}</a>} />
+                                <Row label="Phone"       value={<a href={`tel:${lead.phone}`} className="text-[#10b981] hover:underline">{lead.phone || lead.phoneNumber}</a>} />
+                                <Row label="Pref. Contact" value={lead.preferredContactMethod?.length > 0 ? lead.preferredContactMethod.join(', ') : null} />
+                                <Row label="Lead Source" value={lead.source || lead.leadSource} />
+                                <Row label="Lead ID"     value={<span className="font-mono text-xs bg-[#f1f5f9] px-2 py-0.5 rounded">{leadId}</span>} />
+                            </tbody>
+                        </table>
+                    </Card>
 
-                            if (isCompleted) {
-                                bgColor = 'bg-[#10b981]';
-                                textColor = 'text-[#10b981]';
-                                icon = (
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="14" height="14">
-                                        <polyline points="20 6 9 17 4 12" />
-                                    </svg>
-                                );
-                            } else if (isCurrent) {
-                                if (stage.id === 'Loan Rejected' && isRejected) {
-                                    bgColor = 'bg-red-500';
-                                    textColor = 'text-red-500';
-                                } else {
-                                    bgColor = 'bg-[#2447d7]';
-                                    textColor = 'text-[#2447d7]';
-                                }
+                    {/* Personal Info */}
+                    <Card icon={<IconInfo />} iconBg="bg-[#f0f9ff]" iconColor="text-[#0ea5e9]" title="Personal Info">
+                        <table className="w-full text-left">
+                            <tbody>
+                                <Row label="Date of Birth"    value={lead.dob} />
+                                <Row label="Home Owner"       value={lead.homeOwner} />
+                                <Row label="Residential Addr" value={lead.residentialAddress} />
+                                <Row label="Time at Address"  value={lead.timeAtCurrentAddress} />
+                                {lead.previousAddress && <Row label="Previous Addr" value={lead.previousAddress} />}
+                                <Row label="Job Title"        value={lead.jobTitle} />
+                            </tbody>
+                        </table>
+                    </Card>
+
+                </div>
+
+                {/* ── COL 2: Business & Loan ── */}
+                <div className="flex flex-col gap-4">
+
+                    {/* Business Details */}
+                    <Card icon={<IconBank />} iconBg="bg-[#fefce8]" iconColor="text-[#ca8a04]" title="Business Details">
+                        <table className="w-full text-left">
+                            <tbody>
+                                <Row label="Industry"          value={lead.industry} />
+                                <Row label="Company House No." value={lead.nic || lead.companyHouseNumber} highlight />
+                                <Row label="Annual Turnover"   value={lead.businessAnnualTurnover ? `£${lead.businessAnnualTurnover}` : null} />
+                                <Row label="Company Bank"      value={lead.companyBank} />
+                                <Row label="Overdraft"         value={lead.overdraftFacility} />
+                            </tbody>
+                        </table>
+                    </Card>
+
+                    {/* Loan Details */}
+                    <Card icon={<IconBank />} iconBg="bg-[#fff7ed]" iconColor="text-[#ea580c]" title="Loan Details">
+                        <table className="w-full text-left">
+                            <tbody>
+                                <Row label="Amount Needed"     value={<span className="text-[#2447d7] font-bold">{lead.loanAmount || lead.amount}</span>} highlight />
+                                <Row label="Loan Purpose"      value={lead.loanPurpose} />
+                                <Row label="Funding Timeline"  value={lead.fundingTimeline} />
+                                <Row label="Existing Loan"     value={lead.existingLoan === 'Yes'
+                                    ? `Yes — ${lead.existingLoanLenderName || ''}${lead.existingLoanAmount ? ` £${lead.existingLoanAmount}` : ''}`
+                                    : lead.existingLoan} />
+                                {lead.existingLoan === 'Yes' && <>
+                                    <Row label="Existing Rate"     value={lead.existingLoanInterestRate ? `${lead.existingLoanInterestRate}%` : null} />
+                                    <Row label="Monthly Repayment" value={lead.existingLoanMonthlyRepayment ? `£${lead.existingLoanMonthlyRepayment}` : null} />
+                                    <Row label="Loan Term"         value={lead.existingLoanTerm} />
+                                </>}
+                            </tbody>
+                        </table>
+                    </Card>
+
+                    {/* Notes */}
+                    <Card icon={<IconBell />} iconBg="bg-[#fdf4ff]" iconColor="text-[#a855f7]" title="Notes">
+                        <div className="p-4">
+                            {lead.notes
+                                ? <p className="text-xs text-[#4a5568] bg-[#f8fafc] rounded-lg p-3 border border-[#edf2f7] italic">{lead.notes}</p>
+                                : <p className="text-[11px] text-[#94a3b8] italic text-center py-2">No notes added.</p>
                             }
-
-                            return (
-                                <React.Fragment key={stage.id}>
-                                    <div className="flex flex-col items-center gap-2 flex-1">
-                                        <div className={`w-8 h-8 ${bgColor} rounded-full flex items-center justify-center transition-all duration-500 ${isCurrent ? 'border-[4px] border-[#ebf0ff]' : ''}`}>
-                                            {icon}
-                                            {isCurrent && !icon && stage.id.includes('Rejected') && (
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="14" height="14">
-                                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                                </svg>
-                                            )}
-                                        </div>
-                                        <span className={`text-[10px] font-bold ${textColor} text-center uppercase tracking-tight max-w-[80px] sm:text-[9px]`}>{stage.label}</span>
-                                    </div>
-                                    {!isLast && (
-                                        <div className={`flex-1 h-0.5 ${index < currentIndex ? 'bg-[#10b981]' : 'bg-[#edf2f7]'} mt-[15px] min-w-[15px] transition-all duration-500`}></div>
-                                    )}
-                                </React.Fragment>
-                            );
-                        });
-                    })()}
+                        </div>
+                    </Card>
                 </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-6 lg:grid-cols-1">
-                {/* ── LEFT COLUMN ── */}
-                <div className="flex flex-col gap-6">
-                    {/* Lead Details Info */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
-                        <div className="flex items-center justify-between p-5 border-b border-[#f7fafc]">
-                            <div className="flex items-center gap-3">
-                                <span className="w-8 h-8 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center flex-shrink-0"><IconInfo /></span>
-                                <h3 className="text-base font-bold text-[#1a202c]">Lead Details</h3>
-                            </div>
-                            {isManagerOrAbove && (
-                                <button 
-                                    onClick={() => setShowEditModal(true)}
-                                    className="bg-[#f0f4ff] text-[#2447d7] p-1.5 px-3 rounded-lg text-xs font-bold hover:bg-[#2447d7] hover:text-white transition-all flex items-center gap-1.5"
-                                >
-                                    <IconPencil size={14} /> Edit
-                                </button>
+                {/* ── COL 3: Tasks, Team, Documents ── */}
+                <div className="flex flex-col gap-4">
+
+                    {/* Tasks & Follow-ups */}
+                    <Card
+                        icon={<IconBell color="#ea580c" />} iconBg="bg-[#fff7ed]" iconColor="text-[#ea580c]" title="Tasks & Follow-ups"
+                        action={<button onClick={() => setIsAddingTask(true)} className="flex items-center gap-1 bg-[#2447d7] text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-[#1a36b1] transition-all"><IconPlus /> Add</button>}
+                    >
+                        <div className="p-3 flex flex-col gap-2 max-h-[340px] overflow-y-auto scrollbar-thin">
+                            {leadTasks.length > 0 ? leadTasks.map(task => (
+                                <div key={task.id} className="bg-[#f8fafc] border border-[#edf2f7] rounded-lg p-3 flex flex-col gap-2">
+                                    <div className="flex items-start justify-between gap-2">
+                                        <div>
+                                            <p className="text-[12px] font-bold text-[#1a202c]">{task.title}</p>
+                                            <p className="text-[10px] text-[#94a3b8]">{task.date} · {task.time}</p>
+                                        </div>
+                                        <select
+                                            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border outline-none cursor-pointer ${task.status === 'Completed' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}
+                                            value={task.status}
+                                            onChange={e => updateTaskStatus(task.id, e.target.value)}
+                                        >
+                                            <option>Pending</option>
+                                            <option>In Progress</option>
+                                            <option>Completed</option>
+                                        </select>
+                                    </div>
+                                    {task.message && <p className="text-[10px] text-[#718096] italic bg-white p-2 rounded border border-[#f1f5f9]">"{task.message}"</p>}
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="text-[9px] font-bold text-[#94a3b8] uppercase">Reminder:</span>
+                                        <select className="bg-transparent border-none text-[9px] font-bold text-[#2447d7] outline-none cursor-pointer" value={task.reminder} onChange={e => updateTaskReminder(task.id, e.target.value)}>
+                                            <option value="none">Off</option>
+                                            <option value="15m">15m</option>
+                                            <option value="1h">1h</option>
+                                            <option value="1d">1d</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            )) : (
+                                <p className="text-[11px] text-[#94a3b8] italic text-center py-4">No tasks for this lead.</p>
                             )}
                         </div>
-                        <div className="p-6">
-                            <div className="grid grid-cols-2 gap-5 sm:grid-cols-1">
-                                <div className="flex flex-col gap-2 col-span-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LEAD ID</label>
-                                    <div className="flex items-center gap-2.5 bg-[#f8fafc] border border-[#edf2f7] p-[10px_16px] rounded-xl text-sm font-semibold text-[#4a5568] w-fit">
-                                        <IconInfo />
-                                        <span>{leadId}</span>
-                                    </div>
-                                </div>
+                    </Card>
 
-                                <div className="flex flex-col gap-2 col-span-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">CUSTOMER NAME</label>
-                                    <div className="text-2xl font-bold text-[#1a202c] tracking-tight sm:text-xl">{leadName}</div>
-                                </div>
-
-                                {lead.businessName && (
-                                    <div className="flex flex-col gap-2 col-span-2 bg-[#f0f4ff]/40 p-3 rounded-xl border border-[#dfe7ff]/50">
-                                        <label className="text-[10px] font-bold text-[#2447d7] uppercase tracking-wider">BUSINESS NAME</label>
-                                        <div className="text-base font-bold text-[#2447d7]">{lead.businessName}</div>
-                                    </div>
-                                )}
-                                
-                                <div className="flex flex-col gap-2 md:col-span-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">AMOUNT NEEDED</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.loanAmount || lead.amount || 'N/A'}</div>
-                                </div>
-                                
-                                <div className="flex flex-col gap-2 md:col-span-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LOAN PURPOSE</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.loanPurpose || 'N/A'}</div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">INDUSTRY</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.industry || 'N/A'}</div>
-                                </div>
-                                
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LEAD SOURCE</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.source || lead.leadSource || 'N/A'}</div>
-                                </div>
-                                
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">FUNDING TIMELINE</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.fundingTimeline || 'N/A'}</div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">JOB TITLE</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.jobTitle || 'N/A'}</div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">COMPANY HOUSE NO.</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.nic || lead.companyHouseNumber || 'N/A'}</div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ANNUAL TURNOVER</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.businessAnnualTurnover ? `£${lead.businessAnnualTurnover}` : 'N/A'}</div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">EXISTING LOAN</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.existingLoan === 'Yes' ? `Yes (${lead.existingLoanAmount ? '£' + lead.existingLoanAmount : 'Amount Unspecified'})` : 'No'}</div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">COMPANY BANK</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.companyBank || 'N/A'}</div>
-                                </div>
-
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">PREF. CONTACT</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.preferredContactMethod?.length > 0 ? lead.preferredContactMethod.join(', ') : 'N/A'}</div>
-                                </div>
-                                
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">HOME OWNER</label>
-                                    <div className="text-sm font-bold text-[#1a202c]">{lead.homeOwner || 'N/A'}</div>
-                                </div>
-
-                                <div className="flex flex-col gap-2 md:col-span-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">EMAIL ADDRESS</label>
-                                    <div className="flex items-center gap-2.5 p-[10px_12px] bg-white border border-[#edf2f7] rounded-xl cursor-pointer hover:border-[#2447d7] hover:bg-[#f0f4ff] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(36,71,215,0.08)] transition-all">
-                                        <div className="w-7 h-7 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center shrink-0"><IconEmail /></div>
-                                        <span className="text-[13px] font-semibold text-[#4a5568] break-all leading-tight">{lead.email || lead.emailAddress || 'no-email@example.com'}</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex flex-col gap-2 md:col-span-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">PHONE NUMBER</label>
-                                    <div className="flex items-center gap-2.5 p-[10px_12px] bg-white border border-[#edf2f7] rounded-xl cursor-pointer hover:border-[#2447d7] hover:bg-[#ecfdf5] hover:-translate-y-0.5 hover:shadow-[0_4px_12px_rgba(16,185,129,0.08)] transition-all">
-                                        <div className="w-7 h-7 bg-[#ecfdf5] text-[#10b981] rounded-lg flex items-center justify-center shrink-0"><IconPhone /></div>
-                                        <span className="text-[13px] font-semibold text-[#4a5568] leading-tight">{lead.phone || lead.phoneNumber || 'N/A'}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
-
-                    {/* Loan & Mortgage Details */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
-                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
-                            <span className="w-8 h-8 bg-[#fefce8] text-[#ca8a04] rounded-lg flex items-center justify-center flex-shrink-0"><IconBank /></span>
-                            <h3 className="text-base font-bold text-[#1a202c]">Loan & Financial Details</h3>
-                        </div>
-                        <div className="p-6">
-                            <div className="grid grid-cols-2 gap-5 sm:grid-cols-1">
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LOAN AMOUNT</label>
-                                    <div className="text-lg font-bold text-[#2447d7]">{lead.loanAmount || lead.amount || 'N/A'}</div>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">FUNDING TIMELINE</label>
-                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.fundingTimeline || 'N/A'}</div>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">LOAN PURPOSE</label>
-                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.loanPurpose || 'N/A'}</div>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">OVERDRAFT FACILITY</label>
-                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.overdraftFacility || 'No'}</div>
-                                </div>
-
-                                {lead.existingLoan === 'Yes' && (
-                                    <div className="col-span-2 bg-[#f8fafc] p-4 rounded-xl border border-[#edf2f7] mt-2">
-                                        <label className="text-[10px] font-bold text-[#2447d7] uppercase tracking-wider block mb-3">EXISTING LOAN SPECIFICATIONS</label>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Lender</span>
-                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanLenderName || 'N/A'}</span>
-                                            </div>
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Amount</span>
-                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanAmount ? `£${lead.existingLoanAmount}` : 'N/A'}</span>
-                                            </div>
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Interest Rate</span>
-                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanInterestRate ? `${lead.existingLoanInterestRate}%` : 'N/A'}</span>
-                                            </div>
-                                            <div className="flex flex-col gap-0.5">
-                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Monthly Repayment</span>
-                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanMonthlyRepayment ? `£${lead.existingLoanMonthlyRepayment}` : 'N/A'}</span>
-                                            </div>
-                                            <div className="flex flex-col gap-0.5 col-span-2">
-                                                <span className="text-[10px] text-[#a0aec0] font-bold uppercase">Loan Term</span>
-                                                <span className="text-sm font-bold text-[#4a5568]">{lead.existingLoanTerm || 'N/A'}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                {/* ── RIGHT COLUMN ── */}
-                <div className="flex flex-col gap-6">
                     {/* Team & Assignment */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
-                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
-                            <span className="w-8 h-8 bg-[#f0fdf4] text-[#16a34a] rounded-lg flex items-center justify-center flex-shrink-0">
-                                <IconUser />
-                            </span>
-                            <h3 className="text-base font-bold text-[#1a202c]">Team & Assignment</h3>
-                        </div>
-                        <div className="p-6">
-                            <div className="grid grid-cols-1 gap-4">
-                                <div className="flex items-center justify-between p-3.5 bg-[#f8fafc] rounded-2xl border border-[#edf2f7] hover:border-[#2447d7]/20 transition-all group">
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Tele Agent</span>
-                                        <span className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#2447d7] transition-colors">{lead.agentName || lead.agent || 'Not Assigned'}</span>
-                                    </div>
-                                    <div className="w-9 h-9 bg-white shadow-sm border border-[#edf2f7] text-[#2447d7] rounded-xl flex items-center justify-center text-[13px] font-black">
-                                        {(lead.agentName || lead.agent || 'N').charAt(0)}
-                                    </div>
-                                </div>
+                    <Card icon={<IconUser />} iconBg="bg-[#f0fdf4]" iconColor="text-[#16a34a]" title="Team & Assignment">
+                        <table className="w-full text-left">
+                            <tbody>
+                                <Row label="Tele Agent"    value={lead.agentName || lead.agent} />
+                                <Row label="Team Leader"   value={lead.tl} />
+                                <Row label="Acct. Manager" value={lead.manager} />
+                                <Row label="Submitted"     value={lead.submissionDate || lead.date} />
+                                <Row label="Last Contact"  value={lead.lastContact} />
+                            </tbody>
+                        </table>
+                    </Card>
 
-                                <div className="flex items-center justify-between p-3.5 bg-[#f8fafc] rounded-2xl border border-[#edf2f7] hover:border-[#10b981]/20 transition-all group">
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Team Leader</span>
-                                        <span className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#10b981] transition-colors">{lead.tl || 'Sarah Jenkins'}</span>
-                                    </div>
-                                    <div className="w-9 h-9 bg-white shadow-sm border border-[#edf2f7] text-[#10b981] rounded-xl flex items-center justify-center text-[13px] font-black">
-                                        {(lead.tl || 'S').charAt(0)}
-                                    </div>
-                                </div>
-
-                                <div className="flex items-center justify-between p-3.5 bg-[#f8fafc] rounded-2xl border border-[#edf2f7] hover:border-[#7c3aed]/20 transition-all group">
-                                    <div className="flex flex-col gap-0.5">
-                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Account Manager</span>
-                                        <span className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#7c3aed] transition-colors">{lead.manager || 'Marcus Smith'}</span>
-                                    </div>
-                                    <div className="w-9 h-9 bg-white shadow-sm border border-[#edf2f7] text-[#7c3aed] rounded-xl flex items-center justify-center text-[13px] font-black">
-                                        {(lead.manager || 'M').charAt(0)}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Personal Information */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
-                        <div className="flex items-center gap-3 p-5 border-b border-[#f7fafc]">
-                            <span className="w-8 h-8 bg-[#f0f9ff] text-[#0ea5e9] rounded-lg flex items-center justify-center flex-shrink-0"><IconUser /></span>
-                            <h3 className="text-base font-bold text-[#1a202c]">Personal Information</h3>
-                        </div>
-                        <div className="p-6">
-                            <div className="grid grid-cols-2 gap-5 sm:grid-cols-1">
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">DATE OF BIRTH</label>
-                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.dob || 'N/A'}</div>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">NIC / ID NUMBER</label>
-                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.nic || 'N/A'}</div>
-                                </div>
-                                <div className="flex flex-col gap-1 col-span-2">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">RESIDENTIAL ADDRESS</label>
-                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.residentialAddress || 'N/A'}</div>
-                                </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">TIME AT ADDRESS</label>
-                                    <div className="text-sm font-semibold text-[#4a5568]">{lead.timeAtCurrentAddress || 'N/A'}</div>
-                                </div>
-                                {lead.previousAddress && (
-                                    <div className="flex flex-col gap-1 col-span-2">
-                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">PREVIOUS ADDRESS</label>
-                                        <div className="text-sm font-semibold text-[#4a5568]">{lead.previousAddress}</div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Documents section */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
-                        <div className="flex justify-between items-center p-5 border-b border-[#f7fafc] gap-3 sm:flex-col sm:items-start">
-                            <div className="flex items-center gap-3">
-                                <span className="w-8 h-8 bg-[#f3e8ff] text-[#7c3aed] rounded-lg flex items-center justify-center flex-shrink-0"><IconDocs /></span>
-                                <h3 className="text-base font-bold text-[#1a202c]">Documents & Verification</h3>
-                            </div>
-                            {!(lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
-                                <button 
-                                    onClick={() => setShowModal(true)}
-                                    className="bg-[#2447d7] text-white p-1.5 px-4 rounded-lg text-xs font-bold hover:bg-[#1a36b1] transition-all shadow-sm"
-                                >
-                                    Manage Docs
-                                </button>
-                            )}
-                        </div>
-                        <div className="p-8 pb-10 flex flex-col items-center justify-center text-center gap-4">
+                    {/* Documents */}
+                    <Card
+                        icon={<IconDocs />} iconBg="bg-[#f3e8ff]" iconColor="text-[#7c3aed]" title="Documents"
+                        action={!(lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
+                            <button onClick={() => setShowModal(true)} className="bg-[#2447d7] text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-[#1a36b1] transition-all">Manage</button>
+                        )}
+                    >
+                        <div className="p-3 flex flex-col gap-2">
+                            {/* Status badge */}
                             {(() => {
                                 const hasRejected = lead.documents?.some(d => d.status === 'Rejected');
-                                const isAllVerified = lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0;
+                                const allApproved = lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0;
                                 const docCount = lead.documents?.length || 0;
                                 const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
-
-                                if (hasRejected || lead.status === 'Loan Rejected' || lead.stage === 'Rejected' || lead.status === 'Rejected') {
-                                    return (
-                                        <div className="flex flex-col items-center gap-3">
-                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm animate-pulse">
-                                                <IconAlert size={14} /> {lead.status === 'Document Verifications' ? 'Docs Rejected' : 'Rejected'}
-                                            </span>
-                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">
-                                                {lead.status === 'Loan Rejected' || lead.stage === 'Rejected' || lead.status === 'Rejected' ? 'This loan application has been declined.' : 'Some documents were rejected. Please review and re-upload.'}
-                                            </p>
-                                            {lead.rejectionReason && (
-                                                <div className="mt-2 p-3 bg-red-50 border border-red-100 rounded-xl max-w-[280px] w-full">
-                                                    <div className="text-[10px] font-bold text-red-600 uppercase tracking-wider mb-1">Rejection Reason</div>
-                                                    <p className="text-[11px] text-[#4a5568] leading-relaxed">{lead.rejectionReason}</p>
-                                                    {lead.rejectionDate && (
-                                                        <div className="text-[9px] text-[#94a3b8] mt-1">Rejected on {lead.rejectionDate}</div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                }
-                                if (lead.status === 'Loan Confirmed' || isAllVerified) {
-                                    return (
-                                        <div className="flex flex-col items-center gap-3">
-                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm text-center">
-                                                <IconCheck size={14} strokeWidth={3} /> {lead.status === 'Loan Confirmed' ? 'Loan Confirmed' : 'Fully Verified'}
-                                            </span>
-                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">
-                                                {lead.status === 'Loan Confirmed' ? 'The loan has been successfully approved and confirmed.' : 'All submitted documents have been approved by the Team Leader.'}
-                                            </p>
-                                        </div>
-                                    );
-                                }
-                                if (lead.status === 'Lender Selection') {
-                                    return (
-                                        <div className="flex flex-col items-center gap-3">
-                                            <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100 shadow-sm">
-                                                <IconCheck size={14} strokeWidth={3} /> Lender Selection
-                                            </span>
-                                            <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">Lead is currently in the lender selection phase.</p>
-                                        </div>
-                                    );
-                                }
-                                return (
-                                    <div className="flex flex-col items-center gap-3">
-                                        <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
-                                            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(36,71,215,0.4)]" />
-                                            Checking ({approvedCount}/{docCount})
-                                        </span>
-                                        <p className="text-[11px] text-[#718096] font-medium leading-relaxed max-w-[200px]">Document verification is currently in progress.</p>
-                                    </div>
-                                );
+                                if (hasRejected || ['Rejected','Loan Rejected'].includes(currentStatus))
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-red-50 text-red-600 border border-red-100"><IconAlert size={11} /> Rejected</span>;
+                                if (['Loan Confirmed','Completed'].includes(currentStatus) || allApproved)
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-green-50 text-green-600 border border-green-100"><IconCheck size={11} strokeWidth={3} /> All Verified</span>;
+                                if (currentStatus === 'Lender Selection')
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-purple-50 text-purple-600 border border-purple-100"><IconCheck size={11} strokeWidth={3} /> Lender Selection</span>;
+                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-blue-50 text-blue-600 border border-blue-100">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Checking ({approvedCount}/{docCount})
+                                </span>;
                             })()}
-                        </div>
 
-                        {/* Inline Document List */}
-                        {lead.documents?.length > 0 && (
-                            <div className="px-5 pb-6">
-                                <div className="bg-[#f8fafc] rounded-xl border border-[#edf2f7] overflow-hidden">
-                                    <div className="p-3 px-4 bg-[#f1f5f9]/50 border-b border-[#edf2f7]">
-                                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">
-                                            {lead.status === 'Loan Confirmed' ? 'CONFIRMED DOCUMENTS' : 'SUBMITTED DOCUMENTS'}
-                                        </span>
-                                    </div>
-                                    <div className="divide-y divide-[#edf2f7]">
-                                        {lead.documents.map(doc => (
-                                            <div key={doc.id} className="p-3 px-4 flex items-center justify-between hover:bg-white transition-colors">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${doc.status === 'Approved' ? 'bg-[#ecfdf5] text-[#10b981]' : doc.status === 'Rejected' ? 'bg-[#fff1f2] text-[#f43f5e]' : 'bg-[#f0f4ff] text-[#2447d7]'}`}>
-                                                        <IconFile size={16} />
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-xs font-bold text-[#1a202c]">{doc.type}</span>
-                                                        <span className={`text-[10px] font-bold uppercase tracking-tight ${doc.status === 'Approved' ? 'text-[#10b981]' : doc.status === 'Rejected' ? 'text-[#f43f5e]' : 'text-[#718096]'}`}>
-                                                            {lead.status === 'Loan Confirmed' && doc.status === 'Approved' ? 'Confirmed' : doc.status}
-                                                        </span>
-                                                    </div>
+                            {/* Doc list */}
+                            {lead.documents?.length > 0 ? (
+                                <div className="divide-y divide-[#f1f5f9] border border-[#edf2f7] rounded-lg overflow-hidden mt-1">
+                                    {lead.documents.map(doc => (
+                                        <div key={doc.id} className="flex items-center justify-between px-3 py-2 hover:bg-[#f8fafc] transition-colors">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-6 h-6 rounded-md flex items-center justify-center ${doc.status === 'Approved' ? 'bg-green-50 text-green-600' : doc.status === 'Rejected' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-[#2447d7]'}`}>
+                                                    <IconFile size={12} />
                                                 </div>
-                                                {!(doc.status === 'Approved' && !canApproveReject) && (
-                                                    <button 
-                                                        onClick={() => setPreviewDoc(doc)}
-                                                        className="p-1.5 text-[#2447d7] hover:bg-[#2447d7]/10 rounded-lg transition-colors border border-[#2447d7]/10"
-                                                        title="View Document"
-                                                    >
-                                                        <IconEye size={14} />
-                                                    </button>
-                                                )}
+                                                <div>
+                                                    <p className="text-[11px] font-bold text-[#1a202c]">{doc.type}</p>
+                                                    <p className={`text-[9px] font-bold uppercase ${doc.status === 'Approved' ? 'text-green-600' : doc.status === 'Rejected' ? 'text-red-500' : 'text-[#94a3b8]'}`}>{doc.status}</p>
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                            <button onClick={() => setPreviewDoc(doc)} className="p-1 text-[#2447d7] hover:bg-[#ebf0ff] rounded-md transition-colors">
+                                                <IconEye size={13} />
+                                            </button>
+                                        </div>
+                                    ))}
                                 </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Tasks & Follow-ups Section */}
-                    <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]">
-                        <div className="flex justify-between items-center p-5 border-b border-[#f7fafc] gap-3 sm:flex-col sm:items-start">
-                            <div className="flex items-center gap-3">
-                                <span className="w-8 h-8 bg-[#fff7ed] text-[#ea580c] rounded-lg flex items-center justify-center flex-shrink-0"><IconBell color="#ea580c" /></span>
-                                <h3 className="text-base font-bold text-[#1a202c]">Tasks & Follow-ups</h3>
-                            </div>
-                            <button 
-                                onClick={() => setIsAddingTask(true)}
-                                className="bg-[#2447d7] text-white p-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 hover:bg-[#1a36b1] transition-all"
-                            >
-                                <IconPlus /> Add Task
-                            </button>
-                        </div>
-                        <div className="p-4 flex flex-col gap-3 max-h-[400px] overflow-y-auto scrollbar-thin">
-                            {leadTasks.length > 0 ? (
-                                leadTasks.map(task => (
-                                    <div key={task.id} className="bg-[#f8fafc] border border-[#edf2f7] rounded-xl p-4 flex flex-col gap-3 hover:translate-y-[-2px] transition-all">
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${task.type === 'Call' ? 'bg-[#ebf0ff] text-[#2447d7]' : 'bg-[#fef3c7] text-[#d97706]'}`}>
-                                                    {task.type === 'Call' ? <IconPhone size={14} /> : <IconDocs size={14} />}
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[13px] font-bold text-[#1a202c]">{task.title}</span>
-                                                    <span className="text-[11px] text-[#a0aec0] font-medium">{task.date} at {task.time}</span>
-                                                </div>
-                                            </div>
-                                            <select 
-                                                className={`appearance-none px-3 py-1 rounded-lg text-[10px] font-bold border outline-none cursor-pointer ${task.status === 'Completed' ? 'bg-[#ecfdf5] text-[#10b981] border-[#10b981]/20' : 'bg-[#fff7ed] text-[#ea580c] border-[#ea580c]/20'}`}
-                                                value={task.status}
-                                                onChange={(e) => updateTaskStatus(task.id, e.target.value)}
-                                            >
-                                                <option>Pending</option>
-                                                <option>In Progress</option>
-                                                <option>Completed</option>
-                                            </select>
-                                        </div>
-                                        {task.message && <p className="text-[11px] text-[#718096] italic bg-white p-2 rounded-lg border border-[#f1f5f9]">"{task.message}"</p>}
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Reminder:</span>
-                                            <select 
-                                                className="bg-transparent border-none text-[10px] font-bold text-[#2447d7] outline-none cursor-pointer"
-                                                value={task.reminder}
-                                                onChange={(e) => updateTaskReminder(task.id, e.target.value)}
-                                            >
-                                                <option value="none">Off</option>
-                                                <option value="15m">15m</option>
-                                                <option value="1h">1h</option>
-                                                <option value="1d">1d</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                ))
                             ) : (
-                                <div className="py-8 text-center text-[#a0aec0] text-sm italic">No tasks assigned to this lead.</div>
+                                <p className="text-[11px] text-[#94a3b8] italic text-center py-3">No documents uploaded yet.</p>
                             )}
                         </div>
-                    </div>
-                </div> {/* Closing div for the right column */}
-            </div> {/* Closing div for the main flex container */}
+                    </Card>
 
-            {/* Add Task Modal */}
+                </div>
+            </div> {/* end grid */}
+
+            {/* ── ADD TASK MODAL ── */}
             {isAddingTask && (
-                <div className="fixed inset-0 z-[2100] flex items-center justify-center p-8 bg-black/80 backdrop-blur-md animate-fadeIn">
-                    <div className="relative w-full max-w-md bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-scaleIn">
-                        <div className="p-5 border-b flex justify-between items-center bg-gray-50/50">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-[#fff7ed] flex items-center justify-center text-[#ea580c]">
-                                    <IconBell color="#ea580c" />
-                                </div>
-                                <span className="font-bold text-gray-800 text-sm">Add New Task</span>
-                            </div>
-                            <button onClick={() => setIsAddingTask(false)} className="p-2 rounded-xl hover:bg-gray-200 transition-colors text-gray-500"><IconClose size={18} /></button>
+                <div className="fixed inset-0 z-[2100] flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm animate-fadeIn">
+                    <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+                        <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+                            <span className="font-bold text-sm text-[#1a202c]">Add New Task</span>
+                            <button onClick={() => setIsAddingTask(false)} className="p-1.5 rounded-lg hover:bg-gray-200 transition-colors"><IconClose size={16} /></button>
                         </div>
-                        <div className="p-6 flex flex-col gap-4">
-                            <form onSubmit={handleAddTask} className="flex flex-col gap-4">
+                        <form onSubmit={handleAddTask} className="p-5 flex flex-col gap-3">
+                            <div className="flex flex-col gap-1">
+                                <label className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider">Task Title *</label>
+                                <input required type="text" className="p-2 border border-[#edf2f7] rounded-lg text-sm text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/40" value={newTask.title} onChange={e => setNewTask({...newTask, title: e.target.value})} placeholder="e.g., Follow up call" />
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Task Title</label>
-                                    <input
-                                        required
-                                        type="text"
-                                        className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
-                                        value={newTask.title}
-                                        onChange={(e) => setNewTask({...newTask, title: e.target.value})}
-                                        placeholder="e.g., Follow up call"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Lead Email</label>
-                                        <input
-                                            type="email"
-                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
-                                            value={newTask.email}
-                                            onChange={(e) => setNewTask({...newTask, email: e.target.value})}
-                                            placeholder="email@example.com"
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Lead Phone</label>
-                                        <input
-                                            type="text"
-                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
-                                            value={newTask.phone}
-                                            onChange={(e) => setNewTask({...newTask, phone: e.target.value})}
-                                            placeholder="+44 ..."
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Date</label>
-                                        <input
-                                            required
-                                            type="date"
-                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
-                                            value={newTask.date}
-                                            onChange={(e) => setNewTask({...newTask, date: e.target.value})}
-                                        />
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Time</label>
-                                        <input
-                                            required
-                                            type="time"
-                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
-                                            value={newTask.time}
-                                            onChange={(e) => setNewTask({...newTask, time: e.target.value})}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Type</label>
-                                        <select
-                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
-                                            value={newTask.type}
-                                            onChange={(e) => setNewTask({...newTask, type: e.target.value})}
-                                        >
-                                            <option value="Call">Call</option>
-                                            <option value="Document">Document</option>
-                                            <option value="Review">Review</option>
-                                            <option value="Email">Email</option>
-                                        </select>
-                                    </div>
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Reminder</label>
-                                        <select
-                                            className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50"
-                                            value={newTask.reminder}
-                                            onChange={(e) => setNewTask({...newTask, reminder: e.target.value})}
-                                        >
-                                            <option value="none">Off</option>
-                                            <option value="15m">15 minutes before</option>
-                                            <option value="1h">1 hour before</option>
-                                            <option value="1d">1 day before</option>
-                                        </select>
-                                    </div>
+                                    <label className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider">Date *</label>
+                                    <input required type="date" className="p-2 border border-[#edf2f7] rounded-lg text-sm text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/40" value={newTask.date} onChange={e => setNewTask({...newTask, date: e.target.value})} />
                                 </div>
                                 <div className="flex flex-col gap-1">
-                                    <label className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">Message (Optional)</label>
-                                    <textarea
-                                        className="p-2 border border-[#edf2f7] rounded-lg text-sm font-medium text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/50 min-h-[80px]"
-                                        value={newTask.message}
-                                        onChange={(e) => setNewTask({...newTask, message: e.target.value})}
-                                        placeholder="Add any notes for this task..."
-                                    />
+                                    <label className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider">Time *</label>
+                                    <input required type="time" className="p-2 border border-[#edf2f7] rounded-lg text-sm text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/40" value={newTask.time} onChange={e => setNewTask({...newTask, time: e.target.value})} />
                                 </div>
-                                <div className="flex justify-end gap-3 mt-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsAddingTask(false)}
-                                        className="px-6 py-2.5 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold hover:bg-gray-200 transition-all"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        className="px-8 py-2.5 rounded-xl bg-[#2447d7] text-white text-xs font-bold hover:bg-[#1a36b1] transition-all shadow-lg active:scale-95"
-                                    >
-                                        Create Task
-                                    </button>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider">Type</label>
+                                    <select className="p-2 border border-[#edf2f7] rounded-lg text-sm text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/40" value={newTask.type} onChange={e => setNewTask({...newTask, type: e.target.value})}>
+                                        <option>Call</option><option>Document</option><option>Review</option><option>Email</option>
+                                    </select>
                                 </div>
-                            </form>
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider">Reminder</label>
+                                    <select className="p-2 border border-[#edf2f7] rounded-lg text-sm text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/40" value={newTask.reminder} onChange={e => setNewTask({...newTask, reminder: e.target.value})}>
+                                        <option value="none">Off</option><option value="15m">15 min</option><option value="1h">1 hour</option><option value="1d">1 day</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-1">
+                                <label className="text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider">Message (optional)</label>
+                                <textarea className="p-2 border border-[#edf2f7] rounded-lg text-sm text-[#4a5568] focus:outline-none focus:ring-2 focus:ring-[#2447d7]/40 min-h-[70px] resize-none" value={newTask.message} onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Notes for this task…" />
+                            </div>
+                            <div className="flex justify-end gap-2 mt-1">
+                                <button type="button" onClick={() => setIsAddingTask(false)} className="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 text-xs font-bold hover:bg-gray-200 transition-all">Cancel</button>
+                                <button type="submit" className="px-6 py-2 rounded-xl bg-[#2447d7] text-white text-xs font-bold hover:bg-[#1a36b1] transition-all shadow-md">Save Task</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* ── UPLOAD MODAL ── */}
+            {showModal && (
+                <UploadModal
+                    lead={lead}
+                    onClose={() => setShowModal(false)}
+                    onUpload={handleUpload}
+                    uploadingDocs={uploadingDocs}
+                    canApproveReject={canApproveReject}
+                    onStatusChange={(docId, status, note) => {
+                        setLead(prev => {
+                            const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status, note: note || d.note } : d);
+                            updateLead(prev.id, { documents: newDocs });
+                            return { ...prev, documents: newDocs };
+                        });
+                    }}
+                />
+            )}
+
+            {/* ── PREVIEW DOC MODAL ── */}
+            {previewDoc && (
+                <div className="fixed inset-0 z-[2200] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm" onClick={() => setPreviewDoc(null)}>
+                    <div className="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="font-bold text-sm text-[#1a202c]">{previewDoc.type}</span>
+                            <button onClick={() => setPreviewDoc(null)} className="p-1.5 rounded-lg hover:bg-gray-100"><IconClose size={16} /></button>
+                        </div>
+                        {previewDoc.url ? (
+                            <img src={previewDoc.url} alt={previewDoc.type} className="w-full rounded-lg border border-[#edf2f7]" />
+                        ) : (
+                            <div className="flex flex-col items-center gap-3 py-8 text-[#94a3b8]">
+                                <IconFile size={40} />
+                                <p className="text-sm font-medium">{previewDoc.fileName || 'No preview available'}</p>
+                            </div>
+                        )}
+                        <div className="mt-4 flex items-center justify-between">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase border ${previewDoc.status === 'Approved' ? 'bg-green-50 text-green-600 border-green-100' : previewDoc.status === 'Rejected' ? 'bg-red-50 text-red-600 border-red-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>{previewDoc.status}</span>
+                            {previewDoc.note && <p className="text-xs text-[#718096] italic">"{previewDoc.note}"</p>}
                         </div>
                     </div>
                 </div>
             )}
 
-            {showModal && (() => {
-                const user = JSON.parse(localStorage.getItem('user') || '{}');
-                return (
-                    <UploadModal
-                        isOpen={showModal}
-                        onClose={() => setShowModal(false)}
-                        client={lead}
-                        onUpload={handleUpload}
-                        onDelete={(leadId, docId) => {
-                            setLead(prev => {
-                                const newDocs = prev.documents.filter(d => d.id !== docId);
-                                updateLead(prev.id, { documents: newDocs });
-                                return { ...prev, documents: newDocs };
-                            });
-                        }}
-                        onApprove={(leadId, docId) => {
-                            setLead(prev => {
-                                const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status: 'Approved' } : d);
-                                const allApproved = newDocs.length > 0 && newDocs.every(d => d.status === 'Approved');
-                                const stageUpdate = allApproved && prev.stage === 'Document Collection'
-                                    ? { stage: 'Document Verification Done', status: 'Document Verification Done', progress: 40 }
-                                    : {};
-                                updateLead(prev.id, { documents: newDocs, ...stageUpdate });
-                                return { ...prev, documents: newDocs, ...stageUpdate };
-                            });
-                        }}
-                        onReject={(leadId, docId, reason) => {
-                            setLead(prev => {
-                                const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d);
-                                updateLead(prev.id, { documents: newDocs });
-                                return { ...prev, documents: newDocs };
-                            });
-                        }}
-                        uploadingDocs={uploadingDocs}
-                        isDark={isDark}
-                        isAccountsManager={isManagerOrAbove}
-                        isTeamLeader={isTeamLeader}
-                    />
-                );
-            })()}
-
-            <EditLeadModal 
-                isOpen={showEditModal} 
-                onClose={() => setShowEditModal(false)} 
-                lead={lead} 
-                onSave={(updatedLead) => {
-                    setLead(updatedLead);
-                    updateLead(updatedLead.id, updatedLead);
-                    setShowEditModal(false);
-                }} 
-            />
-
-            {/* Document Preview Overlay */}
-            {previewDoc && (
-                <div className="fixed inset-0 z-[2100] flex items-center justify-center p-8 bg-black/80 backdrop-blur-md animate-fadeIn">
-                    <div className="relative w-full max-w-2xl bg-white rounded-3xl overflow-hidden shadow-2xl flex flex-col animate-scaleIn">
-                        <div className="p-5 border-b flex justify-between items-center bg-gray-50/50">
-                            <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-[#ebf0ff] flex items-center justify-center text-[#2447d7]">
-                                    <IconFile size={16} />
-                                </div>
-                                <span className="font-bold text-gray-800 text-sm">{previewDoc.type || previewDoc.name}</span>
-                            </div>
-                            <button onClick={() => setPreviewDoc(null)} className="p-2 rounded-xl hover:bg-gray-200 transition-colors text-gray-500"><IconClose size={18} /></button>
-                        </div>
-                        <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-[400px] p-8 relative overflow-hidden">
-                            {previewDoc.url || previewDoc.previewUrl ? (
-                                <img 
-                                    src={previewDoc.url || previewDoc.previewUrl} 
-                                    alt="Preview" 
-                                    className="max-w-full max-h-full object-contain shadow-2xl animate-scaleIn"
-                                />
-                            ) : (
-                                <div className="bg-white w-full h-full max-w-md shadow-lg p-8 flex flex-col gap-5 animate-slideUp border border-gray-100">
-                                    <div className="h-6 w-1/2 bg-gray-100 rounded-lg flex items-center px-3 text-[10px] font-bold text-gray-400">FILE METADATA</div>
-                                    <div className="flex flex-col gap-4 mt-4">
-                                        <div className="flex justify-between border-b pb-2">
-                                            <span className="text-xs text-gray-400">Filename</span>
-                                            <span className="text-xs font-bold text-gray-700">{previewDoc.fileName || previewDoc.name || 'document.pdf'}</span>
-                                        </div>
-                                        <div className="flex justify-between border-b pb-2">
-                                            <span className="text-xs text-gray-400">Status</span>
-                                            <span className={`text-xs font-bold ${previewDoc.status === 'Approved' ? 'text-[#10b981]' : previewDoc.status === 'Rejected' ? 'text-[#f43f5e]' : 'text-[#718096]'}`}>{previewDoc.status}</span>
-                                        </div>
-                                    </div>
-                                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
-                                        <IconDocs size={200} />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="p-4 border-t bg-gray-50/50 flex justify-center">
-                            <button 
-                                onClick={() => setPreviewDoc(null)}
-                                className="px-10 py-2.5 rounded-xl bg-gray-800 text-white text-xs font-bold hover:bg-gray-900 transition-all shadow-lg active:scale-95"
-                            >
-                                Close Preview
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            {/* ── EDIT MODAL ── */}
+            {showEditModal && (
+                <EditLeadModal
+                    isOpen={showEditModal}
+                    lead={lead}
+                    onClose={() => setShowEditModal(false)}
+                    onSave={(updated) => {
+                        setLead(updated);
+                        updateLead(lead.id, updated);
+                        setShowEditModal(false);
+                    }}
+                />
             )}
         </div>
     );
 };
-
-/* ─── ICONS ─── */
-const IconInfo = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-    </svg>
-);
-const IconUser = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-    </svg>
-);
-const IconBank = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
-        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M17 21v-2a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v2" /><path d="M6 3h12" /><path d="M10 3v4" /><path d="M14 3v4" />
-    </svg>
-);
-const IconEmail = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
-    </svg>
-);
-const IconPhone = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-    </svg>
-);
-
-const IconPlus = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="14" height="14">
-        <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
-    </svg>
-);
-const IconBell = ({ color = "currentColor" }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" width="18" height="18">
-        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
-    </svg>
-);
-
-const IconFile = ({ size = 18 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
-        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" />
-    </svg>
-);
-
-const IconClose = ({ size = 20 }) => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={size} height={size}>
-        <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-    </svg>
-);
 
 export default LeadDetails;

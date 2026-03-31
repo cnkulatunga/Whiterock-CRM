@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import AccountsManagerSidebar from '../components/accounts_manager_sidebar/AccountsManagerSidebar';
 import AMDashboard from '../pages/accounts_manager/dashboard/AMDashboard';
-import LenderSelector from '../pages/accounts_manager/lender_selector/LenderSelector';
 import LenderSelection from '../pages/accounts_manager/lender_selection/LenderSelection';
 import LeadPerformance from '../pages/super_admin/leads/LeadPerformance';
 import AMTasksFollowups from '../pages/accounts_manager/dashboard/AMTasksFollowups';
@@ -69,7 +68,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
         if (lead) setSelectedLead(lead);
         switch (page) {
             case 'accounts_manager_dashboard': navigate('/accounts-manager/dashboard'); break;
-            case 'lender_selector': navigate('/accounts-manager/lender-selector'); break;
             case 'lender_selection': navigate('/accounts-manager/lender-selection'); break;
             case 'lead_performance': navigate('/accounts-manager/lead-performance'); break;
             case 'lender_selection_approved': navigate('/accounts-manager/lender-selection-approved'); break;
@@ -211,7 +209,6 @@ const AccountsManagerLayout = ({ onLogout }) => {
                 <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
                     <Routes>
                         <Route path="dashboard" element={<AMDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
-                        <Route path="lender-selector" element={<LenderSelector onNavigate={handleNavigate} />} />
                         <Route path="lender-selection" element={<LenderSelection lead={selectedLead} onNavigate={handleNavigate} />} />
                         <Route path="lead-performance" element={<LeadPerformance />} />
                         <Route path="lender-selection-approved" element={<LenderSelectionApproved />} />
