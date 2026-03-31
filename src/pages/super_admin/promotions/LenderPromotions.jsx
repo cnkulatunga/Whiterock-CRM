@@ -264,10 +264,21 @@ const LenderPromotions = () => {
 
     const [searchTerm, setSearchTerm] = useState('');
 
-    const filtered = promotions.filter(p => 
-        p.lenderName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        p.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = promotions
+        .filter(p => 
+            p.lenderName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+            p.description.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        .sort((a, b) => {
+            const today = new Date().toISOString().split('T')[0];
+            const isActiveA = today >= a.startDate && today <= a.endDate;
+            const isActiveB = today >= b.startDate && today <= b.endDate;
+            
+            if (isActiveA && !isActiveB) return -1;
+            if (!isActiveA && isActiveB) return 1;
+            
+            return new Date(b.startDate) - new Date(a.startDate);
+        });
 
     return (
         <div className="flex flex-col gap-5 animate-fadeIn font-['Sora',sans-serif]">
