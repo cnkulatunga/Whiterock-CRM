@@ -27,6 +27,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     const { tasks } = useTasks() || { tasks: [] };
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
+    const [ownershipFilter, setOwnershipFilter] = useState('All');
     const [currentPage, setCurrentPage] = useState(1);
     const [selectedLead, setSelectedLead] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -39,7 +40,41 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     const [uploadContext, setUploadContext] = useState(null);
     const [uploadingDocs, setUploadingDocs] = useState({});
 
+    const activeUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const activeUserRole = activeUser.role || '';
+    const activeUserName = activeUser.name || `${activeUser.first_name || ''} ${activeUser.last_name || ''}`.trim();
+    const isSuperOrAM = isAccountsManager || activeUserRole === 'Accounts Manager' || activeUserRole === 'accounts_manager' || activeUserRole === 'Super Admin' || activeUserRole === 'super_admin';
+    const isLeader = activeUserRole === 'Team Leader' || activeUserRole === 'team_leader';
+    const myTeamMemberIds = isLeader ? (INITIAL_MEMBERSHIPS[activeUser.id] || []).map(m => m.id) : [];
+
     const filteredLeads = leads.filter(lead => {
+        let hasPermission = false;
+        if (isSuperOrAM) {
+            hasPermission = true;
+        } else if (isLeader) {
+            hasPermission = lead.assignedStaffId === activeUser.id || 
+                            myTeamMemberIds.includes(lead.assignedStaffId) || 
+                            lead.agentName === activeUserName || 
+                            lead.createdBy === activeUserName || 
+                            lead.tl === activeUserName;
+        } else {
+            hasPermission = lead.assignedStaffId === activeUser.id || 
+                            lead.agentName === activeUserName || 
+                            lead.createdBy === activeUserName;
+        }
+
+        if (!hasPermission) return false;
+
+        // Apply ownership filter for Leaders
+        if (isLeader && ownershipFilter !== 'All') {
+            const isMine = lead.assignedStaffId === activeUser.id || lead.agentName === activeUserName || lead.createdBy === activeUserName || lead.tl === activeUserName;
+            // Note: If they created the lead but assigned it to someone else, it might still have their footprint. Let's just use assignedStaffId to be strict or the explicit footprint.
+            const strictlyMine = lead.assignedStaffId === activeUser.id || lead.agentName === activeUserName || lead.createdBy === activeUserName;
+            
+            if (ownershipFilter === 'My Leads' && !strictlyMine) return false;
+            if (ownershipFilter === 'Team Leads' && strictlyMine) return false;
+        }
+
         const matchesSearch = lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             lead.email.toLowerCase().includes(searchTerm.toLowerCase());
         
@@ -180,6 +215,25 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                             </select>
                             <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
                         </div>
+                        
+                        {/* Ownership Filter */}
+                        {isLeader && (
+                            <div className="relative">
+                                <select
+                                    className={`appearance-none rounded-[12px] px-4 py-2 text-[12px] font-bold outline-none cursor-pointer border transition-all pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
+                                    value={ownershipFilter}
+                                    onChange={(e) => {
+                                        setOwnershipFilter(e.target.value);
+                                        setCurrentPage(1);
+                                    }}
+                                >
+                                    <option value="All">All Leads</option>
+                                    <option value="My Leads">My Leads</option>
+                                    <option value="Team Leads">Team Leads</option>
+                                </select>
+                                <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                        )}
                         
                         {/* Search Bar */}
                         <div className={`flex items-center gap-2.5 px-4 py-2 border rounded-[12px] w-[300px] md:w-full transition-all ${isDark ? 'bg-[#141829] border-white/10 focus-within:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
