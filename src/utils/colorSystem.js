@@ -23,21 +23,21 @@ export const AVATAR_COLORS = [
  * Maps user IDs to their designated colors
  */
 export const USER_COLORS = {
-    1: { color: '#6366f1', textColor: '#ffffff' },  // Jane Doe
-    2: { color: '#10b981', textColor: '#ffffff' },  // Marcus Smith
-    3: { color: '#64748b', textColor: '#ffffff' },  // Cody Lane
-    4: { color: '#f59e0b', textColor: '#ffffff' },  // Sarah White
-    5: { color: '#ef4444', textColor: '#ffffff' },  // Diana Fernandez
-    6: { color: '#0ea5e9', textColor: '#ffffff' },  // Leo Kumar
-    7: { color: '#ec4899', textColor: '#ffffff' },  // Nina Hassan
-    8: { color: '#6366f1', textColor: '#ffffff' },  // Ryan Patel
-    9: { color: '#8b5cf6', textColor: '#ffffff' },  // Aisha Nkosi
-    10: { color: '#f97316', textColor: '#ffffff' }, // Tom Brennan
-    11: { color: '#22c55e', textColor: '#ffffff' }, // Priya Sharma
-    12: { color: '#06b6d4', textColor: '#ffffff' }, // Jake Morrison
-    13: { color: '#f43f5e', textColor: '#ffffff' }, // Elena Vasquez
-    14: { color: '#14b8a6', textColor: '#ffffff' }, // Omar Khalil
-    15: { color: '#a855f7', textColor: '#ffffff' }, // Sophie Tan
+    1:  { color: '#5c6bc0', textColor: '#ffffff' },  // Jane Doe        – indigo blue
+    2:  { color: '#00b894', textColor: '#ffffff' },  // Marcus Smith    – emerald green
+    3:  { color: '#546e7a', textColor: '#ffffff' },  // Cody Lane       – blue-grey
+    4:  { color: '#f39c12', textColor: '#ffffff' },  // Sarah White     – amber orange
+    5:  { color: '#e74c3c', textColor: '#ffffff' },  // Diana Fernandez – vivid red
+    6:  { color: '#00bcd4', textColor: '#ffffff' },  // Leo Kumar       – cyan
+    7:  { color: '#e91e8c', textColor: '#ffffff' },  // Nina Hassan     – hot pink
+    8:  { color: '#7c4dff', textColor: '#ffffff' },  // Ryan Patel      – purple
+    9:  { color: '#ff7043', textColor: '#ffffff' },  // Aisha Nkosi     – deep orange
+    10: { color: '#26a69a', textColor: '#ffffff' },  // Tom Brennan     – teal
+    11: { color: '#66bb6a', textColor: '#ffffff' },  // Priya Sharma    – green
+    12: { color: '#29b6f6', textColor: '#ffffff' },  // Jake Morrison   – light blue
+    13: { color: '#ef5350', textColor: '#ffffff' },  // Elena Vasquez   – red
+    14: { color: '#26c6da', textColor: '#ffffff' },  // Omar Khalil     – cyan teal
+    15: { color: '#ab47bc', textColor: '#ffffff' },  // Sophie Tan      – purple pink
 };
 
 /* ─── LENDER TYPE COLORS ──────────────────────────────── */

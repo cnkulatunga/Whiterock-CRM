@@ -46,121 +46,115 @@ const AuditLogs = () => {
     return (
         <div className="flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif]">
 
-            <header className="flex justify-end items-center mb-2 animate-headerDrop">
-                <div className="flex items-center gap-2">
-                    <button className="flex items-center gap-2 bg-white border border-[#edf2f7] text-[#4a5568] px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#f8fafc] transition-colors">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        Export CSV
-                    </button>
-                    <button className="flex items-center gap-2 bg-[#2447d7] text-white px-4 py-2 rounded-xl text-[13px] font-medium hover:bg-[#1732a3] transition-colors shadow-sm">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-                        Refresh Logs
-                    </button>
-                </div>
-            </header>
-
-            {/* ── FILTERS ── */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm animate-slideDown [animation-delay:100ms] [animation-fill-mode:both]">
-                <div className="grid grid-cols-[1fr_auto_160px_auto_160px_auto_160px_auto] items-end gap-3 lg:grid-cols-1">
-                    {/* Search */}
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">SEARCH LOGS</span>
-                        <div className="relative">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0aec0] pointer-events-none">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            </div>
-                            <input
-                                type="text"
-                                className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 pl-9 pr-3 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none placeholder:text-[#a0aec0] focus:border-[#2447d7]/30 transition-colors"
-                                placeholder="Lead #, user name, or action keyword..."
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="w-px h-9 bg-[#f1f5f9] lg:hidden" />
-
-                    {/* Date Range */}
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">DATE RANGE</span>
-                        <div className="relative">
-                            <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={dateRange} onChange={e => setDateRange(e.target.value)}>
-                                {DATE_RANGE_OPTIONS.map(o => <option key={o}>{o}</option>)}
-                            </select>
-                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
-                        </div>
-                    </div>
-
-                    <div className="w-px h-9 bg-[#f1f5f9] lg:hidden" />
-
-                    {/* User Role */}
-                    <div className="flex flex-col gap-1.5">
-                        <span className="text-[10px] font-semibold text-[#a0aec0] uppercase tracking-widest">USER ROLE</span>
-                        <div className="relative">
-                            <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 px-3 pr-8 rounded-xl text-[13px] font-medium text-[#1a202c] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={userRole} onChange={e => setUserRole(e.target.value)}>
-                                {AUDIT_LOG_USER_ROLES.map(o => <option key={o}>{o}</option>)}
-                            </select>
-                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
-                        </div>
-                    </div>
-
-                    {/* Filter btn */}
-                    <button className="self-end w-10 h-10 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#718096] flex items-center justify-center hover:bg-white hover:text-[#2447d7] hover:border-[#2447d7]/20 transition-all">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="15" height="15"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-                    </button>
-                </div>
-            </div>
 
             {/* ── LOG TABLE ── */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:200ms] [animation-fill-mode:both]">
+            <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:100ms] [animation-fill-mode:both]">
+                {/* Consolidated Header & Filters */}
+                <div className="px-6 py-5 border-b border-[#edf2f7]">
+                    <div className="flex items-end justify-between gap-6 flex-wrap">
+                        {/* Summary */}
+                        <div>
+                            <h2 className="text-sm font-black text-[#1a202c] uppercase tracking-wider mb-0.5">Compliance & Audit</h2>
+                            <p className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-tighter">{filtered.length} Records Found</p>
+                        </div>
+
+                        {/* Action Group */}
+                        <div className="flex items-center gap-3 flex-wrap">
+                            {/* Search bar now on the right */}
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">Search Logs</span>
+                                <div className="relative w-80">
+                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0aec0] pointer-events-none">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                    </div>
+                                    <input
+                                        type="text"
+                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pl-9 rounded-lg text-[12px] font-medium text-[#1a202c] outline-none placeholder:text-[#a0aec0] focus:border-[#2447d7]/30 transition-colors"
+                                        placeholder="Lead #, user name, or action keyword..."
+                                        value={search}
+                                        onChange={e => setSearch(e.target.value)}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Date Range */}
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">Date Range</span>
+                                <div className="relative w-40">
+                                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-8 rounded-lg text-[12px] font-bold text-[#4a5568] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={dateRange} onChange={e => setDateRange(e.target.value)}>
+                                        {DATE_RANGE_OPTIONS.map(o => <option key={o}>{o}</option>)}
+                                    </select>
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
+                                </div>
+                            </div>
+
+                            {/* User Role */}
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">User Role</span>
+                                <div className="relative w-40">
+                                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-8 rounded-lg text-[12px] font-bold text-[#4a5568] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={userRole} onChange={e => setUserRole(e.target.value)}>
+                                        {AUDIT_LOG_USER_ROLES.map(o => <option key={o}>{o}</option>)}
+                                    </select>
+                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
+                                </div>
+                            </div>
+
+                            {/* Filter Icon */}
+                            <button className="self-end p-2.5 rounded-lg bg-[#f8fafc] border border-[#edf2f7] text-[#718096] hover:bg-white hover:text-[#2447d7] hover:border-[#2447d7]/20 transition-all shadow-sm">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
                 {/* Headers */}
-                <div className="grid grid-cols-[180px_220px_1fr] px-6 py-3 bg-[#f8fafc] border-b border-[#f1f5f9] lg:hidden">
-                    <span className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">TIMESTAMP</span>
-                    <span className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">USER</span>
-                    <span className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest">ACTION</span>
+                {/* Headers */}
+                <div className="grid grid-cols-[180px_250px_1fr] px-6 py-3 bg-[#f8fafc] border-b border-[#f1f5f9] lg:hidden">
+                    <span className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">TIMESTAMP</span>
+                    <span className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">USER / ACTOR</span>
+                    <span className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">LOG ACTION DETAILS</span>
                 </div>
 
                 <div className="divide-y divide-[#f7fafc]">
                     {filtered.map((entry, i) => (
                         <div key={entry.id}
-                            className="grid grid-cols-[180px_220px_1fr] px-6 py-4 items-center hover:bg-[#f8faff] transition-colors lg:grid-cols-1 lg:gap-3 animate-rowIn"
+                            className="grid grid-cols-[180px_250px_1fr] px-6 py-3 hover:bg-[#f8faff] transition-colors lg:grid-cols-1 lg:gap-3 animate-rowIn"
                             style={{ animationDelay: `${250 + i * 60}ms` }}
                         >
                             {/* Timestamp */}
-                            <div>
-                                <div className="text-[13px] font-medium text-[#1a202c]">{entry.date}</div>
-                                <div className="text-[11px] text-[#a0aec0] font-mono">{entry.time}</div>
+                            <div className="py-1">
+                                <div className="text-[12px] font-bold text-[#1a202c]">{entry.date}</div>
+                                <div className="text-[10px] text-[#a0aec0] font-mono leading-none mt-1 uppercase tracking-tighter">{entry.time}</div>
                             </div>
+                            
                             {/* User */}
                             <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-bold shrink-0" style={{ background: entry.bg }}>
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white text-[11px] font-black shrink-0 shadow-sm" style={{ background: entry.bg }}>
                                     {entry.initials}
                                 </div>
-                                <div>
-                                    <div className="text-[13px] font-medium text-[#1a202c]">{entry.name}</div>
-                                    <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded uppercase tracking-wider ${entry.roleCls}`}>{entry.role}</span>
+                                <div className="min-w-0">
+                                    <div className="text-[13px] font-black text-[#1a202c] truncate">{entry.name}</div>
+                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-tighter leading-none inline-block mt-1 ${entry.roleCls}`}>{entry.role}</span>
                                 </div>
                             </div>
-                            {/* Action */}
-                            <div className="flex flex-col gap-1.5 bg-[#f8fafc] rounded-xl px-4 py-3 border border-transparent hover:bg-white hover:border-[#edf2f7] transition-all">
+
+                            {/* Action - Forced to stretch */}
+                            <div className="w-full flex flex-col gap-2 bg-[#f8fafc] rounded-xl px-4 py-3 border border-transparent hover:bg-white hover:border-[#edf2f7] transition-all">
                                 <div className="flex items-center gap-3">
                                     <ActionIcon type={entry.actionIcon} />
-                                    <span className="text-[13px] text-[#4a5568]">
+                                    <span className="text-[13px] font-medium text-[#4a5568]">
                                         {entry.actionText}{' '}
                                         {entry.autoApproved
-                                            ? <><em className="text-[#059669] font-semibold not-italic bg-[#ecfdf5] px-1.5 py-0.5 rounded text-[10px]">Auto-Approved</em>{' '}for <strong className="text-[#2447d7] font-medium">{entry.refId}</strong></>
-                                            : <strong className="text-[#2447d7] font-medium">{entry.refId}</strong>
+                                            ? <><em className="text-[#059669] font-black not-italic bg-[#ecfdf5] px-1.5 py-0.5 rounded text-[10px]">Auto-Approved</em>{' '}for <strong className="text-[#2447d7] font-black">{entry.refId}</strong></>
+                                            : <strong className="text-[#2447d7] font-black">{entry.refId}</strong>
                                         }
                                     </span>
                                 </div>
                                 {(entry.turnover || entry.purpose || entry.bank) && (
-                                    <div className="flex items-center gap-2 mt-1 ml-11 flex-wrap">
-                                        {entry.turnover && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#ecfdf5] text-[#059669]">Turnover: {entry.turnover}</span>}
-                                        {entry.purpose && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#eff6ff] text-[#2447d7]">Purpose: {entry.purpose}</span>}
-                                        {entry.bank && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#f1f5f9] text-[#64748b]">Bank: {entry.bank}</span>}
-                                        {entry.homeowner && <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${entry.homeowner === 'YES' ? 'bg-[#ecfdf5] text-[#059669]' : 'bg-[#f1f5f9] text-[#94a3b8]'}`}>Homeowner: {entry.homeowner}</span>}
+                                    <div className="flex items-center gap-2 mt-0.5 ml-10 flex-wrap">
+                                        {entry.turnover && <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-[#ecfdf5] text-[#059669] uppercase tracking-tighter">Turnover: {entry.turnover}</span>}
+                                        {entry.purpose && <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-[#eff6ff] text-[#2447d7] uppercase tracking-tighter">Purpose: {entry.purpose}</span>}
+                                        {entry.bank && <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-[#f1f5f9] text-[#64748b] uppercase tracking-tighter">Bank: {entry.bank}</span>}
+                                        {entry.homeowner && <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-tighter ${entry.homeowner === 'YES' ? 'bg-[#ecfdf5] text-[#059669]' : 'bg-[#f1f5f9] text-[#94a3b8]'}`}>Homeowner: {entry.homeowner}</span>}
                                     </div>
                                 )}
                             </div>

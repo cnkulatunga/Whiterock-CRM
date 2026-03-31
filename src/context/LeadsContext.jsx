@@ -46,7 +46,7 @@ export const LeadsProvider = ({ children }) => {
         const user = JSON.parse(localStorage.getItem('user') || '{}');
         const newId = generateLeadId(leads);
 
-        // Resolve agent name: prefer user's stored name, fall back to form field
+        // Resolve creator name
         let agentName = '';
         if (user.name) {
             agentName = user.name;
@@ -56,10 +56,33 @@ export const LeadsProvider = ({ children }) => {
             agentName = formData.assignedAgent || formData.agentName || 'Unknown Agent';
         }
 
+        const role = user.role || '';
+
+        // Build hierarchy fields based on who is creating the lead
+        let tl = formData.tl || '';
+        let manager = formData.manager || '';
+        let createdByRole = role;
+
+        if (role === 'team_leader' || role === 'Team Leader') {
+            tl = agentName;
+            manager = formData.manager || '';
+        } else if (role === 'accounts_manager' || role === 'Accounts Manager') {
+            manager = agentName;
+            tl = formData.tl || '';
+        } else if (role === 'super_admin' || role === 'Super Admin') {
+            // Admin stays as agentName, label handled in UI
+            tl = formData.tl || '';
+            manager = formData.manager || '';
+        }
+        // tele_agent: agentName is already set, tl/manager come from formData or stay blank
+
         const newLead = {
             id: newId,
             leadId: newId,
             agentName,
+            tl,
+            manager,
+            createdByRole,
             assignedStaffId: user.id || null,
             submissionDate: new Date().toISOString().split('T')[0],
             lastContact: 'Just now',

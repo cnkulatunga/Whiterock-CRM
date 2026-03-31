@@ -1,161 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTheme } from '../../../context/ThemeContext';
-import { useUsers } from '../../../context/UsersContext';
-import { WORKFLOW_STAGES } from '../../../data/dummyData';
+import { WORKFLOW_STAGES, SHARED_INITIAL_USERS } from '../../../data/dummyData';
 import { useLeads } from '../../../context/LeadsContext';
 import LeadDetails from '../../tele_agent/leads/LeadDetails';
 import { useTasks } from '../../../context/TasksContext';
+import UserProfileModal from '../../../components/modals/UserProfileModal';
 
-// Map CRM workflow stages to the 4 operational flow buckets
 const STAGE_TO_OP = {
-    'Document Collection': 'lead_gather',
+    'Document Collection':        'lead_gather',
     'Document Verification Done': 'doc_collect',
-    'Lender Selection': 'lender_select',
-    'Completed': 'closed',
-    'Rejected': 'rejected',
+    'Lender Selection':           'lender_select',
+    'Completed':                  'closed',
+    'Rejected':                   'rejected',
 };
 
+/* ── stage badge config ── */
+const STAGE_CFG = {
+    lead_gather:   { label: 'Lead Gather',    cls: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20' },
+    doc_collect:   { label: 'Doc Collection', cls: 'bg-violet-500/10 text-violet-500 border-violet-500/20' },
+    lender_select: { label: 'Lender Select',  cls: 'bg-pink-500/10 text-pink-500 border-pink-500/20' },
+    closed:        { label: 'Confirmed',      cls: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+    rejected:      { label: 'Rejected',       cls: 'bg-rose-500/10 text-rose-500 border-rose-500/20' },
+    won:           { label: 'Confirmed',      cls: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' },
+};
 
-/* ─── STYLES & ANIMATIONS ─────────────────────── */
-const STYLES = `
-@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
-@keyframes pulse { 0% { transform: scale(1); opacity: 1 } 50% { transform: scale(1.05); opacity: 0.8 } 100% { transform: scale(1); opacity: 1 } }
-@keyframes lineGrow { from { width: 0 } to { width: 100% } }
+const STAGE_COLORS = {
+    lead_gather:   '#6366f1',
+    doc_collect:   '#8b5cf6',
+    lender_select: '#ec4899',
+    closed:        '#10b981',
+    won:           '#10b981',
+    rejected:      '#ef4444',
+};
 
-.flow-node { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-.flow-node:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(99,102,241,0.25); }
+const getStageColor = (stageId) =>
+    STAGE_COLORS[stageId] || WORKFLOW_STAGES.find(s => s.id === stageId)?.color || '#6366f1';
 
-.flow-step-line { position: absolute; top: 50%; height: 2px; background: linear-gradient(90deg, #6366f1, #10b981); z-index: 0; animation: lineGrow 0.8s ease-out; }
-
-.glass-card { 
-    backdrop-filter: blur(12px); 
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-.of-table {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 8px;
-}
-
-.of-table th {
-    padding: 12px 20px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #94a3b8;
-}
-
-.of-table tr {
-    transition: all 0.2s ease;
-}
-
-.of-table td {
-    padding: 16px 20px;
-    background: var(--row-bg);
-    border-top: 1px solid var(--row-border);
-    border-bottom: 1px solid var(--row-border);
-}
-
-.of-table td:first-child {
-    border-left: 1px solid var(--row-border);
-    border-top-left-radius: 16px;
-    border-bottom-left-radius: 16px;
-}
-
-.of-table td:last-child {
-    border-right: 1px solid var(--row-border);
-    border-top-right-radius: 16px;
-    border-bottom-right-radius: 16px;
-}
-
-@media (max-width: 768px) {
-    .of-table td, .of-table th {
-        padding: 12px 14px;
-        font-size: 12px;
-    }
-    .pipeline-container {
-        padding: 20px !important;
-    }
-    .pipeline-item {
-        width: 80px !important;
-    }
-    .pipeline-circle {
-        width: 40px !important;
-        height: 40px !important;
-        font-size: 14px !important;
-    }
-    .pipeline-label {
-        font-size: 11px !important;
-    }
-    .pipeline-desc {
-        display: none !important;
-    }
-}
-.of-table tr:hover td {
-    background: var(--row-hover-bg);
-    border-color: var(--row-hover-border);
-    transform: translateY(-1px);
-}
-`;
-
-if (typeof document !== 'undefined' && !document.getElementById('of-flow-styles')) {
-    const s = document.createElement('style');
-    s.id = 'of-flow-styles';
-    s.textContent = STYLES;
-    document.head.appendChild(s);
-}
-
-
-/* ─── COMPONENTS ──────────────────────────────── */
-
-
-const StageBadge = ({ stageId, isDark, compact = false }) => {
-    let stage = WORKFLOW_STAGES.find(s => s.id === stageId);
-    let label = stage?.label;
-    let color = stage?.color;
-
-    if (stageId === 'won' || stageId === 'closed') {
-        label = 'Confirmed';
-        color = '#10b981';
-    } else if (stageId === 'rejected') {
-        label = 'Rejected';
-        color = '#ef4444';
-    }
-
-    if (!stage && stageId !== 'won' && stageId !== 'rejected') {
-        stage = WORKFLOW_STAGES[0];
-        label = stage.label;
-        color = stage.color;
-    }
-
+const StagePill = ({ stageId }) => {
+    const cfg = STAGE_CFG[stageId] || STAGE_CFG.lead_gather;
     return (
-        <span style={{ 
-            fontSize: compact ? '9px' : '10px', 
-            fontWeight: 900, 
-            padding: compact ? '2px 6px' : '3px 10px', 
-            borderRadius: '999px', 
-            background: isDark ? `${color}20` : `${color}15`,
-            color: color,
-            border: `1px solid ${isDark ? `${color}40` : `${color}30`}`,
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em',
-            display: 'inline-block',
-            whiteSpace: 'nowrap'
-        }}>
-            {label}
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border whitespace-nowrap ${cfg.cls}`}>
+            {cfg.label}
         </span>
     );
 };
 
-const FlowArrow = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" style={{ color: '#94a3b8' }}>
+const ChevronRight = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12" className="text-slate-300 shrink-0">
         <polyline points="9 18 15 12 9 6" />
+    </svg>
+);
+
+const SearchIcon = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
     </svg>
 );
 
@@ -165,412 +64,352 @@ const OperationalFlow = () => {
     const { leads } = useLeads();
     const { tasks, setTasks } = useTasks();
     const location = useLocation();
-    const [search, setSearch] = useState('');
-    const [filterStage, setFilterStage] = useState('All');
-    const [viewMode, setViewMode] = useState(window.innerWidth > 768 ? 'table' : 'grid');
-    const [selectedClient, setSelectedClient] = useState(null);
 
-    // Auto-select lead if passed from navigation state (e.g., from Performance Popup)
+    const [search, setSearch]           = useState('');
+    const [filterStage, setFilterStage] = useState('All');
+    const [viewMode, setViewMode]       = useState('table');
+    const [selectedClient, setSelectedClient] = useState(null);
+    const [selectedUser, setSelectedUser]     = useState(null);
+
+    const openProfile = (name) => {
+        if (!name) return;
+        const user = SHARED_INITIAL_USERS.find(u => u.name.toLowerCase() === name.toLowerCase());
+        if (user) setSelectedUser(user);
+    };
+
     useEffect(() => {
         if (location.state?.selectedLead) {
             setSelectedClient(location.state.selectedLead);
-            // Clear state after reading to avoid re-selection on refresh if not desired, 
-            // though usually it's fine.
             window.history.replaceState({}, document.title);
         }
     }, [location.state]);
 
-    // Filter leads directly since we removed mapLeadToOp
     const filteredClients = leads.filter(c => {
-        const matchesSearch = (c.name || '').toLowerCase().includes(search.toLowerCase()) || 
-                             (c.agentName || c.agent || '').toLowerCase().includes(search.toLowerCase()) ||
-                             (c.tl || '').toLowerCase().includes(search.toLowerCase()) ||
-                             (c.businessName && c.businessName.toLowerCase().includes(search.toLowerCase()));
-        
-        const mappedStage = STAGE_TO_OP[c.stage] || 'lead_gather';
-        let matchesStage = filterStage === 'All' || mappedStage === filterStage;
-        if (filterStage === 'closed') {
-            matchesStage = mappedStage === 'won' || mappedStage === 'rejected';
-        }
+        const q = search.toLowerCase();
+        const matchSearch = !q ||
+            (c.name || '').toLowerCase().includes(q) ||
+            (c.agentName || c.agent || '').toLowerCase().includes(q) ||
+            (c.tl || '').toLowerCase().includes(q) ||
+            (c.businessName || '').toLowerCase().includes(q);
 
-        return matchesSearch && matchesStage;
+        const mapped = STAGE_TO_OP[c.stage] || 'lead_gather';
+        const matchStage = filterStage === 'All' || mapped === filterStage ||
+            (filterStage === 'closed' && (mapped === 'won' || mapped === 'rejected'));
+
+        return matchSearch && matchStage;
     });
+
+    const card = isDark ? 'bg-[#1a1f3a] border-white/5' : 'bg-white border-slate-100';
 
     if (selectedClient) {
         return (
             <div className="animate-fadeIn">
-                <LeadDetails 
-                    lead={selectedClient} 
-                    onBack={() => setSelectedClient(null)} 
-                    tasks={tasks}
-                    setTasks={setTasks}
-                />
+                <LeadDetails lead={selectedClient} onBack={() => setSelectedClient(null)} tasks={tasks} setTasks={setTasks} />
             </div>
         );
     }
 
-
     return (
-        <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            gap: '32px', 
-            fontFamily: "'Sora', sans-serif", 
-            animation: 'fadeIn 0.4s ease-out',
-            '--row-bg': isDark ? '#1e2347' : '#fff',
-            '--row-border': isDark ? '#2c3568' : '#e8edf5',
-            '--row-hover-bg': isDark ? '#242b58' : '#f8faff',
-            '--row-hover-border': isDark ? '#3d4a8f' : '#cbd5e1',
-        }}>
-            {/* Header Area */}
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: window.innerWidth > 768 ? 'flex-start' : 'stretch', 
-                flexDirection: window.innerWidth > 768 ? 'row' : 'column',
-                gap: '20px' 
-            }}>
-                <div /> {/* Empty space where title was */}
+        <div className="flex flex-col gap-5 font-['Inter',sans-serif] animate-fadeIn">
 
-                <div style={{ 
-                    display: 'flex', 
-                    gap: '16px', 
-                    alignItems: 'center',
-                    flexDirection: window.innerWidth > 768 ? 'row' : 'column-reverse',
-                    width: window.innerWidth > 768 ? 'auto' : '100%'
-                }}>
-                    {/* View Toggle */}
-                    <div style={{ 
-                        background: isDark ? '#1e2347' : '#fff', 
-                        padding: '4px', 
-                        borderRadius: '12px', 
-                        border: `1px solid ${isDark ? '#2c3568' : '#e2e8f0'}`,
-                        display: 'flex',
-                        gap: '4px',
-                        width: window.innerWidth > 768 ? 'auto' : '100%'
-                    }}>
-                        <button 
-                            onClick={() => setViewMode('grid')}
-                            style={{
-                                flex: 1,
-                                padding: '8px 12px',
-                                borderRadius: '8px',
-                                border: 'none',
-                                background: viewMode === 'grid' ? (isDark ? '#2c3568' : '#f1f5f9') : 'transparent',
-                                color: viewMode === 'grid' ? (isDark ? '#fff' : '#0f172a') : '#94a3b8',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '6px',
-                                fontSize: '13px',
-                                fontWeight: 700,
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                            Grid
-                        </button>
-                        <button 
-                            onClick={() => setViewMode('table')}
-                            style={{
-                                flex: 1,
-                                padding: '8px 12px',
-                                borderRadius: '8px',
-                                border: 'none',
-                                background: viewMode === 'table' ? (isDark ? '#2c3568' : '#f1f5f9') : 'transparent',
-                                color: viewMode === 'table' ? (isDark ? '#fff' : '#0f172a') : '#94a3b8',
-                                cursor: 'pointer',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                gap: '6px',
-                                fontSize: '13px',
-                                fontWeight: 700,
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                            Table
-                        </button>
-                    </div>
-
-                    <div style={{ position: 'relative', width: '100%' }}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }}>
-                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
-                        <input 
-                            type="text" 
-                            placeholder="Search client, agent or TL..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            style={{
-                                background: isDark ? '#1e2347' : '#fff',
-                                border: `2px solid ${isDark ? '#2c3568' : '#e2e8f0'}`,
-                                borderRadius: '14px',
-                                padding: '12px 16px 12px 48px',
-                                fontSize: '14px',
-                                fontWeight: 600,
-                                color: isDark ? '#e4ecff' : '#0f172a',
-                                outline: 'none',
-                                width: '100%',
-                                maxWidth: window.innerWidth > 768 ? '320px' : 'none',
-                                transition: 'all 0.2s'
-                            }}
-                        />
-                    </div>
-                </div>
-            </div>
-
-            {/* Workflow Progress Visualizer */}
-            <div className="pipeline-container" style={{ 
-                background: isDark ? 'linear-gradient(135deg, #1e2347 0%, #161a35 100%)' : '#fff',
-                borderRadius: '24px',
-                padding: '32px',
-                border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`,
-                boxShadow: isDark ? '0 20px 50px rgba(0,0,0,0.3)' : '0 10px 30px rgba(99,102,241,0.05)',
-                overflowX: 'auto'
-            }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minWidth: window.innerWidth > 768 ? '900px' : 'auto', position: 'relative' }}>
-                    {/* Background Line */}
-                    <div style={{ position: 'absolute', top: window.innerWidth > 768 ? '24px' : '20px', left: '50px', right: '50px', height: '4px', background: isDark ? '#2c3568' : '#f1f5f9', borderRadius: '2px', zIndex: 0 }} />
-                    
+            {/* ── Pipeline Steps ── */}
+            <div className={`rounded-2xl border p-5 overflow-x-auto ${card}`}>
+                <div className="relative flex justify-between items-start min-w-[640px]">
+                    {/* connector line */}
+                    <div className={`absolute top-5 left-10 right-10 h-px ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
                     {WORKFLOW_STAGES.map((stage, idx) => {
                         const isActive = filterStage === stage.id;
                         return (
-                            <div key={stage.id} className="pipeline-item" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', zIndex: 1, width: '120px', cursor: 'pointer' }} onClick={() => setFilterStage(stage.id === filterStage ? 'All' : stage.id)}>
-                                <div className="pipeline-circle" style={{ 
-                                    width: '52px', 
-                                    height: '52px', 
-                                    borderRadius: '18px', 
-                                    background: isActive ? stage.color : (isDark ? '#1e2347' : '#fff'),
-                                    border: `4px solid ${isActive ? (isDark ? '#2c3568' : '#fff') : (isDark ? '#2c3568' : '#f1f5f9')}`,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: isActive ? '#fff' : (isDark ? '#546298' : '#94a3b8'),
-                                    boxShadow: isActive ? `0 8px 24px ${stage.color}60` : 'none',
-                                    transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                                    position: 'relative'
-                                }}>
-                                    <span style={{ fontWeight: 900, fontSize: '18px' }}>{idx + 1}</span>
+                            <button key={stage.id}
+                                onClick={() => setFilterStage(isActive ? 'All' : stage.id)}
+                                className="relative flex flex-col items-center gap-2 z-10 group w-24 focus:outline-none">
+                                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-200 shadow-sm"
+                                    style={{
+                                        background: isActive ? stage.color : (isDark ? '#ffffff08' : '#f8fafc'),
+                                        color: isActive ? '#fff' : (isDark ? '#64748b' : '#94a3b8'),
+                                        boxShadow: isActive ? `0 4px 14px ${stage.color}50` : 'none',
+                                        border: isActive ? 'none' : `1px solid ${isDark ? '#ffffff10' : '#e2e8f0'}`,
+                                        transform: isActive ? 'scale(1.1)' : 'scale(1)',
+                                    }}>
+                                    {idx + 1}
                                 </div>
-                                <div style={{ textAlign: 'center' }}>
-                                    <div className="pipeline-label" style={{ fontSize: '13px', fontWeight: 800, color: isActive ? stage.color : (isDark ? '#e4ecff' : '#0f172a') }}>{stage.label}</div>
-                                    <div className="pipeline-desc" style={{ fontSize: '10px', fontWeight: 600, color: isDark ? '#546298' : '#adb5bd', marginTop: '2px', lineHeight: 1.2 }}>{stage.description}</div>
+                                <div className="text-center">
+                                    <p className="text-[10px] font-bold uppercase tracking-wide leading-tight"
+                                        style={{ color: isActive ? stage.color : (isDark ? '#94a3b8' : '#64748b') }}>
+                                        {stage.label}
+                                    </p>
+                                    <p className="text-[9px] text-slate-400 mt-0.5 leading-tight hidden sm:block">{stage.description}</p>
                                 </div>
-                            </div>
+                            </button>
                         );
                     })}
                 </div>
             </div>
 
-            {/* Content View */}
+            {/* ── Content ── */}
             {viewMode === 'grid' ? (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(420px, 1fr))', gap: '24px' }}>
-                    {filteredClients.map((client, idx) => (
-                        <div key={client.id} className="flow-node" style={{
-                            background: isDark ? '#1e2347' : '#fff',
-                            borderRadius: '20px',
-                            border: `1px solid ${isDark ? '#2c3568' : '#e8edf5'}`,
-                            padding: '20px',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '16px',
-                            animation: `slideUp 0.4s ease-out ${idx * 0.1}s both`
-                        }}>
-                            {/* Client Header */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <>
+                {/* Grid header with search + toggle */}
+                <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs text-slate-400">{filteredClients.length} records</p>
+                    <div className="flex items-center gap-2">
+                        <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><SearchIcon /></div>
+                            <input
+                                type="text"
+                                placeholder="Search lead, agent or TL..."
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                className={`pl-9 pr-4 py-2 rounded-xl text-xs font-medium outline-none border w-56 transition-all focus:ring-2 focus:ring-indigo-500/30 ${isDark ? 'bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500' : 'bg-white border-slate-200 text-slate-800 placeholder:text-slate-400'}`}
+                            />
+                        </div>
+                        <div className={`flex items-center rounded-xl border p-1 gap-1 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'}`}>
+                            {[
+                                { mode: 'grid',  icon: <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></> },
+                                { mode: 'table', icon: <><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></> },
+                            ].map(({ mode, icon }) => (
+                                <button key={mode} onClick={() => setViewMode(mode)}
+                                    className={`p-2 rounded-lg transition-all ${viewMode === mode ? (isDark ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-900') : 'text-slate-400 hover:text-slate-600'}`}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15">{icon}</svg>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 xl:grid-cols-1">
+                    {filteredClients.map((client, idx) => {
+                        const stageId = STAGE_TO_OP[client.stage] || 'lead_gather';
+                        const stageColor = getStageColor(stageId);
+                        return (
+                            <div key={client.id} className={`rounded-2xl border p-5 flex flex-col gap-4 hover:shadow-md transition-all ${card}`}
+                                style={{ animationDelay: `${idx * 40}ms` }}>
+                                <div className="flex items-start justify-between">
+                                    <div>
+                                        <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{client.name}</p>
+                                        <p className="text-[10px] text-slate-400 mt-0.5">#{client.id}{client.businessName ? ` · ${client.businessName}` : ''}</p>
+                                    </div>
+                                    <StagePill stageId={stageId} />
+                                </div>
+
+                                <div className={`rounded-xl p-3 ${isDark ? 'bg-white/[0.03]' : 'bg-slate-50'}`}>
+                                    {(() => {
+                                        const role = client.createdByRole || '';
+                                        const isAdmin = role.toLowerCase().includes('admin');
+                                        const isAM = role.toLowerCase().includes('account');
+                                        const isTL = role.toLowerCase().includes('team') || role.toLowerCase().includes('leader');
+                                        const agent = client.agentName || client.agent;
+                                        const tl = client.tl;
+                                        const am = client.manager || client.accountsManager;
+                                        const chain = [];
+                                        if (isAdmin) {
+                                            if (agent) chain.push({ name: agent, label: 'Admin' });
+                                        } else if (isAM) {
+                                            if (agent) chain.push({ name: agent, label: 'AM' });
+                                        } else if (isTL) {
+                                            if (agent) chain.push({ name: agent, label: 'TL' });
+                                            if (am)    chain.push({ name: am,    label: 'AM' });
+                                        } else {
+                                            if (agent) chain.push({ name: agent, label: 'Tele Agent' });
+                                            if (tl)    chain.push({ name: tl,    label: 'Team Leader' });
+                                            if (am)    chain.push({ name: am,    label: 'Accts Manager' });
+                                        }
+                                        if (chain.length === 0 && agent) chain.push({ name: agent, label: 'Agent' });
+                                        return (
+                                            <div className={`grid gap-3`} style={{ gridTemplateColumns: `repeat(${chain.length}, 1fr)` }}>
+                                                {chain.map(({ label, name }) => (
+                                                    <div key={label}>
+                                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
+                                                        <p className={`text-xs font-semibold cursor-pointer hover:text-indigo-500 transition-colors ${isDark ? 'text-slate-200' : 'text-slate-700'}`}
+                                                            onClick={() => openProfile(name)}>{name}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+
+                                {/* Progress bar */}
                                 <div>
-                                    <span style={{ textTransform: 'uppercase', fontSize: '9px', fontWeight: 900, color: '#2447d7', letterSpacing: '0.05em', marginBottom: '2px', display: 'block' }}>Client Lead</span>
-                                    <h3 style={{ fontSize: '16px', fontWeight: 800, color: isDark ? '#e4ecff' : '#1a202c', margin: 0, letterSpacing: '-0.3px' }}>{client.name}</h3>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                                        <div style={{ fontSize: '11px', color: '#a0aec0', fontWeight: 600 }}>Active {client.lastActive}</div>
-                                        {client.businessName && (
-                                            <>
-                                                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#cbd5e0' }} />
-                                                <div style={{ fontSize: '11px', color: '#6366f1', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.02em' }}>{client.businessName}</div>
-                                            </>
-                                        )}
+                                    <div className="flex justify-between items-center mb-1.5">
+                                        <span className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider">Progress</span>
+                                        <span className="text-xs font-bold" style={{ color: stageColor }}>{client.progress ?? 0}%</span>
+                                    </div>
+                                    <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                                        <div className="h-full rounded-full transition-all duration-700"
+                                            style={{ width: `${client.progress ?? 0}%`, background: `linear-gradient(90deg, ${stageColor}, ${stageColor}99)` }} />
                                     </div>
                                 </div>
-                                <StageBadge stageId={STAGE_TO_OP[client.stage]} isDark={isDark} />
-                            </div>
 
-                            <div style={{ 
-                                display: 'grid',
-                                gridTemplateColumns: window.innerWidth > 768 ? '1fr 1fr 1fr' : '1fr',
-                                gap: '12px', 
-                                padding: '16px', 
-                                background: isDark ? 'rgba(99,102,241,0.05)' : '#f8faff', 
-                                borderRadius: '16px',
-                                border: `1px solid ${isDark ? 'rgba(99,102,241,0.1)' : '#eff2ff'}`,
-                            }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                    <span style={{ fontSize: '9px', color: '#a0aec0', fontWeight: 900, textTransform: 'uppercase', trackingWidest: '0.05em' }}>Tele Agent</span>
-                                    <span style={{ fontSize: '12px', color: isDark ? '#e4ecff' : '#1a202c', fontWeight: 700 }}>{client.agentName || client.agent}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                    <span style={{ fontSize: '9px', color: '#a0aec0', fontWeight: 900, textTransform: 'uppercase', trackingWidest: '0.05em' }}>Team Leader</span>
-                                    <span style={{ fontSize: '12px', color: isDark ? '#e4ecff' : '#1a202c', fontWeight: 700 }}>{client.tl}</span>
-                                </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                                    <span style={{ fontSize: '9px', color: '#a0aec0', fontWeight: 900, textTransform: 'uppercase', trackingWidest: '0.05em' }}>Account Mgr</span>
-                                    <span style={{ fontSize: '12px', color: isDark ? '#e4ecff' : '#1a202c', fontWeight: 700 }}>{client.manager}</span>
-                                </div>
-                            </div>
-
-                            {/* Progress Tracker */}
-                            <div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', alignItems: 'baseline' }}>
-                                    <span style={{ fontSize: '10px', fontWeight: 900, color: '#a0aec0', textTransform: 'uppercase', trackingWidest: '0.05em' }}>Loan Progress</span>
-                                    <span style={{ fontSize: '13px', fontWeight: 900, color: '#2447d7' }}>{client.progress}%</span>
-                                </div>
-                                <div style={{ width: '100%', height: '8px', background: isDark ? '#2c3568' : '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
-                                    <div style={{ 
-                                        width: `${client.progress}%`, 
-                                        height: '100%', 
-                                        background: 'linear-gradient(90deg, #6366f1, #10b981)', 
-                                        borderRadius: '4px',
-                                        transition: 'width 1s cubic-bezier(0.22, 1, 0.36, 1)'
-                                    }} />
-                                </div>
-                            </div>
-
-                            {/* Quick Actions */}
-                            <div style={{ display: 'flex', marginTop: '4px' }}>
-                                <button 
-                                    onClick={() => setSelectedClient(client)}
-                                    style={{ 
-                                        flex: 1, 
-                                        padding: '12px', 
-                                        borderRadius: '12px', 
-                                        border: 'none', 
-                                        background: 'linear-gradient(135deg, #6366f1, #4f46e5)', 
-                                        color: '#fff', 
-                                        fontSize: '13px', 
-                                        fontWeight: 700, 
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    View Details
+                                <button onClick={() => setSelectedClient(client)}
+                                    className="w-full py-2 rounded-xl text-xs font-semibold text-white transition-all hover:opacity-90"
+                                    style={{ background: `linear-gradient(135deg, ${stageColor}, ${stageColor}cc)` }}>
+                                    Review Details
                                 </button>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
+                </>
             ) : (
-                <div style={{ overflowX: 'auto', padding: '0 4px 20px' }}>
-                    <table className="of-table">
-                        <thead style={{ position: 'sticky', top: 0, zIndex: 10, background: isDark ? '#1e2347' : '#fff' }}>
-                             <tr>
-                                <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Client Name</th>
-                                <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Business Name</th>
-                                <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Personnel Flow</th>
-                                <th style={{ padding: '20px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Progress</th>
-                                <th style={{ padding: '20px 24px', textAlign: 'right', fontSize: '12px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredClients.map((client, idx) => (
-                                <tr key={client.id} style={{ animation: `slideUp 0.3s ease-out ${idx * 0.05}s both` }}>
-                                    <td>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                                            <span style={{ fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', fontSize: '14px' }}>{client.name}</span>
-                                            <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>ID: {client.id}</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        {client.businessName ? (
-                                            <span style={{ 
-                                                fontSize: '11px', 
-                                                fontWeight: 800, 
-                                                color: isDark ? '#6366f1' : '#4f46e5', 
-                                                textTransform: 'uppercase', 
-                                                letterSpacing: '0.05em',
-                                                background: isDark ? 'rgba(99,102,241,0.1)' : 'rgba(99,102,241,0.05)',
-                                                padding: '4px 10px',
-                                                borderRadius: '8px',
-                                                border: `1px solid ${isDark ? 'rgba(99,102,241,0.2)' : 'rgba(99,102,241,0.1)'}`
-                                            }}>
-                                                {client.businessName}
-                                            </span>
-                                        ) : (
-                                            <span style={{ fontSize: '11px', color: '#a0aec0', fontStyle: 'italic', fontWeight: 600 }}>Personal Lead</span>
-                                        )}
-                                    </td>
-                                    <td>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '11px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{client.agentName || client.agent}</span>
-                                                <span style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Agent</span>
-                                            </div>
-                                            <FlowArrow />
-                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '11px', fontWeight: 700, color: isDark ? '#e4ecff' : '#0f172a' }}>{client.tl}</span>
-                                                <span style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Leader</span>
-                                            </div>
-                                            <FlowArrow />
-                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '11px', fontWeight: 700, color: isDark ? '#94abda' : '#475569' }}>{client.manager}</span>
-                                                <span style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Manager</span>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td style={{ minWidth: '160px', textAlign: 'left' }}>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <div style={{ width: '120px', height: '6px', background: isDark ? '#2c3568' : '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
-                                                    <div style={{ width: `${client.progress}%`, height: '100%', background: 'linear-gradient(90deg, #6366f1, #10b981)', borderRadius: '3px' }} />
-                                                </div>
-                                                <span style={{ fontSize: '12px', fontWeight: 900, color: '#6366f1', minWidth: '35px' }}>{client.progress}%</span>
-                                            </div>
-                                            <StageBadge stageId={STAGE_TO_OP[client.stage]} isDark={isDark} compact />
-                                        </div>
-                                    </td>
-                                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                                        <button 
-                                            onClick={() => setSelectedClient(client)}
-                                            style={{
-                                                padding: '8px 16px',
-                                                borderRadius: '10px',
-                                                border: `1px solid ${isDark ? '#3d4a8f' : '#e2e8f0'}`,
-                                                background: isDark ? '#2c3568' : '#fff',
-                                                color: isDark ? '#e4ecff' : '#0f172a',
-                                                fontSize: '12px',
-                                                fontWeight: 700,
-                                                cursor: 'pointer',
-                                                transition: 'all 0.2s'
-                                            }}
-                                        >
-                                            View Details
-                                        </button>
-                                    </td>
+                <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+                    {/* Table header with search + toggle */}
+                    <div className={`px-5 py-3.5 flex items-center justify-between gap-3 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                        <p className="text-xs text-slate-400">{filteredClients.length} records</p>
+                        <div className="flex items-center gap-2">
+                            <div className="relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><SearchIcon /></div>
+                                <input
+                                    type="text"
+                                    placeholder="Search lead, agent or TL..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                    className={`pl-9 pr-4 py-2 rounded-xl text-xs font-medium outline-none border w-56 transition-all focus:ring-2 focus:ring-indigo-500/30 ${isDark ? 'bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500' : 'bg-white border-slate-200 text-slate-800 placeholder:text-slate-400'}`}
+                                />
+                            </div>
+                            <div className={`flex items-center rounded-xl border p-1 gap-1 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'}`}>
+                                {[
+                                    { mode: 'grid',  icon: <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></> },
+                                    { mode: 'table', icon: <><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></> },
+                                ].map(({ mode, icon }) => (
+                                    <button key={mode} onClick={() => setViewMode(mode)}
+                                        className={`p-2 rounded-lg transition-all ${viewMode === mode ? (isDark ? 'bg-white/10 text-white' : 'bg-slate-100 text-slate-900') : 'text-slate-400 hover:text-slate-600'}`}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15">{icon}</svg>
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse text-sm">
+                            <thead>
+                                <tr className={isDark ? 'bg-white/[0.02]' : 'bg-slate-50/70'}>
+                                    {['Client', 'Business', 'Personnel Flow', 'Stage', 'Progress', 'Action'].map(h => (
+                                        <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
+                                    ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-50'}`}>
+                                {filteredClients.length === 0 && (
+                                    <tr>
+                                        <td colSpan={6} className="px-4 py-12 text-center text-sm text-slate-400">No leads match your filters.</td>
+                                    </tr>
+                                )}
+                                {filteredClients.map((client) => {
+                                    const stageId = STAGE_TO_OP[client.stage] || 'lead_gather';
+                                    const stageColor = getStageColor(stageId);
+                                    return (
+                                        <tr key={client.id} className={`transition-colors ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-indigo-50/30'}`}>
+                                            {/* Client */}
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-bold shrink-0"
+                                                        style={{ background: `${stageColor}20`, color: stageColor }}>
+                                                        {(client.name || '').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                    </div>
+                                                    <div>
+                                                        <p className={`text-xs font-semibold ${isDark ? 'text-white' : 'text-slate-900'}`}>{client.name}</p>
+                                                        <p className="text-[10px] text-slate-400">#{client.id}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            {/* Business */}
+                                            <td className="px-4 py-3">
+                                                {client.businessName ? (
+                                                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-md border ${isDark ? 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border-indigo-100'}`}>
+                                                        {client.businessName}
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-[10px] text-slate-400 italic">Personal</span>
+                                                )}
+                                            </td>
+                                            {/* Personnel Flow */}
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-1.5 flex-wrap">
+                                                    {(() => {
+                                                        const role = client.createdByRole || '';
+                                                        const isAdmin = role.toLowerCase().includes('admin');
+                                                        const isAM = role.toLowerCase().includes('account');
+                                                        const isTL = role.toLowerCase().includes('team') || role.toLowerCase().includes('leader');
+
+                                                        const agent = client.agentName || client.agent;
+                                                        const tl = client.tl;
+                                                        const am = client.manager || client.accountsManager;
+
+                                                        // Build chain: only show roles that have a value
+                                                        const chain = [];
+                                                        if (isAdmin) {
+                                                            if (agent) chain.push({ name: agent, label: 'Admin' });
+                                                        } else if (isAM) {
+                                                            if (agent) chain.push({ name: agent, label: 'AM' });
+                                                        } else if (isTL) {
+                                                            if (agent) chain.push({ name: agent, label: 'TL' });
+                                                            if (am)    chain.push({ name: am,    label: 'AM' });
+                                                        } else {
+                                                            if (agent) chain.push({ name: agent, label: 'Agent' });
+                                                            if (tl)    chain.push({ name: tl,    label: 'TL' });
+                                                            if (am)    chain.push({ name: am,    label: 'AM' });
+                                                        }
+                                                        if (chain.length === 0 && agent) chain.push({ name: agent, label: 'Agent' });
+
+                                                        return chain.map((item, i) => (
+                                                            <React.Fragment key={item.label}>
+                                                                {i > 0 && <ChevronRight />}
+                                                                <div>
+                                                                    <p className={`text-[11px] font-medium cursor-pointer hover:text-indigo-500 transition-colors ${isDark ? 'text-slate-200' : 'text-slate-700'}`}
+                                                                        onClick={() => openProfile(item.name)}>
+                                                                        {item.name}
+                                                                    </p>
+                                                                    <p className="text-[9px] text-slate-400 uppercase tracking-wide">{item.label}</p>
+                                                                </div>
+                                                            </React.Fragment>
+                                                        ));
+                                                    })()}
+                                                </div>
+                                            </td>
+                                            {/* Stage */}
+                                            <td className="px-4 py-3"><StagePill stageId={stageId} /></td>
+                                            {/* Progress */}
+                                            <td className="px-4 py-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-20 h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-white/5' : 'bg-slate-100'}`}>
+                                                        <div className="h-full rounded-full"
+                                                            style={{ width: `${client.progress ?? 0}%`, background: stageColor }} />
+                                                    </div>
+                                                    <span className="text-[11px] font-semibold" style={{ color: stageColor }}>
+                                                        {client.progress ?? 0}%
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            {/* Action */}
+                                            <td className="px-4 py-3">
+                                                <button onClick={() => setSelectedClient(client)}
+                                                    className={`px-3 py-1.5 rounded-lg text-[11px] font-semibold border transition-all hover:shadow-sm ${isDark ? 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'}`}>
+                                                    Details
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
 
-            {filteredClients.length === 0 && (
-                 <div style={{ 
-                    padding: '80px 24px', 
-                    textAlign: 'center', 
-                    background: isDark ? '#1e2347' : '#fff', 
-                    borderRadius: '24px', 
-                    border: `2px dashed ${isDark ? '#2c3568' : '#e2e8f0'}`,
-                    color: '#94a3b8'
-                }}>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="48" height="48" style={{ marginBottom: '16px' }}>
-                        <circle cx="12" cy="12" r="10" /><line x1="8" y1="12" x2="16" y2="12" />
+            {/* Empty state */}
+            {filteredClients.length === 0 && viewMode === 'grid' && (
+                <div className={`rounded-2xl border-2 border-dashed p-16 text-center ${isDark ? 'border-white/10' : 'border-slate-200'}`}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="40" height="40" className="mx-auto text-slate-300 mb-3">
+                        <circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/>
                     </svg>
-                    <h3 style={{ fontSize: '20px', fontWeight: 800, color: isDark ? '#e4ecff' : '#0f172a', margin: '0 0 8px' }}>No clients found</h3>
-                    <p style={{ fontSize: '14px', margin: 0 }}>Try adjusting your search or filter to find what you're looking for.</p>
+                    <p className={`text-sm font-semibold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>No leads found</p>
+                    <p className="text-xs text-slate-400 mt-1">Try adjusting your search or stage filter.</p>
                 </div>
             )}
 
+            {selectedUser && (
+                <UserProfileModal user={selectedUser} onClose={() => setSelectedUser(null)} onUserClick={u => setSelectedUser(u)} />
+            )}
         </div>
     );
 };
