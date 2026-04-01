@@ -273,7 +273,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 </div>
 
                 {/* Create Lead */}
-                <div onClick={() => onNavigate && onNavigate('lender_selection')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => onNavigate && onNavigate('create_lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20"><IconPlus width="22" height="22" /></div>
                     <h2 className="text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">CREATE<br />LEAD</h2>
                 </div>
@@ -485,6 +485,15 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                     </div>
                 </div>
             </div>
+            
+            {/* Dashboard Stat Modals */}
+            <DashboardModal
+                isOpen={!!activeModal}
+                onClose={() => setActiveModal(null)}
+                title={modalTitles[activeModal] || ''}
+            >
+                {renderModalContent()}
+            </DashboardModal>
 
             {/* Promo Details Modal */}
             {selectedPromoDetails && (
