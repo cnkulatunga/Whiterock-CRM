@@ -6,6 +6,7 @@ import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS, RECENT_LENDERS, LENDER_TYPE_COLO
 import { useTasks } from '../../../context/TasksContext';
 import { usePromotions } from '../../../context/PromotionsContext';
 import { DocumentPreviewModal } from '../../shared/promotions/LenderPromotionsView';
+import UserProfileModal from '../../../components/modals/UserProfileModal';
 import TaskModal from '../../../components/modals/TaskModal';
 
 /* ─── SVG ICONS ─── */
@@ -23,12 +24,12 @@ const IconArrow = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 const IconMail = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13" {...p}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>;
 
 /* ─── MODAL ─── */
-const DashboardModal = ({ isOpen, onClose, title, children }) => {
+const DashboardModal = ({ isOpen, onClose, title, children, isSmall }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white dark:bg-[#1e2347] w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn">
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full ${isSmall ? 'max-w-md' : 'max-w-6xl'} rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn`}>
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors">
@@ -65,7 +66,9 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
     const [activeModal, setActiveModal] = useState(null);
     const [leadsTab, setLeadsTab] = useState('my_leads');
     const [selectedTeam, setSelectedTeam] = useState(null);
+    const [selectedMember, setSelectedMember] = useState(null);
     const [selectedPromoDetails, setSelectedPromoDetails] = useState(null);
+    const [selectedTask, setSelectedTask] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
 
     // Confirm dialog state
@@ -172,36 +175,36 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 return (
                     <div className="flex flex-col gap-3">
                         {list.length > 0 ? (
-                            <div className="rounded-xl border border-slate-100 overflow-x-auto custom-scrollbar shadow-sm">
+                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto custom-scrollbar shadow-sm">
                                 <table className="w-full text-left border-collapse min-w-[900px]">
-                                    <thead><tr className="bg-slate-50 border-b border-slate-100">
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-12">#</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[160px]">Client Name</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[160px]">Business</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[200px]">Contact Info</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loan Amount</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                        {activeModal === 'VERIFIED' && <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>}
+                                    <thead><tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-100 dark:border-white/5">
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center w-12">#</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest min-w-[160px]">Client Name</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest min-w-[160px]">Business</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest min-w-[200px]">Contact Info</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Loan Amount</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status</th>
+                                        {activeModal === 'VERIFIED' && <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">Action</th>}
                                     </tr></thead>
-                                    <tbody className="divide-y divide-slate-100">
+                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                                         {list.map((lead, idx) => (
-                                            <tr key={lead.id} className="hover:bg-blue-50/40 transition-all cursor-pointer group" onClick={() => { onNavigate && onNavigate('lead_details', lead); setActiveModal(null); }}>
+                                            <tr key={lead.id} className="hover:bg-blue-50/40 dark:hover:bg-white/[0.03] transition-all cursor-pointer group" onClick={() => { onNavigate && onNavigate('lead_details', lead); setActiveModal(null); }}>
                                                 <td className="px-6 py-4 text-[11px] font-bold text-slate-400 text-center">{idx + 1}</td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-[13px] font-bold text-[#2447d7] whitespace-nowrap">{lead.name}</div>
+                                                    <div className="text-[13px] font-bold text-[#2447d7] dark:text-blue-400 whitespace-nowrap">{lead.name}</div>
                                                 </td>
-                                                <td className="px-6 py-4 text-[13px] text-slate-600 font-medium whitespace-nowrap">{lead.businessName || <span className="text-slate-300 italic font-normal">Personal</span>}</td>
+                                                <td className="px-6 py-4 text-[13px] text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap">{lead.businessName || <span className="text-slate-300 dark:text-slate-600 italic font-normal">Personal</span>}</td>
                                                 <td className="px-6 py-4">
                                                     <div className="flex flex-col gap-0.5">
-                                                        <div className="text-[12px] font-medium text-slate-700 whitespace-nowrap">{lead.email || lead.emailAddress || '—'}</div>
+                                                        <div className="text-[12px] font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">{lead.email || lead.emailAddress || '—'}</div>
                                                         <div className="text-[11px] font-bold text-slate-400">{lead.phone || lead.phoneNumber || '—'}</div>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <div className="text-[13px] font-black text-slate-900 whitespace-nowrap">£{parseFloat(lead.loanAmount || 0).toLocaleString()}</div>
+                                                    <div className="text-[13px] font-black text-slate-900 dark:text-white whitespace-nowrap">£{parseFloat(lead.loanAmount || 0).toLocaleString()}</div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className="text-[9px] font-black px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded-lg uppercase border border-blue-100/50 whitespace-nowrap">
+                                                    <span className="text-[9px] font-black px-2.5 py-1.5 bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 rounded-lg uppercase border border-blue-100/50 dark:border-blue-500/20 whitespace-nowrap">
                                                         {lead.status}
                                                     </span>
                                                 </td>
@@ -222,23 +225,29 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                                     </tbody>
                                 </table>
                             </div>
-                        ) : <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 rounded-2xl">No leads found</div>}
+                        ) : <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-white/10 rounded-2xl">No leads found</div>}
                     </div>
                 );
             }
             case 'TOTAL_TEAMS': {
                 return (
-                    <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-2.5">
                         {teamLeaders.map((tl) => {
                             const members = INITIAL_MEMBERSHIPS[tl.id] || [];
                             return (
-                                <div key={tl.id} className="p-4 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-4 cursor-pointer hover:border-[#2447d7]/30 transition-all" onClick={() => { setSelectedTeam({ ...tl, members }); setActiveModal(null); }}>
-                                    <div className="w-10 h-10 rounded-xl bg-[#ebf0ff] text-[#2447d7] flex items-center justify-center font-black text-sm">{tl.initials}</div>
-                                    <div className="flex-1">
-                                        <div className="font-bold text-[13px] text-slate-800">{tl.name}</div>
-                                        <div className="text-[11px] text-slate-400 font-medium">{members.length} members</div>
+                                <div 
+                                    key={tl.id} 
+                                    className="p-3.5 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5 flex items-center gap-4 cursor-pointer hover:border-[#2447d7]/30 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all group"
+                                    onClick={() => { setSelectedMember({ ...tl, role: 'Team Leader' }); setActiveModal(null); }}
+                                >
+                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2447d7] to-[#1732a3] text-white flex items-center justify-center font-black text-sm shadow-md shadow-[#2447d7]/20 group-hover:scale-105 transition-transform">{tl.initials}</div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="font-bold text-[14px] text-slate-800 dark:text-white truncate group-hover:text-[#2447d7] transition-colors">{tl.name}</div>
+                                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                                            <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                            {members.length} {members.length === 1 ? 'Agent' : 'Agents'}
+                                        </div>
                                     </div>
-                                    <IconArrow className="text-slate-300" />
                                 </div>
                             );
                         })}
@@ -316,15 +325,19 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                     </div>
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-2 flex flex-col gap-2">
                         {tasks.filter(t => t.date === selectedDate).length > 0 ? tasks.filter(t => t.date === selectedDate).map(t => (
-                            <div key={t.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7] transition-all group shrink-0">
+                            <div 
+                                key={t.id} 
+                                onClick={() => t.isPromotion ? setSelectedPromoDetails({ ...t, lenderName: t.title.replace('PROMO: ', ''), description: t.lead }) : (onNavigate && onNavigate('tasks_followups', t))}
+                                className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7] transition-all cursor-pointer group shrink-0"
+                            >
                                 <div className="flex justify-between items-start mb-1 gap-2">
                                     <span className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
                                     <span className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase shrink-0">{t.type || 'TASK'}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                                <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-1">
                                     <IconClock width="10" height="10" className="text-slate-300" />
                                     <span>{t.time}</span>
-                                    {t.lead && <><span>�</span><span className="truncate">{t.lead}</span></>}
+                                    {t.lead && <><span className="text-slate-300">•</span><span className="truncate font-medium">{t.lead}</span></>}
                                 </div>
                                 {!t.isPromotion && (
                                     <select className={`mt-2 w-full py-1 px-2 text-[10px] font-black uppercase tracking-widest border outline-none transition-all cursor-pointer rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' : 'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5]'}`} value={t.status} onChange={e => updateTaskStatus(t.id, e.target.value)}>
@@ -440,24 +453,10 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 {/* LENDERS */}
                 <div className="col-span-2 md:col-span-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 md:h-[420px] shadow-sm overflow-hidden">
                     <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5"><IconBank className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Promotions / Lenders</span></div>
+                        <div className="flex items-center gap-1.5"><IconBank className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Recent Lenders</span></div>
                         <button onClick={() => onNavigate && onNavigate('lenders')} className="text-[9px] font-bold text-[#2447d7] hover:underline">All &#x2192;</button>
                     </div>
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2">
-                        {/* Active Promotions */}
-                        {promotions.filter(p => { const d = todayStr; return d >= p.startDate && d <= p.endDate; }).slice(0, 2).map(promo => (
-                            <div key={promo.id} onClick={() => setSelectedPromoDetails(promo)} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 hover:border-blue-400 transition-all cursor-pointer shrink-0">
-                                <div className="flex justify-between items-center mb-1 gap-2">
-                                    <span className="text-[11px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-tight truncate">{promo.lenderName}</span>
-                                    <span className="text-[7px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black tracking-widest uppercase shrink-0">PROMO</span>
-                                </div>
-                                <p className="text-[10px] text-slate-600 dark:text-slate-300 font-medium leading-tight line-clamp-2">{promo.description}</p>
-                                <div className="flex items-center gap-1 text-[9px] text-blue-500 mt-1.5">
-                                    <IconCalendar width="10" height="10" />
-                                    <span>{promo.startDate} → {promo.endDate}</span>
-                                </div>
-                            </div>
-                        ))}
                         {/* Recent Lenders */}
                         {RECENT_LENDERS.slice(0, 4).map((lender) => {
                             const tc = LENDER_TYPE_COLORS[lender.type] || LENDER_TYPE_COLORS['Major Bank'];
@@ -487,11 +486,6 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 </div>
             </div>
 
-            {/* MODALS */}
-            <DashboardModal isOpen={!!activeModal && activeModal !== null} onClose={() => setActiveModal(null)} title={modalTitles[activeModal] || ''}>
-                {renderModalContent()}
-            </DashboardModal>
-
             {/* Promo Details Modal */}
             {selectedPromoDetails && (
                 <div className="fixed inset-0 bg-slate-900/45 backdrop-blur-sm flex items-center justify-center z-[9999] p-6 animate-fadeIn" onClick={() => setSelectedPromoDetails(null)}>
@@ -512,14 +506,14 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                         </div>
                         <div className="p-6 flex flex-col gap-5">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[22px] font-black text-slate-900 dark:text-white">{selectedPromoDetails.lenderName}</span>
+                                <span className="text-[22px] font-black text-slate-900 dark:text-white">{selectedPromoDetails.lenderName || selectedPromoDetails.title}</span>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className="px-2 py-1 bg-[#10b981]/10 text-[#10b981] text-[10px] font-black uppercase tracking-wider rounded border border-[#10b981]/20">Active Now</span>
-                                    <span className="text-[11px] font-bold text-slate-500">{selectedPromoDetails.startDate} → {selectedPromoDetails.endDate}</span>
+                                    <span className="text-[11px] font-bold text-slate-500">{selectedPromoDetails.startDate || selectedPromoDetails.date} → {selectedPromoDetails.endDate || selectedPromoDetails.date}</span>
                                 </div>
                             </div>
                             <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-white/5">
-                                <p className="text-[13px] text-slate-700 dark:text-slate-300 font-medium whitespace-pre-wrap leading-relaxed">{selectedPromoDetails.description}</p>
+                                <p className="text-[13px] text-slate-700 dark:text-slate-300 font-medium whitespace-pre-wrap leading-relaxed">{selectedPromoDetails.description || selectedPromoDetails.lead}</p>
                             </div>
                             {selectedPromoDetails.fileData && (
                                 <div className="flex items-center justify-between p-4 bg-blue-50/50 dark:bg-[#1a2244]/50 border border-blue-100 dark:border-[#2c3568] rounded-2xl">
@@ -540,11 +534,29 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                                 </div>
                             )}
                         </div>
-                        <div className="p-4 bg-slate-50 dark:bg-[#141829] border-t border-slate-100 dark:border-white/5 flex justify-center">
+                        <div className="p-6 bg-slate-50 dark:bg-[#141829] flex justify-center border-t border-slate-100 dark:border-white/5">
                             <button onClick={() => setSelectedPromoDetails(null)} className="px-8 py-2.5 rounded-xl bg-[#2447d7] text-white text-[13px] font-bold shadow-[0_4px_10px_rgba(36,71,215,0.3)] hover:bg-[#1732a3] transition-all">Close View</button>
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Task Modal */}
+            {selectedTask && (
+                <TaskModal
+                    isOpen={!!selectedTask}
+                    onClose={() => setSelectedTask(null)}
+                    task={selectedTask}
+                    onSave={(updatedTask) => {
+                        updateTask(updatedTask);
+                        setSelectedTask(null);
+                    }}
+                    onDelete={(id) => {
+                        // Implement delete if needed
+                        setSelectedTask(null);
+                    }}
+                    isDark={isDark}
+                />
             )}
 
             {/* Document Preview Modal */}
@@ -553,6 +565,16 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                     file={previewFile}
                     onClose={() => setPreviewFile(null)}
                     isDark={isDark}
+                />
+            )}
+
+            {/* Member Profile Modal */}
+            {selectedMember && (
+                <UserProfileModal
+                    user={selectedMember}
+                    onClose={() => setSelectedMember(null)}
+                    onUserClick={(u) => setSelectedMember(u)}
+                    onLeadClick={(l) => onNavigate && onNavigate('lead_details', l)}
                 />
             )}
 
@@ -574,11 +596,15 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                         </div>
                         <div className="p-6 overflow-y-auto flex flex-col gap-3">
                             {selectedTeam.members.length > 0 ? selectedTeam.members.map((member) => (
-                                <div key={member.id} className="flex items-center gap-4 p-4 rounded-2xl border border-[#f1f5f9] hover:border-[#2447d7]/20 hover:bg-[#fcfdfe] transition-all">
-                                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-[13px] font-black text-slate-400">{member.name.split(' ').map(n => n[0]).join('')}</div>
+                                <div 
+                                    key={member.id} 
+                                    className="flex items-center gap-4 p-4 rounded-2xl border border-[#f1f5f9] hover:border-[#2447d7]/20 hover:bg-[#fcfdfe] transition-all cursor-pointer group"
+                                    onClick={() => setSelectedMember(member)}
+                                >
+                                    <div className="w-10 h-10 rounded-xl bg-slate-100 group-hover:bg-[#ebf0ff] flex items-center justify-center text-[12px] font-black text-slate-400 group-hover:text-[#2447d7] transition-colors">{member.name.split(' ').map(n => n[0]).join('')}</div>
                                     <div className="flex-1">
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-bold text-[#1a202c]">{member.name}</span>
+                                            <span className="text-sm font-bold text-[#1a202c] group-hover:text-[#2447d7] transition-colors">{member.name}</span>
                                             <span className={`px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider ${member.status === 'Active' ? 'bg-[#ecfdf5] text-[#059669]' : 'bg-slate-100 text-slate-400'}`}>{member.status}</span>
                                         </div>
                                         <span className="text-[11px] font-medium text-[#a0aec0]">{member.email}</span>

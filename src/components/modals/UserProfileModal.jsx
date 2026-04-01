@@ -11,7 +11,7 @@ import {
 import { useLeads } from '../../context/LeadsContext';
 import { useTheme } from '../../context/ThemeContext';
 
-const UserProfileModal = ({ user, onClose, onUserClick }) => {
+const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
     const navigate = useNavigate();
     const { leads } = useLeads();
     const { theme } = useTheme();
@@ -63,8 +63,13 @@ const UserProfileModal = ({ user, onClose, onUserClick }) => {
     const hierarchy = getHierarchyContext();
 
     const handleLeadClick = (lead) => {
-        onClose(); // Close performance popup first
-        navigate('/super-admin/operational-flow', { state: { selectedLead: lead } });
+        if (onLeadClick) {
+            onLeadClick(lead);
+            onClose();
+        } else {
+            onClose(); // Close performance popup first
+            navigate('/super-admin/operational-flow', { state: { selectedLead: lead } });
+        }
     };
 
     // Dark mode adaptive colors (falling back to Tailwind classes for existing light mode style)
