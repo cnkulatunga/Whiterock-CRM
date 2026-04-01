@@ -28,7 +28,7 @@ const DashboardModal = ({ isOpen, onClose, title, children }) => {
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative bg-white dark:bg-[#1e2347] w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn">
+            <div className="relative bg-white dark:bg-[#1e2347] w-full max-w-6xl rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn">
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors">
@@ -59,6 +59,8 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
     })), [promotions]);
 
     const tasks = React.useMemo(() => [...initialTasks, ...memoizedPromotions], [initialTasks, memoizedPromotions]);
+
+    const currentUserName = React.useMemo(() => (user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim()), [user]);
 
     const [activeModal, setActiveModal] = useState(null);
     const [leadsTab, setLeadsTab] = useState('my_leads');
@@ -110,7 +112,11 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
     const teamLeaders = users ? users.filter(u => u.role === 'Team Leader') : [];
 
     // Lead counts
-    const myLeads = (leads || []).filter(l => l.status !== 'Completed');
+    // Filter "My Leads" to show only leads created by this AM or assigned to them directly
+    const myLeads = (leads || []).filter(l =>
+        (l.createdBy === currentUserName || l.assignedStaffId === user.id) &&
+        l.status !== 'Completed'
+    );
     const verifiedLeads = (leads || []).filter(l => l.stage === 'Document Verification Done' || l.status === 'Document Verification Done');
     const pendingApproval = (leads || []).filter(l => l.stage === 'Lender Selection' || l.status === 'Lender Selection');
     const totalTeams = teamLeaders.length;
@@ -156,36 +162,61 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
         setNewTask({ title: '', lead: '', date: todayStr, time: '12:00', type: 'Call', reminder: 'none' });
     };
 
-    const updateTaskStatus = (id, newStatus) => updateTask({ ...tasks.find(t => t.id === id), status: newStatus });
-
     const renderModalContent = () => {
+        const list = activeModal === 'MY_LEADS' ? myLeads : activeModal === 'VERIFIED' ? verifiedLeads : activeModal === 'PENDING' ? pendingApproval : [];
+
         switch (activeModal) {
             case 'MY_LEADS':
             case 'VERIFIED':
             case 'PENDING': {
-                const currentUserName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
-                const allMyLeads = (leads || []).filter(l => (l.assignedStaffId === user.id || l.agentName === currentUserName || l.createdBy === currentUserName) && l.status !== 'Completed');
-                const verList = (leads || []).filter(l => l.stage === 'Document Verification Done' || l.status === 'Document Verification Done');
-                const pendList = (leads || []).filter(l => l.stage === 'Lender Selection' || l.status === 'Lender Selection');
-                const list = activeModal === 'MY_LEADS' ? allMyLeads : activeModal === 'VERIFIED' ? verList : pendList;
                 return (
                     <div className="flex flex-col gap-3">
                         {list.length > 0 ? (
-                            <div className="rounded-xl border border-slate-100 overflow-hidden">
-                                <table className="w-full text-left border-collapse">
+                            <div className="rounded-xl border border-slate-100 overflow-x-auto custom-scrollbar shadow-sm">
+                                <table className="w-full text-left border-collapse min-w-[900px]">
                                     <thead><tr className="bg-slate-50 border-b border-slate-100">
-                                        <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">#</th>
-                                        <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Name</th>
-                                        <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business</th>
-                                        <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center w-12">#</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[160px]">Client Name</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[160px]">Business</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest min-w-[200px]">Contact Info</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Loan Amount</th>
+                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                        {activeModal === 'VERIFIED' && <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Action</th>}
                                     </tr></thead>
                                     <tbody className="divide-y divide-slate-100">
                                         {list.map((lead, idx) => (
-                                            <tr key={lead.id} className="hover:bg-blue-50/40 transition-all cursor-pointer" onClick={() => { onNavigate && onNavigate('leads'); setActiveModal(null); }}>
-                                                <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
-                                                <td className="px-4 py-3 text-[12px] font-bold text-[#2447d7]">{lead.name}</td>
-                                                <td className="px-4 py-3 text-[12px] text-slate-600">{lead.businessName || '—'}</td>
-                                                <td className="px-4 py-3"><span className="text-[10px] font-black px-2 py-1 bg-blue-50 text-blue-700 rounded-full uppercase">{lead.status}</span></td>
+                                            <tr key={lead.id} className="hover:bg-blue-50/40 transition-all cursor-pointer group" onClick={() => { onNavigate && onNavigate('lead_details', lead); setActiveModal(null); }}>
+                                                <td className="px-6 py-4 text-[11px] font-bold text-slate-400 text-center">{idx + 1}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-[13px] font-bold text-[#2447d7] whitespace-nowrap">{lead.name}</div>
+                                                </td>
+                                                <td className="px-6 py-4 text-[13px] text-slate-600 font-medium whitespace-nowrap">{lead.businessName || <span className="text-slate-300 italic font-normal">Personal</span>}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <div className="text-[12px] font-medium text-slate-700 whitespace-nowrap">{lead.email || lead.emailAddress || '—'}</div>
+                                                        <div className="text-[11px] font-bold text-slate-400">{lead.phone || lead.phoneNumber || '—'}</div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="text-[13px] font-black text-slate-900 whitespace-nowrap">£{parseFloat(lead.loanAmount || 0).toLocaleString()}</div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className="text-[9px] font-black px-2.5 py-1.5 bg-blue-50 text-blue-700 rounded-lg uppercase border border-blue-100/50 whitespace-nowrap">
+                                                        {lead.status}
+                                                    </span>
+                                                </td>
+                                                {activeModal === 'VERIFIED' && (
+                                                    <td className="px-6 py-4 text-right">
+                                                        {!(lead.documents || []).some(d => d.status === 'Rejected') && (
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); onNavigate && onNavigate('lender_selection', lead); setActiveModal(null); }}
+                                                                className="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-500/20 hover:-translate-y-0.5"
+                                                            >
+                                                                Select Lender
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                )}
                                             </tr>
                                         ))}
                                     </tbody>
@@ -242,14 +273,14 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 <div onClick={() => setActiveModal('VERIFIED')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconCheck width="22" height="22" /></div>
                     <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">{verifiedLeads.length}</h2>
-                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">VERIFIED</span>
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">DOCUMENTS VERIFIED</span>
                 </div>
 
                 {/* Pending Lead Approval */}
                 <div onClick={() => setActiveModal('PENDING')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-amber-500/20"><IconClock width="22" height="22" /></div>
                     <h2 className="text-3xl font-black leading-none text-amber-700 dark:text-amber-300">{pendingApproval.length}</h2>
-                    <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-tight">PENDING</span>
+                    <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-tight">SENT TO LENDERS</span>
                 </div>
 
                 {/* Total Teams */}
@@ -274,11 +305,11 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 {/* SCHEDULE */}
                 <div className="col-span-2 md:col-span-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 md:h-[350px] shadow-sm overflow-hidden">
                     <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5"><IconCalendar className="text-slate-400"/><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Schedule</span></div>
+                        <div className="flex items-center gap-1.5"><IconCalendar className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Schedule</span></div>
                         <div className="flex items-center gap-2">
                             <span className="text-[8px] bg-slate-200 dark:bg-slate-700 font-bold px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-300">{tasks.filter(t => t.date === selectedDate).length}</span>
                             <button onClick={() => setIsAddingTask(true)} className="w-5 h-5 bg-[#2447d7] text-white rounded flex items-center justify-center hover:bg-[#1a32a3] transition-colors" title="Add task">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                             </button>
                             <button onClick={() => onNavigate && onNavigate('tasks_followups')} className="text-[9px] font-bold text-[#2447d7] hover:underline">All</button>
                         </div>
@@ -291,7 +322,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                                     <span className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase shrink-0">{t.type || 'TASK'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                                    <IconClock width="10" height="10" className="text-slate-300"/>
+                                    <IconClock width="10" height="10" className="text-slate-300" />
                                     <span>{t.time}</span>
                                     {t.lead && <><span>�</span><span className="truncate">{t.lead}</span></>}
                                 </div>
@@ -350,16 +381,16 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                             <div className="p-2 flex flex-col gap-1.5">
                                 <div className="flex justify-between items-center">
                                     <button onClick={() => setViewDate(new Date(currentYear, currentMonth - 1, 1))} className="w-5 h-5 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded text-slate-500 hover:bg-[#ebf0ff] hover:text-[#2447d7] transition-all">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><polyline points="15 18 9 12 15 6"/></svg>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><polyline points="15 18 9 12 15 6" /></svg>
                                     </button>
                                     <span className="text-[9px] font-black text-slate-600 dark:text-slate-300">{monthName}</span>
                                     <button onClick={() => setViewDate(new Date(currentYear, currentMonth + 1, 1))} className="w-5 h-5 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded text-slate-500 hover:bg-[#ebf0ff] hover:text-[#2447d7] transition-all">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><polyline points="9 18 15 12 9 6"/></svg>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><polyline points="9 18 15 12 9 6" /></svg>
                                     </button>
                                 </div>
                                 <div className="grid grid-cols-7 gap-0.5">
-                                    {['M','T','W','T','F','S','S'].map((d, i) => <div key={i} className="text-center text-[7px] font-black text-slate-400 uppercase">{d}</div>)}
-                                    {[...Array(emptySlots)].map((_, i) => <div key={`e-${i}`} className="aspect-square"/>)}
+                                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <div key={i} className="text-center text-[7px] font-black text-slate-400 uppercase">{d}</div>)}
+                                    {[...Array(emptySlots)].map((_, i) => <div key={`e-${i}`} className="aspect-square" />)}
                                     {calendarDays.map(day => {
                                         const dateStr = `${currentYear}-${getPadded(currentMonth + 1)}-${getPadded(day)}`;
                                         const hasTasks = tasks.some(t => t.date === dateStr);
@@ -368,7 +399,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                                         return (
                                             <div key={day} onClick={() => setSelectedDate(dateStr)} className={`aspect-square flex items-center justify-center rounded cursor-pointer relative transition-all border border-transparent ${isTod && !isSel ? 'bg-[#eef2ff] border-[#2447d7]/20' : isSel ? 'bg-[#2447d7] shadow-sm' : 'hover:bg-slate-50'}`}>
                                                 <span className={`text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full ${isTod ? 'bg-[#2447d7] text-white' : isSel ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>{day}</span>
-                                                {hasTasks && !isSel && <span className="absolute bottom-0 w-0.5 h-0.5 bg-[#2447d7] rounded-full"/>}
+                                                {hasTasks && !isSel && <span className="absolute bottom-0 w-0.5 h-0.5 bg-[#2447d7] rounded-full" />}
                                             </div>
                                         );
                                     })}
@@ -380,21 +411,21 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                     {/* CALCULATOR */}
                     <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 shadow-sm overflow-hidden">
                         <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center gap-1.5">
-                            <IconCalc className="text-slate-400"/><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Loan Calculator</span>
+                            <IconCalc className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Loan Calculator</span>
                         </div>
                         <div className="p-3 flex flex-col gap-2">
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Amount ($)</label>
-                                    <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full"/>
+                                    <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rate (%)</label>
-                                    <input type="number" step="0.1" value={interestRate} onChange={e => setInterestRate(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full"/>
+                                    <input type="number" step="0.1" value={interestRate} onChange={e => setInterestRate(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full" />
                                 </div>
                                 <div className="flex flex-col gap-1">
                                     <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Term (mo)</label>
-                                    <input type="number" value={loanTerm} onChange={e => setLoanTerm(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full"/>
+                                    <input type="number" value={loanTerm} onChange={e => setLoanTerm(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full" />
                                 </div>
                             </div>
                             <div className="bg-[#ebf0ff] dark:bg-[#2447d7]/20 rounded-xl p-3 flex items-center justify-between">
@@ -468,7 +499,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                         <div className="p-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-blue-50 dark:bg-[#141829]">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-[#242b58] text-blue-600 dark:text-[#8ea0d4] flex items-center justify-center shadow-inner">
-                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
                                 </div>
                                 <div>
                                     <h3 className="text-lg font-black text-slate-900 dark:text-white">Promotion Details</h3>
@@ -494,16 +525,16 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                                 <div className="flex items-center justify-between p-4 bg-blue-50/50 dark:bg-[#1a2244]/50 border border-blue-100 dark:border-[#2c3568] rounded-2xl">
                                     <div className="flex items-center gap-3 min-w-0 flex-1">
                                         <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#242b58] text-[#2447d7] dark:text-[#8ea0d4] shadow-sm flex items-center justify-center border border-slate-100 dark:border-white/5 shrink-0">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" /><polyline points="13 2 13 9 20 9" /></svg>
                                         </div>
                                         <span className="text-[12px] font-bold text-slate-800 dark:text-slate-200 truncate">{selectedPromoDetails.fileName}</span>
                                     </div>
                                     <div className="flex gap-2 shrink-0 ml-4">
                                         <button onClick={() => setPreviewFile(selectedPromoDetails)} className="flex items-center gap-2 px-4 py-2 bg-white text-blue-700 border border-blue-200 rounded-xl text-[11px] font-black uppercase tracking-wider hover:bg-blue-50 transition-all shadow-sm">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg> Preview
                                         </button>
                                         <a href={selectedPromoDetails.fileData} download={selectedPromoDetails.fileName} className="flex items-center gap-2 px-4 py-2 bg-[#2447d7] text-white rounded-xl text-[11px] font-black uppercase tracking-wider hover:bg-[#1732a3] transition-all shadow-md no-underline">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg> Download
                                         </a>
                                     </div>
                                 </div>
@@ -518,7 +549,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
 
             {/* Document Preview Modal */}
             {previewFile && (
-                <DocumentPreviewModal 
+                <DocumentPreviewModal
                     file={previewFile}
                     onClose={() => setPreviewFile(null)}
                     isDark={isDark}

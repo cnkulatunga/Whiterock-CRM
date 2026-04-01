@@ -43,7 +43,7 @@ const Card = ({ icon, iconBg, iconColor, title, children, action }) => (
     </div>
 );
 
-const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
+const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNavigate }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { updateLead } = useLeads();
@@ -174,24 +174,36 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
             {/* ── HEADER ── */}
             <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-3">
-                    <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors">
+                    <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-slate-400">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><polyline points="15 18 9 12 15 6" /></svg>
                     </button>
                     <div>
                         <div className="flex items-center gap-2.5">
-                            <h1 className="text-xl font-bold text-[#1a202c]">{leadId}</h1>
+                            <h1 className="text-xl font-bold text-[#1a202c] dark:text-white">{leadId}</h1>
                             <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${statusCls}`}>{currentStatus}</span>
                         </div>
                         <p className="text-xs text-[#94a3b8] mt-0.5">
-                            Created {lead.submissionDate || lead.date || '—'} · Agent: <strong className="text-[#4a5568]">{lead.agentName || lead.agent || '—'}</strong>
+                            Created {lead.submissionDate || lead.date || '—'} · Agent: <strong className="text-[#4a5568] dark:text-slate-300">{lead.agentName || lead.agent || '—'}</strong>
                         </p>
                     </div>
                 </div>
-                {isManagerOrAbove && (
-                    <button onClick={() => setShowEditModal(true)} className="flex items-center gap-1.5 bg-[#f0f4ff] text-[#2447d7] px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-[#2447d7] hover:text-white transition-all">
-                        <IconPencil size={13} /> Edit Lead
-                    </button>
-                )}
+                <div className="flex items-center gap-2">
+                    {onNavigate && currentStatus === 'Document Verification Done' && 
+                     (isManagerOrAbove || isTeamLeader) && 
+                     !(lead.documents || []).some(d => d.status === 'Rejected') && (
+                        <button
+                            onClick={() => onNavigate('lender_selection', lead)}
+                            className="flex items-center gap-2 bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 active:scale-95"
+                        >
+                            <IconBank size={14} /> Lender Selection
+                        </button>
+                    )}
+                    {isManagerOrAbove && (
+                        <button onClick={() => setShowEditModal(true)} className="flex items-center gap-1.5 bg-[#f0f4ff] dark:bg-white/5 text-[#2447d7] dark:text-blue-400 px-3 py-2 rounded-xl text-xs font-bold hover:bg-[#2447d7] hover:text-white dark:hover:bg-blue-500 transition-all border border-transparent dark:border-white/10">
+                            <IconPencil size={13} /> Edit Lead
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* ── PROGRESS BAR ── */}
