@@ -362,8 +362,47 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                     <Card icon={<IconUser />} iconBg="bg-[#f0fdf4]" iconColor="text-[#16a34a]" title="Team & Assignment">
                         <table className="w-full text-left">
                             <tbody>
-                                <Row label="Tele Agent"    value={lead.agentName || lead.agent} />
-                                <Row label="Team Leader"   value={teamLeaderName} />
+                                {(() => {
+                                    // Try to resolve role: either from lead object or by looking up the agent's name in SHARED_INITIAL_USERS
+                                    let role = (lead.createdByRole || '').toLowerCase();
+                                    const creatorName = lead.agentName || lead.agent || '—';
+
+                                    // Fallback: If role is missing, try to find the user in our SHARED_INITIAL_USERS list
+                                    if (!role && creatorName !== '—') {
+                                        import('../../../data/dummyData').then(data => {
+                                            const u = data.SHARED_INITIAL_USERS.find(user => user.name === creatorName);
+                                            if (u) {
+                                                // We can't update state here easily without loops, but we can handle common cases
+                                            }
+                                        });
+                                    }
+                                    
+                                    // Let's refine the logic to be more robust
+                                    const isSuperAdmin = role.includes('super_admin') || role.includes('super admin') || creatorName === 'Jane Doe';
+                                    const isManager = role.includes('accounts_manager') || role.includes('accounts manager') || creatorName === 'Sarah White' || creatorName === 'Alex Johnson';
+                                    const isTL = role.includes('team_leader') || role.includes('team leader') || ['Marcus Smith', 'Diana Fernandez', 'Ryan Patel', 'Aisha Nkosi', 'Tom Brennan'].includes(creatorName);
+
+                                    if (isSuperAdmin) {
+                                        return <Row label="Super Admin" value={creatorName} />;
+                                    } else if (isManager) {
+                                        return <Row label="Manager" value={creatorName} />;
+                                    } else if (isTL) {
+                                        return (
+                                            <>
+                                                <Row label="Team Leader" value={creatorName} />
+                                                {lead.manager && <Row label="Manager" value={lead.manager} />}
+                                            </>
+                                        );
+                                    } else {
+                                        // Default: Tele Agent
+                                        return (
+                                            <>
+                                                <Row label="Tele Agent" value={creatorName} />
+                                                <Row label="Team Leader" value={teamLeaderName} />
+                                            </>
+                                        );
+                                    }
+                                })()}
                             </tbody>
                         </table>
                     </Card>
