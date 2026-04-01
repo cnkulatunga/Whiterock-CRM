@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { canManageTask } from '../../../utils/permissionUtils';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
@@ -56,6 +56,21 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
     const [lead, setLead] = useState(initialLead || {
         id: 'AF-2026-0000', name: 'Guest Lead', businessName: '', email: 'no-email@example.com', phone: 'N/A', documents: []
     });
+    const [teamLeaderName, setTeamLeaderName] = useState(lead.tl || lead.teamLeader || lead.teamLeaderName || '—');
+
+    useEffect(() => {
+        if (!lead.tl && !lead.teamLeader && !lead.teamLeaderName && lead.assignedStaffId) {
+            import('../../../data/dummyData').then(data => {
+                const { INITIAL_MEMBERSHIPS, SHARED_INITIAL_USERS } = data;
+                for (const leaderId in INITIAL_MEMBERSHIPS) {
+                    if (INITIAL_MEMBERSHIPS[leaderId].some(m => m.id === lead.assignedStaffId)) {
+                        const leader = SHARED_INITIAL_USERS.find(u => u.id === parseInt(leaderId));
+                        if (leader) setTeamLeaderName(leader.name);
+                    }
+                }
+            });
+        }
+    }, [lead]);
 
     const leadId = lead.id?.toString().startsWith('AF-') ? lead.id : `AF-2026-${String(lead.id).padStart(4, '0')}`;
     const leadName = lead.name;
@@ -336,10 +351,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                         <table className="w-full text-left">
                             <tbody>
                                 <Row label="Tele Agent"    value={lead.agentName || lead.agent} />
-                                <Row label="Team Leader"   value={lead.tl} />
-                                <Row label="Acct. Manager" value={lead.manager} />
-                                <Row label="Submitted"     value={lead.submissionDate || lead.date} />
-                                <Row label="Last Contact"  value={lead.lastContact} />
+                                <Row label="Team Leader"   value={teamLeaderName} />
                             </tbody>
                         </table>
                     </Card>

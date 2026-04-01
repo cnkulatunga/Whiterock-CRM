@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MOCK_LEADS } from '../data/dummyData';
+import { MOCK_LEADS, INITIAL_MEMBERSHIPS, SHARED_INITIAL_USERS } from '../data/dummyData';
 
 const LeadsContext = createContext(null);
 
@@ -73,8 +73,17 @@ export const LeadsProvider = ({ children }) => {
             // Admin stays as agentName, label handled in UI
             tl = formData.tl || '';
             manager = formData.manager || '';
+        } else if (role === 'tele_agent' || role === 'Tele Agent') {
+            // tele_agent: agentName is already set, lookup tl
+            if (!tl && user.id) {
+                for (const leaderId in INITIAL_MEMBERSHIPS) {
+                    if (INITIAL_MEMBERSHIPS[leaderId].some(m => m.id === user.id)) {
+                        const leader = SHARED_INITIAL_USERS.find(u => u.id === parseInt(leaderId));
+                        if (leader) tl = leader.name;
+                    }
+                }
+            }
         }
-        // tele_agent: agentName is already set, tl/manager come from formData or stay blank
 
         const newLead = {
             id: newId,
