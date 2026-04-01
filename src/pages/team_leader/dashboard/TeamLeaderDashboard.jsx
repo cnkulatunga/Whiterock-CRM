@@ -848,10 +848,12 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">CONNECT<br />TEAMS</h2>
                 </div>
 
-                <div className="bg-purple-100/30 dark:bg-[#251a3a] rounded-2xl border border-purple-200 dark:border-purple-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square text-center relative overflow-hidden">
-                    <div className="w-11 h-11 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white flex items-center justify-center mb-1 shadow-md shadow-purple-500/30 relative z-10"><IconBulb width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-purple-700 dark:text-purple-300 relative z-10">AI<br />ANALYTICS</h2>
-                    <span className="absolute top-2 right-2 text-[8px] font-black bg-purple-200 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 px-1.5 py-0.5 rounded tracking-widest z-10">BETA</span>
+                <div className="bg-slate-100/30 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square text-center relative overflow-hidden grayscale opacity-70">
+                    <div className="w-11 h-11 rounded-full bg-slate-400 text-white flex items-center justify-center mb-1 shadow-md relative z-10"><IconBulb width="24" height="24" /></div>
+                    <h2 className="text-[14px] font-black leading-tight text-slate-500 dark:text-slate-400 relative z-10">AI<br />ANALYTICS</h2>
+                    <div className="absolute top-2 -right-6 w-24 bg-[#ff4d4d] text-white text-[8px] font-black py-0.5 rotate-45 transform flex items-center justify-center shadow-lg border-y border-white/20 z-20">
+                        SOON
+                    </div>
                 </div>
 
                 {/* === ROW 2: COLUMN STACKS === */}
