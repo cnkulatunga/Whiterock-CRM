@@ -1091,7 +1091,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                                     <table className="w-full text-left border-collapse">
                                         <thead className="sticky top-0 bg-slate-50 z-10">
                                             <tr>
-                                                {['#','Lead','Business','Agent','TL','Loan Amount','Stage'].map(h => (
+                                                {['#','Lead','Business','Agent','Loan Amount','Stage'].map(h => (
                                                     <th key={h} className="px-3 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">{h}</th>
                                                 ))}
                                                 {statModal === 'pending-docs' && <th className="px-3 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Pending Docs</th>}
@@ -1119,7 +1119,6 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                                                         </td>
                                                         <td className="px-3 py-2 text-[11px] text-slate-600">{lead.businessName || '—'}</td>
                                                         <td className="px-3 py-2 text-[11px] text-slate-600">{lead.agentName || '—'}</td>
-                                                        <td className="px-3 py-2 text-[11px] text-slate-600">{lead.tl || '—'}</td>
                                                         <td className="px-3 py-2 text-[11px] font-bold text-blue-600">{lead.loanAmount || '—'}</td>
                                                         <td className="px-3 py-2">
                                                             <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${STAGE_COLORS[lead.stage || lead.status] || 'bg-slate-100 text-slate-600'}`}>
