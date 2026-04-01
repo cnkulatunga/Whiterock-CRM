@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-
 import TeamLeaderSidebar from '../components/team_leader_sidebar/TeamLeaderSidebar';
 import TeamLeaderDashboard from '../pages/team_leader/dashboard/TeamLeaderDashboard';
 import LeadMonitoring from '../pages/team_leader/lead_monitoring/LeadMonitoring';
-import DocumentVerification from '../pages/team_leader/document_verification/DocumentVerification';
 import TeamLeaderCalendar from '../pages/team_leader/calendar/TeamLeaderCalendar';
 import LenderPromotionsView from '../pages/shared/promotions/LenderPromotionsView';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
@@ -66,7 +65,6 @@ const TeamLeaderLayout = ({ onLogout }) => {
         switch (page) {
             case 'dashboard': navigate('/team-leader/dashboard'); break;
             case 'lead-monitoring': navigate('/team-leader/lead-monitoring'); break;
-            case 'document-verification': navigate('/team-leader/document-verification'); break;
             case 'calendar': navigate('/team-leader/calendar'); break;
             case 'promotions': navigate('/team-leader/promotions'); break;
             case 'create-lead': navigate('/team-leader/create-lead'); break;
@@ -137,16 +135,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
                             </p>
                         </div>
                     )}
-                    {location.pathname === '/team-leader/document-verification' && (
-                        <div className="flex flex-col">
-                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                Document Verification
-                            </h1>
-                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                Verify and approve documents submitted by Tele-Agents for active leads.
-                            </p>
-                        </div>
-                    )}
+
                     {location.pathname === '/team-leader/calendar' && (
                         <div className="flex flex-col">
                             <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -248,7 +237,6 @@ const TeamLeaderLayout = ({ onLogout }) => {
                     <Routes>
                         <Route path="dashboard" element={<TeamLeaderDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} onViewLeadDetails={(lead) => handleNavigate('lead-details', lead)} />} />
                         <Route path="lead-monitoring" element={<LeadMonitoring onViewDetails={(lead) => handleNavigate('lead-details', lead)} />} />
-                        <Route path="document-verification" element={<DocumentVerification />} />
                         <Route path="calendar" element={<TeamLeaderCalendar tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="promotions" element={<LenderPromotionsView />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => handleNavigate('dashboard')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />

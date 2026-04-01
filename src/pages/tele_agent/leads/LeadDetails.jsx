@@ -449,18 +449,33 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
             {/* ── UPLOAD MODAL ── */}
             {showModal && (
                 <UploadModal
-                    lead={lead}
+                    client={lead}
                     onClose={() => setShowModal(false)}
                     onUpload={handleUpload}
-                    uploadingDocs={uploadingDocs}
-                    canApproveReject={canApproveReject}
-                    onStatusChange={(docId, status, note) => {
+                    onDelete={(clientId, docId) => {
                         setLead(prev => {
-                            const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status, note: note || d.note } : d);
+                            const newDocs = prev.documents.filter(d => d.id !== docId);
                             updateLead(prev.id, { documents: newDocs });
                             return { ...prev, documents: newDocs };
                         });
                     }}
+                    onApprove={(clientId, docId) => {
+                        setLead(prev => {
+                            const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status: 'Approved' } : d);
+                            updateLead(prev.id, { documents: newDocs });
+                            return { ...prev, documents: newDocs };
+                        });
+                    }}
+                    onReject={(clientId, docId, reason) => {
+                        setLead(prev => {
+                            const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d);
+                            updateLead(prev.id, { documents: newDocs });
+                            return { ...prev, documents: newDocs };
+                        });
+                    }}
+                    uploadingDocs={uploadingDocs}
+                    isDark={isDark}
+                    isTeamLeader={isTeamLeader}
                 />
             )}
 
