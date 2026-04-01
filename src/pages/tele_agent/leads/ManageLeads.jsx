@@ -193,9 +193,9 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     const sentToLenders = leads.filter(l => l.selectedLenders?.length > 0).length;
     const newLeads = leads.filter(l => !l.selectedLenders?.length && (l.stage || l.status) === 'Document Verification Done').length;
     const pipelineStats = [
-        { label: 'Total Leads',     value: totalLeads,    bg: 'bg-blue-50 border-blue-100',    iconBg: 'bg-blue-600',    icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
-        { label: 'Sent to Lenders', value: sentToLenders, bg: 'bg-emerald-50 border-emerald-100', iconBg: 'bg-emerald-600', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
-        { label: 'Pending to Lenders',   value: newLeads,      bg: 'bg-amber-50 border-amber-100',   iconBg: 'bg-amber-500',   icon: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></> },
+        { label: 'Total Leads',       value: totalLeads,    bg: 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20',       iconBg: 'bg-blue-600',    icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
+        { label: 'Sent to Lenders',   value: sentToLenders, bg: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20', iconBg: 'bg-emerald-600', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
+        { label: 'Pending to Lenders',value: newLeads,      bg: 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20',     iconBg: 'bg-amber-500',   icon: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></> },
     ];
 
     return (
@@ -210,7 +210,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                             </div>
                             <div className="min-w-0">
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{stat.label}</div>
-                                <div className="text-base font-black text-slate-900 leading-none">{stat.value}</div>
+                                <div className="text-base font-black text-slate-900 dark:text-white leading-none">{stat.value}</div>
                             </div>
                         </div>
                     </div>
@@ -262,14 +262,14 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                         )}
                         
                         {/* Search Bar */}
-                        <div className={`flex items-center gap-2.5 px-4 py-2 border rounded-[12px] w-[300px] md:w-full transition-all ${isDark ? 'bg-[#141829] border-white/10 focus-within:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#475569' : '#a0aec0'} strokeWidth="2.5" width="14" height="14">
+                        <div className={`flex items-center gap-2.5 px-4 py-2 border rounded-[12px] w-[300px] md:w-full transition-all ${isDark ? 'bg-[#1e2347] border-[#36407a] focus-within:border-[#5b6aaa]' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#4a5a8a' : '#a0aec0'} strokeWidth="2.5" width="14" height="14">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
                             <input
                                 type="text"
-                                className={`bg-transparent border-none outline-none text-[12px] font-medium w-full ${isDark ? 'text-white placeholder-slate-600' : 'text-[#4a5568] placeholder-[#a0aec0]'}`}
+                                className={`bg-transparent border-none outline-none text-[12px] font-medium w-full ${isDark ? 'text-slate-200 placeholder-slate-500' : 'text-[#4a5568] placeholder-[#a0aec0]'}`}
                                 placeholder="Search by name or email..."
                                 value={searchTerm}
                                 onChange={(e) => {
@@ -285,14 +285,13 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className={`${isDark ? 'bg-[#141829]/50' : 'bg-[#fbfeff]'}`}>
-                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[70px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>ID</th>
-                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Lead Name</th>
-                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Business</th>
-                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b sm:hidden w-[100px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Amount</th>
-                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Email / Phone</th>
-                                {isAccountsManager && <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Staff</th>}
-                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Last Note</th>
-                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Status</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[180px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>ID / Client</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[150px] sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Business</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[100px] sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Amount</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[180px] sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Email / Phone</th>
+                                {isAccountsManager && <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[120px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Staff</th>}
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[160px] sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Last Note</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[110px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Status</th>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[130px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Actions</th>
                             </tr>
                         </thead>
@@ -305,14 +304,14 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                     style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}
                                 >
                                     <td className="px-3 py-2.5">
-                                        <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 tracking-tighter">#{lead.id}</span>
-                                    </td>
-                                    <td className="px-3 py-2.5">
                                         <div className="flex items-center gap-2">
                                             <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black shadow-inner shrink-0 ${isDark ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-[#f0f4ff] text-[#2447d7]'}`}>
                                                 {lead.name.split(' ').map(n => n[0]).join('')}
                                             </div>
-                                            <span className={`text-[11px] font-black truncate max-w-[110px] ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{lead.name}</span>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className={`text-[11px] font-black truncate max-w-[110px] ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{lead.name}</span>
+                                                <span className="text-[9px] font-bold text-slate-400 tracking-tighter">#{lead.id}</span>
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-3 py-2.5 sm:hidden">
@@ -403,8 +402,8 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                 if (hasRejected || lead.status === 'Loan Rejected' || lead.status === 'Rejected') {
                                                     const label = hasRejected ? 'Document Rejected' : lead.status;
                                                     return (
-                                                        <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-red-50 text-red-600 border border-red-100 shadow-sm">
-                                                            <IconAlert size={12} /> {label === 'Document Verifications' ? 'Docs Rejected' : label}
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wide bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20 shadow-sm whitespace-nowrap">
+                                                            <IconAlert size={10} /> {label === 'Document Verifications' ? 'Docs Rejected' : label}
                                                         </span>
                                                     );
                                                 }
@@ -413,8 +412,8 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                 if (lead.status === 'Loan Confirmed' || isAllVerified) {
                                                     const label = isAllVerified && (lead.status === 'Document Verification Done' || lead.status === 'Document Verifications') ? 'Document Verified' : lead.status;
                                                     return (
-                                                        <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-green-50 text-green-600 border border-green-100 shadow-sm">
-                                                            <IconCheck size={12} strokeWidth={3} /> {label}
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wide bg-green-50 dark:bg-green-500/15 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20 shadow-sm whitespace-nowrap">
+                                                            <IconCheck size={10} strokeWidth={3} /> {label}
                                                         </span>
                                                     );
                                                 }
@@ -422,8 +421,8 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                 // 3. Selection / Advanced Stage
                                                 if (lead.status === 'Lender Selection') {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-purple-50 text-purple-600 border border-purple-100 shadow-sm">
-                                                            <IconCheck size={12} strokeWidth={3} /> {lead.status}
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wide bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20 shadow-sm whitespace-nowrap">
+                                                            <IconCheck size={10} strokeWidth={3} /> {lead.status}
                                                         </span>
                                                     );
                                                 }
@@ -431,16 +430,16 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                 // 4. Collection / Pending Stage
                                                 if (docCount > 0) {
                                                     return (
-                                                        <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-blue-50 text-blue-600 border border-blue-100 shadow-sm">
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wide bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 shadow-sm whitespace-nowrap">
                                                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(36,71,215,0.4)]" />
                                                             {lead.status === 'Document Collected' ? 'Docs' : lead.status} ({approvedCount}/{docCount})
                                                         </span>
                                                     );
                                                 }
 
-                                                // 4. Default / Missing Docs Stage
+                                                // 5. Default / Missing Docs Stage
                                                 return (
-                                                    <span className="inline-flex items-center gap-1 sm:gap-1 px-2 sm:px-1.5 py-1 rounded-full text-[9px] sm:text-[8px] font-black uppercase tracking-wider bg-gray-50 text-gray-500 border border-gray-200">
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wide bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-white/10 whitespace-nowrap">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-gray-300" />
                                                         {lead.status}
                                                     </span>

@@ -227,7 +227,6 @@ const LeadPerformance = () => {
     const [dateTo, setDateTo]         = useState('');
     const [agent, setAgent]           = useState('All Agents');
     const [leadStatus, setLeadStatus] = useState('All');
-    const [expandedRow, setExpandedRow] = useState(null);
 
     const totalRevenue = BAR_DATA.reduce((a, c) => a + c.revenue, 0);
     const allLeads = leads.map(mapLead);
@@ -374,7 +373,7 @@ const LeadPerformance = () => {
                     <table className="w-full border-collapse text-sm">
                         <thead>
                             <tr className={isDark ? 'bg-white/[0.02]' : 'bg-slate-50/70'}>
-                                {['Lead Entity', 'Personnel Flow', 'Application Stage', 'Finance Detail', 'Lender Partner'].map(h => (
+                                {['Lead Entity', 'Business Name', 'Personnel Flow', 'Application Stage', 'Amount', 'Bank', 'Lender Partner'].map(h => (
                                     <th key={h} className="px-4 py-2.5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{h}</th>
                                 ))}
                             </tr>
@@ -382,15 +381,12 @@ const LeadPerformance = () => {
                         <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-50'}`}>
                             {filtered.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-400 font-medium">No leads found matching criteria.</td>
+                                    <td colSpan={7} className="px-4 py-10 text-center text-sm text-slate-400 font-medium">No leads found matching criteria.</td>
                                 </tr>
                             )}
                             {filtered.map((lead) => (
                                 <React.Fragment key={lead.id}>
-                                    <tr
-                                        className={`transition-colors cursor-pointer ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-indigo-50/40'} ${expandedRow === lead.id ? (isDark ? 'bg-white/[0.03]' : 'bg-indigo-50/40') : ''}`}
-                                        onClick={() => setExpandedRow(expandedRow === lead.id ? null : lead.id)}
-                                    >
+                                    <tr className={`transition-colors ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-indigo-50/40'}`}>
                                         {/* Lead Entity */}
                                         <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
@@ -399,13 +395,13 @@ const LeadPerformance = () => {
                                                 </div>
                                                 <div className="min-w-0">
                                                     <p className={`text-[12px] font-black leading-none mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{lead.name}</p>
-                                                    <div className="flex items-center gap-2">
-                                                        <span className="text-[10px] text-slate-400 font-bold tracking-tighter">#{lead.id}</span>
-                                                        <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                                        <span className="text-[10px] text-slate-500 font-medium truncate">{lead.businessName}</span>
-                                                    </div>
+                                                    <span className="text-[10px] text-slate-400 font-bold tracking-tighter">#{lead.id}</span>
                                                 </div>
                                             </div>
+                                        </td>
+                                        {/* Business Name */}
+                                        <td className="px-4 py-3">
+                                            <p className={`text-[11px] font-bold truncate ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{lead.businessName}</p>
                                         </td>
                                         {/* Personnel Flow */}
                                         <td className="px-4 py-3">
@@ -414,10 +410,13 @@ const LeadPerformance = () => {
                                         </td>
                                         {/* Stage */}
                                         <td className="px-4 py-3"><StagePill stage={lead.stage} /></td>
-                                        {/* Finance Detail */}
+                                        {/* Amount */}
                                         <td className="px-4 py-3">
-                                            <p className={`text-[12px] font-black leading-none mb-1 ${isDark ? 'text-white' : 'text-slate-900'}`}>{lead.amount}</p>
-                                            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{lead.bank}</p>
+                                            <p className={`text-[12px] font-black leading-none ${isDark ? 'text-white' : 'text-slate-900'}`}>{lead.amount}</p>
+                                        </td>
+                                        {/* Bank */}
+                                        <td className="px-4 py-3">
+                                            <p className={`text-[11px] font-bold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{lead.bank}</p>
                                         </td>
                                         {/* Lender Partner */}
                                         <td className="px-4 py-3">
@@ -427,27 +426,6 @@ const LeadPerformance = () => {
                                         </td>
                                     </tr>
                                     {/* Expanded detail row */}
-                                    {expandedRow === lead.id && (
-                                        <tr className={isDark ? 'bg-white/[0.015]' : 'bg-indigo-50/20'}>
-                                            <td colSpan={7} className="px-6 py-3">
-                                                <div className="flex flex-wrap gap-6 text-xs">
-                                                    {[
-                                                        { label: 'Lead ID', value: lead.id },
-                                                        { label: 'Agent', value: lead.agent },
-                                                        { label: 'Lender', value: lead.lender },
-                                                        { label: 'Bank', value: lead.bank },
-                                                        { label: 'Amount', value: lead.amount },
-                                                        { label: 'Submission Date', value: lead.date },
-                                                    ].map(({ label, value }) => (
-                                                        <div key={label}>
-                                                            <p className="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
-                                                            <p className={`font-semibold ${isDark ? 'text-slate-200' : 'text-slate-800'}`}>{value}</p>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
                                 </React.Fragment>
                             ))}
                         </tbody>

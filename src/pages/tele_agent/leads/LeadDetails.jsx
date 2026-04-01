@@ -31,11 +31,11 @@ const Row = ({ label, value, span, highlight }) => (
 
 /* ── section card ── */
 const Card = ({ icon, iconBg, iconColor, title, children, action }) => (
-    <div className="bg-white rounded-xl border border-[#edf2f7] shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#f1f5f9]">
+    <div className="bg-white dark:bg-[#1e2347] rounded-xl border border-[#edf2f7] dark:border-white/5 shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[#f1f5f9] dark:border-white/5">
             <div className="flex items-center gap-2.5">
                 <span className={`w-7 h-7 ${iconBg} ${iconColor} rounded-lg flex items-center justify-center flex-shrink-0`}>{icon}</span>
-                <span className="text-[13px] font-bold text-[#1a202c]">{title}</span>
+                <span className="text-[13px] font-bold text-[#1a202c] dark:text-white">{title}</span>
             </div>
             {action}
         </div>
@@ -131,16 +131,16 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
 
     /* ── status badge ── */
     const statusColors = {
-        'Document Collection': 'bg-blue-50 text-blue-600 border-blue-100',
-        'Document Verification Done': 'bg-teal-50 text-teal-600 border-teal-100',
-        'Lender Selection': 'bg-purple-50 text-purple-600 border-purple-100',
-        'Completed': 'bg-green-50 text-green-600 border-green-100',
-        'Loan Confirmed': 'bg-green-50 text-green-600 border-green-100',
-        'Rejected': 'bg-red-50 text-red-600 border-red-100',
-        'Loan Rejected': 'bg-red-50 text-red-600 border-red-100',
+        'Document Collection':        'bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20',
+        'Document Verification Done': 'bg-teal-50 dark:bg-teal-500/15 text-teal-600 dark:text-teal-400 border-teal-100 dark:border-teal-500/20',
+        'Lender Selection':           'bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-500/20',
+        'Completed':                  'bg-green-50 dark:bg-green-500/15 text-green-600 dark:text-green-400 border-green-100 dark:border-green-500/20',
+        'Loan Confirmed':             'bg-green-50 dark:bg-green-500/15 text-green-600 dark:text-green-400 border-green-100 dark:border-green-500/20',
+        'Rejected':                   'bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border-red-100 dark:border-red-500/20',
+        'Loan Rejected':              'bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border-red-100 dark:border-red-500/20',
     };
     const currentStatus = lead.status || lead.stage || 'Document Collection';
-    const statusCls = statusColors[currentStatus] || 'bg-gray-50 text-gray-600 border-gray-100';
+    const statusCls = statusColors[currentStatus] || 'bg-gray-50 dark:bg-white/5 text-gray-600 dark:text-slate-400 border-gray-100 dark:border-white/10';
 
     /* ── progress stages ── */
     const stages = [
@@ -180,15 +180,15 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
             </div>
 
             {/* ── PROGRESS BAR ── */}
-            <div className="bg-white rounded-xl border border-[#edf2f7] px-6 py-4 shadow-sm overflow-x-auto">
+            <div className="bg-white dark:bg-[#1e2347] rounded-xl border border-[#edf2f7] dark:border-white/5 px-6 py-4 shadow-sm overflow-x-auto">
                 <div className="flex items-center min-w-[520px]">
                     {stages.map((s, i) => {
                         const done = i < currentIdx;
                         const active = i === currentIdx;
                         const rejected = s.id === 'Loan Rejected' && active;
-                        const dot = done ? 'bg-[#10b981]' : active ? (rejected ? 'bg-red-500' : 'bg-[#2447d7]') : 'bg-[#e2e8f0]';
-                        const txt = done ? 'text-[#10b981]' : active ? (rejected ? 'text-red-500' : 'text-[#2447d7]') : 'text-[#cbd5e1]';
-                        const line = i < currentIdx ? 'bg-[#10b981]' : 'bg-[#e2e8f0]';
+                        const dot = done ? 'bg-[#10b981]' : active ? (rejected ? 'bg-red-500' : 'bg-[#2447d7]') : 'bg-[#e2e8f0] dark:bg-white/10';
+                        const txt = done ? 'text-[#10b981]' : active ? (rejected ? 'text-red-500' : 'text-[#2447d7]') : 'text-[#cbd5e1] dark:text-slate-600';
+                        const line = i < currentIdx ? 'bg-[#10b981]' : 'bg-[#e2e8f0] dark:bg-white/10';
                         return (
                             <React.Fragment key={s.id}>
                                 <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
@@ -281,7 +281,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                     <Card icon={<IconBell />} iconBg="bg-[#fdf4ff]" iconColor="text-[#a855f7]" title="Notes">
                         <div className="p-4">
                             {lead.notes
-                                ? <p className="text-xs text-[#4a5568] bg-[#f8fafc] rounded-lg p-3 border border-[#edf2f7] italic">{lead.notes}</p>
+                                ? <p className="text-xs text-[#4a5568] dark:text-slate-300 bg-[#f8fafc] dark:bg-white/5 rounded-lg p-3 border border-[#edf2f7] dark:border-white/10 italic">{lead.notes}</p>
                                 : <p className="text-[11px] text-[#94a3b8] italic text-center py-2">No notes added.</p>
                             }
                         </div>
@@ -298,14 +298,14 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                     >
                         <div className="p-3 flex flex-col gap-2 max-h-[340px] overflow-y-auto scrollbar-thin">
                             {leadTasks.length > 0 ? leadTasks.map(task => (
-                                <div key={task.id} className="bg-[#f8fafc] border border-[#edf2f7] rounded-lg p-3 flex flex-col gap-2">
+                                <div key={task.id} className="bg-[#f8fafc] dark:bg-white/5 border border-[#edf2f7] dark:border-white/10 rounded-lg p-3 flex flex-col gap-2">
                                     <div className="flex items-start justify-between gap-2">
                                         <div>
-                                            <p className="text-[12px] font-bold text-[#1a202c]">{task.title}</p>
+                                            <p className="text-[12px] font-bold text-[#1a202c] dark:text-white">{task.title}</p>
                                             <p className="text-[10px] text-[#94a3b8]">{task.date} · {task.time}</p>
                                         </div>
                                         <select
-                                            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border outline-none cursor-pointer ${task.status === 'Completed' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-orange-50 text-orange-600 border-orange-100'}`}
+                                            className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-full border outline-none cursor-pointer ${task.status === 'Completed' ? 'bg-green-50 dark:bg-green-500/15 text-green-600 dark:text-green-400 border-green-100 dark:border-green-500/20' : 'bg-orange-50 dark:bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-500/20'}`}
                                             value={task.status}
                                             onChange={e => updateTaskStatus(task.id, e.target.value)}
                                         >
@@ -314,7 +314,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                             <option>Completed</option>
                                         </select>
                                     </div>
-                                    {task.message && <p className="text-[10px] text-[#718096] italic bg-white p-2 rounded border border-[#f1f5f9]">"{task.message}"</p>}
+                                    {task.message && <p className="text-[10px] text-[#718096] dark:text-slate-400 italic bg-white dark:bg-white/5 p-2 rounded border border-[#f1f5f9] dark:border-white/10">"{task.message}"</p>}
                                     <div className="flex items-center gap-1.5">
                                         <span className="text-[9px] font-bold text-[#94a3b8] uppercase">Reminder:</span>
                                         <select className="bg-transparent border-none text-[9px] font-bold text-[#2447d7] outline-none cursor-pointer" value={task.reminder} onChange={e => updateTaskReminder(task.id, e.target.value)}>
@@ -359,12 +359,12 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks }) => {
                                 const docCount = lead.documents?.length || 0;
                                 const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
                                 if (hasRejected || ['Rejected','Loan Rejected'].includes(currentStatus))
-                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-red-50 text-red-600 border border-red-100"><IconAlert size={11} /> Rejected</span>;
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20"><IconAlert size={11} /> Rejected</span>;
                                 if (['Loan Confirmed','Completed'].includes(currentStatus) || allApproved)
-                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-green-50 text-green-600 border border-green-100"><IconCheck size={11} strokeWidth={3} /> All Verified</span>;
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-green-50 dark:bg-green-500/15 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20"><IconCheck size={11} strokeWidth={3} /> All Verified</span>;
                                 if (currentStatus === 'Lender Selection')
-                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-purple-50 text-purple-600 border border-purple-100"><IconCheck size={11} strokeWidth={3} /> Lender Selection</span>;
-                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-blue-50 text-blue-600 border border-blue-100">
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20"><IconCheck size={11} strokeWidth={3} /> Lender Selection</span>;
+                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
                                     <span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Checking ({approvedCount}/{docCount})
                                 </span>;
                             })()}
