@@ -66,6 +66,15 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
     const [selectedPromoDetails, setSelectedPromoDetails] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
 
+    // Confirm dialog state
+    const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
+    const showConfirm = (message, onConfirm) => setConfirmDialog({ open: true, message, onConfirm });
+    const closeConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
+
+    const [alertDialog, setAlertDialog] = useState({ open: false, message: '' });
+    const showAlert = (message) => setAlertDialog({ open: true, message });
+    const closeAlert = () => setAlertDialog({ open: false, message: '' });
+
     // Notes state
     const [notesList, setNotesList] = useState(() => {
         try {
@@ -126,7 +135,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
     const togglePin = (id) => {
         const pinned = notesList.filter(n => n.isPinned).length;
         const note = notesList.find(n => n.id === id);
-        if (!note.isPinned && pinned >= 3) { alert('Max 3 pinned notes.'); return; }
+        if (!note.isPinned && pinned >= 3) { showAlert('Max 3 pinned notes.'); return; }
         const updated = notesList.map(n => n.id === id ? { ...n, isPinned: !n.isPinned } : n);
         setNotesList(updated);
         localStorage.setItem('am_notes_list', JSON.stringify(updated));
@@ -212,10 +221,10 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
     const modalTitles = { MY_LEADS: 'My Leads', VERIFIED: 'Verified Leads', PENDING: 'Pending Lead Approval', TOTAL_TEAMS: 'All Teams' };
 
     return (
-        <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-[calc(100vh-116px)] sm:h-[calc(100vh-108px)]">
+        <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-[calc(100vh-116px)] md:h-auto md:overflow-visible">
 
             {/* ROW 1: 6 STAT TILES */}
-            <div className="grid grid-cols-6 gap-3 shrink-0">
+            <div className="grid grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-3 shrink-0">
                 {/* My Leads */}
                 <div onClick={() => setActiveModal('MY_LEADS')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUsers width="22" height="22" /></div>
@@ -260,10 +269,10 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
             </div>
 
             {/* ROW 2: Schedule(2) | Notes+Cal+Calc(4) | Lenders(2) */}
-            <div className="grid grid-cols-8 gap-3 flex-1 min-h-0">
+            <div className="grid grid-cols-8 md:grid-cols-1 gap-3 flex-1 md:flex-none min-h-0">
 
                 {/* SCHEDULE */}
-                <div className="col-span-2 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 shadow-sm overflow-hidden">
+                <div className="col-span-2 md:col-span-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 md:h-[350px] shadow-sm overflow-hidden">
                     <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
                         <div className="flex items-center gap-1.5"><IconCalendar className="text-slate-400"/><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Schedule</span></div>
                         <div className="flex items-center gap-2">
@@ -297,14 +306,14 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 </div>
 
                 {/* MIDDLE � col 3-5: Notes+Calendar top, Calculator bottom */}
-                <div className="col-span-4 flex flex-col gap-3 min-h-0">
-                    <div className="flex gap-3 flex-1 min-h-0">
+                <div className="col-span-4 md:col-span-1 flex flex-col gap-3 min-h-0 md:min-h-0">
+                    <div className="flex gap-3 md:flex-col flex-1 md:flex-none min-h-0">
 
-                        {/* NOTES � col 1-2 */}
-                        <div className="flex-1 bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col min-h-0 shadow-sm overflow-hidden">
+                        {/* NOTES — col 1-2 */}
+                        <div className="flex-1 bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col min-h-0 md:h-[300px] shadow-sm overflow-hidden xl:self-start xl:max-h-[320px]">
                             <div className="bg-[#fff9c4] dark:bg-[#4d4826] border-b border-yellow-200/50 dark:border-yellow-700/30 p-2.5 px-4 shrink-0 flex items-center justify-between">
                                 <div className="flex items-center gap-1.5 text-yellow-700 dark:text-yellow-500"><IconNote /><span className="text-[10px] font-black uppercase tracking-widest">Notes</span></div>
-                                <button onClick={() => { if (window.confirm('Clear all notes?')) { setNotesList([]); localStorage.setItem('am_notes_list', '[]'); } }} className="text-[9px] font-bold text-yellow-700/60 hover:text-red-600 transition-colors uppercase tracking-widest">Clear All</button>
+                                <button onClick={() => showConfirm('Clear all notes?', () => { setNotesList([]); localStorage.setItem('am_notes_list', '[]'); })} className="text-[9px] font-bold text-yellow-700/60 hover:text-red-600 transition-colors uppercase tracking-widest">Clear All</button>
                             </div>
                             <div className="flex-1 p-3 pb-2 flex flex-col min-h-0 overflow-hidden">
                                 <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2.5 mb-2 pr-1">
@@ -334,7 +343,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                         </div>
 
                         {/* CALENDAR */}
-                        <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shadow-sm overflow-hidden shrink-0 w-[210px]">
+                        <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shadow-sm overflow-hidden shrink-0 w-[210px] xl:self-start md:w-full">
                             <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-3 shrink-0">
                                 <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Calendar</span>
                             </div>
@@ -397,7 +406,8 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 </div>
 
                 {/* LENDERS � col 6-7 */}
-                <div className="col-span-2 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 shadow-sm overflow-hidden">
+                {/* LENDERS */}
+                <div className="col-span-2 md:col-span-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 md:h-[420px] shadow-sm overflow-hidden">
                     <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
                         <div className="flex items-center gap-1.5"><IconBank className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Promotions / Lenders</span></div>
                         <button onClick={() => onNavigate && onNavigate('lenders')} className="text-[9px] font-bold text-[#2447d7] hover:underline">All &#x2192;</button>
@@ -561,6 +571,48 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                     if (notifyReminderSet) notifyReminderSet(task);
                 }}
             />
+
+            {/* Alert Dialog */}
+            {alertDialog.open && (
+                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeAlert} />
+                    <div className="relative bg-white dark:bg-[#1e2347] rounded-2xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 dark:border-white/10 animate-fadeIn">
+                        <p className="text-[15px] font-semibold text-slate-800 dark:text-white mb-6">{alertDialog.message}</p>
+                        <div className="flex justify-end">
+                            <button
+                                onClick={closeAlert}
+                                className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-[#2447d7] hover:bg-[#1732a3] transition-colors"
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirm Dialog */}
+            {confirmDialog.open && (
+                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeConfirm} />
+                    <div className="relative bg-white dark:bg-[#1e2347] rounded-2xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 dark:border-white/10 animate-fadeIn">
+                        <p className="text-[15px] font-semibold text-slate-800 dark:text-white mb-6">{confirmDialog.message}</p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={closeConfirm}
+                                className="px-5 py-2 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => { confirmDialog.onConfirm?.(); closeConfirm(); }}
+                                className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-red-500 hover:bg-red-600 transition-colors"
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

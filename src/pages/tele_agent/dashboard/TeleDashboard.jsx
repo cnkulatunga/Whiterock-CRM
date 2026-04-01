@@ -83,6 +83,12 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     const [interestRate, setInterestRate] = useState(8.5);
     const [loanTerm, setLoanTerm] = useState(24);
     const [localTasks, setLocalTasks] = useState(tasks);
+    const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
+    const [alertDialog, setAlertDialog] = useState({ open: false, message: '' });
+    const showConfirm = (message, onConfirm) => setConfirmDialog({ open: true, message, onConfirm });
+    const closeConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
+    const showAlert = (message) => setAlertDialog({ open: true, message });
+    const closeAlert = () => setAlertDialog({ open: false, message: '' });
 
     useEffect(() => {
         setLocalTasks(tasks);
@@ -160,7 +166,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
         const noteToToggle = notesList.find(n => n.id === id);
 
         if (!noteToToggle.isPinned && currentlyPinnedCount >= 3) {
-            alert("You can only pin up to 3 notes at a time.");
+            showAlert("You can only pin up to 3 notes at a time.");
             return;
         }
 
@@ -176,10 +182,10 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     };
 
     const clearAllNotes = () => {
-        if (window.confirm("Are you sure you want to clear all your notes permanently?")) {
+        showConfirm("Are you sure you want to clear all your notes permanently?", () => {
             setNotesList([]);
             localStorage.setItem('tele_notes_list', JSON.stringify([]));
-        }
+        });
     };
 
     const calculateRepayment = () => {
@@ -996,6 +1002,33 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
             } isWide={activeModal === 'LEAD_COUNT' || activeModal === 'FOLLOW_UPS'}>
                 {renderModalContent()}
             </DashboardModal>
+
+            {/* Alert Dialog */}
+            {alertDialog.open && (
+                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeAlert} />
+                    <div className="relative bg-white dark:bg-[#1e2347] rounded-2xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 dark:border-white/10 animate-fadeIn">
+                        <p className="text-[15px] font-semibold text-slate-800 dark:text-white mb-6">{alertDialog.message}</p>
+                        <div className="flex justify-end">
+                            <button onClick={closeAlert} className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-[#2447d7] hover:bg-[#1732a3] transition-colors">OK</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirm Dialog */}
+            {confirmDialog.open && (
+                <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeConfirm} />
+                    <div className="relative bg-white dark:bg-[#1e2347] rounded-2xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 dark:border-white/10 animate-fadeIn">
+                        <p className="text-[15px] font-semibold text-slate-800 dark:text-white mb-6">{confirmDialog.message}</p>
+                        <div className="flex justify-end gap-3">
+                            <button onClick={closeConfirm} className="px-5 py-2 rounded-xl text-sm font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 transition-colors">Cancel</button>
+                            <button onClick={() => { confirmDialog.onConfirm?.(); closeConfirm(); }} className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-red-500 hover:bg-red-600 transition-colors">Confirm</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

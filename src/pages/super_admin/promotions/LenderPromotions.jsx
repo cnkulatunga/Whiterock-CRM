@@ -90,7 +90,7 @@ const DocumentPreviewModal = ({ file, onClose, isDark }) => {
     return (
         <div className="fixed inset-0 bg-[#0f172a]/80 backdrop-blur-md z-[9999] flex items-center justify-center animate-fadeIn p-4" onClick={onClose}>
             <div className={`w-full max-w-5xl h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden animate-slideUp ${isDark ? 'bg-[#1e2347] border border-[#2c3568]' : 'bg-white border border-[#edf2f7]'}`} onClick={e => e.stopPropagation()}>
-                <div className={`px-6 py-4 flex justify-between items-center border-b shrink-0 ${isDark ? 'border-[#2c3568] bg-[#141829]' : 'border-[#edf2f7] bg-[#f8fafc]'}`}>
+                <div className={`px-6 py-4 flex justify-between items-center border-b shrink-0 ${isDark ? 'border-[#2c3568] bg-[#1e2347]' : 'border-[#edf2f7] bg-[#f8fafc]'}`}>
                     <h3 className={`font-bold flex items-center gap-3 ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isDark ? 'bg-[#242b58] text-[#8ea0d4]' : 'bg-white shadow text-[#2447d7]'}`}>
                             <IconFile />
@@ -116,7 +116,7 @@ const DocumentPreviewModal = ({ file, onClose, isDark }) => {
                         <iframe src={file.fileData} className="w-full h-full rounded-xl shadow-2xl border-0 ring-4 ring-white/10" title="PDF Preview" />
                     ) : (
                         <div className={`text-center p-10 rounded-2xl max-w-md shadow-lg ${isDark ? 'bg-[#1e2347] border border-[#2c3568]' : 'bg-white border border-[#edf2f7]'}`}>
-                            <div className={`w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center ${isDark ? 'bg-[#141829] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#a0aec0]'}`}>
+                            <div className={`w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center ${isDark ? 'bg-[#242b58] text-[#8ea0d4]' : 'bg-[#f8fafc] text-[#a0aec0]'}`}>
                                 <IconFile />
                             </div>
                             <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>Preview Not Available</h3>
@@ -165,7 +165,7 @@ const PromotionFormFields = ({ form, setForm, error, isDark, activeLenders }) =>
         }
     };
 
-    const inputClasses = `w-full border py-2.5 px-3 rounded-xl text-[13px] font-medium outline-none focus:border-[#2447d7]/50 transition-all ${isDark ? 'bg-[#141829] border-[#2c3568] text-[#e4ecff]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#1a202c]'}`;
+    const inputClasses = `w-full border py-2.5 px-3 rounded-xl text-[13px] font-medium outline-none focus:border-[#2447d7]/50 transition-all ${isDark ? 'bg-[#1e2347] border-[#36407a] text-[#e4ecff]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#1a202c]'}`;
     const labelClasses = `text-[10px] font-semibold uppercase tracking-widest ${isDark ? 'text-[#8ea0d4]' : 'text-[#a0aec0]'}`;
 
     return (
@@ -192,7 +192,7 @@ const PromotionFormFields = ({ form, setForm, error, isDark, activeLenders }) =>
                 <label className={labelClasses}>Promotion Document</label>
                 <div className="relative">
                     <input type="file" id="promo-doc" className="hidden" onChange={handleFileChange} />
-                    <label htmlFor="promo-doc" className={`flex items-center gap-2 cursor-pointer p-3 border-2 border-dashed rounded-xl transition-all ${isDark ? 'border-[#2c3568] hover:border-[#2447d7]/50 bg-[#141829] text-[#8ea0d4]' : 'border-[#edf2f7] hover:border-[#2447d7]/50 bg-[#f8fafc] text-[#718096]'}`}>
+                    <label htmlFor="promo-doc" className={`flex items-center gap-2 cursor-pointer p-3 border-2 border-dashed rounded-xl transition-all ${isDark ? 'border-[#36407a] hover:border-[#5b6aaa] bg-[#1e2347] text-[#8ea0d4]' : 'border-[#edf2f7] hover:border-[#2447d7]/50 bg-[#f8fafc] text-[#718096]'}`}>
                         <IconUpload />
                         <span className="text-[12px] font-medium truncate">{form.fileName || 'Click to upload promotion document'}</span>
                     </label>
@@ -208,7 +208,7 @@ const PromotionFormFields = ({ form, setForm, error, isDark, activeLenders }) =>
                     <input type="date" className={inputClasses} value={form.endDate} onChange={(e) => setForm({ ...form, endDate: e.target.value })} />
                 </div>
             </div>
-            {error && <div className="p-3 bg-[#fef2f2] border border-[#fee2e2] text-[#dc2626] text-[12px] font-medium text-center rounded-xl animate-shake">{error}</div>}
+            {error && <div className={`p-3 border text-[12px] font-medium text-center rounded-xl animate-shake ${isDark ? 'bg-red-500/10 border-red-500/20 text-red-400' : 'bg-[#fef2f2] border-[#fee2e2] text-[#dc2626]'}`}>{error}</div>}
         </>
     );
 };
@@ -224,6 +224,7 @@ const LenderPromotions = () => {
     const [editingPromotion, setEditingPromotion] = useState(null);
     const [error, setError] = useState('');
     const [previewFile, setPreviewFile] = useState(null);
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null);
     const [form, setForm] = useState({ lenderName: '', description: '', fileName: '', fileData: '', startDate: '', endDate: '' });
 
     const validate = () => {
@@ -292,7 +293,7 @@ const LenderPromotions = () => {
                     <input 
                         type="text" 
                         placeholder="Search lender or promotion content..." 
-                        className={`w-full pl-10 pr-4 py-2.5 rounded-xl text-[13px] font-bold outline-none transition-all ${isDark ? 'bg-[#141829] border-[#2c3568] text-[#e4ecff] focus:border-[#2447d7]/50' : 'bg-[#f8fafc] border-[#edf2f7] text-[#1a202c] focus:bg-white focus:border-[#2447d7]/30'}`}
+                        className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-[13px] font-bold outline-none transition-all ${isDark ? 'bg-[#1e2347] border-[#36407a] text-[#e4ecff] placeholder-slate-500 focus:border-[#5b6aaa]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#1a202c] focus:bg-white focus:border-[#2447d7]/30'}`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -308,10 +309,10 @@ const LenderPromotions = () => {
             <div className={`grid gap-6 ${filtered.length === 0 ? 'grid-cols-1' : 'grid-cols-3 xl:grid-cols-2 md:grid-cols-1'} animate-slideUp`}>
                 {filtered.length === 0 ? (
                     <div className={`col-span-full py-20 text-center rounded-2xl border-2 border-dashed ${isDark ? 'bg-[#1e2347]/50 border-[#2c3568] text-[#8ea0d4]' : 'bg-white border-[#edf2f7] text-[#a0aec0]'}`}>
-                        <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center shadow-inner ${isDark ? 'bg-[#141829]' : 'bg-[#f8fafc]'}`}>
+                        <div className={`w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center shadow-inner ${isDark ? 'bg-[#242b58]' : 'bg-[#f8fafc]'}`}>
                             <IconFile />
                         </div>
-                        <h3 className="text-lg font-bold mb-1 text-[#1a202c] dark:text-[#e4ecff]">No Promotions Found</h3>
+                        <h3 className={`text-lg font-bold mb-1 ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>No Promotions Found</h3>
                         <p className="text-sm">Start by adding a new lender promotion.</p>
                     </div>
                 ) : (
@@ -329,7 +330,7 @@ const LenderPromotions = () => {
                                     <button onClick={(e) => { e.stopPropagation(); startEdit(promo); }} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-white hover:bg-[#3b82f6] text-[#3b82f6] hover:text-white shadow-md dark:bg-[#2c3568] dark:hover:bg-[#3b82f6] dark:text-[#8ea0d4]" title="Edit">
                                         <IconEdit />
                                     </button>
-                                    <button onClick={(e) => { e.stopPropagation(); deletePromotion(promo.id); }} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-white hover:bg-red-500 text-red-500 hover:text-white shadow-md dark:bg-[#2c3568] dark:hover:bg-red-500 dark:text-red-400" title="Delete">
+                                    <button onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(promo.id); }} className="w-8 h-8 rounded-lg flex items-center justify-center transition-all bg-white hover:bg-red-500 text-red-500 hover:text-white shadow-md dark:bg-[#2c3568] dark:hover:bg-red-500 dark:text-red-400" title="Delete">
                                         <IconTrash />
                                     </button>
                                 </div>
@@ -384,7 +385,7 @@ const LenderPromotions = () => {
                                 {promo.fileData && (
                                     <div className={`flex flex-col gap-4 p-4 border-t mt-auto transition-colors ${
                                         isDark 
-                                        ? 'bg-[#181c2e] border-[#2c3568] group-hover:bg-[#1a2244]' 
+                                        ? 'bg-[#242b58] border-[#2c3568] group-hover:bg-[#2c3568]' 
                                         : 'bg-[#f7fafc] border-[#edf2f7] group-hover:bg-[#eff6ff]'
                                     }`}>
                                         <div className="flex items-center gap-3 min-w-0">
@@ -454,6 +455,25 @@ const LenderPromotions = () => {
                     onClose={() => setPreviewFile(null)} 
                     isDark={isDark} 
                 />
+            )}
+
+            {/* Delete Confirm Dialog */}
+            {deleteConfirmId && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+                    <div className={`relative rounded-2xl shadow-2xl p-6 w-full max-w-sm border animate-slideUp ${isDark ? 'bg-[#1e2347] border-white/10' : 'bg-white border-slate-100'}`}>
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 ${isDark ? 'bg-red-500/10' : 'bg-red-50'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="28" height="28">
+                                <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                        </div>
+                        <p className={`text-[15px] font-semibold text-center mb-1 ${isDark ? 'text-white' : 'text-slate-800'}`}>Delete Promotion?</p>
+                        <p className={`text-[12px] text-center mb-6 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>This action cannot be undone.</p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setDeleteConfirmId(null)} className={`flex-1 px-4 py-2.5 rounded-xl text-sm font-bold transition-colors ${isDark ? 'bg-white/5 text-slate-300 hover:bg-white/10' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>Cancel</button>
+                            <button onClick={() => { deletePromotion(deleteConfirmId); setDeleteConfirmId(null); }} className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white bg-red-500 hover:bg-red-600 transition-colors">Delete</button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

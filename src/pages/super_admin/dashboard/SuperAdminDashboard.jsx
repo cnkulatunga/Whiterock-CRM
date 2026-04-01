@@ -140,7 +140,8 @@ const OnlineUsersPopup = ({ onClose, onUserClick, onNavigate }) => {
         </div>
     );
 };
-/* ─── TASK SCHEDULE ──────────────────────── */
+
+/* ─── TASK SCHEDULE ──────────────────────── */
 const TaskSchedule = () => {
     const navigate = useNavigate();
     const { tasks, addTask } = useTasks();
@@ -275,7 +276,6 @@ const AgentPerformance = () => {
     );
 };
 
-/* ─── NOTES ──────────────────────────────── */
 const Notes = () => {
     const [notesList, setNotesList] = useState(() => {
         try {
@@ -284,6 +284,12 @@ const Notes = () => {
         } catch { return []; }
     });
     const [newNote, setNewNote] = useState('');
+    const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
+    const [alertDialog, setAlertDialog] = useState({ open: false, message: '' });
+    const showConfirm = (message, onConfirm) => setConfirmDialog({ open: true, message, onConfirm });
+    const closeConfirm = () => setConfirmDialog({ open: false, message: '', onConfirm: null });
+    const showAlert = (message) => setAlertDialog({ open: true, message });
+    const closeAlert = () => setAlertDialog({ open: false, message: '' });
 
     const getPadded = n => String(n).padStart(2, '0');
 
@@ -323,13 +329,14 @@ const Notes = () => {
     };
 
     const clearAll = () => {
-        if (window.confirm('Clear all notes?')) {
+        showConfirm('Clear all notes?', () => {
             setNotesList([]);
             localStorage.setItem('sa_notes_list', JSON.stringify([]));
-        }
+        });
     };
 
     return (
+        <>
         <div className="bg-[#fffdf0] rounded-2xl border border-yellow-200/60 flex flex-col h-full overflow-hidden min-h-0 shadow-[0_4px_20px_rgb(0,0,0,0.04)]">
             {/* header */}
             <div className="bg-[#fff9c4] border-b border-yellow-200/50 px-4 py-2.5 shrink-0 flex items-center justify-between">
@@ -379,6 +386,34 @@ const Notes = () => {
                 <button onClick={addNote} className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors">Add</button>
             </div>
         </div>
+
+        {/* Alert Dialog */}
+        {alertDialog.open && (
+            <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeAlert} />
+                <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 animate-fadeIn">
+                    <p className="text-[15px] font-semibold text-slate-800 mb-6">{alertDialog.message}</p>
+                    <div className="flex justify-end">
+                        <button onClick={closeAlert} className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-[#2447d7] hover:bg-[#1732a3] transition-colors">OK</button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* Confirm Dialog */}
+        {confirmDialog.open && (
+            <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeConfirm} />
+                <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 animate-fadeIn">
+                    <p className="text-[15px] font-semibold text-slate-800 mb-6">{confirmDialog.message}</p>
+                    <div className="flex justify-end gap-3">
+                        <button onClick={closeConfirm} className="px-5 py-2 rounded-xl text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</button>
+                        <button onClick={() => { confirmDialog.onConfirm?.(); closeConfirm(); }} className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-red-500 hover:bg-red-600 transition-colors">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 };
 
