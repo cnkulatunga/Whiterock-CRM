@@ -479,22 +479,27 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                     onDelete={(clientId, docId) => {
                         setLead(prev => {
                             const newDocs = prev.documents.filter(d => d.id !== docId);
-                            updateLead(prev.id, { documents: newDocs });
-                            return { ...prev, documents: newDocs };
+                            const allAppr = newDocs.length > 0 && newDocs.every(d => d.status === 'Approved');
+                            const newStat = allAppr ? 'Document Verification Done' : (newDocs.some(d => d.status === 'Rejected') ? 'Rejected' : 'Document Collection');
+                            updateLead(prev.id, { documents: newDocs, status: newStat, stage: newStat });
+                            return { ...prev, documents: newDocs, status: newStat, stage: newStat };
                         });
                     }}
                     onApprove={(clientId, docId) => {
                         setLead(prev => {
                             const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status: 'Approved' } : d);
-                            updateLead(prev.id, { documents: newDocs });
-                            return { ...prev, documents: newDocs };
+                            const allAppr = newDocs.length > 0 && newDocs.every(d => d.status === 'Approved');
+                            const newStat = allAppr ? 'Document Verification Done' : prev.status;
+                            updateLead(prev.id, { documents: newDocs, status: newStat, stage: newStat });
+                            return { ...prev, documents: newDocs, status: newStat, stage: newStat };
                         });
                     }}
                     onReject={(clientId, docId, reason) => {
                         setLead(prev => {
                             const newDocs = prev.documents.map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d);
-                            updateLead(prev.id, { documents: newDocs });
-                            return { ...prev, documents: newDocs };
+                            const newStat = 'Rejected';
+                            updateLead(prev.id, { documents: newDocs, status: newStat, stage: newStat, managerRejectionReason: reason });
+                            return { ...prev, documents: newDocs, status: newStat, stage: newStat, managerRejectionReason: reason };
                         });
                     }}
                     uploadingDocs={uploadingDocs}
