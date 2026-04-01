@@ -71,7 +71,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
             case 'lender_selection': navigate('/accounts-manager/lender-selection'); break;
             case 'lead_performance': navigate('/accounts-manager/lead-performance'); break;
             case 'lender_selection_approved': navigate('/accounts-manager/lender-selection-approved'); break;
-            case 'lenders': navigate('/accounts-manager/lenders'); break;
+            case 'lenders': navigate('/accounts-manager/lenders', { state: { targetLender: lead } }); break;
             case 'create_lead': navigate('/accounts-manager/create-lead'); break;
             case 'manage_leads': navigate('/accounts-manager/manage-leads'); break;
             case 'lead_details': navigate('/accounts-manager/lead-details'); break;

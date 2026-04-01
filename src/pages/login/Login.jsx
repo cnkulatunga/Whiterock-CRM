@@ -5,6 +5,38 @@ import { useTheme } from '../../context/ThemeContext';
 import ThemeToggle from '../../components/theme/ThemeToggle';
 import alphaLogo from '../../assets/images/alpha.png';
 
+/* ─── BUBBLE ANIMATIONS ──────────────────────────────────────────── */
+const bubbleStyles = `
+@keyframes floatBubble1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(30px, -40px) scale(1.08); }
+  66%  { transform: translate(-20px, -70px) scale(0.95); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes floatBubble2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(-40px, 30px) scale(1.05); }
+  66%  { transform: translate(20px, 60px) scale(0.92); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes floatBubble3 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(50px, 40px) scale(1.1); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes floatBubble4 {
+  0%   { transform: translate(0, 0) scale(1); }
+  40%  { transform: translate(-30px, -50px) scale(0.9); }
+  80%  { transform: translate(40px, -20px) scale(1.06); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+@keyframes floatBubble5 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-50px, 30px) scale(1.12); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+`;
+
 /* ─── ICONS ──────────────────────────────────────────────────────── */
 const IconUser = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>;
 const IconLock = () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>;
@@ -231,6 +263,7 @@ const Login = ({ onLogin, defaultRole }) => {
 
     return (
         <div style={{ fontFamily: "'Sora', sans-serif", minHeight: '100vh', background: pageBg, display: 'flex', flexDirection: 'column' }}>
+            <style>{bubbleStyles}</style>
 
             {/* ── TOP NAV ─────────────────────────────────────────────── */}
             <nav style={{
@@ -275,9 +308,11 @@ const Login = ({ onLogin, defaultRole }) => {
                 }}
                 >
                     {/* Decorative circles */}
-                    <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.06)' : 'rgba(255,255,255,0.07)', pointerEvents: 'none' }} />
-                    <div style={{ position: 'absolute', bottom: -60, left: -60, width: 220, height: 220, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.04)' : 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-                    <div style={{ position: 'absolute', top: '20%', left: '15%', width: 180, height: 180, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.05)' : 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', top: -80, right: -80, width: 300, height: 300, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.06)' : 'rgba(255,255,255,0.07)', pointerEvents: 'none', animation: 'floatBubble1 9s ease-in-out infinite' }} />
+                    <div style={{ position: 'absolute', bottom: -60, left: -60, width: 220, height: 220, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.04)' : 'rgba(255,255,255,0.05)', pointerEvents: 'none', animation: 'floatBubble2 11s ease-in-out infinite' }} />
+                    <div style={{ position: 'absolute', top: '20%', left: '15%', width: 180, height: 180, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.05)' : 'rgba(255,255,255,0.06)', pointerEvents: 'none', animation: 'floatBubble3 13s ease-in-out infinite' }} />
+                    <div style={{ position: 'absolute', top: '55%', right: '10%', width: 120, height: 120, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.04)' : 'rgba(255,255,255,0.05)', pointerEvents: 'none', animation: 'floatBubble4 8s ease-in-out infinite' }} />
+                    <div style={{ position: 'absolute', top: '40%', left: '5%', width: 80, height: 80, borderRadius: '50%', background: isDark ? 'rgba(96,128,248,0.06)' : 'rgba(255,255,255,0.08)', pointerEvents: 'none', animation: 'floatBubble5 10s ease-in-out infinite' }} />
 
                     <div style={{ textAlign: 'center', zIndex: 1 }}>
                         <h1 style={{ fontSize: '3rem', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.8px', marginBottom: 20 }}>

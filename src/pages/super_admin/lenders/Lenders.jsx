@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { useLenders } from '../../../context/LendersContext';
 
@@ -27,6 +28,16 @@ const Lenders = ({ readOnly = false }) => {
     const [viewingLender, setViewingLender] = useState(null);
     const [form, setForm] = useState(EMPTY_FORM);
     const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.targetLender) {
+            setViewingLender(location.state.targetLender);
+            setShowDetails(true);
+            // Clear the state so it doesn't reopen on page refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     const filtered = lenders.filter(l => {
         const matchSearch = search === '' || l.name.toLowerCase().includes(search.toLowerCase()) || l.contact.toLowerCase().includes(search.toLowerCase());

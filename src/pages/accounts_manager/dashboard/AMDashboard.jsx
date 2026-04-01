@@ -5,6 +5,8 @@ import { useLeads } from '../../../context/LeadsContext';
 import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS, RECENT_LENDERS, LENDER_TYPE_COLORS } from '../../../data/dummyData';
 import { useTasks } from '../../../context/TasksContext';
 import { usePromotions } from '../../../context/PromotionsContext';
+import { DocumentPreviewModal } from '../../shared/promotions/LenderPromotionsView';
+import TaskModal from '../../../components/modals/TaskModal';
 
 /* ─── SVG ICONS ─── */
 const IconUsers = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
@@ -61,6 +63,8 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
     const [activeModal, setActiveModal] = useState(null);
     const [leadsTab, setLeadsTab] = useState('my_leads');
     const [selectedTeam, setSelectedTeam] = useState(null);
+    const [selectedPromoDetails, setSelectedPromoDetails] = useState(null);
+    const [previewFile, setPreviewFile] = useState(null);
 
     // Notes state
     const [notesList, setNotesList] = useState(() => {
@@ -255,77 +259,77 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 </div>
             </div>
 
-            {/* ROW 2: Notes(2) | Schedule+Cal+Calc(4) | Lenders(2) */}
+            {/* ROW 2: Schedule(2) | Notes+Cal+Calc(4) | Lenders(2) */}
             <div className="grid grid-cols-8 gap-3 flex-1 min-h-0">
 
-                {/* NOTES � col 1-2 */}
-                <div className="col-span-2 bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col min-h-0 shadow-sm overflow-hidden">
-                    <div className="bg-[#fff9c4] dark:bg-[#4d4826] border-b border-yellow-200/50 dark:border-yellow-700/30 p-2.5 px-4 shrink-0 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-yellow-700 dark:text-yellow-500"><IconNote /><span className="text-[10px] font-black uppercase tracking-widest">Notes</span></div>
-                        <button onClick={() => { if (window.confirm('Clear all notes?')) { setNotesList([]); localStorage.setItem('am_notes_list', '[]'); } }} className="text-[9px] font-bold text-yellow-700/60 hover:text-red-600 transition-colors uppercase tracking-widest">Clear All</button>
+                {/* SCHEDULE */}
+                <div className="col-span-2 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 shadow-sm overflow-hidden">
+                    <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5"><IconCalendar className="text-slate-400"/><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Schedule</span></div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-[8px] bg-slate-200 dark:bg-slate-700 font-bold px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-300">{tasks.filter(t => t.date === selectedDate).length}</span>
+                            <button onClick={() => setIsAddingTask(true)} className="w-5 h-5 bg-[#2447d7] text-white rounded flex items-center justify-center hover:bg-[#1a32a3] transition-colors" title="Add task">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </button>
+                            <button onClick={() => onNavigate && onNavigate('tasks_followups')} className="text-[9px] font-bold text-[#2447d7] hover:underline">All</button>
+                        </div>
                     </div>
-                    <div className="flex-1 p-3 pb-2 flex flex-col min-h-0 overflow-hidden">
-                        <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2.5 mb-2 pr-1">
-                            {notesList.length === 0 ? (
-                                <div className="text-xs text-yellow-700/50 italic text-center mt-4 border border-dashed border-yellow-200 dark:border-yellow-800 p-4 rounded-xl">No notes yet. Type below to start!</div>
-                            ) : [...notesList].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)).map(note => (
-                                <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group transition-all border shrink-0 ${note.isPinned ? 'bg-yellow-100 dark:bg-yellow-600/30 border-yellow-300 dark:border-yellow-500/50 text-yellow-900 dark:text-yellow-50 shadow-sm' : 'bg-white/60 dark:bg-black/20 border-yellow-100 dark:border-yellow-700/20 text-yellow-900 dark:text-yellow-100'}`}>
-                                    <div className="flex justify-between items-center mb-1.5">
-                                        <div className="flex items-center gap-1.5">
-                                            {note.isPinned && <IconPin className="text-yellow-600 dark:text-yellow-400" />}
-                                            <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `� ${note.time}`}</span>
-                                        </div>
-                                        <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button onClick={() => togglePin(note.id)} className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors ${note.isPinned ? 'bg-yellow-400 text-yellow-950 hover:bg-yellow-500' : 'bg-yellow-100 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-300'}`}>{note.isPinned ? 'UNPIN' : 'PIN'}</button>
-                                            <button onClick={() => deleteNote(note.id)} className="text-[9px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-bold hover:bg-red-200 transition-colors">CLEAR</button>
-                                        </div>
-                                    </div>
-                                    <p className="whitespace-pre-wrap leading-relaxed">{note.text}</p>
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-2 flex flex-col gap-2">
+                        {tasks.filter(t => t.date === selectedDate).length > 0 ? tasks.filter(t => t.date === selectedDate).map(t => (
+                            <div key={t.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7] transition-all group shrink-0">
+                                <div className="flex justify-between items-start mb-1 gap-2">
+                                    <span className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
+                                    <span className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase shrink-0">{t.type || 'TASK'}</span>
                                 </div>
-                            ))}
-                        </div>
-                        <div className="shrink-0 flex gap-2 pt-2 border-t border-yellow-200/50 dark:border-yellow-700/30">
-                            <input type="text" value={newNote} onChange={e => setNewNote(e.target.value)} onKeyDown={e => e.key === 'Enter' && addNewNote()} placeholder="Type a note & press Enter..." className="flex-1 bg-white/60 dark:bg-black/20 border border-yellow-200/60 dark:border-yellow-700/50 rounded-lg px-3 py-1.5 text-[11px] text-yellow-900 dark:text-yellow-100 outline-none focus:border-yellow-400 transition-colors" />
-                            <button onClick={addNewNote} className="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-black text-[10px] px-3 py-1.5 rounded-lg transition-colors shrink-0">ADD</button>
-                        </div>
+                                <div className="flex items-center gap-2 text-[10px] text-slate-400">
+                                    <IconClock width="10" height="10" className="text-slate-300"/>
+                                    <span>{t.time}</span>
+                                    {t.lead && <><span>�</span><span className="truncate">{t.lead}</span></>}
+                                </div>
+                                {!t.isPromotion && (
+                                    <select className={`mt-2 w-full py-1 px-2 text-[10px] font-black uppercase tracking-widest border outline-none transition-all cursor-pointer rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' : 'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5]'}`} value={t.status} onChange={e => updateTaskStatus(t.id, e.target.value)}>
+                                        <option>Pending</option><option>In Progress</option><option>Completed</option>
+                                    </select>
+                                )}
+                            </div>
+                        )) : <div className="text-[9px] text-slate-400 italic p-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl mt-1">No tasks for this day</div>}
                     </div>
                 </div>
 
-                {/* MIDDLE � col 3-5: Schedule+Calendar top, Calculator bottom */}
+                {/* MIDDLE � col 3-5: Notes+Calendar top, Calculator bottom */}
                 <div className="col-span-4 flex flex-col gap-3 min-h-0">
                     <div className="flex gap-3 flex-1 min-h-0">
 
-                        {/* SCHEDULE */}
-                        <div className="flex-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 shadow-sm overflow-hidden">
-                            <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
-                                <div className="flex items-center gap-1.5"><IconCalendar className="text-slate-400"/><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Schedule</span></div>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-[8px] bg-slate-200 dark:bg-slate-700 font-bold px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-300">{tasks.filter(t => t.date === selectedDate).length}</span>
-                                    <button onClick={() => { setNewTask(t => ({ ...t, date: selectedDate })); setIsAddingTask(true); }} className="w-5 h-5 bg-[#2447d7] text-white rounded flex items-center justify-center hover:bg-[#1a32a3] transition-colors" title="Add task">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                    </button>
-                                    <button onClick={() => onNavigate && onNavigate('tasks_followups')} className="text-[9px] font-bold text-[#2447d7] hover:underline">All</button>
-                                </div>
+                        {/* NOTES � col 1-2 */}
+                        <div className="flex-1 bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col min-h-0 shadow-sm overflow-hidden">
+                            <div className="bg-[#fff9c4] dark:bg-[#4d4826] border-b border-yellow-200/50 dark:border-yellow-700/30 p-2.5 px-4 shrink-0 flex items-center justify-between">
+                                <div className="flex items-center gap-1.5 text-yellow-700 dark:text-yellow-500"><IconNote /><span className="text-[10px] font-black uppercase tracking-widest">Notes</span></div>
+                                <button onClick={() => { if (window.confirm('Clear all notes?')) { setNotesList([]); localStorage.setItem('am_notes_list', '[]'); } }} className="text-[9px] font-bold text-yellow-700/60 hover:text-red-600 transition-colors uppercase tracking-widest">Clear All</button>
                             </div>
-                            <div className="flex-1 overflow-y-auto custom-scrollbar p-2 flex flex-col gap-2">
-                                {tasks.filter(t => t.date === selectedDate).length > 0 ? tasks.filter(t => t.date === selectedDate).map(t => (
-                                    <div key={t.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7] transition-all group shrink-0">
-                                        <div className="flex justify-between items-start mb-1 gap-2">
-                                            <span className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
-                                            <span className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase shrink-0">{t.type || 'TASK'}</span>
+                            <div className="flex-1 p-3 pb-2 flex flex-col min-h-0 overflow-hidden">
+                                <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2.5 mb-2 pr-1">
+                                    {notesList.length === 0 ? (
+                                        <div className="text-xs text-yellow-700/50 italic text-center mt-4 border border-dashed border-yellow-200 dark:border-yellow-800 p-4 rounded-xl">No notes yet. Type below to start!</div>
+                                    ) : [...notesList].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)).map(note => (
+                                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group transition-all border shrink-0 ${note.isPinned ? 'bg-yellow-100 dark:bg-yellow-600/30 border-yellow-300 dark:border-yellow-500/50 text-yellow-900 dark:text-yellow-50 shadow-sm' : 'bg-white/60 dark:bg-black/20 border-yellow-100 dark:border-yellow-700/20 text-yellow-900 dark:text-yellow-100'}`}>
+                                            <div className="flex justify-between items-center mb-1.5">
+                                                <div className="flex items-center gap-1.5">
+                                                    {note.isPinned && <IconPin className="text-yellow-600 dark:text-yellow-400" />}
+                                                    <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `� ${note.time}`}</span>
+                                                </div>
+                                                <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button onClick={() => togglePin(note.id)} className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors ${note.isPinned ? 'bg-yellow-400 text-yellow-950 hover:bg-yellow-500' : 'bg-yellow-100 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-300'}`}>{note.isPinned ? 'UNPIN' : 'PIN'}</button>
+                                                    <button onClick={() => deleteNote(note.id)} className="text-[9px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-bold hover:bg-red-200 transition-colors">CLEAR</button>
+                                                </div>
+                                            </div>
+                                            <p className="whitespace-pre-wrap leading-relaxed">{note.text}</p>
                                         </div>
-                                        <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                                            <IconClock width="10" height="10" className="text-slate-300"/>
-                                            <span>{t.time}</span>
-                                            {t.lead && <><span>�</span><span className="truncate">{t.lead}</span></>}
-                                        </div>
-                                        {!t.isPromotion && (
-                                            <select className={`mt-2 w-full py-1 px-2 text-[10px] font-black uppercase tracking-widest border outline-none transition-all cursor-pointer rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' : 'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5]'}`} value={t.status} onChange={e => updateTaskStatus(t.id, e.target.value)}>
-                                                <option>Pending</option><option>In Progress</option><option>Completed</option>
-                                            </select>
-                                        )}
-                                    </div>
-                                )) : <div className="text-[9px] text-slate-400 italic p-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl mt-1">No tasks for this day</div>}
+                                    ))}
+                                </div>
+                                <div className="shrink-0 flex gap-2 pt-2 border-t border-yellow-200/50 dark:border-yellow-700/30">
+                                    <input type="text" value={newNote} onChange={e => setNewNote(e.target.value)} onKeyDown={e => e.key === 'Enter' && addNewNote()} placeholder="Type a note & press Enter..." className="flex-1 bg-white/60 dark:bg-black/20 border border-yellow-200/60 dark:border-yellow-700/50 rounded-lg px-3 py-1.5 text-[11px] text-yellow-900 dark:text-yellow-100 outline-none focus:border-yellow-400 transition-colors" />
+                                    <button onClick={addNewNote} className="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-black text-[10px] px-3 py-1.5 rounded-lg transition-colors shrink-0">ADD</button>
+                                </div>
                             </div>
                         </div>
 
@@ -401,7 +405,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                     <div className="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2">
                         {/* Active Promotions */}
                         {promotions.filter(p => { const d = todayStr; return d >= p.startDate && d <= p.endDate; }).slice(0, 2).map(promo => (
-                            <div key={promo.id} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 hover:border-blue-400 transition-all cursor-pointer shrink-0">
+                            <div key={promo.id} onClick={() => setSelectedPromoDetails(promo)} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 hover:border-blue-400 transition-all cursor-pointer shrink-0">
                                 <div className="flex justify-between items-center mb-1 gap-2">
                                     <span className="text-[11px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-tight truncate">{promo.lenderName}</span>
                                     <span className="text-[7px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black tracking-widest uppercase shrink-0">PROMO</span>
@@ -417,7 +421,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                         {RECENT_LENDERS.slice(0, 4).map((lender) => {
                             const tc = LENDER_TYPE_COLORS[lender.type] || LENDER_TYPE_COLORS['Major Bank'];
                             return (
-                                <div key={lender.id} onClick={() => onNavigate && onNavigate('lenders')} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7]/30 hover:bg-white transition-all cursor-pointer shrink-0">
+                                <div key={lender.id} onClick={() => onNavigate && onNavigate('lenders', lender)} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7]/30 hover:bg-white transition-all cursor-pointer shrink-0">
                                     <div className="flex items-center justify-between gap-2">
                                         <div className="flex items-center gap-2.5 min-w-0">
                                             <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: tc.bg, color: tc.color }}>
@@ -446,6 +450,70 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
             <DashboardModal isOpen={!!activeModal && activeModal !== null} onClose={() => setActiveModal(null)} title={modalTitles[activeModal] || ''}>
                 {renderModalContent()}
             </DashboardModal>
+
+            {/* Promo Details Modal */}
+            {selectedPromoDetails && (
+                <div className="fixed inset-0 bg-slate-900/45 backdrop-blur-sm flex items-center justify-center z-[9999] p-6 animate-fadeIn" onClick={() => setSelectedPromoDetails(null)}>
+                    <div className="w-full max-w-lg bg-white dark:bg-[#1e2347] rounded-3xl shadow-2xl overflow-hidden animate-slideUp flex flex-col" onClick={e => e.stopPropagation()}>
+                        <div className="p-6 border-b border-slate-100 dark:border-white/5 flex justify-between items-center bg-blue-50 dark:bg-[#141829]">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-[#242b58] text-blue-600 dark:text-[#8ea0d4] flex items-center justify-center shadow-inner">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                </div>
+                                <div>
+                                    <h3 className="text-lg font-black text-slate-900 dark:text-white">Promotion Details</h3>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Active Promotion</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedPromoDetails(null)} className="p-2 hover:bg-blue-100 dark:hover:bg-[#2c3568] rounded-xl transition-colors text-slate-400">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="20" height="20"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            </button>
+                        </div>
+                        <div className="p-6 flex flex-col gap-5">
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[22px] font-black text-slate-900 dark:text-white">{selectedPromoDetails.lenderName}</span>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <span className="px-2 py-1 bg-[#10b981]/10 text-[#10b981] text-[10px] font-black uppercase tracking-wider rounded border border-[#10b981]/20">Active Now</span>
+                                    <span className="text-[11px] font-bold text-slate-500">{selectedPromoDetails.startDate} → {selectedPromoDetails.endDate}</span>
+                                </div>
+                            </div>
+                            <div className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-white/5">
+                                <p className="text-[13px] text-slate-700 dark:text-slate-300 font-medium whitespace-pre-wrap leading-relaxed">{selectedPromoDetails.description}</p>
+                            </div>
+                            {selectedPromoDetails.fileData && (
+                                <div className="flex items-center justify-between p-4 bg-blue-50/50 dark:bg-[#1a2244]/50 border border-blue-100 dark:border-[#2c3568] rounded-2xl">
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className="w-10 h-10 rounded-xl bg-white dark:bg-[#242b58] text-[#2447d7] dark:text-[#8ea0d4] shadow-sm flex items-center justify-center border border-slate-100 dark:border-white/5 shrink-0">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                                        </div>
+                                        <span className="text-[12px] font-bold text-slate-800 dark:text-slate-200 truncate">{selectedPromoDetails.fileName}</span>
+                                    </div>
+                                    <div className="flex gap-2 shrink-0 ml-4">
+                                        <button onClick={() => setPreviewFile(selectedPromoDetails)} className="flex items-center gap-2 px-4 py-2 bg-white text-blue-700 border border-blue-200 rounded-xl text-[11px] font-black uppercase tracking-wider hover:bg-blue-50 transition-all shadow-sm">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Preview
+                                        </button>
+                                        <a href={selectedPromoDetails.fileData} download={selectedPromoDetails.fileName} className="flex items-center gap-2 px-4 py-2 bg-[#2447d7] text-white rounded-xl text-[11px] font-black uppercase tracking-wider hover:bg-[#1732a3] transition-all shadow-md no-underline">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                        <div className="p-4 bg-slate-50 dark:bg-[#141829] border-t border-slate-100 dark:border-white/5 flex justify-center">
+                            <button onClick={() => setSelectedPromoDetails(null)} className="px-8 py-2.5 rounded-xl bg-[#2447d7] text-white text-[13px] font-bold shadow-[0_4px_10px_rgba(36,71,215,0.3)] hover:bg-[#1732a3] transition-all">Close View</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Document Preview Modal */}
+            {previewFile && (
+                <DocumentPreviewModal 
+                    file={previewFile}
+                    onClose={() => setPreviewFile(null)}
+                    isDark={isDark}
+                />
+            )}
 
             {/* Team Details Modal */}
             {selectedTeam && (
@@ -485,52 +553,14 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
             )}
 
             {/* Add Task Modal */}
-            {isAddingTask && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-6 animate-fadeIn">
-                    <div className="w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
-                        <div className="p-6 px-8 border-b border-[#f1f5f9] flex justify-between items-center">
-                            <h2 className="text-xl font-bold text-[#1a202c]">New Task</h2>
-                            <button className="w-10 h-10 border border-[#f1f5f9] text-[#a0aec0] hover:text-[#e53e3e] hover:bg-[#fff5f5] rounded-xl flex items-center justify-center transition-all text-2xl font-light" onClick={() => setIsAddingTask(false)}>&times;</button>
-                        </div>
-                        <form onSubmit={handleAddTask} className="p-8 overflow-y-auto max-h-[80vh] flex flex-col gap-5">
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[13px] font-bold text-[#4a5568]">Task Title</label>
-                                <input required type="text" value={newTask.title} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] outline-none transition-all w-full" onChange={e => setNewTask({ ...newTask, title: e.target.value })} placeholder="e.g. Follow up with lender..." />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Type</label>
-                                    <select value={newTask.type} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] outline-none transition-all w-full" onChange={e => setNewTask({ ...newTask, type: e.target.value })}>
-                                        <option>Call</option><option>Document</option><option>Review</option><option>Meeting</option><option>Email</option>
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Reminder</label>
-                                    <select value={newTask.reminder} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] outline-none transition-all w-full" onChange={e => setNewTask({ ...newTask, reminder: e.target.value })}>
-                                        <option value="none">No Reminder</option><option value="15m">15 Minutes Before</option><option value="1h">1 Hour Before</option><option value="1d">1 Day Before</option>
-                                    </select>
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Date</label>
-                                    <input required type="date" value={newTask.date} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] outline-none transition-all w-full" onChange={e => setNewTask({ ...newTask, date: e.target.value })} />
-                                </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[13px] font-bold text-[#4a5568]">Time</label>
-                                    <input required type="time" value={newTask.time} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] outline-none transition-all w-full" onChange={e => setNewTask({ ...newTask, time: e.target.value })} />
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-[13px] font-bold text-[#4a5568]">Related Lead (Optional)</label>
-                                <input type="text" value={newTask.lead} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] outline-none transition-all w-full" onChange={e => setNewTask({ ...newTask, lead: e.target.value })} placeholder="Lead name or reference" />
-                            </div>
-                            <div className="flex justify-end gap-3 pt-4 border-t border-[#f1f5f9]">
-                                <button type="button" className="p-[10px_24px] rounded-xl text-sm font-bold text-[#718096] hover:bg-[#f8fafc] transition-all" onClick={() => setIsAddingTask(false)}>Cancel</button>
-                                <button type="submit" className="bg-[#2447d7] text-white p-[10px_24px] rounded-xl text-sm font-bold shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] transition-all">Create Task</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+            <TaskModal
+                isOpen={isAddingTask}
+                onClose={() => setIsAddingTask(false)}
+                onSave={(task) => {
+                    addTask(task);
+                    if (notifyReminderSet) notifyReminderSet(task);
+                }}
+            />
         </div>
     );
 };
