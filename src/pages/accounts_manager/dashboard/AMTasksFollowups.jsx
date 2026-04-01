@@ -263,10 +263,6 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
     return (
         <div className={`flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif] ${isDark ? 'text-[#e4ecff]' : 'text-[#0f172a]'} h-[calc(100vh-120px)]`}>
             <div className="flex justify-between items-center mb-2">
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-2xl font-black tracking-tight">Tasks and Follow-ups</h1>
-                    <p className={`text-[12px] font-bold ${isDark ? 'text-[#94abda]' : 'text-[#64748b]'}`}>Unified Control & Strategic Management</p>
-                </div>
                 <div className="flex bg-[#f1f5f9] dark:bg-[#2a3258] p-1 rounded-xl border border-[#e2e8f0] dark:border-[#36407a] gap-1">
                     <button className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${!useOutlookCalendar ? 'bg-white dark:bg-[#6366f1] text-[#2447d7] dark:text-white shadow-sm' : 'text-[#718096] dark:text-[#94abda]'}`} onClick={() => setUseOutlookCalendar(false)}>Local Tasks</button>
                     <button className={`px-4 py-2 rounded-lg text-xs font-bold transition-all ${useOutlookCalendar ? 'bg-white dark:bg-[#6366f1] text-[#2447d7] dark:text-white shadow-sm' : 'text-[#718096] dark:text-[#94abda]'}`} onClick={() => setUseOutlookCalendar(true)}>Outlook Calendar</button>

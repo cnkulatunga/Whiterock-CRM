@@ -95,6 +95,21 @@ const AccountsManagerLayout = ({ onLogout }) => {
     };
 
     const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+
+    const getPageTitle = () => {
+        const path = location.pathname;
+        if (path.includes('dashboard')) return { title: 'Accounts Manager Dashboard', subtitle: `Overview • ${user.first_name || 'Manager'}` };
+        if (path.includes('manage-leads')) return { title: 'Manage Leads', subtitle: 'Lead Pipeline' };
+        if (path.includes('lead-details')) return { title: 'Lead Details', subtitle: 'Client Profile' };
+        if (path.includes('create-lead')) return { title: 'Create New Lead', subtitle: 'Manual Entry' };
+        if (path.includes('lender-selection-approved')) return { title: 'Lender Approved Loans', subtitle: 'Approved Applications' };
+        if (path.includes('lender-selection')) return { title: 'Lender Selection', subtitle: 'Match & Submit' };
+        if (path.includes('lenders')) return { title: 'Lender Management', subtitle: 'Provider Directory' };
+        if (path.includes('tasks-followups')) return { title: 'Tasks & Follow-ups', subtitle: 'Priority Queue' };
+        if (path.includes('promotions')) return { title: 'Lender Promotions', subtitle: 'Active Campaigns' };
+        if (path.includes('lead-performance')) return { title: 'Lead Performance', subtitle: 'Analytics' };
+        return { title: 'Alpha Funding CRM', subtitle: 'Accounts Manager' };
+    };
     React.useEffect(() => {
         const handler = () => setIsMobile(window.innerWidth < 1024);
         window.addEventListener('resize', handler);
@@ -134,6 +149,17 @@ const AccountsManagerLayout = ({ onLogout }) => {
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
+
+                    {/* DYNAMIC PAGE TITLE */}
+                    <div className="flex flex-col">
+                        <h2 className={`text-md font-black uppercase tracking-tight leading-tight ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>
+                            {getPageTitle().title}
+                        </h2>
+                        <p className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? 'text-[#8ea0d4]' : 'text-[#718096]'}`}>
+                            {getPageTitle().subtitle}
+                        </p>
+                    </div>
+
                     <div className="flex-1" />
                     <div className="flex items-center gap-4 lg:gap-3">
                         {/* Notification Bell */}
