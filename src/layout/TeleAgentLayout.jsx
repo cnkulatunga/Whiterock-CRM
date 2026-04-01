@@ -22,30 +22,37 @@ const TeleAgentLayout = ({ onLogout }) => {
     const { tasks: allTasks, setTasks: setAllTasks } = useTasks();
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     
-    // Filter tasks for this agent
     const tasks = allTasks.filter(t => {
-        if (Array.isArray(t.assignedTo)) {
-            return t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All');
-        }
-        return t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All';
+        const isAssignedToMe = Array.isArray(t.assignedTo)
+            ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All'))
+            : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All');
+        
+        return isAssignedToMe || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Tele Agent';
     });
 
     const setTasks = (newTasksOrFn) => {
         if (typeof newTasksOrFn === 'function') {
             setAllTasks(prev => {
-                const currentRelevantTasks = prev.filter(t => {
-                    if (Array.isArray(t.assignedTo)) {
-                        return t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All');
-                    }
-                    return t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All';
-                });
-                const otherTasks = prev.filter(t => !((Array.isArray(t.assignedTo) ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All')) : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All'))));
+                const isRelevant = (t) => {
+                    const isAsgn = Array.isArray(t.assignedTo)
+                        ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All'))
+                        : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All');
+                    return isAsgn || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Tele Agent';
+                };
+                const currentRelevantTasks = prev.filter(isRelevant);
+                const otherTasks = prev.filter(t => !isRelevant(t));
                 const updatedRelevantTasks = newTasksOrFn(currentRelevantTasks);
                 return [...otherTasks, ...updatedRelevantTasks];
             });
         } else {
             setAllTasks(prev => {
-                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent')));
+                const isRelevant = (t) => {
+                    const isAsgn = Array.isArray(t.assignedTo)
+                        ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Tele Agent') || t.assignedTo.includes('All'))
+                        : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Tele Agent') || t.assignedTo === 'All');
+                    return isAsgn || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Tele Agent';
+                };
+                const otherTasks = prev.filter(t => !isRelevant(t));
                 return [...otherTasks, ...newTasksOrFn];
             });
         }

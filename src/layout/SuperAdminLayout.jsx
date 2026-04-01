@@ -61,10 +61,11 @@ const AppLayout = ({ onLogout }) => {
     const isDark = theme === 'dark';
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const myTasks = tasks.filter(t => {
-        if (Array.isArray(t.assignedTo)) {
-            return t.assignedTo.includes(user.id?.toString()) || t.assignedTo.includes('Self') || t.assignedTo.includes('All');
-        }
-        return t.assignedTo?.toString() === user.id?.toString() || t.assignedTo === 'Self' || t.assignedTo === 'All';
+        const isAssignedToMe = Array.isArray(t.assignedTo)
+            ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Super Admin') || t.assignedTo.includes('All'))
+            : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Super Admin') || t.assignedTo === 'All');
+        
+        return isAssignedToMe || t.creatorId === user.id || t.createdBy === 'Super Admin';
     });
 
     const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(myTasks, setTasks);

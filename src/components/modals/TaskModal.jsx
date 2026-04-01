@@ -26,9 +26,20 @@ const IconChevronDown = () => (
 const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
     const { users } = useUsers();
     const { leads } = useLeads();
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    const assignableUsers = users.filter(u => u.role !== 'Super Admin');
+    const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+    const role = currentUser.role || '';
+    
+    // Role-based filtering logic
+    const getRoleHierarchy = (userRole) => {
+        const norm = userRole.toLowerCase().trim();
+        if (norm === 'super admin' || norm === 'super_admin') return { label: 'Admin', canAssignTo: ['Team Leader', 'Accounts Manager', 'Tele Agent'] };
+        if (norm === 'accounts manager' || norm === 'accounts_manager') return { label: 'Manager', canAssignTo: ['Team Leader', 'Tele Agent'] };
+        if (norm === 'team leader' || norm === 'team_leader') return { label: 'Leader', canAssignTo: ['Tele Agent'] };
+        return { label: 'Self', canAssignTo: [] };
+    };
 
+    const roleInfo = getRoleHierarchy(role);
+    const assignableUsers = users.filter(u => roleInfo.canAssignTo.includes(u.role));
 
     const [newTask, setNewTask] = useState({
         title: '',
@@ -106,8 +117,8 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
                 ...newTask,
                 id: editingTask ? editingTask.id : Date.now(),
                 status: editingTask ? editingTask.status : 'Pending',
-                createdBy: editingTask ? editingTask.createdBy : 'Super Admin',
-                creatorId: editingTask ? editingTask.creatorId : user.id
+                createdBy: editingTask ? editingTask.createdBy : role,
+                creatorId: editingTask ? editingTask.creatorId : currentUser.id
             };
 
             if (addToOutlook && !editingTask) {
@@ -147,6 +158,8 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
 
     if (!isOpen) return null;
 
+    const selfLabel = `Self (${roleInfo.label})`;
+
     return (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-6 animate-fadeIn" role="dialog" aria-modal="true">
             <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
@@ -171,7 +184,7 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
                                 <span className="font-semibold text-slate-700 truncate mr-2">
                                     {newTask.assignedTo.length === 0 ? 'Select User' : 
                                      newTask.assignedTo.includes('All') ? 'All (Team)' : 
-                                     newTask.assignedTo.length === 1 ? (newTask.assignedTo[0] === 'Self' ? 'Self (Admin)' : users.find(u => u.id === newTask.assignedTo[0])?.name) :
+                                     newTask.assignedTo.length === 1 ? (newTask.assignedTo[0] === 'Self' ? selfLabel : users.find(u => u.id === newTask.assignedTo[0])?.name) :
                                      `${newTask.assignedTo.length} Users Selected`}
                                 </span>
                                 <div className={`transition-transform duration-300 ${isAssignDropdownOpen ? 'rotate-180' : ''}`}>
@@ -183,7 +196,7 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
                                 <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-[#edf2f7] rounded-2xl shadow-2xl z-[1001] max-h-[300px] overflow-y-auto custom-scrollbar animate-fadeIn">
                                     <div className="p-2 flex flex-col gap-1">
                                         {[
-                                            { id: 'Self', name: 'Self (Admin)', type: 'special' },
+                                            { id: 'Self', name: selfLabel, type: 'special' },
                                             { id: 'All', name: 'All (Team)', type: 'special' }
                                         ].map(item => (
                                             <div 
@@ -204,8 +217,8 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
                                         ))}
 
                                         {[
+                                            { label: 'Managers', role: 'Accounts Manager' },
                                             { label: 'Team Leaders', role: 'Team Leader' },
-                                            { label: 'Account Managers', role: 'Accounts Manager' },
                                             { label: 'Members (Tele Agents)', role: 'Tele Agent' }
                                         ].map(group => {
                                             const groupUsers = assignableUsers.filter(u => u.role === group.role);
@@ -213,21 +226,21 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
                                             return (
                                                 <div key={group.role} className="mt-2">
                                                     <div className="px-4 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">{group.label}</div>
-                                                    {groupUsers.map(user => (
+                                                    {groupUsers.map(u => (
                                                         <div 
-                                                            key={user.id} 
-                                                            className={`flex items-center justify-between p-2.5 px-4 rounded-xl cursor-pointer transition-all hover:bg-slate-50 ${newTask.assignedTo.includes(user.id) ? 'bg-[#f0f4ff] text-[#2447d7]' : 'text-slate-600'}`}
+                                                            key={u.id} 
+                                                            className={`flex items-center justify-between p-2.5 px-4 rounded-xl cursor-pointer transition-all hover:bg-slate-50 ${newTask.assignedTo.includes(u.id) ? 'bg-[#f0f4ff] text-[#2447d7]' : 'text-slate-600'}`}
                                                             onClick={() => {
                                                                 const current = [...newTask.assignedTo];
-                                                                if (current.includes(user.id)) {
-                                                                    setNewTask({...newTask, assignedTo: current.filter(id => id !== user.id)});
+                                                                if (current.includes(u.id)) {
+                                                                    setNewTask({...newTask, assignedTo: current.filter(id => id !== u.id)});
                                                                 } else {
-                                                                    setNewTask({...newTask, assignedTo: [...current, user.id]});
+                                                                    setNewTask({...newTask, assignedTo: [...current, u.id]});
                                                                 }
                                                             }}
                                                         >
-                                                            <span className="text-sm font-bold">{user.name}</span>
-                                                            {newTask.assignedTo.includes(user.id) && <IconCheck />}
+                                                            <span className="text-sm font-bold">{u.name}</span>
+                                                            {newTask.assignedTo.includes(u.id) && <IconCheck />}
                                                         </div>
                                                     ))}
                                                 </div>

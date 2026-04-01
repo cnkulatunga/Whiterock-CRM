@@ -36,20 +36,32 @@ const AccountsManagerLayout = ({ onLogout }) => {
             ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Accounts Manager') || t.assignedTo.includes('All'))
             : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Accounts Manager') || t.assignedTo === 'All');
         
-        return isAssignedToMe || t.createdBy === 'Accounts Manager';
+        return isAssignedToMe || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Accounts Manager';
     });
 
     const setTasks = (newTasksOrFn) => {
         if (typeof newTasksOrFn === 'function') {
             setAllTasks(prev => {
-                const currentRelevantTasks = prev.filter(t => t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Accounts Manager' || (t.assignedTo === 'Self' && user.role === 'Accounts Manager'));
-                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Accounts Manager' || (t.assignedTo === 'Self' && user.role === 'Accounts Manager')));
+                const isRelevant = (t) => {
+                    const isAsgn = Array.isArray(t.assignedTo)
+                        ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Accounts Manager') || t.assignedTo.includes('All'))
+                        : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Accounts Manager') || t.assignedTo === 'All');
+                    return isAsgn || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Accounts Manager';
+                };
+                const currentRelevantTasks = prev.filter(isRelevant);
+                const otherTasks = prev.filter(t => !isRelevant(t));
                 const updatedRelevantTasks = newTasksOrFn(currentRelevantTasks);
                 return [...otherTasks, ...updatedRelevantTasks];
             });
         } else {
             setAllTasks(prev => {
-                const otherTasks = prev.filter(t => !(t.assignedTo?.toString() === user.id?.toString() || t.createdBy === 'Accounts Manager' || (t.assignedTo === 'Self' && user.role === 'Accounts Manager')));
+                const isRelevant = (t) => {
+                    const isAsgn = Array.isArray(t.assignedTo)
+                        ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Accounts Manager') || t.assignedTo.includes('All'))
+                        : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Accounts Manager') || t.assignedTo === 'All');
+                    return isAsgn || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Accounts Manager';
+                };
+                const otherTasks = prev.filter(t => !isRelevant(t));
                 return [...otherTasks, ...newTasksOrFn];
             });
         }
