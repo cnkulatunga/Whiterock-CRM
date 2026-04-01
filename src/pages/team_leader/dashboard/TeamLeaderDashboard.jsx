@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LEADS_BY_STAGE, MOCK_LEAD_COUNTS, MOCK_LEADS, INITIAL_TASKS, TL_AGENT_PERFORMANCE as agentPerformance, INITIAL_MEMBERSHIPS } from '../../../data/dummyData';
+import { LEADS_BY_STAGE, MOCK_LEAD_COUNTS, MOCK_LEADS, INITIAL_TASKS, TL_AGENT_PERFORMANCE as agentPerformance, INITIAL_MEMBERSHIPS, SHARED_INITIAL_USERS } from '../../../data/dummyData';
 import { signIn, getCalendarEvents, getAccount } from '../../../services/outlookService';
 import { useTheme } from '../../../context/ThemeContext';
 import { useLeads } from '../../../context/LeadsContext';
@@ -24,12 +24,12 @@ const IconPin = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentC
 
 
 /* ─── MODAL COMPONENT ─── */
-const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false, isWide = false }) => {
+const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false, isWide = false, isSmall = false }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-xl rounded-2xl'}`}>
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isSmall ? 'max-w-[700px] rounded-2xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-xl rounded-2xl'}`}>
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors shrink-0">
@@ -38,7 +38,7 @@ const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false
                         </svg>
                     </button>
                 </div>
-                <div className={`p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : 'max-h-[80vh] custom-scrollbar'}`}>
+                <div className={`p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : isSmall ? 'max-h-[70vh] custom-scrollbar' : 'max-h-[80vh] custom-scrollbar'}`}>
                     {children}
                 </div>
             </div>
@@ -387,6 +387,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                 <thead>
                                     <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
                                         <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Agent</th>
+                                        <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
                                         <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Active</th>
                                         <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Closed</th>
                                     </tr>
@@ -402,10 +403,11 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                                     <span className="text-[12px] font-bold text-slate-700 dark:text-slate-300 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors uppercase tracking-tight">{agent.name}</span>
                                                 </div>
                                             </td>
+                                            <td className="px-4 py-3 text-[12px] text-slate-500 dark:text-slate-400">{SHARED_INITIAL_USERS.find(user => user.name === agent.name)?.email || '-'}</td>
                                             <td className="px-4 py-3 text-center"><span className="text-[12px] font-bold text-slate-500 dark:text-slate-400">{agent.activeLeads}</span></td>
                                             <td className="px-4 py-3 text-center"><span className="text-[12px] font-black text-emerald-600 dark:text-emerald-400">{agent.closedDeals}</span></td>
                                         </tr>
-                                    )) : <tr><td colSpan="3" className="p-8 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">No agents found</td></tr>}
+                                    )) : <tr><td colSpan="4" className="p-8 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">No agents found</td></tr>}
                                 </tbody>
                             </table>
                         </div>
@@ -1098,7 +1100,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             activeModal === 'KNOWLEDGE_BASE' ? 'Knowledge Base' :
                                 activeModal === 'FOLLOW_UPS' ? 'Follow-ups' :
                                     (activeModal ? activeModal.replace(/_/g, ' ') : '')
-            } isWide={activeModal === 'LEAD_COUNT' || activeModal === 'FOLLOW_UPS' || activeModal === 'MY_TEAM'}>
+            } isWide={activeModal === 'LEAD_COUNT' || activeModal === 'FOLLOW_UPS'} isSmall={activeModal === 'MY_TEAM'}>
                 {renderModalContent()}
             </DashboardModal>
         </div>

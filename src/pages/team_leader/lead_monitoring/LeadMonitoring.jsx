@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { WORKFLOW_STAGES_LIST, SHARED_INITIAL_USERS } from '../../../data/dummyData';
 import { useLeads } from '../../../context/LeadsContext';
+import { useTheme } from '../../../context/ThemeContext';
+import { IconDocs, IconAlert, IconCheck } from '../../../components/DocumentManagement/Icons';
 
-/* ─── CONSTANTS ─── */
 const STAGES = WORKFLOW_STAGES_LIST.filter(s => s !== 'All Stages');
 const PAGE_SIZE = 5;
 
@@ -18,351 +19,307 @@ const AGENT_COLORS = ['#6366f1','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4
 const agentColorMap = {};
 SHARED_INITIAL_USERS.forEach((u, i) => { agentColorMap[u.name] = AGENT_COLORS[i % AGENT_COLORS.length]; });
 
-/* ─── SUB-COMPONENTS ─── */
-const StatCard = ({ label, value, sub, subColor, icon, iconBg }) => (
-  <div className="bg-white rounded-2xl border border-[#edf2f7] p-5 flex flex-col gap-3 shadow-sm">
-    <div className="flex items-center justify-between">
-      <span className="text-[11px] font-black text-[#a0aec0] uppercase tracking-widest">{label}</span>
-      <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: iconBg }}>
-        {icon}
-      </div>
-    </div>
-    <div className="text-[2rem] font-extrabold text-[#1a202c] leading-none tracking-tight">{value}</div>
-    {sub && (
-      <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: subColor || '#94a3b8' }}>
-        {sub}
-      </span>
-    )}
-  </div>
-);
-
-const StageBadge = ({ stage }) => {
-  const meta = STAGE_META[stage] || { color: '#64748b', bg: '#f1f5f9' };
-  return (
-    <span
-      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-semibold whitespace-nowrap"
-      style={{ color: meta.color, background: meta.bg }}
-    >
-      <span className="text-[10px]">{meta.icon}</span>
-      {stage}
-    </span>
-  );
-};
-
-const ProgressBar = ({ stage, progress }) => {
-  const meta = STAGE_META[stage] || { color: '#94a3b8' };
-  return (
-    <div className="flex flex-col gap-1 min-w-[120px]">
-      <span className="text-xs font-bold" style={{ color: meta.color }}>{progress}%</span>
-      <div className="h-1.5 w-full bg-[#f1f5f9] rounded-full overflow-hidden">
-        <div
-          className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${progress}%`, background: meta.color }}
-        />
-      </div>
-    </div>
-  );
-};
-
-const AgentAvatar = ({ name }) => {
-  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  const color = agentColorMap[name] || '#64748b';
-  return (
-    <div className="flex items-center gap-2.5">
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-black text-white flex-shrink-0"
-        style={{ background: color }}
-      >
-        {initials}
-      </div>
-      <span className="text-sm font-medium text-[#374151]">{name}</span>
-    </div>
-  );
-};
+// Removed StatCard, StageBadge, ProgressBar, AgentAvatar as they are now integrated directly into LeadMonitoring
 
 /* ─── MAIN COMPONENT ─── */
 const LeadMonitoring = ({ onViewDetails }) => {
-  const { leads } = useLeads();
-  const [search, setSearch] = useState('');
-  const [agentFilter, setAgentFilter] = useState('All Agents');
-  const [stageFilter, setStageFilter] = useState('All Stages');
-  const [page, setPage] = useState(1);
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    const { leads } = useLeads();
+    const [search, setSearch] = useState('');
+    const [agentFilter, setAgentFilter] = useState('All Agents');
+    const [stageFilter, setStageFilter] = useState('All Stages');
+    const [page, setPage] = useState(1);
 
-  const agentList = useMemo(() => ['All Agents', ...new Set(leads.map(l => l.agentName).filter(Boolean))], [leads]);
+    const agentList = useMemo(() => ['All Agents', ...new Set(leads.map(l => l.agentName).filter(Boolean))], [leads]);
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    return leads.filter(l => {
-      const matchSearch = !q || l.name.toLowerCase().includes(q) || l.leadId.toLowerCase().includes(q) || l.businessName.toLowerCase().includes(q);
-      const matchAgent = agentFilter === 'All Agents' || l.agentName === agentFilter;
-      const matchStage = stageFilter === 'All Stages' || l.stage === stageFilter;
-      return matchSearch && matchAgent && matchStage;
-    });
-  }, [leads, search, agentFilter, stageFilter]);
+    const filtered = useMemo(() => {
+        const q = search.toLowerCase();
+        return leads.filter(l => {
+            const matchSearch = !q || l.name.toLowerCase().includes(q) || l.leadId.toLowerCase().includes(q) || l.businessName?.toLowerCase().includes(q);
+            const matchAgent = agentFilter === 'All Agents' || l.agentName === agentFilter;
+            const matchStage = stageFilter === 'All Stages' || l.stage === stageFilter;
+            return matchSearch && matchAgent && matchStage;
+        });
+    }, [leads, search, agentFilter, stageFilter]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  const stats = useMemo(() => ({
-    total: leads.length,
-    inProgress: leads.filter(l => !['Completed', 'Rejected'].includes(l.stage)).length,
-    completed: leads.filter(l => l.stage === 'Completed').length,
-    rejected: leads.filter(l => l.stage === 'Rejected').length,
-  }), [leads]);
+    const stats = useMemo(() => ({
+        total: leads.length,
+        inProgress: leads.filter(l => !['Completed', 'Rejected'].includes(l.stage)).length,
+        completed: leads.filter(l => l.stage === 'Completed').length,
+        rejected: leads.filter(l => l.stage === 'Rejected').length,
+    }), [leads]);
 
-  const handleFilterChange = (setter) => (e) => { setter(e.target.value); setPage(1); };
+    const handleFilterChange = (setter) => (e) => { setter(e.target.value); setPage(1); };
 
-  return (
-    <div className="flex flex-col gap-6 font-['Sora',sans-serif]">
-
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-[1.6rem] font-bold text-[#1a202c] tracking-tight">Lead Monitoring</h1>
-          <p className="text-[0.9rem] text-[#718096] font-medium mt-1">
-            Real-time pipeline status across{' '}
-            <span className="font-semibold text-[#2447d7]">doc collection</span> and{' '}
-            <span className="font-semibold text-[#2447d7]">lender processing</span>.
-          </p>
-        </div>
-        <button className="flex items-center gap-2 bg-white border border-[#e2e8f0] text-[#374151] px-4 py-2.5 rounded-xl text-sm font-semibold hover:bg-[#f8fafc] transition-all shadow-sm whitespace-nowrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Export CSV
-        </button>
-      </div>
-
-      {/* Stat Cards */}
-      <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 sm:grid-cols-1">
-        <StatCard
-          label="Total Leads"
-          value={stats.total.toLocaleString()}
-          iconBg="#eef2ff"
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="2" width="18" height="18">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          }
-        />
-        <StatCard
-          label="In Progress"
-          value={stats.inProgress}
-          sub="Active Pipeline"
-          subColor="#f59e0b"
-          iconBg="#fffbeb"
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2" width="18" height="18">
-              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-            </svg>
-          }
-        />
-        <StatCard
-          label="Completed"
-          value={stats.completed}
-          sub="Closed Deals"
-          subColor="#10b981"
-          iconBg="#ecfdf5"
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2.5" width="18" height="18">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-            </svg>
-          }
-        />
-        <StatCard
-          label="Rejected"
-          value={stats.rejected}
-          sub="Needs Review"
-          subColor="#ef4444"
-          iconBg="#fef2f2"
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" width="18" height="18">
-              <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
-            </svg>
-          }
-        />
-      </div>
-
-      {/* Filters + Table */}
-      <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden">
-
-        {/* Filter Bar */}
-        <div className="p-5 border-b border-[#f1f5f9] flex items-center gap-3 flex-wrap">
-          <div className="flex-1 min-w-[200px] flex items-center gap-2.5 bg-[#f8fafc] border border-[#e2e8f0] px-3.5 py-2.5 rounded-xl focus-within:border-[#2447d7] focus-within:bg-white transition-all">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" width="16" height="16">
-              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-            </svg>
-            <input
-              type="text"
-              placeholder="Name or lead ID..."
-              className="bg-transparent border-none outline-none text-[13px] text-[#4a5568] w-full font-medium placeholder:text-[#cbd5e0]"
-              value={search}
-              onChange={handleFilterChange(setSearch)}
-            />
-          </div>
-
-          <div className="flex items-center gap-3 sm:w-full sm:flex-col">
-            <span className="text-[11px] font-black text-[#a0aec0] uppercase tracking-widest whitespace-nowrap">Agent</span>
-            <div className="relative">
-              <select
-                className="bg-white border border-[#e2e8f0] pl-3 pr-8 py-2.5 rounded-xl text-[13px] font-bold text-[#4a5568] appearance-none cursor-pointer outline-none hover:border-[#2447d7] transition-all min-w-[150px]"
-                value={agentFilter}
-                onChange={handleFilterChange(setAgentFilter)}
-              >
-                {agentList.map(a => <option key={a}>{a}</option>)}
-              </select>
-              <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 sm:w-full sm:flex-col">
-            <span className="text-[11px] font-black text-[#a0aec0] uppercase tracking-widest whitespace-nowrap">Stage</span>
-            <div className="relative">
-              <select
-                className="bg-white border border-[#e2e8f0] pl-3 pr-8 py-2.5 rounded-xl text-[13px] font-bold text-[#4a5568] appearance-none cursor-pointer outline-none hover:border-[#2447d7] transition-all min-w-[160px]"
-                value={stageFilter}
-                onChange={handleFilterChange(setStageFilter)}
-              >
-                {['All Stages', ...STAGES].map(s => <option key={s}>{s}</option>)}
-              </select>
-              <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
-            </div>
-          </div>
-
-          <span className="ml-auto text-sm font-semibold text-[#64748b] whitespace-nowrap">
-            {filtered.length} result{filtered.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[#f1f5f9]">
-                {['Lead ID / Client', 'Business Name', 'Agent', 'Progress', 'Stage', ''].map(h => (
-                  <th key={h} className="text-left py-3.5 px-5 text-[10px] font-black text-[#a0aec0] uppercase tracking-widest whitespace-nowrap">
-                    {h}
-                  </th>
+    return (
+        <div className={`flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif] ${isDark ? '' : ''}`}>
+            {/* ── KPI Tiles (Dashboard Style) ── */}
+            <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 md:grid-cols-1">
+                {[
+                    { 
+                        label: 'Total Leads', 
+                        value: stats.total.toString().padStart(2, '0'), 
+                        colorClass: 'text-blue-600 dark:text-blue-400',
+                        bgClass: 'bg-white dark:bg-[#1c2340]',
+                        borderTop: 'border-t-blue-500',
+                        iconBg: 'bg-blue-600 shadow-blue-500/30',
+                        icon: <IconDocs width="22" height="22" />, 
+                    },
+                    { 
+                        label: 'In Progress', 
+                        value: stats.inProgress.toString().padStart(2, '0'), 
+                        colorClass: 'text-orange-600 dark:text-orange-400',
+                        bgClass: 'bg-white dark:bg-[#2a1f1a]',
+                        borderTop: 'border-t-orange-500',
+                        iconBg: 'bg-orange-500 shadow-orange-500/30',
+                        icon: <div className="animate-spin-slow"><IconAlert width="22" height="22" /></div>, 
+                    },
+                    { 
+                        label: 'Completed', 
+                        value: stats.completed.toString().padStart(2, '0'), 
+                        colorClass: 'text-emerald-600 dark:text-emerald-400',
+                        bgClass: 'bg-white dark:bg-[#182724]',
+                        borderTop: 'border-t-emerald-500',
+                        iconBg: 'bg-emerald-500 shadow-emerald-500/30',
+                        icon: <IconCheck width="22" height="22" strokeWidth={3} />, 
+                    },
+                    { 
+                        label: 'Rejected', 
+                        value: stats.rejected.toString().padStart(2, '0'), 
+                        colorClass: 'text-rose-600 dark:text-rose-400',
+                        bgClass: 'bg-white dark:bg-[#2d1a1d]',
+                        borderTop: 'border-t-rose-500',
+                        iconBg: 'bg-rose-500 shadow-rose-500/30',
+                        icon: <IconAlert width="22" height="22" />, 
+                    },
+                ].map((card, i) => (
+                    <div
+                        key={card.label}
+                        className={`rounded-2xl border border-[#edf2f7] dark:border-white/5 border-t-4 ${card.borderTop} p-6 flex flex-col justify-center items-center gap-2 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-default text-center ${card.bgClass}`}
+                    >
+                        <div className={`w-12 h-12 rounded-full ${card.iconBg} text-white flex items-center justify-center mb-1 shadow-lg`}>
+                            {card.icon}
+                        </div>
+                        <div className="flex flex-col gap-0">
+                            <h2 className={`text-3xl font-black leading-none ${card.colorClass} tracking-tight`}>
+                                {card.value}
+                            </h2>
+                            <span className={`text-[10px] font-black uppercase tracking-[0.15em] mt-1 ${isDark ? 'text-white/30' : 'text-slate-400'}`}>
+                                {card.label}
+                            </span>
+                        </div>
+                    </div>
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {paginated.length > 0 ? paginated.map((lead, i) => (
-                <tr
-                  key={lead.id}
-                  className="border-b border-[#f8fafc] last:border-0 hover:bg-[#fafbff] transition-colors"
-                >
-                  {/* Lead ID / Client */}
-                  <td className="py-4 px-5">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-[10px] font-black text-[#2447d7] font-mono tracking-wider">{lead.leadId}</span>
-                      <span className="text-[14px] font-bold text-[#1a202c]">{lead.name}</span>
+            </div>
+
+            {/* ── Filter Bar ── */}
+            <div className={`flex items-center justify-between gap-4 p-5 rounded-2xl ${isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'} border shadow-sm`}>
+                <div className="flex items-center gap-4 flex-1 md:flex-col md:items-stretch">
+                    <div className={`flex items-center gap-3 px-4 py-3 border rounded-xl w-full max-w-md shadow-sm transition-all focus-within:ring-2 focus-within:ring-blue-500/20 ${isDark ? 'bg-[#141829] border-[#2c3568]' : 'bg-[#f8f9fa] border-slate-100'}`}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#6b7280' : '#a0aec0'} strokeWidth="2.5" width="16" height="16">
+                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="SEARCH LEADS, ID, BUSINESS..."
+                            className={`bg-transparent border-none outline-none text-[13px] w-full font-bold tracking-tight ${isDark ? 'text-white placeholder:text-slate-600' : 'text-slate-700 placeholder:text-slate-300'}`}
+                            value={search}
+                            onChange={handleFilterChange(setSearch)}
+                        />
                     </div>
-                  </td>
 
-                  {/* Business Name */}
-                  <td className="py-4 px-5">
-                    {lead.businessName ? (
-                      <span className="text-[11px] font-bold text-[#4a5568] uppercase tracking-wider truncate bg-[#f8faff] px-2.5 py-1 rounded-lg border border-[#edf2f7]">
-                        {lead.businessName}
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-medium text-[#cbd5e0] italic">Personal Lead</span>
-                    )}
-                  </td>
+                    <div className="flex items-center gap-3 md:grid md:grid-cols-2">
+                        <div className="relative min-w-[160px]">
+                            <select
+                                className={`w-full px-4 py-3 rounded-xl text-[12px] font-black uppercase tracking-widest outline-none hover:border-[#0061ff] focus:border-[#0061ff] transition-all appearance-none cursor-pointer pr-9 shadow-sm ${isDark ? 'bg-[#141829] border-[#2c3568] text-white' : 'bg-[#f8f9fa] border-slate-100 text-slate-700'}`}
+                                value={agentFilter}
+                                onChange={handleFilterChange(setAgentFilter)}
+                            >
+                                {agentList.map(a => <option key={a}>{a}</option>)}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                        </div>
 
-                  {/* Agent */}
-                  <td className="py-4 px-5">
-                    <AgentAvatar name={lead.agentName || 'Unknown'} />
-                  </td>
-
-                  {/* Progress */}
-                  <td className="py-4 px-5">
-                    <ProgressBar stage={lead.stage} progress={lead.progress} />
-                  </td>
-
-                  {/* Stage */}
-                  <td className="py-4 px-5">
-                    <StageBadge stage={lead.stage} />
-                  </td>
-
-                  {/* Details */}
-                  <td className="py-4 px-5">
-                    {onViewDetails && (
-                      <button
-                        onClick={() => onViewDetails(lead)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold text-[#2447d7] bg-[#eef2ff] border border-[#c7d2fe] hover:bg-[#e0e7ff] transition-all whitespace-nowrap"
-                      >
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                        Details
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              )) : (
-                <tr>
-                  <td colSpan="6" className="py-16 text-center">
-                    <div className="flex flex-col items-center gap-3 text-[#94a3b8]">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="40" height="40">
-                        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-                      </svg>
-                      <span className="text-sm font-medium">No leads match your filters</span>
+                        <div className="relative min-w-[180px]">
+                            <select
+                                className={`w-full px-4 py-3 rounded-xl text-[12px] font-black uppercase tracking-widest outline-none hover:border-[#0061ff] focus:border-[#0061ff] transition-all appearance-none cursor-pointer pr-9 shadow-sm ${isDark ? 'bg-[#141829] border-[#2c3568] text-white' : 'bg-[#f8f9fa] border-slate-100 text-slate-700'}`}
+                                value={stageFilter}
+                                onChange={handleFilterChange(setStageFilter)}
+                            >
+                                {['All Stages', ...STAGES].map(s => <option key={s}>{s}</option>)}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                        </div>
                     </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                </div>
+            </div>
+
+            {/* ── Table Container ── */}
+            <div className={`rounded-3xl border shadow-[0_4px_24px_rgba(0,0,0,0.04)] overflow-hidden animate-slideUp ${isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'}`}>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                        <thead>
+                            <tr className={`bg-slate-50/50 dark:bg-slate-800/20 border-b ${isDark ? 'border-[#2c3568]' : 'border-slate-100'}`}>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead / Client</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Agent</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Progress</th>
+                                <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status / Stage</th>
+                                <th className="px-6 py-5 text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-100'}`}>
+                            {paginated.length > 0 ? paginated.map((lead, i) => (
+                                <tr
+                                    key={lead.id}
+                                    className={`group transition-all duration-200 ${isDark ? 'hover:bg-white/5' : 'hover:bg-blue-50/30'}`}
+                                >
+                                    <td className="px-6 py-5">
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className={`text-[10px] font-black font-mono tracking-wider ${isDark ? 'text-blue-400' : 'text-[#0061ff]'}`}>{lead.leadId}</span>
+                                            <span className={`text-[14px] font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{lead.name}</span>
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-5">
+                                        {lead.businessName ? (
+                                            <span className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border ${isDark ? 'bg-[#1a1f35] text-slate-400 border-[#2c3568]' : 'bg-[#f8faff] text-slate-600 border-slate-100'}`}>
+                                                {lead.businessName}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[11px] font-medium italic text-slate-400">Personal Lead</span>
+                                        )}
+                                    </td>
+
+                                    <td className="px-6 py-5">
+                                        <div className="flex items-center gap-3">
+                                            <div
+                                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[10px] font-black text-white shadow-md`}
+                                                style={{ background: agentColorMap[lead.agentName] || '#64748b' }}
+                                            >
+                                                {lead.agentName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                            </div>
+                                            <span className={`text-[13px] font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{lead.agentName}</span>
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-5">
+                                        <div className="flex flex-col items-center gap-2 max-w-[140px] mx-auto">
+                                            <div className="flex justify-between w-full text-[10px] font-black text-slate-400">
+                                                <span>PROGRESS</span>
+                                                <span className={isDark ? 'text-blue-400' : 'text-[#0061ff]'}>{lead.progress}%</span>
+                                            </div>
+                                            <div className={`h-1.5 w-full rounded-full overflow-hidden ${isDark ? 'bg-slate-800' : 'bg-slate-100'}`}>
+                                                <div
+                                                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500 shadow-[0_0_8px_rgba(36,71,215,0.3)]"
+                                                    style={{ width: `${lead.progress}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <td className="px-6 py-5">
+                                        {(() => {
+                                            const isRejected = lead.stage === 'Rejected';
+                                            const isCompleted = lead.stage === 'Completed';
+                                            const isDocsDone = lead.stage === 'Document Verification Done';
+
+                                            let badgeClass = "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 border-blue-100 dark:border-blue-800/30";
+                                            let icon = <span className="w-1.5 h-1.5 rounded-full bg-current" />;
+
+                                            if (isRejected) {
+                                                badgeClass = "bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 border-red-100 dark:border-red-800/30";
+                                                icon = <IconAlert size={10} />;
+                                            } else if (isCompleted) {
+                                                badgeClass = "bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800/30";
+                                                icon = <IconCheck size={10} strokeWidth={4} />;
+                                            } else if (isDocsDone) {
+                                                badgeClass = "bg-orange-50 text-orange-600 dark:bg-orange-900/20 dark:text-orange-400 border-orange-100 dark:border-orange-800/30";
+                                                icon = <IconCheck size={10} strokeWidth={4} />;
+                                            }
+
+                                            return (
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${badgeClass}`}>
+                                                    {icon}
+                                                    {lead.stage}
+                                                </span>
+                                            );
+                                        })()}
+                                    </td>
+
+                                    <td className="px-6 py-5 text-right">
+                                        <button
+                                            onClick={() => onViewDetails?.(lead)}
+                                            className={`px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-sm ${isDark ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white' : 'bg-[#0061ff] text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-500/30'}`}
+                                        >
+                                            View Details
+                                        </button>
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan="6" className="py-24 text-center">
+                                        <div className="flex flex-col items-center gap-4 animate-fadeIn">
+                                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-slate-300 ${isDark ? 'bg-[#1a1f35]' : 'bg-slate-50'}`}>
+                                                <IconDocs width={32} height={32} />
+                                            </div>
+                                            <div className="flex flex-col gap-1">
+                                                <h3 className={`text-[15px] font-black uppercase tracking-widest ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>No matching leads</h3>
+                                                <p className={`text-[11px] font-bold ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>Try adjusting your filters or search search term</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* ── Footer ── */}
+                <div className={`px-6 py-5 border-t flex items-center justify-between md:flex-col md:gap-4 ${isDark ? 'bg-[#141829]/50 border-white/5' : 'bg-[#fcfdfd] border-slate-50'}`}>
+                    <span className={`text-[11px] font-black uppercase tracking-widest ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
+                        Showing <span className={isDark ? 'text-white' : 'text-slate-900'}>{filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, filtered.length)}</span> of <span className={isDark ? 'text-white' : 'text-slate-900'}>{filtered.length}</span> Records
+                    </span>
+
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setPage(p => Math.max(1, p - 1))}
+                            disabled={page === 1}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all border ${isDark ? 'border-[#2c3568] bg-[#1a1f35] text-slate-400 hover:text-white disabled:opacity-20' : 'border-slate-100 bg-white text-slate-400 hover:text-[#0061ff] disabled:opacity-40'}`}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+
+                        {[...Array(totalPages)].map((_, i) => (
+                            <button
+                                key={i + 1}
+                                onClick={() => setPage(i + 1)}
+                                className={`w-9 h-9 rounded-xl text-[11px] font-black transition-all border ${page === i + 1 ? 'bg-[#0061ff] text-white border-[#0061ff] shadow-lg shadow-blue-500/30' : (isDark ? 'border-[#2c3568] bg-[#1a1f35] text-slate-400 hover:border-blue-500' : 'border-slate-100 bg-white text-slate-400 hover:border-blue-500')}`}
+                            >
+                                {i + 1}
+                            </button>
+                        ))}
+
+                        <button
+                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                            disabled={page === totalPages}
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all border ${isDark ? 'border-[#2c3568] bg-[#1a1f35] text-slate-400 hover:text-white disabled:opacity-20' : 'border-slate-100 bg-white text-slate-400 hover:text-[#0061ff] disabled:opacity-40'}`}
+                        >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        {/* Pagination Footer */}
-        <div className="px-5 py-4 border-t border-[#f1f5f9] flex items-center justify-between">
-          <span className="text-sm text-[#64748b]">
-            Showing{' '}
-            <span className="font-semibold text-[#1a202c]">
-              {filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, filtered.length)}
-            </span>{' '}
-            of <span className="font-semibold text-[#1a202c]">{filtered.length}</span> leads
-          </span>
-
-          <div className="flex items-center gap-1.5">
-            <button
-              onClick={() => setPage(p => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="w-8 h-8 rounded-lg border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f8fafc] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><polyline points="15 18 9 12 15 6"/></svg>
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-              <button
-                key={n}
-                onClick={() => setPage(n)}
-                className="w-8 h-8 rounded-lg text-[12px] font-bold transition-all"
-                style={
-                  n === page
-                    ? { background: '#2447d7', color: '#fff', boxShadow: '0 4px 12px rgba(36,71,215,0.3)' }
-                    : { border: '1px solid #e2e8f0', color: '#64748b' }
-                }
-              >
-                {n}
-              </button>
-            ))}
-
-            <button
-              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="w-8 h-8 rounded-lg border border-[#e2e8f0] flex items-center justify-center text-[#64748b] hover:bg-[#f8fafc] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
+    );
 };
 
 export default LeadMonitoring;

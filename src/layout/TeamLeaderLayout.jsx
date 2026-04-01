@@ -115,6 +115,49 @@ const TeamLeaderLayout = ({ onLogout }) => {
                             <line x1="3" y1="18" x2="21" y2="18" />
                         </svg>
                     </button>
+                    
+                    {/* Page Title in Top Menu Bar */}
+                    {location.pathname === '/team-leader/dashboard' && (
+                        <div className="flex flex-col">
+                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                Team Leader Dashboard
+                            </h1>
+                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                Monitor team performance, track leads, and manage operations.
+                            </p>
+                        </div>
+                    )}
+                    {location.pathname === '/team-leader/lead-monitoring' && (
+                        <div className="flex flex-col">
+                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                Lead Monitoring
+                            </h1>
+                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                Track lead progress through workflow stages and team performance.
+                            </p>
+                        </div>
+                    )}
+                    {location.pathname === '/team-leader/document-verification' && (
+                        <div className="flex flex-col">
+                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                Document Verification
+                            </h1>
+                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                Verify and approve documents submitted by Tele-Agents for active leads.
+                            </p>
+                        </div>
+                    )}
+                    {location.pathname === '/team-leader/calendar' && (
+                        <div className="flex flex-col">
+                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                                Tasks and Followups
+                            </h1>
+                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                                Manage tasks, schedule followups, and track team activities.
+                            </p>
+                        </div>
+                    )}
+                    
                     <div className="flex-1" />
                     <div className="flex items-center gap-4">
                         {/* Notification Bell */}
