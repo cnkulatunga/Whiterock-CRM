@@ -1101,7 +1101,10 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                                             {data.map((lead, idx) => {
                                                 const pendingDocCount = (lead.documents || []).filter(d => d.status === 'Pending').length;
                                                 return (
-                                                    <tr key={lead.id} className="hover:bg-blue-50/40 transition-colors cursor-pointer group">
+                                                    <tr key={lead.id} 
+                                                        className="hover:bg-blue-50/40 transition-colors cursor-pointer group"
+                                                        onClick={() => { setStatModal(null); onNavigate?.('lead-details', lead); }}
+                                                     >
                                                         <td className="px-3 py-2 text-[10px] font-bold text-slate-400">{idx + 1}</td>
                                                         <td className="px-3 py-2">
                                                             <div className="flex items-center gap-2">

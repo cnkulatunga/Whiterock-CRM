@@ -12,6 +12,7 @@ import OperationalFlow from '../pages/super_admin/operational_flow/OperationalFl
 import SuperAdminTasks from '../pages/super_admin/tasks/SuperAdminTasks';
 import LenderPromotions from '../pages/super_admin/promotions/LenderPromotions';
 import CreateLead from '../pages/tele_agent/leads/CreateLead';
+import LeadDetails from '../pages/tele_agent/leads/LeadDetails';
 import { useReminders } from '../hooks/useReminders';
 import { useTasks } from '../context/TasksContext';
 import NotificationTray from '../components/NotificationTray/NotificationTray';
@@ -54,6 +55,7 @@ const AppLayout = ({ onLogout }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [selectedLead, setSelectedLead] = useState(null);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
     const { tasks, setTasks } = useTasks();
@@ -84,11 +86,13 @@ const AppLayout = ({ onLogout }) => {
         if (path.includes('tasks')) return { title: 'Tasks & Follow-ups', subtitle: 'Priority Queue' };
         if (path.includes('promotions')) return { title: 'Lender Promotions', subtitle: 'Active Campaigns' };
         if (path.includes('create-lead')) return { title: 'Create New Lead', subtitle: 'Manual Entry' };
+        if (path.includes('lead-details')) return { title: 'Lead Details', subtitle: 'Global Perspective' };
         return { title: 'Alpha Funding CRM', subtitle: 'Super Admin Access' };
     };
 
-    const handleNavigate = (page) => {
+    const handleNavigate = (page, data = null) => {
         setSidebarOpen(false);
+        if (data) setSelectedLead(data);
         switch (page) {
             case 'dashboard': navigate('/super-admin/dashboard'); break;
             case 'user-management': navigate('/super-admin/user-management'); break;
@@ -104,6 +108,9 @@ const AppLayout = ({ onLogout }) => {
             case 'operational-flow': navigate('/super-admin/operational-flow'); break;
             case 'promotions': navigate('/super-admin/promotions'); break;
             case 'create-lead': navigate('/super-admin/create-lead'); break;
+            case 'lead-details': 
+                navigate('/super-admin/lead-details'); 
+                break;
             default: navigate('/super-admin/dashboard');
         }
     };
@@ -271,6 +278,7 @@ const AppLayout = ({ onLogout }) => {
                         <Route path="operational-flow" element={<OperationalFlow />} />
                         <Route path="promotions" element={<LenderPromotions />} />
                         <Route path="create-lead" element={<CreateLead onBack={() => handleNavigate('dashboard')} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
+                        <Route path="lead-details" element={<LeadDetails lead={selectedLead} tasks={tasks} setTasks={setTasks} onBack={() => navigate(-1)} />} />
                         <Route path="/" element={<Navigate to="dashboard" replace />} />
                         <Route path="*" element={<Navigate to="dashboard" replace />} />
                     </Routes>
