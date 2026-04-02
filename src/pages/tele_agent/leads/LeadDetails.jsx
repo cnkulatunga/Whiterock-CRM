@@ -23,9 +23,9 @@ const IconFile   = ({ size = 16 }) => <Ico d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V
 
 /* ── reusable table row ── */
 const Row = ({ label, value, span, highlight }) => (
-    <tr className={`border-b border-[#f1f5f9] last:border-0 ${highlight ? 'bg-[#f8faff]' : ''}`}>
-        <td className="py-2 pr-3 pl-4 text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider whitespace-nowrap w-[38%]">{label}</td>
-        <td className={`py-2 pr-4 text-[13px] font-semibold text-[#1a202c] ${span ? 'col-span-2' : ''}`}>{value || <span className="text-[#cbd5e1]">—</span>}</td>
+    <tr className={`border-b border-[#f1f5f9] dark:border-white/5 last:border-0 ${highlight ? 'bg-[#f8faff] dark:bg-white/[0.02]' : ''}`}>
+        <td className="py-2 pr-3 pl-4 text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider whitespace-nowrap w-[38%] align-top">{label}</td>
+        <td className={`py-2 pr-4 text-[13px] font-semibold text-[#1a202c] dark:text-white break-words max-w-0 ${span ? 'col-span-2' : ''}`}>{value || <span className="text-[#cbd5e1]">—</span>}</td>
     </tr>
 );
 
@@ -240,7 +240,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
 
                     {/* Contact Info */}
                     <Card icon={<IconUser />} iconBg="bg-[#ebf0ff]" iconColor="text-[#2447d7]" title="Contact Info">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left table-fixed">
                             <tbody>
                                 <Row label="Full Name"   value={<span className="font-bold text-[#1a202c]">{leadName}</span>} />
                                 {lead.businessName && <Row label="Business"  value={lead.businessName} highlight />}
@@ -255,7 +255,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
 
                     {/* Personal Info */}
                     <Card icon={<IconInfo />} iconBg="bg-[#f0f9ff]" iconColor="text-[#0ea5e9]" title="Personal Info">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left table-fixed">
                             <tbody>
                                 <Row label="Date of Birth"    value={lead.dob} />
                                 <Row label="Home Owner"       value={lead.homeOwner} />
@@ -274,7 +274,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
 
                     {/* Business Details */}
                     <Card icon={<IconBank />} iconBg="bg-[#fefce8]" iconColor="text-[#ca8a04]" title="Business Details">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left table-fixed">
                             <tbody>
                                 <Row label="Industry"          value={lead.industry} />
                                 <Row label="Company House No." value={lead.nic || lead.companyHouseNumber} highlight />
@@ -287,7 +287,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
 
                     {/* Loan Details */}
                     <Card icon={<IconBank />} iconBg="bg-[#fff7ed]" iconColor="text-[#ea580c]" title="Loan Details">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left table-fixed">
                             <tbody>
                                 <Row label="Amount Needed"     value={<span className="text-[#2447d7] font-bold">{lead.loanAmount || lead.amount}</span>} highlight />
                                 <Row label="Loan Purpose"      value={lead.loanPurpose} />
@@ -327,8 +327,8 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                             {leadTasks.length > 0 ? leadTasks.map(task => (
                                 <div key={task.id} className="bg-[#f8fafc] dark:bg-white/5 border border-[#edf2f7] dark:border-white/10 rounded-lg p-3 flex flex-col gap-2">
                                     <div className="flex items-start justify-between gap-2">
-                                        <div>
-                                            <p className="text-[12px] font-bold text-[#1a202c] dark:text-white">{task.title}</p>
+                                        <div className="flex-1 min-w-0 overflow-hidden">
+                                            <p className="text-[12px] font-bold text-[#1a202c] dark:text-white break-words">{task.title}</p>
                                             <p className="text-[10px] text-[#94a3b8]">{task.date} · {task.time}</p>
                                         </div>
                                         <select
@@ -341,7 +341,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                                             <option>Completed</option>
                                         </select>
                                     </div>
-                                    {task.message && <p className="text-[10px] text-[#718096] dark:text-slate-400 italic bg-white dark:bg-white/5 p-2 rounded border border-[#f1f5f9] dark:border-white/10">"{task.message}"</p>}
+                                    {task.message && <p className="text-[10px] text-[#718096] dark:text-slate-400 italic bg-white dark:bg-white/5 p-2 rounded border border-[#f1f5f9] dark:border-white/10 break-words line-clamp-3">"{task.message}"</p>}
                                     <div className="flex items-center gap-1.5">
                                         <span className="text-[9px] font-bold text-[#94a3b8] uppercase">Reminder:</span>
                                         <select className="bg-transparent border-none text-[9px] font-bold text-[#2447d7] outline-none cursor-pointer" value={task.reminder} onChange={e => updateTaskReminder(task.id, e.target.value)}>
@@ -360,7 +360,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
 
                     {/* Team & Assignment */}
                     <Card icon={<IconUser />} iconBg="bg-[#f0fdf4]" iconColor="text-[#16a34a]" title="Team & Assignment">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left table-fixed">
                             <tbody>
                                 {(() => {
                                     // Try to resolve role: either from lead object or by looking up the agent's name in SHARED_INITIAL_USERS

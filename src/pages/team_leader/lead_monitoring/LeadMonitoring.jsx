@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { WORKFLOW_STAGES_LIST, SHARED_INITIAL_USERS } from '../../../data/dummyData';
 import { useLeads } from '../../../context/LeadsContext';
 import { useTheme } from '../../../context/ThemeContext';
+import { useTasks } from '../../../context/TasksContext';
 import { IconDocs, IconAlert, IconCheck } from '../../../components/DocumentManagement/Icons';
 import UploadModal from '../../../components/DocumentManagement/UploadModal';
 
@@ -25,6 +26,7 @@ const LeadMonitoring = ({ onViewDetails }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { leads, setLeads } = useLeads();
+    const { tasks } = useTasks();
     
     // UI State
     const [search, setSearch] = useState('');
@@ -157,225 +159,175 @@ const LeadMonitoring = ({ onViewDetails }) => {
     };
 
     return (
-        <div className={`flex flex-col gap-8 animate-fadeIn font-['Sora',sans-serif]`}>
+        <div className={`flex flex-col gap-5 animate-fadeIn font-['Sora',sans-serif]`}>
             {/* ── KPI Tiles ── */}
-            <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 md:grid-cols-1">
+            <div className="grid grid-cols-4 gap-4 lg:grid-cols-2 sm:grid-cols-1">
                 {[
-                    { 
-                        label: 'Total Leads', 
-                        value: stats.total.toString().padStart(2, '0'), 
-                        colorClass: 'text-blue-700 dark:text-blue-300',
-                        bgClass: 'bg-blue-100/40 dark:bg-[#1c2340]',
-                        borderClass: 'border-blue-200 dark:border-blue-500/30',
-                        iconBg: 'bg-blue-600 shadow-blue-600/20',
-                        icon: <IconDocs width="22" height="22" />, 
-                    },
-                    { 
-                        label: 'Pending Docs', 
-                        value: stats.pendingReview.toString().padStart(2, '0'), 
-                        colorClass: 'text-orange-700 dark:text-orange-300',
-                        bgClass: 'bg-orange-100/40 dark:bg-[#2a1f1a]',
-                        borderClass: 'border-orange-200 dark:border-orange-500/30',
-                        iconBg: 'bg-orange-500 shadow-orange-500/20',
-                        icon: <div className="animate-spin-slow"><IconAlert width="22" height="22" /></div>, 
-                    },
-                    { 
-                        label: 'Fully Verified', 
-                        value: stats.fullyVerified.toString().padStart(2, '0'), 
-                        colorClass: 'text-emerald-700 dark:text-emerald-300',
-                        bgClass: 'bg-emerald-100/40 dark:bg-[#182724]',
-                        borderClass: 'border-emerald-200 dark:border-emerald-500/30',
-                        iconBg: 'bg-emerald-500 shadow-emerald-500/20',
-                        icon: <IconCheck width="22" height="22" strokeWidth={3} />, 
-                    },
-                    { 
-                        label: 'Lead Pipeline', 
-                        value: stats.inProgress.toString().padStart(2, '0'), 
-                        colorClass: 'text-rose-700 dark:text-rose-300',
-                        bgClass: 'bg-rose-100/40 dark:bg-[#2a1a1c]',
-                        borderClass: 'border-rose-200 dark:border-rose-500/30',
-                        iconBg: 'bg-rose-600 shadow-rose-600/20',
-                        icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22"><path d="M2 17L12 22L22 17M2 12L12 17L22 12M12 2L2 7L12 12L22 7L12 2Z"/></svg>, 
-                    },
+                    { label: 'Total Leads',   value: stats.total,         colorClass: 'text-blue-700 dark:text-blue-300',    bgClass: 'bg-blue-50 dark:bg-blue-500/10',    borderClass: 'border-blue-100 dark:border-blue-500/20',    iconBg: 'bg-blue-600',    icon: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></> },
+                    { label: 'Pending Docs',  value: stats.pendingReview, colorClass: 'text-orange-700 dark:text-orange-300', bgClass: 'bg-orange-50 dark:bg-orange-500/10', borderClass: 'border-orange-100 dark:border-orange-500/20', iconBg: 'bg-orange-500',  icon: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></> },
+                    { label: 'Fully Verified',value: stats.fullyVerified, colorClass: 'text-emerald-700 dark:text-emerald-300',bgClass: 'bg-emerald-50 dark:bg-emerald-500/10',borderClass: 'border-emerald-100 dark:border-emerald-500/20',iconBg: 'bg-emerald-500', icon: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></> },
+                    { label: 'Lead Pipeline', value: stats.inProgress,    colorClass: 'text-rose-700 dark:text-rose-300',    bgClass: 'bg-rose-50 dark:bg-rose-500/10',    borderClass: 'border-rose-100 dark:border-rose-500/20',    iconBg: 'bg-rose-600',    icon: <><path d="M2 17L12 22L22 17M2 12L12 17L22 12M12 2L2 7L12 12L22 7L12 2Z"/></> },
                 ].map((card, i) => (
-                    <div
-                        key={card.label}
-                        className={`rounded-2xl border ${card.borderClass} p-6 flex flex-col justify-center items-center gap-1.5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-default text-center ${card.bgClass}`}
-                    >
-                        <div className={`w-11 h-11 rounded-full ${card.iconBg} text-white flex items-center justify-center mb-1 shadow-md`}>
-                            {card.icon}
+                    <div key={card.label} className={`rounded-xl border ${card.borderClass} p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ${card.bgClass}`}>
+                        <div className="flex items-center gap-3">
+                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform shrink-0 ${card.iconBg}`}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">{card.icon}</svg>
+                            </div>
+                            <div className="min-w-0">
+                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{card.label}</div>
+                                <div className={`text-base font-black leading-none ${card.colorClass}`}>{card.value}</div>
+                            </div>
                         </div>
-                        <h2 className={`text-3xl font-black leading-none ${card.colorClass} tracking-tight`}>
-                            {card.value}
-                        </h2>
-                        <span className={`text-[11px] font-bold uppercase tracking-widest mt-0.5 ${isDark ? card.colorClass + ' opacity-80' : card.colorClass}`}>
-                            {card.label}
-                        </span>
                     </div>
                 ))}
             </div>
 
             {/* ── Filter Bar ── */}
-            <div className={`flex items-center justify-between gap-4 p-4 rounded-3xl ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'} border shadow-sm`}>
-                <div className="flex items-center gap-4 flex-1 md:flex-col md:items-stretch">
-                    <div className={`flex items-center gap-3 px-4 py-3 border rounded-xl w-full max-w-md shadow-sm transition-all focus-within:ring-2 focus-within:ring-blue-500/20 ${isDark ? 'bg-slate-800 border-white/5' : 'bg-slate-50 border-slate-100'}`}>
-                        <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#94a3b8' : '#64748b'} strokeWidth="2.5" width="16" height="16">
-                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-                        </svg>
-                        <input
-                            type="text"
-                            placeholder="SEARCH BY NAME, ID, OR BUSINESS..."
-                            className={`bg-transparent border-none outline-none text-[13px] w-full font-bold tracking-tight ${isDark ? 'text-white placeholder:text-slate-500/80' : 'text-slate-700 placeholder:text-slate-400'}`}
-                            value={search}
-                            onChange={handleFilterChange(setSearch)}
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-3 md:grid md:grid-cols-2">
-                        <div className="relative min-w-[160px]">
-                            <select
-                                className={`w-full px-4 py-3 rounded-xl text-[12px] font-black uppercase tracking-widest outline-none transition-all appearance-none cursor-pointer pr-9 shadow-sm focus:ring-2 focus:ring-blue-500/20 ${isDark ? 'bg-slate-800 border-white/5 text-slate-300 border-none' : 'bg-slate-50 border-slate-100 text-slate-700'}`}
-                                value={agentFilter}
-                                onChange={handleFilterChange(setAgentFilter)}
-                            >
+            <div className={`rounded-2xl border overflow-hidden animate-slideUp [animation-delay:150ms] [animation-fill-mode:both] ${isDark ? 'bg-[#1e2347] border-white/5 shadow-2xl' : 'bg-white border-[#edf2f7] shadow-sm'}`}>
+                <div className={`p-4 flex justify-between items-center border-b flex-wrap gap-3 ${isDark ? 'border-white/5' : 'border-[#f7fafc]'}`}>
+                    <h2 className={`text-[13px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-[#1a202c]'}`}>Lead Monitoring</h2>
+                    <div className="flex items-center gap-3 flex-wrap">
+                        <div className="relative">
+                            <select className={`appearance-none rounded-[12px] px-4 py-2 text-[12px] font-bold outline-none cursor-pointer border transition-all pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568]'}`} value={agentFilter} onChange={handleFilterChange(setAgentFilter)}>
                                 {agentList.map(a => <option key={a}>{a}</option>)}
                             </select>
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
-                            </div>
+                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
                         </div>
-
-                        <div className="relative min-w-[180px]">
-                            <select
-                                className={`w-full px-4 py-3 rounded-xl text-[12px] font-black uppercase tracking-widest outline-none transition-all appearance-none cursor-pointer pr-9 shadow-sm focus:ring-2 focus:ring-blue-500/20 ${isDark ? 'bg-slate-800 border-white/5 text-slate-300 border-none' : 'bg-slate-50 border-slate-100 text-slate-700'}`}
-                                value={stageFilter}
-                                onChange={handleFilterChange(setStageFilter)}
-                            >
+                        <div className="relative">
+                            <select className={`appearance-none rounded-[12px] px-4 py-2 text-[12px] font-bold outline-none cursor-pointer border transition-all pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568]'}`} value={stageFilter} onChange={handleFilterChange(setStageFilter)}>
                                 {['All Stages', ...STAGES].map(s => <option key={s}>{s}</option>)}
                             </select>
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
-                            </div>
+                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                        <div className={`flex items-center gap-2.5 px-4 py-2 border rounded-[12px] w-[280px] transition-all ${isDark ? 'bg-[#1e2347] border-[#36407a] focus-within:border-[#5b6aaa]' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#4a5a8a' : '#a0aec0'} strokeWidth="2.5" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                            <input type="text" placeholder="Search by name, ID or business..." className={`bg-transparent border-none outline-none text-[12px] font-medium w-full ${isDark ? 'text-slate-200 placeholder-slate-500' : 'text-[#4a5568] placeholder-[#a0aec0]'}`} value={search} onChange={handleFilterChange(setSearch)} />
                         </div>
                     </div>
                 </div>
-            </div>
-
-            {/* ── Unified Table Container ── */}
-            <div className={`rounded-3xl border shadow-sm overflow-hidden animate-slideUp ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`}>
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
+                    <table className="w-full border-collapse">
                         <thead>
-                            <tr className={`bg-[#f8f9fa] dark:bg-slate-800/80 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead / Client</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Email</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Phone No.</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Assigned Agent</th>
-                                <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Document Status</th>
-                                <th className="px-6 py-4 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Actions</th>
+                            <tr className={`${isDark ? 'bg-[#141829]/50' : 'bg-[#fbfeff]'}`}>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Lead / Client</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Business</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Email</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Phone</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Agent</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Doc Status</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Last Note</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Actions</th>
                             </tr>
                         </thead>
-                        <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-100'}`}>
+                        <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-[#f7fafc]'}`}>
                             {paginated.length > 0 ? paginated.map((lead, i) => (
                                 <tr
                                     key={lead.id}
                                     onClick={() => onViewDetails?.(lead)}
-                                    className={`group transition-all duration-200 cursor-pointer ${isDark ? 'hover:bg-blue-900/10' : 'hover:bg-blue-50/40'}`}
+                                    className={`transition-colors border-b last:border-0 cursor-pointer ${isDark ? 'hover:bg-white/5 border-white/5' : 'hover:bg-[#fcfdfe] border-[#f7fafc]'}`}
                                 >
-                                    <td className="px-6 py-5">
-                                        <div className="flex flex-col gap-0.5">
-                                            <span className={`text-[10px] font-black font-mono tracking-wider ${isDark ? 'text-blue-400' : 'text-[#0061ff]'}`}>{lead.leadId}</span>
-                                            <span className={`text-[14px] font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{lead.name}</span>
+                                    <td className="px-3 py-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black text-white shrink-0`} style={{ background: agentColorMap[lead.agentName] || '#64748b' }}>
+                                                {lead.name?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className={`text-[11px] font-black truncate max-w-[110px] ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{lead.name}</span>
+                                                <span className={`text-[9px] font-bold tracking-tighter ${isDark ? 'text-blue-400' : 'text-[#0061ff]'}`}>#{lead.leadId}</span>
+                                            </div>
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-5">
+                                    <td className="px-3 py-2.5">
                                         {lead.businessName ? (
-                                            <span className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg border ${isDark ? 'bg-[#1a1f35] text-slate-400 border-[#2c3568]' : 'bg-[#f8faff] text-slate-600 border-slate-100'}`}>
-                                                {lead.businessName}
-                                            </span>
+                                            <span className={`text-[10px] font-black uppercase tracking-tight truncate max-w-[120px] block ${isDark ? 'text-blue-400' : 'text-blue-500'}`}>{lead.businessName}</span>
                                         ) : (
-                                            <span className="text-[11px] font-medium italic text-slate-400">Personal Lead</span>
+                                            <span className="text-[10px] font-medium italic text-slate-400">Personal</span>
                                         )}
                                     </td>
 
-                                    <td className="px-6 py-5">
-                                        <span className={`text-[12px] font-medium ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{lead.email || '-'}</span>
+                                    <td className="px-3 py-2.5">
+                                        <span className={`text-[10px] font-bold ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>{lead.email || '-'}</span>
                                     </td>
 
-                                    <td className="px-6 py-5 text-center">
-                                        <span className={`text-[12px] font-black font-mono tracking-tighter ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>{lead.phone || '-'}</span>
+                                    <td className="px-3 py-2.5">
+                                        <span className={`text-[10px] font-black font-mono ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>{lead.phone || '-'}</span>
                                     </td>
 
-                                    <td className="px-6 py-5">
-                                        <div className="flex items-center gap-3">
-                                            <div
-                                                className={`w-9 h-9 rounded-xl flex items-center justify-center text-[10px] font-black text-white shadow-md`}
-                                                style={{ background: agentColorMap[lead.agentName] || '#64748b' }}
-                                            >
-                                                {lead.agentName?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                    <td className="px-3 py-2.5">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-black text-white shrink-0" style={{ background: agentColorMap[lead.agentName] || '#64748b' }}>
+                                                {lead.agentName?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
                                             </div>
-                                            <span className={`text-[13px] font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{lead.agentName}</span>
+                                            <span className={`text-[11px] font-bold truncate max-w-[90px] ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{lead.agentName}</span>
                                         </div>
                                     </td>
 
-                                    <td className="px-6 py-5 text-center">
+                                    <td className="px-3 py-2.5">
                                         {(() => {
                                             const hasRejected = lead.documents?.some(d => d.status === 'Rejected');
                                             const isAllVerified = lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0;
                                             const docCount = lead.documents?.length || 0;
                                             const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
-
-                                            if (hasRejected) {
-                                                return (
-                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-red-50 text-red-600 dark:bg-red-900/20 dark:text-red-400 border border-red-100 dark:border-red-800/30">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                                                        Docs Rejected
-                                                    </span>
-                                                );
-                                            }
-                                            if (isAllVerified) {
-                                                return (
-                                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 dark:bg-emerald-900/20 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800/30">
-                                                        <IconCheck size={10} strokeWidth={4} />
-                                                        Fully Verified
-                                                    </span>
-                                                );
-                                            }
+                                            if (hasRejected) return (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wide bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20 whitespace-nowrap">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />Rejected
+                                                </span>
+                                            );
+                                            if (isAllVerified) return (
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wide bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 whitespace-nowrap">
+                                                    <IconCheck size={9} strokeWidth={4} />Verified
+                                                </span>
+                                            );
                                             return (
-                                                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 border border-blue-100 dark:border-blue-800/30">
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                                                    Checking ({approvedCount}/{docCount})
+                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wide bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20 whitespace-nowrap">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />{approvedCount}/{docCount}
                                                 </span>
                                             );
                                         })()}
                                     </td>
 
-                                    <td className="px-6 py-5">
-                                        <div className="flex flex-col">
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleOpenDocModal(lead);
-                                                }}
-                                                className={`px-4 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all shadow-sm text-center ${isDark ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600 hover:text-white' : 'bg-[#0061ff] text-white hover:bg-blue-700 hover:shadow-md hover:shadow-blue-500/20'}`}
-                                            >
-                                                Manage Docs
-                                            </button>
-                                        </div>
+                                    <td className="px-3 py-2.5 w-[160px]">
+                                        {(() => {
+                                            const leadName = lead.name.toLowerCase();
+                                            const leadTasks = (tasks || []).filter(t =>
+                                                t.leadId?.toString() === lead.id?.toString() ||
+                                                t.lead?.toLowerCase() === leadName
+                                            );
+                                            const lastTask = [...leadTasks].sort((a, b) =>
+                                                new Date(b.date || b.updatedAt || 0) - new Date(a.date || a.updatedAt || 0)
+                                            )[0];
+                                            const note = lastTask?.notes || lastTask?.message;
+                                            if (!note) return <span className="text-[10px] text-slate-500 italic">No preview</span>;
+                                            return (
+                                                <div className="flex items-start gap-1.5 max-w-[150px]">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="11" height="11" className="text-blue-500 shrink-0 mt-0.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                                    <span className={`text-[10px] font-medium leading-tight line-clamp-2 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{note}</span>
+                                                </div>
+                                            );
+                                        })()}
+                                    </td>
+
+                                    <td className="px-3 py-2.5">
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); handleOpenDocModal(lead); }}
+                                            className={`p-1.5 rounded-lg transition-all border ${isDark ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : 'border-[#ebf0ff] bg-[#f0f4ff] text-[#2447d7] hover:bg-[#2447d7] hover:text-white'}`}
+                                            title="Manage Documents"
+                                        >
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                                        </button>
                                     </td>
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan={6} className="py-24 text-center">
-                                        <div className="flex flex-col items-center gap-4 animate-fadeIn">
-                                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-slate-300 ${isDark ? 'bg-[#1a1f35]' : 'bg-slate-50'}`}>
-                                                <IconDocs width={32} height={32} />
+                                    <td colSpan={8} className="py-16 text-center">
+                                        <div className="flex flex-col items-center gap-3 animate-fadeIn">
+                                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-slate-300 ${isDark ? 'bg-[#1a1f35]' : 'bg-slate-50'}`}>
+                                                <IconDocs width={24} height={24} />
                                             </div>
                                             <div className="flex flex-col gap-1">
-                                                <h3 className={`text-[15px] font-black uppercase tracking-widest ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>No matching leads</h3>
-                                                <p className={`text-[11px] font-bold ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>Try adjusting your filters or search search term</p>
+                                                <h3 className={`text-[13px] font-black uppercase tracking-widest ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>No matching leads</h3>
+                                                <p className={`text-[11px] font-bold ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>Try adjusting your filters or search term</p>
                                             </div>
                                         </div>
                                     </td>
@@ -386,37 +338,13 @@ const LeadMonitoring = ({ onViewDetails }) => {
                 </div>
 
                 {/* ── Footer ── */}
-                <div className={`px-6 py-5 border-t flex items-center justify-between md:flex-col md:gap-4 ${isDark ? 'bg-[#141829]/50 border-white/5' : 'bg-[#fcfdfd] border-slate-50'}`}>
-                    <span className={`text-[11px] font-black uppercase tracking-widest ${isDark ? 'text-slate-600' : 'text-slate-400'}`}>
-                        Showing <span className={isDark ? 'text-white' : 'text-slate-900'}>{filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, filtered.length)}</span> of <span className={isDark ? 'text-white' : 'text-slate-900'}>{filtered.length}</span> Records
+                <div className={`p-4 flex items-center justify-between sm:flex-col sm:gap-4 border-t ${isDark ? 'bg-[#141829]/30 border-white/5' : 'bg-[#fdfdfd] border-[#f7fafc]'}`}>
+                    <span className={`text-[12px] font-bold ${isDark ? 'text-slate-500' : 'text-[#718096]'}`}>
+                        Showing <span className={isDark ? 'text-white' : 'text-[#1a202c]'}>{filtered.length === 0 ? 0 : (page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, filtered.length)}</span> of <span className={isDark ? 'text-white' : 'text-[#1a202c]'}>{filtered.length}</span> records
                     </span>
-
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={() => setPage(p => Math.max(1, p - 1))}
-                            disabled={page === 1}
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all border ${isDark ? 'border-[#2c3568] bg-[#1a1f35] text-slate-400 hover:text-white disabled:opacity-20' : 'border-slate-100 bg-white text-slate-400 hover:text-[#0061ff] disabled:opacity-40'}`}
-                        >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12"><polyline points="15 18 9 12 15 6"/></svg>
-                        </button>
-
-                        {[...Array(totalPages)].map((_, i) => (
-                            <button
-                                key={i + 1}
-                                onClick={() => setPage(i + 1)}
-                                className={`w-9 h-9 rounded-xl text-[11px] font-black transition-all border ${page === i + 1 ? 'bg-[#0061ff] text-white border-[#0061ff] shadow-lg shadow-blue-500/30' : (isDark ? 'border-[#2c3568] bg-[#1a1f35] text-slate-400 hover:border-blue-500' : 'border-slate-100 bg-white text-slate-400 hover:border-blue-500')}`}
-                            >
-                                {i + 1}
-                            </button>
-                        ))}
-
-                        <button
-                            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                            disabled={page === totalPages}
-                            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all border ${isDark ? 'border-[#2c3568] bg-[#1a1f35] text-slate-400 hover:text-white disabled:opacity-20' : 'border-slate-100 bg-white text-slate-400 hover:text-[#0061ff] disabled:opacity-40'}`}
-                        >
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="12" height="12"><polyline points="9 18 15 12 9 6"/></svg>
-                        </button>
+                    <div className="flex gap-2 sm:w-full">
+                        <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className={`px-4 py-2 rounded-xl text-[12px] font-black transition-all border disabled:opacity-30 disabled:cursor-not-allowed sm:flex-1 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 hover:bg-[#1e2347]' : 'bg-white border-[#e2e8f0] text-[#4a5568] hover:bg-[#f7fafc]'}`}>PREVIOUS</button>
+                        <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className={`px-4 py-2 rounded-xl text-[12px] font-black transition-all border disabled:opacity-30 disabled:cursor-not-allowed sm:flex-1 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 hover:bg-[#1e2347]' : 'bg-white border-[#e2e8f0] text-[#4a5568] hover:bg-[#f7fafc]'}`}>NEXT</button>
                     </div>
                 </div>
             </div>

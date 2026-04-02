@@ -190,18 +190,21 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     };
 
     const totalLeads = leads.length;
-    const sentToLenders = leads.filter(l => l.selectedLenders?.length > 0).length;
-    const newLeads = leads.filter(l => !l.selectedLenders?.length && (l.stage || l.status) === 'Document Verification Done').length;
+    const docsVerified = leads.filter(l => l.documents?.length > 0 && l.documents?.every(d => d.status === 'Approved')).length;
+    const docsPending = leads.filter(l => !l.documents || l.documents.length === 0 || l.documents.some(d => d.status !== 'Approved')).length;
+    const sentToLenders = leads.filter(l => (l.selectedLenders?.length || 0) > 0).length;
+
     const pipelineStats = [
-        { label: 'Total Leads',       value: totalLeads,    bg: 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20',       iconBg: 'bg-blue-600',    icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
-        { label: 'Sent to Lenders',   value: sentToLenders, bg: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20', iconBg: 'bg-emerald-600', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> },
-        { label: 'Pending to Lenders',value: newLeads,      bg: 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20',     iconBg: 'bg-amber-500',   icon: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></> },
+        { label: 'Total Leads',               value: totalLeads,    bg: 'bg-blue-50 dark:bg-blue-500/10 border-blue-100 dark:border-blue-500/20',       iconBg: 'bg-blue-600',    icon: <><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></> },
+        { label: 'Document Verification Done', value: docsVerified, bg: 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20', iconBg: 'bg-emerald-600', icon: <polyline points="20 6 9 17 4 12" /> },
+        { label: 'Document Pending',           value: docsPending,  bg: 'bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20',     iconBg: 'bg-amber-500',   icon: <><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></> },
+        ...(isSuperOrAM ? [{ label: 'Sent to Lenders', value: sentToLenders, bg: 'bg-purple-50 dark:bg-purple-500/10 border-purple-100 dark:border-purple-500/20', iconBg: 'bg-purple-600', icon: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></> }] : [])
     ];
 
     return (
         <>
             {/* Pipeline KPI Cards */}
-            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1 animate-fadeIn font-['Sora',sans-serif] mb-4">
+            <div className={`grid ${pipelineStats.length === 4 ? 'grid-cols-4' : 'grid-cols-3'} gap-4 lg:grid-cols-2 sm:grid-cols-1 animate-fadeIn font-['Sora',sans-serif] mb-4`}>
                 {pipelineStats.map((stat, i) => (
                     <div key={i} className={`rounded-xl border p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ${stat.bg}`}>
                         <div className="flex items-center gap-3">

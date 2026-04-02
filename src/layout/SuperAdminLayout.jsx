@@ -63,11 +63,12 @@ const AppLayout = ({ onLogout }) => {
     const isDark = theme === 'dark';
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     const myTasks = tasks.filter(t => {
-        const isAssignedToMe = Array.isArray(t.assignedTo)
-            ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Super Admin') || t.assignedTo.includes('All'))
-            : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Super Admin') || t.assignedTo === 'All');
-        
-        return isAssignedToMe || t.creatorId === user.id || t.createdBy === 'Super Admin';
+        const uid = user.id?.toString();
+        const assignedArr = Array.isArray(t.assignedTo)
+            ? t.assignedTo.map(x => x?.toString())
+            : [t.assignedTo?.toString()];
+        const isAssignedToMe = assignedArr.includes(uid) || assignedArr.includes('Self') || assignedArr.includes('All');
+        return isAssignedToMe || t.creatorId?.toString() === uid || t.createdBy === 'Super Admin';
     });
 
     const { notifications, activeAlerts, removeNotification, notifyReminderSet, dismissAlert } = useReminders(myTasks, setTasks);
@@ -263,7 +264,7 @@ const AppLayout = ({ onLogout }) => {
                     </div>
                 </div>
 
-                <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
+                <div className={`flex-1 mt-[68px] lg:p-6 lg:px-4 ${location.pathname.includes('tasks') ? 'p-0' : 'p-[36px_40px]'}`}>
                     <Routes>
                         <Route path="dashboard" element={<SuperAdminDashboard onNavigate={handleNavigate} />} />
                         <Route path="user-management" element={<UserManagement />} />

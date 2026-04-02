@@ -800,7 +800,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                 return (
                                     <div key={item.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 shrink-0 hover:border-[#0061ff] dark:hover:border-blue-500 transition-all cursor-pointer group">
                                         <div className="flex justify-between items-start mb-1.5 gap-2">
-                                            <div className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#0061ff] transition-colors">{item.title}</div>
+                                            <div className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#0061ff] transition-colors min-w-0 break-words">{item.title}</div>
                                             <div className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase tracking-tighter shrink-0 border border-blue-200 dark:border-blue-700/50">
                                                 {item.type || 'TASK'}
                                             </div>

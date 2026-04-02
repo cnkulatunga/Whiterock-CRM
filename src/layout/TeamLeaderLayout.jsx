@@ -28,22 +28,25 @@ const TeamLeaderLayout = ({ onLogout }) => {
 
     // Filter tasks: assigned to self OR created by self (so they can see team assignments)
     const tasks = allTasks.filter(t => {
-        const isAssignedToMe = Array.isArray(t.assignedTo) 
-            ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Team Leader') || t.assignedTo.includes('All'))
-            : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Team Leader') || t.assignedTo === 'All');
-        
-        return isAssignedToMe || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Team Leader';
+        const uid = user.id?.toString();
+        const assignedArr = Array.isArray(t.assignedTo)
+            ? t.assignedTo.map(x => x?.toString())
+            : [t.assignedTo?.toString()];
+        const isAssignedToMe = assignedArr.includes(uid) || assignedArr.includes('Self') || assignedArr.includes('All');
+        return isAssignedToMe || t.creatorId?.toString() === uid || t.createdBy === 'Team Leader';
     });
 
     const setTasks = (newTasksOrFn) => {
+        const uid = user.id?.toString();
+        const isRelevant = (t) => {
+            const assignedArr = Array.isArray(t.assignedTo)
+                ? t.assignedTo.map(x => x?.toString())
+                : [t.assignedTo?.toString()];
+            const isAsgn = assignedArr.includes(uid) || assignedArr.includes('Self') || assignedArr.includes('All');
+            return isAsgn || t.creatorId?.toString() === uid || t.createdBy === 'Team Leader';
+        };
         if (typeof newTasksOrFn === 'function') {
             setAllTasks(prev => {
-                const isRelevant = (t) => {
-                    const isAsgn = Array.isArray(t.assignedTo) 
-                        ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Team Leader') || t.assignedTo.includes('All'))
-                        : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Team Leader') || t.assignedTo === 'All');
-                    return isAsgn || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Team Leader';
-                };
                 const currentRelevantTasks = prev.filter(isRelevant);
                 const otherTasks = prev.filter(t => !isRelevant(t));
                 const updatedRelevantTasks = newTasksOrFn(currentRelevantTasks);
@@ -51,12 +54,6 @@ const TeamLeaderLayout = ({ onLogout }) => {
             });
         } else {
             setAllTasks(prev => {
-                const isRelevant = (t) => {
-                    const isAsgn = Array.isArray(t.assignedTo) 
-                        ? (t.assignedTo.includes(user.id?.toString()) || (t.assignedTo.includes('Self') && user.role === 'Team Leader') || t.assignedTo.includes('All'))
-                        : (t.assignedTo?.toString() === user.id?.toString() || (t.assignedTo === 'Self' && user.role === 'Team Leader') || t.assignedTo === 'All');
-                    return isAsgn || t.creatorId === user.id || t.createdBy === user.role || t.createdBy === 'Team Leader';
-                };
                 const otherTasks = prev.filter(t => !isRelevant(t));
                 return [...otherTasks, ...newTasksOrFn];
             });
@@ -245,7 +242,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
                     </div>
                 </div>
 
-                <div className="p-[36px_40px] flex-1 mt-[68px] lg:p-6 lg:px-4">
+                <div className={`flex-1 mt-[68px] lg:p-6 lg:px-4 ${location.pathname.includes('calendar') ? 'p-0' : 'p-[36px_40px]'}`}>
                     <Routes>
                         <Route path="dashboard" element={<TeamLeaderDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} onViewLeadDetails={(lead) => handleNavigate('lead-details', lead)} />} />
                         <Route path="lead-monitoring" element={<LeadMonitoring onViewDetails={(lead) => handleNavigate('lead-details', lead)} />} />

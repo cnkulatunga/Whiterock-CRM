@@ -331,7 +331,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                                 className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7] transition-all cursor-pointer group shrink-0"
                             >
                                 <div className="flex justify-between items-start mb-1 gap-2">
-                                    <span className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#2447d7] transition-colors">{t.title}</span>
+                                    <span className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#2447d7] transition-colors min-w-0 break-words">{t.title}</span>
                                     <span className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase shrink-0">{t.type || 'TASK'}</span>
                                 </div>
                                 <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-1">

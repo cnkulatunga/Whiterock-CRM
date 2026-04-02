@@ -161,14 +161,14 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
     const selfLabel = `Self (${roleInfo.label})`;
 
     return (
-        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-6 animate-fadeIn" role="dialog" aria-modal="true">
-            <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl overflow-hidden animate-slideUp">
-                <div className="p-5 px-8 border-b border-[#f1f5f9] flex justify-between items-center bg-slate-50/50">
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[1000] p-4 animate-fadeIn" role="dialog" aria-modal="true">
+            <div className="w-full max-w-4xl bg-white rounded-3xl shadow-2xl flex flex-col max-h-[95vh] animate-slideUp">
+                <div className="p-5 px-8 border-b border-[#f1f5f9] flex justify-between items-center bg-slate-50/50 shrink-0 rounded-t-3xl">
                     <h2 className="text-xl font-bold text-[#1a202c]">{editingTask ? 'Edit Task' : 'Create New Task'}</h2>
                     <button className="w-8 h-8 border border-[#f1f5f9] text-[#a0aec0] hover:text-[#e53e3e] hover:bg-[#fff5f5] rounded-xl flex items-center justify-center transition-all text-2xl font-light" onClick={onClose}>&times;</button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-8 md:p-6">
+                <form onSubmit={handleSubmit} className="p-8 md:p-6 overflow-y-auto flex-1">
                     <div className="grid grid-cols-4 gap-5 md:grid-cols-1">
                         <div className="flex flex-col gap-1.5 col-span-4">
                             <label className="text-[11px] font-black text-slate-500 uppercase tracking-widest">Task Title</label>
@@ -353,20 +353,21 @@ const TaskModal = ({ isOpen, onClose, onSave, editingTask = null }) => {
                             <textarea value={newTask.message} className="bg-[#f8fafc] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm focus:bg-white focus:border-[#2447d7] focus:ring-4 focus:ring-[#2447d7]/5 outline-none transition-all w-full min-h-[80px] resize-none" onChange={e => setNewTask({...newTask, message: e.target.value})} placeholder="Additional details..." />
                         </div>
                         
-                        {!editingTask && (
-                            <div className="flex items-center gap-4 col-span-4 p-4 bg-[#f8faff] rounded-2xl border border-[#ebf0ff] cursor-pointer hover:bg-[#f0f4ff] transition-colors" onClick={() => setAddToOutlook(!addToOutlook)}>
-                                <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${addToOutlook ? 'bg-[#2447d7] border-[#2447d7]' : 'bg-white border-[#cbd5e0]'}`}>
-                                    {addToOutlook && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>}
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[13px] font-black text-[#1a202c]">Sync with Outlook Calendar</span>
-                                    <span className="text-[11px] font-bold text-[#718096] uppercase tracking-wide">Automatically add this to your Microsoft 365 schedule</span>
-                                </div>
-                            </div>
-                        )}
                     </div>
 
-                    <div className="flex justify-end gap-3 mt-8">
+                    {!editingTask && (
+                        <div className="flex items-center gap-4 mt-5 p-4 bg-[#f8faff] rounded-2xl border border-[#ebf0ff] cursor-pointer hover:bg-[#f0f4ff] transition-colors" onClick={() => setAddToOutlook(!addToOutlook)}>
+                            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${addToOutlook ? 'bg-[#2447d7] border-[#2447d7]' : 'bg-white border-[#cbd5e0]'}`}>
+                                {addToOutlook && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg>}
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="text-[13px] font-black text-[#1a202c]">Sync with Outlook Calendar</span>
+                                <span className="text-[11px] font-bold text-[#718096] uppercase tracking-wide">Automatically add this to your Microsoft 365 schedule</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-slate-100">
                         <button type="button" className="p-[10px_24px] rounded-xl text-sm font-bold text-[#718096] hover:bg-[#f8fafc] transition-all" onClick={onClose}>Discard</button>
                         <button type="submit" disabled={isSyncingOutlook} className="bg-[#2447d7] text-white p-[10px_36px] rounded-xl text-sm font-black shadow-lg shadow-[#2447d7]/25 hover:bg-[#1732a3] hover:translate-y-[-2px] active:translate-y-0 transition-all disabled:opacity-70 flex items-center gap-2 uppercase tracking-wider">
                             {isSyncingOutlook && <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>}

@@ -32,6 +32,7 @@
 
 [data-theme="dark"] {
     /* Dark Mode — Indigo Night */
+    color-scheme: dark;
     --bg-page:         #181c2e;
     --bg-sidebar:      #1f2347;
     --bg-header:       rgba(22, 26, 48, 0.97);
@@ -271,6 +272,7 @@
     background-color: var(--bg-input) !important;
     color: var(--text-primary) !important;
     border-color: var(--border-input) !important;
+    color-scheme: dark;
 }
 
 [data-theme="dark"] input::placeholder,
