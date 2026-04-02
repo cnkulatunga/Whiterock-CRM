@@ -93,16 +93,16 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
             <div className="absolute inset-0" onClick={onClose}></div>
             
             {/* Modal Content */}
-            <div className={`relative ${modalBg} rounded-[24px] w-full max-w-[700px] max-h-[90vh] overflow-hidden shadow-2xl flex flex-col animate-slideUp border`} onClick={e => e.stopPropagation()}>
+            <div className={`relative ${modalBg} rounded-[24px] w-full max-w-[580px] max-h-[90vh] overflow-hidden shadow-2xl flex flex-col animate-slideUp border`} onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className={`p-5 border-b flex justify-between items-start ${headerBg}`}>
                     <div className="flex gap-4 items-center">
-                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black text-white shadow-xl transform transition-transform duration-500 hover:rotate-2 flex-shrink-0"
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-black text-white shadow-xl transform transition-transform duration-500 hover:rotate-2 flex-shrink-0"
                              style={{ background: user.color || '#2563eb', boxShadow: `0 10px 20px ${user.color || '#2563eb'}30` }}>
                             {user.initials || user.name?.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
                         </div>
                         <div className="space-y-0.5">
-                            <h2 className={`text-xl font-black tracking-tight ${textPrimary}`}>{user.name}</h2>
+                            <h2 className={`text-lg font-black tracking-tight ${textPrimary}`}>{user.name}</h2>
                             <div className="flex items-center gap-2">
                                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${user.status === 'Active' ? activeBadge : 'bg-[#2563eb]/10 text-[#2563eb]'}`}>
                                     {user.role} {user.status === 'Active' ? '• Active' : ''}

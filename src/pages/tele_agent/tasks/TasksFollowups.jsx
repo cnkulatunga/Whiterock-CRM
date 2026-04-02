@@ -7,6 +7,7 @@ import { canManageTask } from '../../../utils/permissionUtils';
 import { usePromotions } from '../../../context/PromotionsContext';
 import { useLeads } from '../../../context/LeadsContext';
 import TaskModal from '../../../components/modals/TaskModal';
+import { DocumentPreviewModal } from '../../shared/promotions/LenderPromotionsView';
 
 // Icon Components
 const IconPlus = () => (
@@ -53,6 +54,24 @@ const IconTrash = ({ size = 16 }) => (
 
 const IconSearch = ({ size = 16 }) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+);
+
+const IconMail = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" />
+    </svg>
+);
+
+const IconBriefcase = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <rect x="2" y="7" width="20" height="14" rx="2" ry="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+    </svg>
+);
+
+const IconActivity = ({ size = 16 }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}>
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
 );
 
 const StatusSelector = ({ status, onStatusChange, isDark, isPromotion }) => {
@@ -132,9 +151,9 @@ const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRemi
 
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All');
-    const [categoryFilter, setCategoryFilter] = useState('All');
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddingTask, setIsAddingTask] = useState(false);
+    const [previewFile, setPreviewFile] = useState(null);
     const [editingTask, setEditingTask] = useState(null);
     const [selectedDate, setSelectedDate] = useState(initialDate || new Date().toISOString().split('T')[0]);
     const taskRefs = useRef({});
@@ -206,9 +225,6 @@ const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRemi
         const matchesSearch = (task.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
             (task.lead && task.lead.toLowerCase().includes(searchTerm.toLowerCase()));
         const matchesStatus = filter === 'All' || task.status === filter;
-        const matchesCategory = categoryFilter === 'All' || 
-            (categoryFilter === 'Promotions' && task.isPromotion) || 
-            (categoryFilter === 'Tasks' && !task.isPromotion);
         
         let matchesAssignment = true;
         if (assignmentFilter === 'Personal') {
@@ -217,7 +233,7 @@ const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRemi
             matchesAssignment = Array.isArray(task.assignedTo) ? task.assignedTo.some(id => id !== 'Self' && id !== user.id?.toString()) : (task.assignedTo !== 'Self' && task.assignedTo?.toString() !== user.id?.toString());
         }
         
-        return matchesSearch && matchesStatus && matchesAssignment && matchesCategory;
+        return matchesSearch && matchesStatus && (task.isPromotion || matchesAssignment);
     });
 
     const stats = {
@@ -326,11 +342,6 @@ const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRemi
                     </div>
 
                     <div className="flex-1 overflow-y-auto pr-2 scrollbar-thin flex flex-col gap-3">
-                         <div className="flex items-center gap-4 px-1">
-                            {['All', 'Tasks', 'Promotions'].map(cat => (
-                                <button key={cat} onClick={() => setCategoryFilter(cat)} className={`relative py-1 text-[11px] font-black uppercase tracking-widest transition-all ${categoryFilter === cat ? (isDark ? 'text-[#818cf8]' : 'text-[#2447d7]') : (isDark ? 'text-[#4b5563]' : 'text-[#94a3b8]')}`}>{cat}{categoryFilter === cat && <div className={`absolute -bottom-1 left-0 right-0 h-0.5 rounded-full ${isDark ? 'bg-[#818cf8]' : 'bg-[#2447d7]'}`} />}</button>
-                            ))}
-                        </div>
 
                         <div className="grid grid-cols-2 gap-4 pb-6">
                             <div className="flex flex-col gap-3">
@@ -347,38 +358,61 @@ const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRemi
                                             'Default': { bg: 'bg-[#f8fafc]', border: 'border-l-[#64748b]', iconBg: 'bg-[#64748b]', iconText: 'text-white' }
                                         };
                                         const style = typeStyles[task.type] || typeStyles.Default;
+
+                                        const leadObj = leads.find(l => (l.name || l.clientName) === task.lead);
+                                        const email = leadObj?.email || leadObj?.emailAddress || task.leadEmail || task.email || '—';
+                                        const phone = leadObj?.phone || leadObj?.phoneNumber || task.leadPhone || task.phone || '—';
+                                        const business = leadObj?.businessName || 'Not Specified';
+                                        const leadStatus = leadObj?.status || leadObj?.stage || 'Pending';
                                         
                                         return (
-                                            <div key={task.id} className={`p-4 rounded-2xl border border-l-[6px] transition-all duration-300 group hover:shadow-md hover:scale-[1.01] ${isDark ? 'bg-[#1e2347] border-[#2c3568] border-l-[#6366f1]' : `${style.bg} border-[#e2e8f0] ${style.border}`}`}>
-                                                <div className="flex flex-col gap-3">
-                                                    <div className="flex items-start justify-between gap-3">
-                                                        <div className="flex items-center gap-3 min-w-0">
-                                                            <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${isDark ? 'bg-[#2a3258] text-[#818cf8]' : `${style.iconBg} ${style.iconText}`}`}>
-                                                                {task.type === 'Call' ? <IconPhone size={14} /> : task.type === 'Document' ? <IconDoc size={14} /> : <IconPhone size={14} />}
-                                                            </div>
-                                                            <div className="flex flex-col min-w-0">
-                                                                <h3 className={`text-[12px] font-black leading-tight tracking-tight truncate ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`}>{task.title}</h3>
-                                                                <span className={`text-[10px] font-bold uppercase tracking-widest ${isDark ? 'text-[#94abda]' : 'text-[#64748b]'}`}>{task.time || '10:00 AM'}</span>
-                                                            </div>
+                                            <div key={task.id} className={`rounded-xl border-l-[3px] transition-all duration-200 hover:shadow-sm ${isDark ? 'bg-[#1e2347] border-l-[#6366f1]' : `bg-white ${style.border}`} border border-transparent ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                                                {/* Main row */}
+                                                <div className="flex items-center gap-2.5 px-3 py-3.5">
+                                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isDark ? 'bg-[#2a3258] text-[#818cf8]' : `${style.iconBg} ${style.iconText}`}`}>
+                                                        {task.type === 'Call' ? <IconPhone size={12} /> : task.type === 'Document' ? <IconDoc size={12} /> : <IconPhone size={12} />}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2 min-w-0">
+                                                            <span className={`text-[12px] font-black truncate ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`}>{task.title}</span>
+                                                            <span className={`text-[9px] font-bold shrink-0 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{task.date} · {task.time}</span>
                                                         </div>
-                                                        <button onClick={() => handleEditClick(task)} className={`w-8 h-8 rounded-xl border flex items-center justify-center transition-colors ${isDark ? 'bg-[#2a3258] border-[#36407a] text-[#94abda] hover:bg-[#36407a]' : 'bg-white border-[#e2e8f0] text-[#718096] hover:bg-slate-50'}`}>
-                                                            <IconEdit size={12} />
+                                                        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                                            {task.lead && (
+                                                                <span className={`text-[9px] font-bold truncate max-w-[120px] ${isDark ? 'text-[#94abda]' : 'text-[#475569]'}`}>{task.lead}</span>
+                                                            )}
+                                                            {task.reminder && task.reminder !== 'none' && (
+                                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide ${isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>⏰ {task.reminder}</span>
+                                                            )}
+                                                            {task.assignedTo && (
+                                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide ${Array.isArray(task.assignedTo) && task.assignedTo.includes('Self') ? (isDark ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-50 text-blue-600') : (isDark ? 'bg-purple-500/15 text-purple-400' : 'bg-purple-50 text-purple-600')}`}>
+                                                                    {Array.isArray(task.assignedTo) && task.assignedTo.includes('Self') ? 'Personal' : 'Team'}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 shrink-0">
+                                                        <StatusSelector status={task.status} onStatusChange={(newStatus) => updateTaskStatus(task.id, newStatus)} isDark={isDark} />
+                                                        <button onClick={() => handleEditClick(task)} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'text-[#546298] hover:text-[#94abda] hover:bg-white/5' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'}`}>
+                                                            <IconEdit size={11} />
                                                         </button>
                                                     </div>
-                                                    
-                                                    <div className={`flex flex-col gap-2.5 pt-3 border-t ${isDark ? 'border-white/5' : 'border-black/5'}`}>
-                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-[#475569] dark:text-[#94a3b8]">
-                                                            <IconUser size={12} />
-                                                            <span className="truncate">{task.lead || 'Administrative Task'}</span>
-                                                        </div>
-                                                        <div className="flex items-center justify-between gap-2 mt-1">
-                                                            <span className={`text-[9px] font-black px-2 py-0.5 rounded-lg uppercase tracking-wider ${Array.isArray(task.assignedTo) && task.assignedTo.includes('Self') ? (isDark ? 'bg-[#2d3a8c] text-[#818cf8]' : 'bg-[#eff6ff] text-[#2563eb]') : 'bg-slate-100 text-slate-600'}`}>
-                                                                {Array.isArray(task.assignedTo) && task.assignedTo.includes('Self') ? 'PERSONAL' : 'TEAM TASK'}
-                                                            </span>
-                                                            <StatusSelector status={task.status} onStatusChange={(newStatus) => updateTaskStatus(task.id, newStatus)} isDark={isDark} />
-                                                        </div>
-                                                    </div>
                                                 </div>
+                                                {/* Lead detail row */}
+                                                {task.lead && (email !== '—' || phone !== '—' || business !== 'Not Specified') && (
+                                                    <div className={`flex items-center gap-3 px-3 py-2 border-t text-[9px] font-bold flex-wrap ${isDark ? 'border-white/5 text-[#546298]' : 'border-slate-50 text-slate-400'}`}>
+                                                        {business !== 'Not Specified' && <span className="flex items-center gap-1"><IconBriefcase size={9} />{business}</span>}
+                                                        {email !== '—' && <span className="flex items-center gap-1 truncate max-w-[140px]"><IconMail size={9} />{email}</span>}
+                                                        {phone !== '—' && <span className="flex items-center gap-1"><IconPhone size={9} />{phone}</span>}
+                                                        {leadStatus && leadStatus !== 'Pending' && <span className={`flex items-center gap-1 font-black ${isDark ? 'text-[#818cf8]' : 'text-[#2447d7]'}`}><IconActivity size={9} />{leadStatus}</span>}
+                                                    </div>
+                                                )}
+                                                {/* Message row */}
+                                                {task.message && (
+                                                    <div className={`px-3 py-2 border-t text-[9px] italic truncate ${isDark ? 'border-white/5 text-[#546298]' : 'border-slate-50 text-slate-400'}`}>
+                                                        "{task.message}"
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })
@@ -392,34 +426,35 @@ const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRemi
                             <div className="flex flex-col gap-3">
                                 <h4 className="text-[10px] font-black uppercase tracking-wider pb-1.5 border-b dark:border-[#2c3568] border-[#edf2f7] flex items-center justify-between" style={{ color: isDark ? '#8ea0d4' : '#718096' }}>
                                     STRATEGIC PROMOS
-                                    <span className="text-[9px] opacity-50 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">{filteredTasks.filter(t => t.isPromotion && t.date === selectedDate).length}</span>
+                                    <span className="text-[9px] opacity-50 px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800">{filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).length}</span>
                                 </h4>
-                                {filteredTasks.filter(t => t.isPromotion && t.date === selectedDate).length > 0 ? (
-                                    filteredTasks.filter(t => t.isPromotion && t.date === selectedDate).map(p => {
-                                        const hue = ((p.title.length * 37) % 360);
+                                {filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).length > 0 ? (
+                                    filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).map(p => {
+                                        const hue = ((p.title.length * 53) % 360);
                                         return (
-                                            <div key={p.id} className="p-4 rounded-2xl border-2 transition-all duration-300 group relative overflow-hidden" 
-                                                 style={{ 
-                                                     background: isDark ? `hsla(${hue}, 40%, 15%, 0.3)` : `hsla(${hue}, 70%, 97%, 1)`,
-                                                     borderColor: isDark ? `hsla(${hue}, 40%, 30%, 0.4)` : `hsla(${hue}, 70%, 90%, 1)`,
-                                                 }}>
-                                                <div className={`absolute top-0 right-0 w-16 h-16 opacity-5 -mr-4 -mt-4 transition-transform group-hover:scale-125`} style={{ color: isDark ? `hsla(${hue}, 70%, 70%, 1)` : `hsla(${hue}, 70%, 40%, 1)` }}>
-                                                    <IconDoc size={64} />
-                                                </div>
-                                                <div className="flex flex-col gap-2 relative z-10">
-                                                    <div className="flex items-center justify-between gap-2">
-                                                        <span className={`text-[12px] font-black leading-tight uppercase tracking-tight ${isDark ? 'text-white' : `text-[hsla(${hue}, 70%, 30%, 1)]`}`}>
-                                                            {p.title.replace('PROMO: ', '')}
-                                                        </span>
-                                                        <span className="px-2 py-0.5 rounded-lg text-[8px] font-black text-white uppercase tracking-widest shadow-sm" style={{ background: isDark ? `hsla(${hue}, 50%, 40%, 1)` : `hsla(${hue}, 70%, 50%, 1)` }}>
-                                                            PROMO
-                                                        </span>
+                                            <div key={p.id} className={`rounded-xl border-l-[3px] border transition-all duration-200 hover:shadow-sm ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`}
+                                                style={{ borderLeftColor: isDark ? `hsla(${hue}, 70%, 65%, 1)` : `hsla(${hue}, 70%, 45%, 1)` }}>
+                                                <div className="flex items-center gap-2.5 px-3 py-4">
+                                                    <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: isDark ? `hsla(${hue}, 40%, 25%, 0.5)` : `hsla(${hue}, 70%, 95%, 1)`, color: isDark ? `hsla(${hue}, 70%, 65%, 1)` : `hsla(${hue}, 70%, 45%, 1)` }}>
+                                                        <IconDoc size={12} />
                                                     </div>
-                                                    <p className={`text-[11px] font-medium leading-relaxed line-clamp-2 ${isDark ? 'text-white/70' : 'text-slate-600'}`}>{p.lead}</p>
-                                                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-black/5 dark:border-white/5">
-                                                        <span className="text-[9px] font-bold opacity-60">Expires: {p.endDate || 'N/A'}</span>
-                                                        <button className="text-[9px] font-black uppercase tracking-widest hover:underline px-2 py-1 rounded-md bg-white/50 dark:bg-black/20">Details</button>
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2 min-w-0">
+                                                            <span className="text-[12px] font-black truncate" style={{ color: isDark ? `hsla(${hue}, 70%, 65%, 1)` : `hsla(${hue}, 70%, 45%, 1)` }}>{p.title.replace('PROMO: ', '')}</span>
+                                                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wide shrink-0 ${isDark ? 'bg-white/5 text-white/40' : 'bg-slate-100 text-slate-400'}`}>PROMO</span>
+                                                        </div>
+                                                        <div className={`text-[9px] font-bold mt-0.5 truncate ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>
+                                                            {p.lead} · Expires {p.endDate || 'N/A'}
+                                                        </div>
                                                     </div>
+                                                    {p.fileData && (
+                                                        <button
+                                                            onClick={() => setPreviewFile({ fileName: p.fileName, fileData: p.fileData })}
+                                                            className={`flex items-center gap-1 text-[9px] font-black px-2 py-1 rounded-lg uppercase tracking-wide shrink-0 transition-colors ${isDark ? 'bg-[#2a3258] text-[#818cf8] hover:bg-[#36407a]' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}
+                                                        >
+                                                            <IconDoc size={10} /> View Doc
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </div>
                                         );
@@ -435,6 +470,7 @@ const TasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRemi
                 </div>
             </div>
             <TaskModal isOpen={isAddingTask} onClose={() => { setIsAddingTask(false); setEditingTask(null); }} onSave={handleSaveTask} editingTask={editingTask} />
+            {previewFile && <DocumentPreviewModal file={previewFile} onClose={() => setPreviewFile(null)} isDark={isDark} />}
         </div>
     );
 };

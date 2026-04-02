@@ -231,21 +231,21 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
             }
             case 'TOTAL_TEAMS': {
                 return (
-                    <div className="flex flex-col gap-2.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-1 gap-2">
                         {teamLeaders.map((tl) => {
                             const members = INITIAL_MEMBERSHIPS[tl.id] || [];
                             return (
                                 <div 
                                     key={tl.id} 
-                                    className="p-3.5 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5 flex items-center gap-4 cursor-pointer hover:border-[#2447d7]/30 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all group"
+                                    className="p-2 bg-slate-50 dark:bg-white/5 rounded-xl border border-slate-100 dark:border-white/5 flex items-center gap-2 cursor-pointer hover:border-[#2447d7]/30 hover:bg-blue-50/50 dark:hover:bg-blue-500/5 transition-all group"
                                     onClick={() => { setSelectedMember({ ...tl, role: 'Team Leader' }); setActiveModal(null); }}
                                 >
-                                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2447d7] to-[#1732a3] text-white flex items-center justify-center font-black text-sm shadow-md shadow-[#2447d7]/20 group-hover:scale-105 transition-transform">{tl.initials}</div>
+                                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2447d7] to-[#1732a3] text-white flex items-center justify-center font-black text-[10px] shadow-sm shadow-[#2447d7]/10 group-hover:scale-105 transition-transform">{tl.initials}</div>
                                     <div className="flex-1 min-w-0">
-                                        <div className="font-bold text-[14px] text-slate-800 dark:text-white truncate group-hover:text-[#2447d7] transition-colors">{tl.name}</div>
-                                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                                        <div className="font-bold text-[12px] text-slate-800 dark:text-white truncate group-hover:text-[#2447d7] transition-colors">{tl.name}</div>
+                                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1 mt-0.5">
                                             <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                            {members.length} {members.length === 1 ? 'Agent' : 'Agents'}
+                                            {members.length} {members.length === 1 ? 'Agt' : 'Agts'}
                                         </div>
                                     </div>
                                 </div>
@@ -491,6 +491,7 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 isOpen={!!activeModal}
                 onClose={() => setActiveModal(null)}
                 title={modalTitles[activeModal] || ''}
+                isSmall={activeModal === 'TOTAL_TEAMS'}
             >
                 {renderModalContent()}
             </DashboardModal>
