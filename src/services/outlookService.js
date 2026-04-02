@@ -76,7 +76,7 @@ export const getCalendarEvents = async () => {
 
     try {
         const events = await client.api("/me/calendar/events")
-            .select("subject,start,end,location,status")
+            .select("subject,start,end,location,status,webLink")
             .orderby("start/dateTime DESC")
             .get();
         return events.value;

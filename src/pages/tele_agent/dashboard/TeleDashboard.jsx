@@ -690,11 +690,41 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
             );
             case 'KNOWLEDGE_BASE': return (
                 <div className="flex flex-col gap-4">
-                    <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Required Details</h4>
+                    <h4 className="text-[11px] font-black text-slate-400 dark:text-[#546298] uppercase tracking-widest px-1">Required Details</h4>
                     <div className="grid grid-cols-2 gap-2">
-                        {['Turnover', 'Amount', 'Purpose', 'Homeowner', 'Bank', 'Overdraft', 'Existing Loan', 'Term', 'Contact', 'Email', 'When Needed?'].map(req => (
-                            <div key={req} className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs font-bold dark:text-slate-200 border border-slate-100 dark:border-white/5">{req}</div>
+                        {[
+                            { label: 'Turnover', icon: '💰' },
+                            { label: 'Amount', icon: '🏦' },
+                            { label: 'Purpose', icon: '🎯' },
+                            { label: 'Homeowner', icon: '🏠' },
+                            { label: 'Bank', icon: '🏛️' },
+                            { label: 'Overdraft', icon: '📊' },
+                            { label: 'Existing Loan', icon: '📋' },
+                            { label: 'Term', icon: '📅' },
+                            { label: 'Contact', icon: '📞' },
+                            { label: 'Email', icon: '✉️' },
+                            { label: 'When Needed?', icon: '⏰' },
+                        ].map(req => (
+                            <div key={req.label} className="p-2.5 bg-slate-50 dark:bg-[#151932] rounded-xl text-xs font-bold text-slate-700 dark:text-[#94abda] border border-slate-100 dark:border-white/5 flex items-center gap-2">
+                                <span>{req.icon}</span>{req.label}
+                            </div>
                         ))}
+                    </div>
+                    <div className="mt-2 p-4 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20">
+                        <p className="text-[11px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest mb-2">Quick Tips</p>
+                        <ul className="flex flex-col gap-1.5">
+                            {[
+                                'Always confirm business trading 6+ months',
+                                'Annual turnover must be £100K+',
+                                'No active insolvency proceedings',
+                                'Director/owner contact confirmed',
+                                'Loan purpose clearly defined',
+                            ].map((tip, i) => (
+                                <li key={i} className="flex items-start gap-2 text-[11px] text-amber-800 dark:text-amber-300">
+                                    <span className="text-amber-500 mt-0.5 shrink-0">✓</span>{tip}
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             );

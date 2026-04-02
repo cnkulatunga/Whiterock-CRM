@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import UserProfileModal from '../../../components/modals/UserProfileModal';
 import { useLeads } from '../../../context/LeadsContext';
 import { useLenders } from '../../../context/LendersContext';
+import { useTheme } from '../../../context/ThemeContext';
 import {
     SA_STATS,
     SHARED_INITIAL_USERS,
@@ -34,105 +35,113 @@ const IconX = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" 
 const IconKey = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" /></svg>;
 
 /* ─── SHARED CARD SHELL ──────────────────── */
-const Card = ({ children, className = '' }) => (
-    <div className={`bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.04)] flex flex-col overflow-hidden min-h-0 ${className}`}>
-        {children}
-    </div>
-);
-const CardHeader = ({ dotColor = '#6366f1', title, badge, badgeClass, action }) => (
-    <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100 bg-slate-50/50 shrink-0">
-        <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full" style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}80` }} />
-            <span className="text-[11px] font-black text-slate-600 uppercase tracking-[0.12em]">{title}</span>
+const Card = ({ children, className = '' }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    return (
+        <div className={`rounded-2xl border flex flex-col overflow-hidden min-h-0 ${isDark ? 'bg-[#1e2347] border-white/5 shadow-lg' : 'bg-white border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.04)]'} ${className}`}>
+            {children}
         </div>
-        <div className="flex items-center gap-1.5">
-            {badge && <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${badgeClass}`}>{badge}</span>}
-            {action}
+    );
+};
+const CardHeader = ({ dotColor = '#6366f1', title, badge, badgeClass, action }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    return (
+        <div className={`flex items-center justify-between px-4 py-2 border-b shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`}>
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full" style={{ background: dotColor, boxShadow: `0 0 6px ${dotColor}80` }} />
+                <span className={`text-[11px] font-black uppercase tracking-[0.12em] ${isDark ? 'text-[#94abda]' : 'text-slate-600'}`}>{title}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+                {badge && <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${badgeClass}`}>{badge}</span>}
+                {action}
+            </div>
         </div>
-    </div>
-);
+    );
+};
 
 /* ─── STAT TILE ──────────────────────────── */
-const StatTile = ({ icon, value, label, iconBg, tileBg, tileBorder, onClick }) => (
-    <button onClick={onClick}
-        className={`${tileBg} ${tileBorder} border rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1 shadow-sm hover:-translate-y-0.5 transition-transform text-center w-full`}>
-        <div className={`w-9 h-9 rounded-full ${iconBg} text-white flex items-center justify-center shadow-md`}>
-            {React.cloneElement(icon, { width: 16, height: 16 })}
-        </div>
-        <h2 className="text-xl font-black leading-none text-slate-800 mt-1">{value}</h2>
-        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest leading-tight">{label}</span>
-    </button>
-);
+const StatTile = ({ icon, value, label, iconBg, tileBg, tileBorder, darkBg, darkBorder, darkText, onClick }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    return (
+        <button onClick={onClick}
+            className={`border rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1 shadow-sm hover:-translate-y-0.5 transition-transform text-center w-full ${isDark ? `${darkBg || 'bg-[#1e2347]'} ${darkBorder || 'border-white/5'}` : `${tileBg} ${tileBorder}`}`}>
+            <div className={`w-9 h-9 rounded-full ${iconBg} text-white flex items-center justify-center shadow-md`}>
+                {React.cloneElement(icon, { width: 16, height: 16 })}
+            </div>
+            <h2 className={`text-xl font-black leading-none mt-1 ${isDark ? (darkText || 'text-white') : 'text-slate-800'}`}>{value}</h2>
+            <span className={`text-[10px] font-bold uppercase tracking-widest leading-tight ${isDark ? 'text-[#546298]' : 'text-slate-500'}`}>{label}</span>
+        </button>
+    );
+};
 
 /* ─── ONLINE USERS POPUP ─────────────────── */
 const OnlineUsersPopup = ({ onClose, onUserClick, onNavigate }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const users = SHARED_INITIAL_USERS.filter(u => u.role !== 'Super Admin');
     const online = users.filter(u => u.status === 'Active');
     const offline = users.filter(u => u.status !== 'Active');
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
-            <div className="w-[560px] bg-white rounded-2xl border border-slate-200 shadow-2xl shadow-slate-900/15 animate-fadeIn overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className={`w-[560px] rounded-2xl border shadow-2xl animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-200 shadow-slate-900/15'}`} onClick={e => e.stopPropagation()}>
                 {/* header */}
-                <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50">
+                <div className={`flex items-center justify-between px-5 py-3.5 border-b ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50'}`}>
                     <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.6)]" />
-                        <span className="text-[12px] font-black text-slate-700 uppercase tracking-widest">Online Users</span>
+                        <span className={`text-[12px] font-black uppercase tracking-widest ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Online Users</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">{online.length} online</span>
-                        <span className="text-[9px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{offline.length} offline</span>
-                        <button onClick={onClose} className="w-6 h-6 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors">
-                            <IconX width="12" height="12" className="text-slate-500" />
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${isDark ? 'bg-white/5 text-[#94abda]' : 'bg-slate-100 text-slate-500'}`}>{offline.length} offline</span>
+                        <button onClick={onClose} className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
+                            <IconX width="12" height="12" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
                         </button>
                     </div>
                 </div>
-                {/* user grid — online left, offline right */}
+                {/* user grid */}
                 <div className="p-4 grid grid-cols-2 gap-4 max-h-[420px] overflow-y-auto">
-                    {/* online column */}
                     <div className="flex flex-col gap-1.5">
-                        <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1 px-1">Online ({online.length})</p>
+                        <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1 px-1">Online ({online.length})</p>
                         {online.map(user => (
                             <div key={user.id} onClick={() => { onUserClick(user); onClose(); }}
-                                className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all cursor-pointer">
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border border-transparent transition-all cursor-pointer ${isDark ? 'hover:bg-white/5 hover:border-white/5' : 'hover:bg-slate-50 hover:border-slate-100'}`}>
                                 <div className="relative shrink-0">
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black text-white" style={{ background: user.color }}>
-                                        {user.initials}
-                                    </div>
-                                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white bg-emerald-500" />
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black text-white" style={{ background: user.color }}>{user.initials}</div>
+                                    <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 bg-emerald-500 ${isDark ? 'border-[#1e2347]' : 'border-white'}`} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-[11px] font-semibold text-slate-700 truncate">{user.name}</p>
-                                    <p className="text-[9px] text-slate-400 italic truncate">{user.role}</p>
+                                    <p className={`text-[11px] font-semibold truncate ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{user.name}</p>
+                                    <p className={`text-[9px] italic truncate ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{user.role}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    {/* divider */}
-                    <div className="flex flex-col gap-1.5 border-l border-slate-100 pl-4">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1 px-1">Offline ({offline.length})</p>
+                    <div className={`flex flex-col gap-1.5 border-l pl-4 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                        <p className={`text-[9px] font-black uppercase tracking-widest mb-1 px-1 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Offline ({offline.length})</p>
                         {offline.map(user => (
                             <div key={user.id} onClick={() => { onUserClick(user); onClose(); }}
-                                className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all cursor-pointer opacity-60 hover:opacity-100">
+                                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl border border-transparent transition-all cursor-pointer opacity-60 hover:opacity-100 ${isDark ? 'hover:bg-white/5 hover:border-white/5' : 'hover:bg-slate-50 hover:border-slate-100'}`}>
                                 <div className="relative shrink-0">
-                                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black text-white" style={{ background: user.color }}>
-                                        {user.initials}
-                                    </div>
-                                    <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 border-white bg-slate-300" />
+                                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-black text-white" style={{ background: user.color }}>{user.initials}</div>
+                                    <div className={`absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full border-2 bg-slate-400 ${isDark ? 'border-[#1e2347]' : 'border-white'}`} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-[11px] font-semibold text-slate-600 truncate">{user.name}</p>
-                                    <p className="text-[9px] text-slate-400 italic truncate">{user.role}</p>
+                                    <p className={`text-[11px] font-semibold truncate ${isDark ? 'text-[#94abda]' : 'text-slate-600'}`}>{user.name}</p>
+                                    <p className={`text-[9px] italic truncate ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{user.role}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
                 {/* footer */}
-                <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                    <span className="text-[9px] text-slate-400">{users.length} total users</span>
+                <div className={`px-5 py-3 border-t flex justify-between items-center ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`}>
+                    <span className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{users.length} total users</span>
                     <button onClick={() => { onClose(); onNavigate?.('user-management'); }}
-                        className="text-[9px] font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 transition-colors">
+                        className="text-[9px] font-bold text-indigo-500 hover:text-indigo-400 flex items-center gap-1 transition-colors">
                         User Management <IconChevron width="10" height="10" />
                     </button>
                 </div>
@@ -145,12 +154,26 @@ const OnlineUsersPopup = ({ onClose, onUserClick, onNavigate }) => {
 const TaskSchedule = () => {
     const navigate = useNavigate();
     const { tasks, addTask } = useTasks();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [isAddingTask, setIsAddingTask] = useState(false);
 
-    // Show all tasks for Super Admin to provide a global operational overview
     const allRecentTasks = tasks
-        .sort((a, b) => new Date(`${b.date}T${b.time}`) - new Date(`${a.date}T${a.time}`))
-        .slice(0, 8);
+        .filter(t => t.status !== 'Completed')
+        .sort((a, b) => {
+            // Pending first, then In Progress
+            const statusOrder = { 'Pending': 0, 'In Progress': 1 };
+            const aStatus = statusOrder[a.status] ?? 2;
+            const bStatus = statusOrder[b.status] ?? 2;
+            if (aStatus !== bStatus) return aStatus - bStatus;
+            // Then High priority
+            const aPriority = a.priority === 'High' ? 0 : 1;
+            const bPriority = b.priority === 'High' ? 0 : 1;
+            if (aPriority !== bPriority) return aPriority - bPriority;
+            // Then soonest date/time
+            return new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`);
+        })
+        .slice(0, 5);
 
     const handleSaveTask = (task) => {
         addTask(task);
@@ -160,7 +183,7 @@ const TaskSchedule = () => {
     return (
         <>
             <Card className="h-full">
-                <CardHeader dotColor="#8b5cf6" title="Global Task Queue" badge="Live" badgeClass="bg-red-100 text-red-600 animate-pulse"
+                <CardHeader dotColor="#8b5cf6" title="Global Task Queue" badge="Top 5 Urgent" badgeClass="bg-red-100 text-red-600 animate-pulse"
                     action={
                         <button onClick={() => setIsAddingTask(true)}
                             className="w-6 h-6 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center hover:bg-violet-200 transition-colors">
@@ -174,39 +197,32 @@ const TaskSchedule = () => {
                         return (
                             <div
                                 key={t.id}
-                                className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-slate-100"
+                                className={`flex items-center gap-3 px-3 py-2 rounded-xl transition-colors cursor-pointer group border border-transparent ${isDark ? 'hover:bg-white/5 hover:border-white/5' : 'hover:bg-slate-50 hover:border-slate-100'}`}
                                 onClick={() => navigate('/super-admin/tasks', { state: { taskId: t.id } })}
                             >
                                 <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[9px] font-black text-white shrink-0 shadow-sm" style={{ background: assignedUser.color }}>
                                     {assignedUser.initials}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-[11px] font-bold text-slate-700 truncate leading-tight mb-1">{t.title}</p>
+                                    <p className={`text-[11px] font-bold truncate leading-tight mb-1 ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{t.title}</p>
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[9px] font-medium text-slate-400">{t.date} · {t.time}</span>
-                                        <span className="w-1 h-1 rounded-full bg-slate-300" />
-                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tight">{assignedUser.name}</span>
+                                        <span className={`text-[9px] font-medium ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{t.date} · {t.time}</span>
+                                        <span className={`w-1 h-1 rounded-full ${isDark ? 'bg-white/20' : 'bg-slate-300'}`} />
+                                        <span className={`text-[9px] font-bold uppercase tracking-tight ${isDark ? 'text-[#94abda]' : 'text-slate-500'}`}>{assignedUser.name}</span>
                                     </div>
                                 </div>
-                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full shrink-0 tracking-widest ${t.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
-                                    t.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
-                                        'bg-slate-100 text-slate-500'
-                                    }`}>{t.status === 'In Progress' ? 'IN PRG' : t.status.toUpperCase()}</span>
+                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full shrink-0 tracking-widest ${t.status === 'Completed' ? (isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-700') : t.status === 'In Progress' ? (isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-100 text-amber-700') : (isDark ? 'bg-white/5 text-white/40' : 'bg-slate-100 text-slate-500')}`}>{t.status === 'In Progress' ? 'IN PRG' : t.status.toUpperCase()}</span>
                             </div>
                         );
                     })}
                     {allRecentTasks.length === 0 && (
-                        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center border-2 border-dashed border-slate-100 rounded-2xl">
-                            <p className="text-[10px] text-slate-400 font-bold italic">No active tasks in the queue</p>
+                        <div className={`flex-1 flex flex-col items-center justify-center p-6 text-center border-2 border-dashed rounded-2xl ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                            <p className={`text-[10px] font-bold italic ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>No active tasks in the queue</p>
                         </div>
                     )}
                 </div>
             </Card>
-            <TaskModal
-                isOpen={isAddingTask}
-                onClose={() => setIsAddingTask(false)}
-                onSave={handleSaveTask}
-            />
+            <TaskModal isOpen={isAddingTask} onClose={() => setIsAddingTask(false)} onSave={handleSaveTask} />
         </>
     );
 };
@@ -216,6 +232,8 @@ const AgentPerformance = () => {
     const [range, setRange] = useState('Last 30 Days');
     const [showFilter, setShowFilter] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     const handleAgentClick = (agent) => {
         const user = SHARED_INITIAL_USERS.find(u => u.name === agent.name);
@@ -229,14 +247,14 @@ const AgentPerformance = () => {
                     action={
                         <div className="relative">
                             <button onClick={() => setShowFilter(s => !s)}
-                                className="flex items-center gap-1 text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors">
+                                className={`flex items-center gap-1 text-[9px] font-bold px-2 py-1 rounded-lg transition-colors ${isDark ? 'text-blue-400 bg-blue-500/15 hover:bg-blue-500/25' : 'text-blue-600 bg-blue-50 hover:bg-blue-100'}`}>
                                 <IconFilter width="9" height="9" /> {range}
                             </button>
                             {showFilter && (
-                                <div className="absolute right-0 top-7 z-20 bg-white border border-slate-100 rounded-xl shadow-lg py-1 min-w-[130px]">
+                                <div className={`absolute right-0 top-7 z-20 border rounded-xl shadow-lg py-1 min-w-[130px] ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`}>
                                     {DATE_RANGE_OPTIONS.map(opt => (
                                         <button key={opt} onClick={() => { setRange(opt); setShowFilter(false); }}
-                                            className={`w-full text-left px-3 py-1.5 text-[10px] font-semibold hover:bg-slate-50 transition-colors ${range === opt ? 'text-blue-600' : 'text-slate-600'}`}>
+                                            className={`w-full text-left px-3 py-1.5 text-[10px] font-semibold transition-colors ${range === opt ? 'text-blue-500' : (isDark ? 'text-[#94abda] hover:bg-white/5' : 'text-slate-600 hover:bg-slate-50')}`}>
                                             {opt}
                                         </button>
                                     ))}
@@ -251,31 +269,33 @@ const AgentPerformance = () => {
                         const pct = Math.round((agent.activeLeads / max) * 100);
                         return (
                             <div key={i} onClick={() => handleAgentClick(agent)}
-                                className="flex items-center gap-2.5 cursor-pointer hover:bg-slate-50 rounded-xl px-2 py-1 transition-colors group">
+                                className={`flex items-center gap-2.5 cursor-pointer rounded-xl px-2 py-1 transition-colors group ${isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50'}`}>
                                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black text-white shrink-0 group-hover:scale-110 transition-transform shadow-sm" style={{ background: agent.color }}>
                                     {agent.initials}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <div className="flex justify-between mb-1">
-                                        <span className="text-[11px] font-bold text-slate-700 truncate group-hover:text-blue-600 transition-colors">{agent.name}</span>
-                                        <span className="text-[10px] font-black text-slate-400 shrink-0 ml-1">{agent.activeLeads}</span>
+                                        <span className={`text-[11px] font-bold truncate group-hover:text-blue-500 transition-colors ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{agent.name}</span>
+                                        <span className={`text-[10px] font-black shrink-0 ml-1 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{agent.activeLeads}</span>
                                     </div>
-                                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className={`h-1.5 rounded-full overflow-hidden ${isDark ? 'bg-white/10' : 'bg-slate-100'}`}>
                                         <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: agent.color }} />
                                     </div>
                                 </div>
-                                <span className="text-[10px] font-black text-emerald-600 shrink-0 ml-2">{agent.closedDeals}✓</span>
+                                <span className="text-[10px] font-black text-emerald-500 shrink-0 ml-2">{agent.closedDeals}✓</span>
                             </div>
                         );
                     })}
                 </div>
             </Card>
-            {selectedUser && <UserProfileModal user={selectedUser} onClose={() => setSelectedUser(null)} />}
+            {selectedUser && <UserProfileModal user={selectedUser} onClose={() => setSelectedUser(null)} onUserClick={(u) => setSelectedUser(u)} />}
         </>
     );
 };
 
 const Notes = () => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [notesList, setNotesList] = useState(() => {
         try {
             const saved = JSON.parse(localStorage.getItem('sa_notes_list'));
@@ -336,30 +356,30 @@ const Notes = () => {
 
     return (
         <>
-            <div className="bg-[#fffdf0] rounded-2xl border border-yellow-200/60 flex flex-col h-full overflow-hidden min-h-0 shadow-[0_4px_20px_rgb(0,0,0,0.04)]">
+            <div className={`rounded-2xl border flex flex-col h-full overflow-hidden min-h-0 shadow-[0_4px_20px_rgb(0,0,0,0.04)] ${isDark ? 'bg-[#343224] border-yellow-700/30' : 'bg-[#fffdf0] border-yellow-200/60'}`}>
                 {/* header */}
-                <div className="bg-[#fff9c4] border-b border-yellow-200/50 px-4 py-2.5 shrink-0 flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-yellow-700">
+                <div className={`border-b px-4 py-2.5 shrink-0 flex items-center justify-between ${isDark ? 'bg-[#4d4826] border-yellow-700/30' : 'bg-[#fff9c4] border-yellow-200/50'}`}>
+                    <div className={`flex items-center gap-1.5 ${isDark ? 'text-yellow-400' : 'text-yellow-700'}`}>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /><line x1="9" y1="14" x2="15" y2="14" /><line x1="9" y1="18" x2="15" y2="18" /></svg>
                         <span className="text-[11px] font-black uppercase tracking-widest">My Notes</span>
                     </div>
-                    <button onClick={clearAll} className="text-[9px] font-bold text-yellow-700/60 hover:text-rose-600 transition-colors uppercase tracking-widest">Clear All</button>
+                    <button onClick={clearAll} className={`text-[9px] font-bold transition-colors uppercase tracking-widest ${isDark ? 'text-yellow-500/60 hover:text-rose-400' : 'text-yellow-700/60 hover:text-rose-600'}`}>Clear All</button>
                 </div>
                 {/* list */}
                 <div className="flex-1 overflow-y-auto min-h-0 p-3 flex flex-col gap-2 custom-scrollbar"
-                    style={{ scrollbarWidth: 'thin', scrollbarColor: '#fde68a transparent' }}>
+                    style={{ scrollbarWidth: 'thin', scrollbarColor: isDark ? '#92400e transparent' : '#fde68a transparent' }}>
                     {notesList.length === 0 ? (
-                        <div className="text-[10px] text-yellow-700/40 italic text-center mt-4 border border-dashed border-yellow-200 p-4 rounded-xl">No notes yet. Type below to start!</div>
+                        <div className={`text-[10px] italic text-center mt-4 border border-dashed p-4 rounded-xl ${isDark ? 'text-yellow-500/40 border-yellow-700/30' : 'text-yellow-700/40 border-yellow-200'}`}>No notes yet. Type below to start!</div>
                     ) : [...notesList].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)).map(note => (
-                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group border shrink-0 transition-all ${note.pinned ? 'border-blue-200 bg-blue-50/60' : note.highlighted ? 'bg-yellow-200 border-yellow-300 text-yellow-900' : 'bg-white/60 border-yellow-100 text-yellow-900'}`}>
+                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group border shrink-0 transition-all ${note.pinned ? (isDark ? 'border-blue-500/30 bg-blue-500/10' : 'border-blue-200 bg-blue-50/60') : note.highlighted ? (isDark ? 'bg-yellow-500/20 border-yellow-500/30 text-yellow-200' : 'bg-yellow-200 border-yellow-300 text-yellow-900') : (isDark ? 'bg-white/5 border-yellow-700/20 text-yellow-100' : 'bg-white/60 border-yellow-100 text-yellow-900')}`}>
                             <div className="flex justify-between items-center mb-1">
                                 <div className="flex items-center gap-1.5">
                                     {note.pinned && (
-                                        <span className="text-[8px] font-black text-blue-600 bg-blue-100 px-1.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-0.5">
+                                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-0.5 ${isDark ? 'text-blue-400 bg-blue-500/15' : 'text-blue-600 bg-blue-100'}`}>
                                             📌 Pinned
                                         </span>
                                     )}
-                                    <span className="text-[9px] font-black text-yellow-600 uppercase tracking-widest">{note.date}{note.time ? ` · ${note.time}` : ''}</span>
+                                    <span className={`text-[9px] font-black uppercase tracking-widest ${isDark ? 'text-yellow-500' : 'text-yellow-600'}`}>{note.date}{note.time ? ` · ${note.time}` : ''}</span>
                                 </div>
                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onClick={() => togglePin(note.id)} title={note.pinned ? 'Unpin' : 'Pin'}
@@ -375,12 +395,12 @@ const Notes = () => {
                     ))}
                 </div>
                 {/* input */}
-                <div className="shrink-0 flex gap-2 p-3 pt-2 border-t border-yellow-200/50">
+                <div className={`shrink-0 flex gap-2 p-3 pt-2 border-t ${isDark ? 'border-yellow-700/30' : 'border-yellow-200/50'}`}>
                     <input
                         value={newNote} onChange={e => setNewNote(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && addNote()}
                         placeholder="Type a note & press Enter..."
-                        className="flex-1 bg-white/60 border border-yellow-200/60 rounded-lg px-3 py-1.5 text-[11px] text-yellow-900 outline-none focus:border-yellow-400 focus:bg-white transition-colors placeholder-yellow-300"
+                        className={`flex-1 border rounded-lg px-3 py-1.5 text-[11px] outline-none transition-colors ${isDark ? 'bg-white/5 border-yellow-700/30 text-yellow-100 focus:border-yellow-500 placeholder-yellow-700' : 'bg-white/60 border-yellow-200/60 text-yellow-900 focus:border-yellow-400 focus:bg-white placeholder-yellow-300'}`}
                     />
                     <button onClick={addNote} className="bg-yellow-400 hover:bg-yellow-500 text-yellow-900 px-3 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors">Add</button>
                 </div>
@@ -390,8 +410,8 @@ const Notes = () => {
             {alertDialog.open && (
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeAlert} />
-                    <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 animate-fadeIn">
-                        <p className="text-[15px] font-semibold text-slate-800 mb-6">{alertDialog.message}</p>
+                    <div className={`relative rounded-2xl shadow-2xl p-6 w-full max-w-sm border animate-fadeIn ${isDark ? 'bg-[#1e2347] border-white/5 text-white' : 'bg-white border-slate-100'}`}>
+                        <p className={`text-[15px] font-semibold mb-6 ${isDark ? 'text-white' : 'text-slate-800'}`}>{alertDialog.message}</p>
                         <div className="flex justify-end">
                             <button onClick={closeAlert} className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-[#2447d7] hover:bg-[#1732a3] transition-colors">OK</button>
                         </div>
@@ -403,8 +423,8 @@ const Notes = () => {
             {confirmDialog.open && (
                 <div className="fixed inset-0 z-[2000] flex items-center justify-center p-4">
                     <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={closeConfirm} />
-                    <div className="relative bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm border border-slate-100 animate-fadeIn">
-                        <p className="text-[15px] font-semibold text-slate-800 mb-6">{confirmDialog.message}</p>
+                    <div className={`relative rounded-2xl shadow-2xl p-6 w-full max-w-sm border animate-fadeIn ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`}>
+                        <p className={`text-[15px] font-semibold mb-6 ${isDark ? 'text-white' : 'text-slate-800'}`}>{confirmDialog.message}</p>
                         <div className="flex justify-end gap-3">
                             <button onClick={closeConfirm} className="px-5 py-2 rounded-xl text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 transition-colors">Cancel</button>
                             <button onClick={() => { confirmDialog.onConfirm?.(); closeConfirm(); }} className="px-5 py-2 rounded-xl text-sm font-bold text-white bg-red-500 hover:bg-red-600 transition-colors">Confirm</button>
@@ -418,6 +438,8 @@ const Notes = () => {
 
 /* ─── PENDING PAYOUTS ────────────────────── */
 const PendingPayouts = () => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const payouts = [
         { name: 'Robert Miller', amount: '$25,000', status: 'Pending', date: 'Mar 26' },
         { name: 'Alice Huang', amount: '$120,500', status: 'Pending', date: 'Mar 25' },
@@ -428,18 +450,18 @@ const PendingPayouts = () => {
             <CardHeader dotColor="#f97316" title="Pending Payouts" badge="Top Layer" badgeClass="bg-orange-100 text-orange-600" />
             <div className="p-2 flex flex-col gap-1">
                 {payouts.map((p, i) => (
-                    <div key={i} className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-orange-50/50 border border-orange-100/60 hover:border-orange-200 transition-colors cursor-pointer">
+                    <div key={i} className={`flex items-center justify-between px-3 py-1.5 rounded-xl border transition-colors cursor-pointer ${isDark ? 'bg-orange-500/5 border-orange-500/10 hover:border-orange-500/20' : 'bg-orange-50/50 border-orange-100/60 hover:border-orange-200'}`}>
                         <div>
-                            <p className="text-[12px] font-bold text-slate-700">{p.name}</p>
-                            <p className="text-[10px] font-medium text-slate-400">{p.date}</p>
+                            <p className={`text-[12px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{p.name}</p>
+                            <p className={`text-[10px] font-medium ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{p.date}</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-[12px] font-black text-orange-700">{p.amount}</p>
-                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${p.status === 'Processing' ? 'bg-blue-100 text-blue-600' : 'bg-orange-100 text-orange-600'}`}>{p.status}</span>
+                            <p className={`text-[12px] font-black ${isDark ? 'text-orange-400' : 'text-orange-700'}`}>{p.amount}</p>
+                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${p.status === 'Processing' ? (isDark ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-100 text-blue-600') : (isDark ? 'bg-orange-500/15 text-orange-400' : 'bg-orange-100 text-orange-600')}`}>{p.status}</span>
                         </div>
                     </div>
                 ))}
-                <button className="text-[10px] font-black text-orange-600 hover:text-orange-700 flex items-center gap-1 self-end py-1 mt-1">
+                <button className={`text-[10px] font-black flex items-center gap-1 self-end py-1 mt-1 ${isDark ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-700'}`}>
                     View all <IconChevron width="11" height="11" />
                 </button>
             </div>
@@ -466,6 +488,8 @@ const formatExpiry = (yearMonth) => {
 };
 
 const AddLicensePopup = ({ onClose, onAdd }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [form, setForm] = useState({ label: '', expiry: '', reminder: '1 month' });
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
     const autoStatus = getAutoStatus(form.expiry);
@@ -483,68 +507,50 @@ const AddLicensePopup = ({ onClose, onAdd }) => {
         onClose();
     };
 
+    const inputCls = `text-[11px] px-3 py-2 rounded-xl border focus:outline-none transition-colors ${isDark ? 'bg-[#151932] border-white/10 text-[#e4ecff] placeholder-white/20 focus:border-emerald-500' : 'bg-slate-50 border-slate-200 focus:border-emerald-400 placeholder-slate-300'}`;
+    const labelCls = `text-[9px] font-bold uppercase tracking-wider ${isDark ? 'text-[#546298]' : 'text-slate-500'}`;
+
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={e => e.target === e.currentTarget && onClose()}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm animate-fadeIn overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
+            <div className={`rounded-2xl shadow-2xl w-full max-w-sm animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}>
+                <div className={`flex items-center justify-between px-5 py-3.5 border-b ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
                     <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
                             <IconShield width="13" height="13" className="text-emerald-600" />
                         </div>
-                        <p className="text-[12px] font-black text-slate-700 uppercase tracking-wider">Add License / Insurance</p>
+                        <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Add License / Insurance</p>
                     </div>
-                    <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors">
-                        <IconX width="13" height="13" className="text-slate-500" />
+                    <button onClick={onClose} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
+                        <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
                     </button>
                 </div>
                 <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-3">
-                    {/* Name */}
                     <div className="flex flex-col gap-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Name</label>
-                        <input value={form.label} onChange={e => set('label', e.target.value)} required
-                            placeholder="e.g. Public Liability Insurance"
-                            className="text-[11px] px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-400 transition-colors bg-slate-50 placeholder-slate-300" />
+                        <label className={labelCls}>Name</label>
+                        <input value={form.label} onChange={e => set('label', e.target.value)} required placeholder="e.g. Public Liability Insurance" className={inputCls} />
                     </div>
-
-                    {/* Expiry + auto status preview */}
                     <div className="flex flex-col gap-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Expiry Date</label>
+                        <label className={labelCls}>Expiry Date</label>
                         <div className="flex items-center gap-2">
-                            <input type="month" value={form.expiry} onChange={e => set('expiry', e.target.value)} required
-                                className="flex-1 text-[11px] px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-emerald-400 transition-colors bg-slate-50" />
-                            {form.expiry && (
-                                <span className={`text-[8px] font-bold px-2 py-1 rounded-full shrink-0 ${statusStyle[autoStatus]}`}>
-                                    {autoStatus}
-                                </span>
-                            )}
+                            <input type="month" value={form.expiry} onChange={e => set('expiry', e.target.value)} required className={`flex-1 ${inputCls}`} />
+                            {form.expiry && <span className={`text-[8px] font-bold px-2 py-1 rounded-full shrink-0 ${statusStyle[autoStatus]}`}>{autoStatus}</span>}
                         </div>
-                        {form.expiry && (
-                            <p className="text-[9px] text-slate-400 pl-1">Status auto-calculated from expiry date</p>
-                        )}
+                        {form.expiry && <p className={`text-[9px] pl-1 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Status auto-calculated from expiry date</p>}
                     </div>
-
-                    {/* Reminder */}
                     <div className="flex flex-col gap-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Remind me before expiry</label>
+                        <label className={labelCls}>Remind me before expiry</label>
                         <div className="grid grid-cols-4 gap-1.5">
                             {['1 week', '2 weeks', '1 month', '2 months'].map(opt => (
                                 <button key={opt} type="button" onClick={() => set('reminder', opt)}
-                                    className={`text-[9px] font-bold py-1.5 rounded-xl border transition-colors ${form.reminder === opt ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-emerald-300'}`}>
+                                    className={`text-[9px] font-bold py-1.5 rounded-xl border transition-colors ${form.reminder === opt ? 'bg-emerald-600 text-white border-emerald-600' : (isDark ? 'bg-white/5 text-[#94abda] border-white/10 hover:border-emerald-500' : 'bg-slate-50 text-slate-500 border-slate-200 hover:border-emerald-300')}`}>
                                     {opt}
                                 </button>
                             ))}
                         </div>
                     </div>
-
                     <div className="flex justify-end gap-2 pt-1">
-                        <button type="button" onClick={onClose}
-                            className="text-[10px] font-bold text-slate-500 bg-slate-100 px-4 py-2 rounded-xl hover:bg-slate-200 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit"
-                            className="text-[10px] font-bold text-white bg-emerald-600 px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">
-                            Add
-                        </button>
+                        <button type="button" onClick={onClose} className={`text-[10px] font-bold px-4 py-2 rounded-xl transition-colors ${isDark ? 'text-[#94abda] bg-white/5 hover:bg-white/10' : 'text-slate-500 bg-slate-100 hover:bg-slate-200'}`}>Cancel</button>
+                        <button type="submit" className="text-[10px] font-bold text-white bg-emerald-600 px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">Add</button>
                     </div>
                 </form>
             </div>
@@ -562,6 +568,8 @@ const LicensesInsurance = () => {
         { label: 'Compliance Cert', expiry: 'Mar 2026', status: 'Expiring' },
     ]);
 
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const ORDER = { Expired: 0, Expiring: 1, Active: 2 };
     const sorted = [...items].sort((a, b) => ORDER[a.status] - ORDER[b.status]);
 
@@ -578,36 +586,35 @@ const LicensesInsurance = () => {
                 />
                 <div className="p-2 flex flex-col gap-1">
                     {sorted.map((item, i) => (
-                        <div key={i} className={`flex items-center justify-between p-2 rounded-xl transition-colors cursor-pointer ${item.status === 'Expiring' ? 'bg-amber-50/60 hover:bg-amber-50' : item.status === 'Expired' ? 'bg-rose-50/60 hover:bg-rose-50' : 'hover:bg-slate-50'}`}>
+                        <div key={i} className={`flex items-center justify-between p-2 rounded-xl transition-colors cursor-pointer ${item.status === 'Expiring' ? (isDark ? 'bg-amber-500/10 hover:bg-amber-500/15' : 'bg-amber-50/60 hover:bg-amber-50') : item.status === 'Expired' ? (isDark ? 'bg-rose-500/10 hover:bg-rose-500/15' : 'bg-rose-50/60 hover:bg-rose-50') : (isDark ? 'hover:bg-white/5' : 'hover:bg-slate-50')}`}>
                             <div className="flex items-center gap-2">
                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${item.status === 'Expiring' ? 'bg-amber-100' : item.status === 'Expired' ? 'bg-rose-100' : 'bg-emerald-50'}`}>
                                     <IconShield width="14" height="14" className={item.status === 'Expiring' ? 'text-amber-600' : item.status === 'Expired' ? 'text-rose-600' : 'text-emerald-600'} />
                                 </div>
                                 <div>
-                                    <p className="text-[12px] font-bold text-slate-700">{item.label}</p>
-                                    <p className="text-[10px] font-medium text-slate-400">Exp: {item.expiry}</p>
+                                    <p className={`text-[12px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{item.label}</p>
+                                    <p className={`text-[10px] font-medium ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Exp: {item.expiry}</p>
                                 </div>
                             </div>
-                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${item.status === 'Expiring' ? 'bg-amber-100 text-amber-700' : item.status === 'Expired' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>{item.status}</span>
+                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${item.status === 'Expiring' ? (isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-100 text-amber-700') : item.status === 'Expired' ? (isDark ? 'bg-rose-500/15 text-rose-400' : 'bg-rose-100 text-rose-700') : (isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-700')}`}>{item.status}</span>
                         </div>
                     ))}
-                    <button onClick={() => setShowAll(true)} className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors self-start flex items-center gap-1 mt-2">
+                    <button onClick={() => setShowAll(true)} className={`text-[10px] font-black px-3 py-1.5 rounded-lg transition-colors self-start flex items-center gap-1 mt-2 ${isDark ? 'text-emerald-400 bg-emerald-500/15 hover:bg-emerald-500/25' : 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'}`}>
                         View All ({items.length})
                     </button>
                 </div>
             </Card>
             {showAll && (
                 <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setShowAll(false)}>
-                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg animate-fadeIn overflow-hidden" onClick={e => e.stopPropagation()}>
-                        {/* header */}
-                        <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
+                    <div className={`rounded-2xl shadow-2xl w-full max-w-lg animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
+                        <div className={`flex items-center justify-between px-5 py-3.5 border-b ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
                             <div className="flex items-center gap-2">
                                 <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
                                     <IconShield width="13" height="13" className="text-emerald-600" />
                                 </div>
                                 <div>
-                                    <p className="text-[12px] font-black text-slate-700 uppercase tracking-wider">Licenses & Insurance</p>
-                                    <p className="text-[9px] text-slate-400">{items.length} records · {items.filter(i => i.status !== 'Active').length} need attention</p>
+                                    <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Licenses & Insurance</p>
+                                    <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{items.length} records · {items.filter(i => i.status !== 'Active').length} need attention</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
@@ -615,31 +622,29 @@ const LicensesInsurance = () => {
                                     className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg hover:bg-emerald-100 transition-colors flex items-center gap-1">
                                     <IconPlus width="10" height="10" /> Add New
                                 </button>
-                                <button onClick={() => setShowAll(false)} className="w-7 h-7 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors">
-                                    <IconX width="13" height="13" className="text-slate-500" />
+                                <button onClick={() => setShowAll(false)} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
+                                    <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
                                 </button>
                             </div>
                         </div>
-                        {/* list */}
                         <div className="p-4 flex flex-col gap-2 max-h-[420px] overflow-y-auto">
                             {[...items].sort((a, b) => ({ Expired: 0, Expiring: 1, Active: 2 }[a.status] - { Expired: 0, Expiring: 1, Active: 2 }[b.status])).map((item, i) => (
-                                <div key={i} className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${item.status === 'Expiring' ? 'bg-amber-50 border-amber-100' : item.status === 'Expired' ? 'bg-rose-50 border-rose-100' : 'bg-slate-50 border-slate-100'}`}>
+                                <div key={i} className={`flex items-center justify-between p-3 rounded-xl border transition-colors ${item.status === 'Expiring' ? (isDark ? 'bg-amber-500/10 border-amber-500/20' : 'bg-amber-50 border-amber-100') : item.status === 'Expired' ? (isDark ? 'bg-rose-500/10 border-rose-500/20' : 'bg-rose-50 border-rose-100') : (isDark ? 'bg-white/5 border-white/5' : 'bg-slate-50 border-slate-100')}`}>
                                     <div className="flex items-center gap-3">
                                         <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${item.status === 'Expiring' ? 'bg-amber-100' : item.status === 'Expired' ? 'bg-rose-100' : 'bg-emerald-50'}`}>
                                             <IconShield width="16" height="16" className={item.status === 'Expiring' ? 'text-amber-600' : item.status === 'Expired' ? 'text-rose-600' : 'text-emerald-600'} />
                                         </div>
                                         <div>
-                                            <p className="text-[12px] font-semibold text-slate-700">{item.label}</p>
-                                            <p className="text-[10px] text-slate-400">Expires: {item.expiry}{item.reminder ? ` · Reminder: ${item.reminder} before` : ''}</p>
+                                            <p className={`text-[12px] font-semibold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{item.label}</p>
+                                            <p className={`text-[10px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Expires: {item.expiry}{item.reminder ? ` · Reminder: ${item.reminder} before` : ''}</p>
                                         </div>
                                     </div>
-                                    <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${item.status === 'Expiring' ? 'bg-amber-100 text-amber-700' : item.status === 'Expired' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>{item.status}</span>
+                                    <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${item.status === 'Expiring' ? (isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-100 text-amber-700') : item.status === 'Expired' ? (isDark ? 'bg-rose-500/15 text-rose-400' : 'bg-rose-100 text-rose-700') : (isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-700')}`}>{item.status}</span>
                                 </div>
                             ))}
                         </div>
-                        {/* footer */}
-                        <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                            <span className="text-[9px] text-slate-400">{items.filter(i => i.status === 'Active').length} active · {items.filter(i => i.status === 'Expiring').length} expiring · {items.filter(i => i.status === 'Expired').length} expired</span>
+                        <div className={`px-5 py-3 border-t flex justify-between items-center ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`}>
+                            <span className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{items.filter(i => i.status === 'Active').length} active · {items.filter(i => i.status === 'Expiring').length} expiring · {items.filter(i => i.status === 'Expired').length} expired</span>
                         </div>
                     </div>
                 </div>
@@ -670,6 +675,8 @@ const TAG_COLORS = {
 };
 
 const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KB_TELE_DOCS }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [selected, setSelected] = useState(initialDoc);
     const [search, setSearch] = useState('');
     const [activeCategory, setActiveCategory] = useState('All');
@@ -681,82 +688,71 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KB_TELE_DOC
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={e => e.target === e.currentTarget && onClose()}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-fadeIn">
+            <div className={`rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-fadeIn ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}>
                 {/* header */}
-                <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/60 shrink-0">
+                <div className={`flex items-center justify-between px-5 py-3.5 border-b shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
                     <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center">
                             <IconBook width="14" height="14" className="text-teal-600" />
                         </div>
                         <div>
-                            <p className="text-[12px] font-black text-slate-700 uppercase tracking-wider">Tele Agent Knowledge Base</p>
-                            <p className="text-[9px] text-slate-400">{KB_TELE_DOCS.length} resources available</p>
+                            <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Tele Agent Knowledge Base</p>
+                            <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{KB_TELE_DOCS.length} resources available</p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors">
-                        <IconX width="13" height="13" className="text-slate-500" />
+                    <button onClick={onClose} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
+                        <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
                     </button>
                 </div>
-
                 {/* search + category filter */}
-                <div className="px-4 pt-3 pb-2 shrink-0 flex flex-col gap-2 border-b border-slate-100">
-                    <input
-                        value={search} onChange={e => setSearch(e.target.value)}
-                        placeholder="Search documents..."
-                        className="w-full text-[11px] px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-400 transition-colors bg-slate-50 placeholder-slate-300"
-                    />
+                <div className={`px-4 pt-3 pb-2 shrink-0 flex flex-col gap-2 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search documents..."
+                        className={`w-full text-[11px] px-3 py-2 rounded-xl border focus:outline-none transition-colors ${isDark ? 'bg-[#151932] border-white/10 text-[#e4ecff] placeholder-white/20 focus:border-teal-500' : 'bg-slate-50 border-slate-200 focus:border-teal-400 placeholder-slate-300'}`} />
                     <div className="flex gap-1.5 flex-wrap">
                         {categories.map(cat => (
                             <button key={cat} onClick={() => setActiveCategory(cat)}
-                                className={`text-[9px] font-bold px-2.5 py-1 rounded-full transition-colors ${activeCategory === cat ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+                                className={`text-[9px] font-bold px-2.5 py-1 rounded-full transition-colors ${activeCategory === cat ? 'bg-teal-600 text-white' : (isDark ? 'bg-white/5 text-[#94abda] hover:bg-white/10' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')}`}>
                                 {cat}
                             </button>
                         ))}
                     </div>
                 </div>
-
-                {/* body — list + detail */}
+                {/* body */}
                 <div className="flex flex-1 min-h-0">
-                    {/* doc list */}
-                    <div className="w-56 shrink-0 border-r border-slate-100 overflow-y-auto p-2 flex flex-col gap-1">
+                    <div className={`w-56 shrink-0 border-r overflow-y-auto p-2 flex flex-col gap-1 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
                         {filtered.map(doc => {
                             const c = TAG_COLORS[doc.tag];
                             return (
                                 <button key={doc.id} onClick={() => setSelected(doc)}
-                                    className={`w-full text-left p-2.5 rounded-xl border transition-all ${selected?.id === doc.id ? `${c.bg} ${c.border} border` : 'border-transparent hover:bg-slate-50'}`}>
+                                    className={`w-full text-left p-2.5 rounded-xl border transition-all ${selected?.id === doc.id ? (isDark ? `bg-white/10 border-white/10` : `${c.bg} ${c.border} border`) : (isDark ? 'border-transparent hover:bg-white/5' : 'border-transparent hover:bg-slate-50')}`}>
                                     <div className="flex items-center gap-2 mb-1">
                                         <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${c.dot}`} />
                                         <span className={`text-[8px] font-bold uppercase tracking-wider ${c.text}`}>{doc.category}</span>
                                     </div>
-                                    <p className="text-[10px] font-semibold text-slate-700 leading-tight">{doc.name}</p>
+                                    <p className={`text-[10px] font-semibold leading-tight ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{doc.name}</p>
                                 </button>
                             );
                         })}
-                        {filtered.length === 0 && (
-                            <p className="text-[10px] text-slate-400 text-center py-6">No results</p>
-                        )}
+                        {filtered.length === 0 && <p className={`text-[10px] text-center py-6 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>No results</p>}
                     </div>
-
-                    {/* detail pane */}
                     <div className="flex-1 overflow-y-auto p-4">
                         {selected ? (
                             <div className="flex flex-col gap-3">
                                 <div>
                                     <span className={`text-[8px] font-bold uppercase tracking-wider ${TAG_COLORS[selected.tag].text}`}>{selected.category}</span>
-                                    <h3 className="text-[13px] font-black text-slate-800 mt-0.5">{selected.name}</h3>
+                                    <h3 className={`text-[13px] font-black mt-0.5 ${isDark ? 'text-[#e4ecff]' : 'text-slate-800'}`}>{selected.name}</h3>
                                 </div>
-                                <div className={`p-3.5 rounded-xl ${TAG_COLORS[selected.tag].bg} border ${TAG_COLORS[selected.tag].border}`}>
-                                    <pre className="text-[10px] text-slate-700 leading-relaxed whitespace-pre-wrap font-['Sora',sans-serif]">{selected.content}</pre>
+                                <div className={`p-3.5 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : `${TAG_COLORS[selected.tag].bg} ${TAG_COLORS[selected.tag].border}`}`}>
+                                    <pre className={`text-[10px] leading-relaxed whitespace-pre-wrap font-['Sora',sans-serif] ${isDark ? 'text-[#94abda]' : 'text-slate-700'}`}>{selected.content}</pre>
                                 </div>
                             </div>
                         ) : null}
                     </div>
                 </div>
-
                 {/* footer */}
-                <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
-                    <span className="text-[9px] text-slate-400">Tele Agent resources · Super Admin view</span>
-                    <button onClick={onAddClick} className="text-[9px] font-bold text-teal-600 bg-teal-50 px-3 py-1.5 rounded-lg hover:bg-teal-100 transition-colors flex items-center gap-1">
+                <div className={`px-4 py-2.5 border-t flex justify-between items-center shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`}>
+                    <span className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Tele Agent resources · Super Admin view</span>
+                    <button onClick={onAddClick} className={`text-[9px] font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${isDark ? 'text-teal-400 bg-teal-500/15 hover:bg-teal-500/25' : 'text-teal-600 bg-teal-50 hover:bg-teal-100'}`}>
                         <IconPlus width="10" height="10" /> Add Resource
                     </button>
                 </div>
@@ -767,6 +763,8 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KB_TELE_DOC
 
 /* ─── ADD RESOURCE POPUP ─────────────────── */
 const AddResourcePopup = ({ onClose, onAdd }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const [form, setForm] = useState({ name: '', category: 'Guides', type: 'PDF', content: '' });
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
     const handleSubmit = (e) => {
@@ -775,49 +773,42 @@ const AddResourcePopup = ({ onClose, onAdd }) => {
         onAdd({ ...form, id: Date.now(), tag: { Guides: 'blue', FAQs: 'violet', Products: 'orange' }[form.category] || 'blue', size: '—' });
         onClose();
     };
+    const inputCls = `text-[11px] px-3 py-2 rounded-xl border focus:outline-none transition-colors ${isDark ? 'bg-[#151932] border-white/10 text-[#e4ecff] placeholder-white/20 focus:border-teal-500' : 'bg-slate-50 border-slate-200 focus:border-teal-400 placeholder-slate-300'}`;
+    const labelCls = `text-[9px] font-bold uppercase tracking-wider ${isDark ? 'text-[#546298]' : 'text-slate-500'}`;
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={e => e.target === e.currentTarget && onClose()}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md animate-fadeIn overflow-hidden">
-                <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/60">
+            <div className={`rounded-2xl shadow-2xl w-full max-w-md animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}>
+                <div className={`flex items-center justify-between px-5 py-3.5 border-b ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
                     <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center">
                             <IconPlus width="13" height="13" className="text-teal-600" />
                         </div>
-                        <p className="text-[12px] font-black text-slate-700 uppercase tracking-wider">Add Resource</p>
+                        <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Add Resource</p>
                     </div>
-                    <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors">
-                        <IconX width="13" height="13" className="text-slate-500" />
+                    <button onClick={onClose} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
+                        <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
                     </button>
                 </div>
                 <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-3">
                     <div className="flex flex-col gap-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Resource Name</label>
-                        <input value={form.name} onChange={e => set('name', e.target.value)} required
-                            placeholder="e.g. New Call Script Q2 2026"
-                            className="text-[11px] px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-400 transition-colors bg-slate-50 placeholder-slate-300" />
+                        <label className={labelCls}>Resource Name</label>
+                        <input value={form.name} onChange={e => set('name', e.target.value)} required placeholder="e.g. New Call Script Q2 2026" className={inputCls} />
                     </div>
                     <div className="flex flex-col gap-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Category</label>
-                        <select value={form.category} onChange={e => set('category', e.target.value)}
-                            className="text-[11px] px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-400 transition-colors bg-slate-50">
+                        <label className={labelCls}>Category</label>
+                        <select value={form.category} onChange={e => set('category', e.target.value)} className={inputCls}>
                             {['Guides', 'FAQs', 'Products'].map(c => <option key={c}>{c}</option>)}
                         </select>
                     </div>
                     <div className="flex flex-col gap-1">
-                        <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Content / Notes</label>
+                        <label className={labelCls}>Content / Notes</label>
                         <textarea value={form.content} onChange={e => set('content', e.target.value)} required rows={5}
                             placeholder="Paste the resource content or notes here..."
-                            className="text-[11px] px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-teal-400 transition-colors bg-slate-50 placeholder-slate-300 resize-none leading-relaxed" />
+                            className={`${inputCls} resize-none leading-relaxed`} />
                     </div>
                     <div className="flex justify-end gap-2 pt-1">
-                        <button type="button" onClick={onClose}
-                            className="text-[10px] font-bold text-slate-500 bg-slate-100 px-4 py-2 rounded-xl hover:bg-slate-200 transition-colors">
-                            Cancel
-                        </button>
-                        <button type="submit"
-                            className="text-[10px] font-bold text-white bg-teal-600 px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors">
-                            Add Resource
-                        </button>
+                        <button type="button" onClick={onClose} className={`text-[10px] font-bold px-4 py-2 rounded-xl transition-colors ${isDark ? 'text-[#94abda] bg-white/5 hover:bg-white/10' : 'text-slate-500 bg-slate-100 hover:bg-slate-200'}`}>Cancel</button>
+                        <button type="submit" className="text-[10px] font-bold text-white bg-teal-600 px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors">Add Resource</button>
                     </div>
                 </form>
             </div>
@@ -830,6 +821,8 @@ const KnowledgeBase = () => {
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [showAdd, setShowAdd] = useState(false);
     const [extraDocs, setExtraDocs] = useState([]);
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const allDocs = [...KB_TELE_DOCS, ...extraDocs];
     const previewDocs = allDocs.slice(0, 3);
 
@@ -849,20 +842,20 @@ const KnowledgeBase = () => {
                         const c = TAG_COLORS[doc.tag];
                         return (
                             <div key={doc.id} onClick={() => setSelectedDoc(doc)}
-                                className="flex items-center gap-2.5 p-2 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group border border-transparent hover:border-slate-100">
+                                className={`flex items-center gap-2.5 p-2 rounded-xl transition-colors cursor-pointer group border border-transparent ${isDark ? 'hover:bg-white/5 hover:border-white/5' : 'hover:bg-slate-50 hover:border-slate-100'}`}>
                                 <div className={`w-8 h-8 rounded-lg ${c.bg} flex items-center justify-center shrink-0 shadow-sm`}>
                                     <IconBook width="14" height="14" className={c.text} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-[12px] font-bold text-slate-700 truncate">{doc.name}</p>
+                                    <p className={`text-[12px] font-bold truncate ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{doc.name}</p>
                                     <p className={`text-[9px] font-black uppercase tracking-wider ${c.text}`}>{doc.category}</p>
                                 </div>
-                                <IconChevron width="11" height="11" className="text-slate-300 group-hover:text-slate-500 transition-colors" />
+                                <IconChevron width="11" height="11" className={`transition-colors ${isDark ? 'text-white/20 group-hover:text-white/40' : 'text-slate-300 group-hover:text-slate-500'}`} />
                             </div>
                         );
                     })}
                     <button onClick={() => setSelectedDoc(allDocs[0])}
-                        className="text-[10px] font-black text-teal-600 bg-teal-50 px-2.5 py-1.5 rounded-lg hover:bg-teal-100 transition-colors self-start flex items-center gap-1 mt-1">
+                        className={`text-[10px] font-black px-2.5 py-1.5 rounded-lg transition-colors self-start flex items-center gap-1 mt-1 ${isDark ? 'text-teal-400 bg-teal-500/15 hover:bg-teal-500/25' : 'text-teal-600 bg-teal-50 hover:bg-teal-100'}`}>
                         View All ({allDocs.length})
                     </button>
                 </div>
@@ -882,6 +875,8 @@ const KnowledgeBase = () => {
 
 /* ─── SOCIAL MEDIA ───────────────────────── */
 const SocialMedia = () => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
     const channels = [
         { name: 'LinkedIn', followers: '4.2K', bg: 'bg-blue-700', posts: 12 },
         { name: 'Facebook', followers: '8.1K', bg: 'bg-blue-500', posts: 24 },
@@ -893,13 +888,13 @@ const SocialMedia = () => {
             <CardHeader dotColor="#ec4899" title="Social Media" badge="Channels" badgeClass="bg-pink-100 text-pink-600" />
             <div className="p-3 grid grid-cols-2 gap-2 flex-1">
                 {channels.map((ch, i) => (
-                    <div key={i} className="p-2.5 rounded-xl border border-slate-100 hover:border-slate-200 transition-colors cursor-pointer flex flex-col gap-1">
+                    <div key={i} className={`p-2.5 rounded-xl border transition-colors cursor-pointer flex flex-col gap-1 ${isDark ? 'border-white/5 hover:border-white/10 hover:bg-white/5' : 'border-slate-100 hover:border-slate-200'}`}>
                         <div className={`w-6 h-6 rounded-lg ${ch.bg} flex items-center justify-center`}>
                             <IconSocial width="12" height="12" className="text-white" />
                         </div>
-                        <p className="text-[10px] font-bold text-slate-700">{ch.name}</p>
-                        <p className="text-[9px] text-slate-400">{ch.followers} followers</p>
-                        <span className="text-[8px] text-slate-400">{ch.posts} posts</span>
+                        <p className={`text-[10px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{ch.name}</p>
+                        <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{ch.followers} followers</p>
+                        <span className={`text-[8px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{ch.posts} posts</span>
                     </div>
                 ))}
             </div>
@@ -908,22 +903,26 @@ const SocialMedia = () => {
 };
 
 /* ─── RIGHT SIDEBAR QUICK-LAUNCH BUTTON ─── */
-const SidebarBtn = ({ icon, label, sub, iconBg, textColor, borderColor, onClick, disabled }) => (
-    <button
-        onClick={onClick}
-        disabled={disabled}
-        className={`w-full xl:flex-1 flex flex-col items-center justify-center gap-1.5 px-1 py-2 rounded-xl border ${borderColor} transition-all hover:scale-[1.02] active:scale-[0.98] ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-md hover:bg-slate-50'}`}
-        style={{ background: 'white', minHeight: '72px' }}
-    >
-        <div className={`w-9 h-9 xl:w-8 xl:h-8 rounded-xl ${iconBg} flex items-center justify-center shadow-sm shrink-0`}>
-            {React.cloneElement(icon, { width: 18, height: 18 })}
-        </div>
-        <div className="text-center px-1">
-            <p className={`text-[10px] xl:text-[9px] font-black ${textColor} leading-tight`}>{label}</p>
-            <p className="text-[7.5px] xl:text-[7px] text-slate-400 uppercase tracking-wider mt-0.5">{sub}</p>
-        </div>
-    </button>
-);
+const SidebarBtn = ({ icon, label, sub, iconBg, textColor, borderColor, onClick, disabled }) => {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    return (
+        <button
+            onClick={onClick}
+            disabled={disabled}
+            className={`w-full xl:flex-1 flex flex-col items-center justify-center gap-1.5 px-1 py-2 rounded-xl border transition-all hover:scale-[1.02] active:scale-[0.98] ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'} ${isDark ? 'bg-[#1e2347] border-white/5 hover:bg-[#242b58]' : `bg-white ${borderColor} hover:bg-slate-50`}`}
+            style={{ minHeight: '72px' }}
+        >
+            <div className={`w-9 h-9 xl:w-8 xl:h-8 rounded-xl ${iconBg} flex items-center justify-center shadow-sm shrink-0`}>
+                {React.cloneElement(icon, { width: 18, height: 18 })}
+            </div>
+            <div className="text-center px-1">
+                <p className={`text-[10px] xl:text-[9px] font-black ${textColor} leading-tight`}>{label}</p>
+                <p className={`text-[7.5px] xl:text-[7px] uppercase tracking-wider mt-0.5 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{sub}</p>
+            </div>
+        </button>
+    );
+};
 
 /* ═══════════════════════════════════════════
    MAIN COMPONENT
@@ -933,6 +932,8 @@ const SuperAdminDashboard = ({ onNavigate }) => {
     const [showOnlineUsers, setShowOnlineUsers] = useState(false);
     const { leads } = useLeads();
     const { lenders } = useLenders();
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
 
     const [statModal, setStatModal] = useState(null); // 'leads' | 'pending-leads' | 'pending-docs'
     const onlineUsers = SHARED_INITIAL_USERS.filter(u => u.status === 'Active').length;
@@ -943,7 +944,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
     const loanDisplay = totalLoan >= 1_000_000 ? `${(totalLoan / 1_000_000).toFixed(1)}M` : totalLoan > 0 ? `$${totalLoan.toLocaleString()}` : SA_STATS.monthlyRevenue;
 
     return (
-        <div className="w-full font-['Sora',sans-serif] animate-fadeIn min-h-[calc(100vh-140px)] flex flex-col pb-8">
+        <div className={`w-full font-['Sora',sans-serif] animate-fadeIn min-h-[calc(100vh-140px)] flex flex-col pb-8 ${isDark ? 'text-[#e4ecff]' : ''}`}>
             {/* ── OUTER: main content + right sidebar ── */}
             <div className="flex xl:flex-col gap-2 p-2 flex-1 min-h-0 items-stretch">
 
@@ -952,13 +953,12 @@ const SuperAdminDashboard = ({ onNavigate }) => {
 
                     {/* ROW 1 — 6 stat tiles */}
                     <div className="grid grid-cols-6 xl:grid-cols-3 md:grid-cols-2 gap-2 xl:gap-3">
-                        <StatTile icon={<IconUsers width="18" height="18" />} value={SA_STATS.totalLeads} label="Total Leads" iconBg="bg-blue-600" tileBg="bg-blue-50/60" tileBorder="border-blue-200" onClick={() => setStatModal('leads')} />
-                        <StatTile icon={<IconMoney width="18" height="18" />} value={loanDisplay} label="Total Loan Amount" iconBg="bg-orange-500" tileBg="bg-orange-50/60" tileBorder="border-orange-200" />
-                        <StatTile icon={<IconClock width="18" height="18" />} value={pendingLeads} label="Pending Lender Approvals" iconBg="bg-amber-500" tileBg="bg-amber-50/60" tileBorder="border-amber-200" onClick={() => setStatModal('pending-leads')} />
-                        <StatTile icon={<IconDoc width="18" height="18" />} value={pendingDocs} label="Pending Doc Approvals" iconBg="bg-rose-500" tileBg="bg-rose-50/60" tileBorder="border-rose-200" onClick={() => setStatModal('pending-docs')} />
-                        <StatTile icon={<IconTeam width="18" height="18" />} value={totalTeams} label="Total Teams" iconBg="bg-violet-600" tileBg="bg-violet-50/60" tileBorder="border-violet-200" onClick={() => onNavigate?.('team-leaders')} />
-                        <StatTile icon={<IconOnline width="18" height="18" />} value={onlineUsers} label="Online Users" iconBg="bg-emerald-600" tileBg="bg-emerald-50/60" tileBorder="border-emerald-200"
-                            onClick={() => setShowOnlineUsers(true)} />
+                        <StatTile icon={<IconUsers width="18" height="18" />} value={SA_STATS.totalLeads} label="Total Leads" iconBg="bg-blue-600" tileBg="bg-blue-50/60" tileBorder="border-blue-200" darkBg="bg-[#1c2340]" darkBorder="border-blue-500/30" darkText="text-blue-300" onClick={() => setStatModal('leads')} />
+                        <StatTile icon={<IconMoney width="18" height="18" />} value={loanDisplay} label="Total Loan Amount" iconBg="bg-orange-500" tileBg="bg-orange-50/60" tileBorder="border-orange-200" darkBg="bg-[#2a1e10]" darkBorder="border-orange-500/30" darkText="text-orange-300" />
+                        <StatTile icon={<IconClock width="18" height="18" />} value={pendingLeads} label="Pending Lender Approvals" iconBg="bg-amber-500" tileBg="bg-amber-50/60" tileBorder="border-amber-200" darkBg="bg-[#282315]" darkBorder="border-amber-500/30" darkText="text-amber-300" onClick={() => setStatModal('pending-leads')} />
+                        <StatTile icon={<IconDoc width="18" height="18" />} value={pendingDocs} label="Pending Doc Approvals" iconBg="bg-rose-500" tileBg="bg-rose-50/60" tileBorder="border-rose-200" darkBg="bg-[#2a1a1c]" darkBorder="border-rose-500/30" darkText="text-rose-300" onClick={() => setStatModal('pending-docs')} />
+                        <StatTile icon={<IconTeam width="18" height="18" />} value={totalTeams} label="Total Teams" iconBg="bg-violet-600" tileBg="bg-violet-50/60" tileBorder="border-violet-200" darkBg="bg-[#251a3a]" darkBorder="border-violet-500/30" darkText="text-violet-300" onClick={() => onNavigate?.('team-leaders')} />
+                        <StatTile icon={<IconOnline width="18" height="18" />} value={onlineUsers} label="Online Users" iconBg="bg-emerald-600" tileBg="bg-emerald-50/60" tileBorder="border-emerald-200" darkBg="bg-[#182724]" darkBorder="border-emerald-500/30" darkText="text-emerald-300" onClick={() => setShowOnlineUsers(true)} />
                     </div>
 
                     {/* ROW 2 — Task Schedule | Agent Performance | Notes */}
@@ -1072,53 +1072,53 @@ const SuperAdminDashboard = ({ onNavigate }) => {
 
                 return (
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setStatModal(null)}>
-                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col animate-fadeIn overflow-hidden" onClick={e => e.stopPropagation()}>
+                        <div className={`rounded-2xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
                             {/* header */}
-                            <div className="flex items-center justify-between px-5 py-3.5 border-b border-slate-100 bg-slate-50/60 shrink-0">
+                            <div className={`flex items-center justify-between px-5 py-3.5 border-b shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full bg-${ac}-500`} />
-                                    <p className="text-[12px] font-black text-slate-700 uppercase tracking-wider">{titles[statModal]}</p>
+                                    <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{titles[statModal]}</p>
                                     <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full bg-${ac}-100 text-${ac}-700`}>{data.length} records</span>
                                 </div>
-                                <button onClick={() => setStatModal(null)} className="w-7 h-7 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors">
-                                    <IconX width="13" height="13" className="text-slate-500" />
+                                <button onClick={() => setStatModal(null)} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
+                                    <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
                                 </button>
                             </div>
                             {/* table */}
                             <div className="overflow-auto flex-1">
                                 {data.length > 0 ? (
                                     <table className="w-full text-left border-collapse">
-                                        <thead className="sticky top-0 bg-slate-50 z-10">
+                                        <thead className={`sticky top-0 z-10 ${isDark ? 'bg-[#151932]' : 'bg-slate-50'}`}>
                                             <tr>
                                                 {['#', 'Lead', 'Business', 'Agent', 'Loan Amount', 'Stage'].map(h => (
-                                                    <th key={h} className="px-3 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">{h}</th>
+                                                    <th key={h} className={`px-3 py-2.5 text-[9px] font-black uppercase tracking-widest border-b ${isDark ? 'text-[#546298] border-white/5' : 'text-slate-400 border-slate-100'}`}>{h}</th>
                                                 ))}
                                                 {statModal === 'pending-docs' && <th className="px-3 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Pending Docs</th>}
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-50">
+                                        <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-50'}`}>
                                             {data.map((lead, idx) => {
                                                 const pendingDocCount = (lead.documents || []).filter(d => d.status === 'Pending').length;
                                                 return (
                                                     <tr key={lead.id}
-                                                        className="hover:bg-blue-50/40 transition-colors cursor-pointer group"
+                                                        className={`transition-colors cursor-pointer group ${isDark ? 'hover:bg-white/5' : 'hover:bg-blue-50/40'}`}
                                                         onClick={() => { setStatModal(null); onNavigate?.('lead-details', lead); }}
                                                     >
-                                                        <td className="px-3 py-2 text-[10px] font-bold text-slate-400">{idx + 1}</td>
+                                                        <td className={`px-3 py-2 text-[10px] font-bold ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{idx + 1}</td>
                                                         <td className="px-3 py-2">
                                                             <div className="flex items-center gap-2">
                                                                 <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-[9px] font-black shrink-0">
                                                                     {(lead.name || '').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-[11px] font-bold text-slate-700">{lead.name}</p>
-                                                                    <p className="text-[9px] text-slate-400">{lead.email}</p>
+                                                                    <p className={`text-[11px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{lead.name}</p>
+                                                                    <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{lead.email}</p>
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                        <td className="px-3 py-2 text-[11px] text-slate-600">{lead.businessName || '—'}</td>
-                                                        <td className="px-3 py-2 text-[11px] text-slate-600">{lead.agentName || '—'}</td>
-                                                        <td className="px-3 py-2 text-[11px] font-bold text-blue-600">{lead.loanAmount || '—'}</td>
+                                                        <td className={`px-3 py-2 text-[11px] ${isDark ? 'text-[#94abda]' : 'text-slate-600'}`}>{lead.businessName || '—'}</td>
+                                                        <td className={`px-3 py-2 text-[11px] ${isDark ? 'text-[#94abda]' : 'text-slate-600'}`}>{lead.agentName || '—'}</td>
+                                                        <td className="px-3 py-2 text-[11px] font-bold text-blue-500">{lead.loanAmount || '—'}</td>
                                                         <td className="px-3 py-2">
                                                             <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${STAGE_COLORS[lead.stage || lead.status] || 'bg-slate-100 text-slate-600'}`}>
                                                                 {lead.stage || lead.status}
@@ -1135,7 +1135,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                                         </tbody>
                                     </table>
                                 ) : (
-                                    <div className="py-16 text-center text-[11px] font-bold text-slate-400 uppercase tracking-widest">No records found</div>
+                                    <div className={`py-16 text-center text-[11px] font-bold uppercase tracking-widest ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>No records found</div>
                                 )}
                             </div>
                             {/* footer */}
@@ -1160,7 +1160,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
             )}
 
             {selectedUser && (
-                <UserProfileModal user={selectedUser} onClose={() => setSelectedUser(null)} />
+                <UserProfileModal user={selectedUser} onClose={() => setSelectedUser(null)} onUserClick={(u) => setSelectedUser(u)} />
             )}
         </div>
     );

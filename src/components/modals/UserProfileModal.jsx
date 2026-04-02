@@ -214,20 +214,22 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-[#f7fafc]">
-                                                {hierarchy?.members?.map((m) => (
+                                                {hierarchy?.members?.map((m) => {
+                                                    const fullMember = SHARED_INITIAL_USERS.find(u => u.id?.toString() === m.id?.toString()) || m;
+                                                    return (
                                                     <tr 
                                                         key={m.id} 
-                                                        onClick={() => onUserClick && onUserClick(m)}
+                                                        onClick={() => onUserClick && onUserClick(fullMember)}
                                                         className="hover:bg-[#f8faff] transition-colors cursor-pointer group"
                                                     >
                                                         <td className="px-4 py-3">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-sm" style={{ background: m.color }}>
-                                                                    {m.initials}
+                                                                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-sm" style={{ background: fullMember.color }}>
+                                                                    {fullMember.initials}
                                                                 </div>
                                                                 <div className="flex flex-col">
-                                                                    <span className={`text-[13px] font-black group-hover:text-[#2563eb] transition-colors ${textPrimary}`}>{m.name}</span>
-                                                                    <span className="text-[10px] font-bold text-slate-400">{m.email}</span>
+                                                                    <span className={`text-[13px] font-black group-hover:text-[#2563eb] transition-colors ${textPrimary}`}>{fullMember.name}</span>
+                                                                    <span className="text-[10px] font-bold text-slate-400">{fullMember.email}</span>
                                                                 </div>
                                                             </div>
                                                         </td>
@@ -235,7 +237,8 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
                                                             <span className="text-[10px] font-black text-[#2563eb] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">View Profile →</span>
                                                         </td>
                                                     </tr>
-                                                ))}
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     </div>
@@ -268,11 +271,14 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
                                 onClick={() => setActiveTab('team')}
                             >
                                 <div className="flex -space-x-2">
-                                    {hierarchy.members.slice(0, 3).map((m, i) => (
-                                        <div key={i} className="w-7 h-7 rounded-lg border-2 border-white flex items-center justify-center text-[8px] font-bold text-white shadow-sm ring-1 ring-black/5" style={{ background: m.color, zIndex: 10 - i }}>
-                                            {m.initials}
+                                    {hierarchy.members.slice(0, 3).map((m, i) => {
+                                        const fm = SHARED_INITIAL_USERS.find(u => u.id?.toString() === m.id?.toString()) || m;
+                                        return (
+                                        <div key={i} className="w-7 h-7 rounded-lg border-2 border-white flex items-center justify-center text-[8px] font-bold text-white shadow-sm ring-1 ring-black/5" style={{ background: fm.color, zIndex: 10 - i }}>
+                                            {fm.initials}
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                     {hierarchy.members.length > 3 && (
                                         <div className="w-7 h-7 rounded-lg border-2 border-white bg-slate-100 flex items-center justify-center text-[8px] font-black text-slate-400 shadow-sm ring-1 ring-black/5" style={{ zIndex: 0 }}>
                                             +{hierarchy.members.length - 3}

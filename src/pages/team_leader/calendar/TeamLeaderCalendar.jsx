@@ -126,6 +126,21 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
     const isDark = theme === 'dark';
     const location = useLocation();
 
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    const [filter, setFilter] = useState('All');
+    const [assignmentFilter, setAssignmentFilter] = useState('All');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isAddingTask, setIsAddingTask] = useState(false);
+    const [previewFile, setPreviewFile] = useState(null);
+    const [editingTask, setEditingTask] = useState(null);
+    const [selectedDate, setSelectedDate] = useState(initialDate || new Date().toISOString().split('T')[0]);
+    const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);
+    const [outlookAccount, setOutlookAccount] = useState(null);
+    const [outlookEvents, setOutlookEvents] = useState([]);
+    const [loadingEvents, setLoadingEvents] = useState(false);
+    const taskRefs = useRef({});
+
     const memoizedPromotions = React.useMemo(() => promotions.map(p => ({
         id: `promo-${p.id}`,
         title: `PROMO: ${p.lenderName}`,
@@ -142,22 +157,25 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
         assignedTo: 'Self'
     })), [promotions]);
 
-    const tasks = React.useMemo(() => [...initialTasks, ...memoizedPromotions].sort((a, b) => new Date(b.date) - new Date(a.date)), [initialTasks, memoizedPromotions]);
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const memoizedOutlookEvents = React.useMemo(() => outlookEvents.map(evt => ({
+        id: evt.id,
+        title: evt.subject,
+        lead: evt.location?.displayName || 'Outlook Event',
+        date: evt.start?.dateTime?.split('T')[0],
+        time: (evt.start?.dateTime?.split('T')[1] || '').substring(0, 5),
+        type: 'Meeting',
+        status: 'Outlook',
+        isOutlook: true,
+        webLink: evt.webLink,
+        assignedTo: 'Self'
+    })), [outlookEvents]);
 
-    const [filter, setFilter] = useState('All');
-    const [assignmentFilter, setAssignmentFilter] = useState('All');
-    const [searchTerm, setSearchTerm] = useState('');
-    const [isAddingTask, setIsAddingTask] = useState(false);
-    const [previewFile, setPreviewFile] = useState(null);
-    const [editingTask, setEditingTask] = useState(null);
-    const [selectedDate, setSelectedDate] = useState(initialDate || new Date().toISOString().split('T')[0]);
-    const taskRefs = useRef({});
-
-    const [useOutlookCalendar, setUseOutlookCalendar] = useState(false);
-    const [outlookAccount, setOutlookAccount] = useState(null);
-    const [outlookEvents, setOutlookEvents] = useState([]);
-    const [loadingEvents, setLoadingEvents] = useState(false);
+    const tasks = React.useMemo(() => {
+        if (useOutlookCalendar) {
+            return memoizedOutlookEvents.sort((a, b) => new Date(b.date) - new Date(a.date));
+        }
+        return [...initialTasks, ...memoizedPromotions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    }, [initialTasks, memoizedPromotions, memoizedOutlookEvents, useOutlookCalendar]);
 
     useEffect(() => {
         const acc = getAccount();
@@ -232,7 +250,7 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
 
     const stats = {
         total: filteredTasks.length,
-        pending: filteredTasks.filter(t => t.status !== 'Completed').length,
+        pending: filteredTasks.filter(t => t.status !== 'Completed' && t.status !== 'Outlook').length,
         completed: filteredTasks.filter(t => t.status === 'Completed').length,
         urgent: filteredTasks.filter(t => t.priority === 'High' && t.status !== 'Completed').length
     };
@@ -308,9 +326,23 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
                         <button key={t} className={`px-3 py-1.5 rounded-md transition-all ${assignmentFilter === t ? (isDark ? 'bg-[#6366f1] text-white' : 'bg-white text-[#2447d7] shadow-sm') : (isDark ? 'text-[#94abda]' : 'text-slate-500')}`} onClick={() => setAssignmentFilter(t)}>{t}</button>
                     ))}
                 </div>
-                <button className="flex items-center gap-1.5 bg-[#2447d7] text-white px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-wide shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] transition-all" onClick={() => { setIsAddingTask(true); setEditingTask(null); }}>
-                    <IconPlus size={12} /> New Task
-                </button>
+                {!useOutlookCalendar && (
+                    <button className="flex items-center gap-1.5 bg-[#2447d7] text-white px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-wide shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] transition-all" onClick={() => { setIsAddingTask(true); setEditingTask(null); }}>
+                        <IconPlus size={12} /> New Task
+                    </button>
+                )}
+                {useOutlookCalendar && outlookAccount && (
+                    <div className="flex items-center gap-2">
+                        <a href="https://outlook.office.com/calendar/view/month" target="_blank" rel="noopener noreferrer" className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-wider transition-all ${isDark ? 'bg-[#2a3258] border-[#36407a] text-blue-400 hover:bg-[#36407a]' : 'bg-blue-50 border-blue-100 text-[#2447d7] hover:bg-blue-100'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="12" height="12"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            Browse Calendar
+                        </a>
+                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border ${isDark ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-emerald-50 border-emerald-100 text-emerald-600'}`}>
+                            <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+                            <span className="text-[10px] font-black uppercase tracking-widest truncate max-w-[120px]">{outlookAccount.username}</span>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
 
@@ -346,7 +378,20 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
                     </span>
                 </div>
                 <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-2">
-                    {filteredTasks.filter(t => !t.isPromotion && t.date === selectedDate).length > 0 ? (
+                    {useOutlookCalendar && !outlookAccount ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-4 text-center p-8">
+                            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${isDark ? 'bg-[#2a3258] text-[#818cf8]' : 'bg-blue-50 text-blue-600'}`}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </div>
+                            <div className="max-w-[280px]">
+                                <h3 className={`text-[15px] font-black uppercase tracking-wider mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Connect Outlook</h3>
+                                <p className={`text-[12px] font-medium leading-relaxed ${isDark ? 'text-[#94abda]' : 'text-slate-500'}`}>SignIn with your Outlook account to view and sync your calendar events directly.</p>
+                            </div>
+                            <button onClick={handleOutlookLogin} className="bg-[#2447d7] text-white px-6 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] transition-all">
+                                Connect Now
+                            </button>
+                        </div>
+                    ) : filteredTasks.filter(t => !t.isPromotion && t.date === selectedDate).length > 0 ? (
                         filteredTasks.filter(t => !t.isPromotion && t.date === selectedDate).map(task => {
                             const typeStyles = {
                                 'Call':     { border: 'border-l-blue-500',   iconBg: 'bg-blue-500',   iconText: 'text-white' },
@@ -359,24 +404,23 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
                             const email = leadObj?.email || task.leadEmail || '—';
                             const phone = leadObj?.phone || task.leadPhone || '—';
                             const business = leadObj?.businessName || 'Not Specified';
-                            const leadStatus = leadObj?.status || leadObj?.stage || 'Pending';
 
                             return (
                                 <div key={task.id} className={`rounded-xl border-l-[3px] border transition-all hover:shadow-sm ${isDark ? `bg-[#1e2347] border-white/5 ${style.border}` : `bg-white border-slate-100 ${style.border}`}`}>
-                                    {/* Top row: icon + title/meta + status + edit */}
                                     <div className="flex items-start gap-3 px-3 pt-3 pb-2">
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${isDark ? 'bg-[#2a3258] text-[#818cf8]' : `${style.iconBg} ${style.iconText}`}`}>
-                                            {task.type === 'Call' ? <IconPhone size={13} /> : task.type === 'Document' ? <IconDoc size={13} /> : task.type === 'Meeting' ? <IconDoc size={13} /> : <IconPhone size={13} />}
+                                            {task.type === 'Call' ? <IconPhone size={13} /> : task.type === 'Document' ? <IconDoc size={13} /> : <IconMeeting size={13} />}
                                         </div>
                                         <div className="flex-1 min-w-0 overflow-hidden">
                                             <div className="flex items-start justify-between gap-2">
                                                 <span className={`text-[13px] font-black leading-tight break-words min-w-0 flex-1 ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`}>{task.title}</span>
                                                 <div className="flex items-center gap-1.5 shrink-0">
-                                                    {!task.isPromotion && (
+                                                    {!task.isPromotion && !task.isOutlook && (
                                                         <select value={task.leadStatus || 'Warm'} onChange={e => { e.stopPropagation(); updateLeadStatus(task.id, e.target.value); }} onClick={e => e.stopPropagation()} className={`text-[9px] font-black px-2 py-1 rounded-full border outline-none cursor-pointer transition-colors ${(task.leadStatus || 'Warm') === 'Hot' ? (isDark ? 'bg-red-500/15 text-red-400 border-red-500/20' : 'bg-red-50 text-red-600 border-red-100') : (task.leadStatus || 'Warm') === 'Cool' ? (isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/20' : 'bg-blue-50 text-blue-600 border-blue-100') : (isDark ? 'bg-amber-500/15 text-amber-400 border-amber-500/20' : 'bg-amber-50 text-amber-600 border-amber-100')}`}><option value="Hot">🔥 Hot</option><option value="Warm">☀️ Warm</option><option value="Cool">❄️ Cool</option></select>
                                                     )}
-                                                    <StatusSelector status={task.status} onStatusChange={ns => updateTaskStatus(task.id, ns)} isDark={isDark} />
-                                                    {canManageTask(task, user) && (
+                                                    {!task.isOutlook && <StatusSelector status={task.status} onStatusChange={ns => updateTaskStatus(task.id, ns)} isDark={isDark} />}
+                                                    {task.isOutlook && <span className={`text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-tighter border ${isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/20' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>Outlook Event</span>}
+                                                    {canManageTask(task, user) && !task.isOutlook && (
                                                         <>
                                                             <button onClick={() => handleEditClick(task)} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'text-[#546298] hover:text-[#94abda] hover:bg-white/5' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'}`}><IconEdit size={11} /></button>
                                                             <button onClick={() => handleDeleteTask(task.id)} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'text-[#546298] hover:text-red-400 hover:bg-red-500/10' : 'text-slate-300 hover:text-red-500 hover:bg-red-50'}`}><IconTrash size={11} /></button>
@@ -389,10 +433,14 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
                                                 <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${isDark ? 'bg-white/5 text-white/40' : 'bg-slate-100 text-slate-400'}`}>{task.type || 'Task'}</span>
                                                 {task.reminder && task.reminder !== 'none' && <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>⏰ {task.reminder}</span>}
                                                 {task.assignedTo && <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${Array.isArray(task.assignedTo) && task.assignedTo.includes('Self') ? (isDark ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-50 text-blue-600') : (isDark ? 'bg-purple-500/15 text-purple-400' : 'bg-purple-50 text-purple-600')}`}>{Array.isArray(task.assignedTo) && task.assignedTo.includes('Self') ? 'Personal' : 'Team'}</span>}
+                                                {task.isOutlook && task.webLink && (
+                                                    <a href={task.webLink} target="_blank" rel="noopener noreferrer" className={`text-[8px] font-black px-1.5 py-0.5 rounded border transition-colors ${isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/20 hover:bg-blue-500/30' : 'bg-blue-50 text-[#2447d7] border-blue-100 hover:bg-blue-100'}`}>
+                                                        Open in Outlook ↗
+                                                    </a>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
-                                    {/* Details strip - single line */}
                                     <div className={`px-3 pb-2 pt-1.5 border-t flex items-center gap-3 flex-wrap ${isDark ? 'border-white/5 text-[#546298]' : 'border-slate-50 text-slate-400'}`}>
                                         {task.lead && <span className={`flex items-center gap-1 text-[9px] font-bold ${isDark ? 'text-[#94abda]' : 'text-[#475569]'}`}><IconUser size={9} />{task.lead}</span>}
                                         {business !== 'Not Specified' && <span className="flex items-center gap-1 text-[9px] font-bold"><IconBriefcase size={9} />{business}</span>}
@@ -412,51 +460,73 @@ const TeamLeaderCalendar = ({ tasks: initialTasks, setTasks, initialDate, notify
                 </div>
             </div>
 
-            {/* RIGHT: Promotions panel */}
+            {/* RIGHT: Promotions / Sync Info panel */}
             <div className={`w-[320px] shrink-0 flex flex-col border-l overflow-hidden ${isDark ? 'bg-[#151932] border-white/5' : 'bg-[#f4f7ff] border-[#e2e8f0]'}`}>
-                <div className={`px-4 py-2.5 border-b shrink-0 flex items-center justify-between ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>PROMOTIONS</span>
-                    <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${isDark ? 'bg-white/5 text-white/40' : 'bg-slate-200 text-slate-500'}`}>
-                        {filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).length}
-                    </span>
-                </div>
-                <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
-                    {filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).length > 0 ? (
-                        filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).map(p => {
-                            const hue = ((p.title.length * 53) % 360);
-                            const accentColor = isDark ? `hsla(${hue}, 70%, 65%, 1)` : `hsla(${hue}, 70%, 45%, 1)`;
-                            return (
-                                <div key={p.id} className={`rounded-xl border-l-[3px] border transition-all hover:shadow-sm ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`} style={{ borderLeftColor: accentColor }}>
-                                    <div className="flex items-center gap-2.5 px-3 py-3">
-                                        <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: isDark ? `hsla(${hue}, 40%, 25%, 0.5)` : `hsla(${hue}, 70%, 95%, 1)`, color: accentColor }}>
-                                            <IconDoc size={12} />
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <div className="flex items-center gap-1.5 flex-wrap">
-                                                <span className="text-[11px] font-black truncate" style={{ color: accentColor }}>{p.title.replace('PROMO: ', '')}</span>
-                                                <span className={`text-[8px] font-black px-1 py-0.5 rounded ${isDark ? 'bg-white/5 text-white/30' : 'bg-slate-100 text-slate-400'}`}>PROMO</span>
-                                            </div>
-                                            <div className={`text-[9px] font-bold mt-0.5 truncate ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{p.lead}</div>
-                                            <div className={`text-[8px] font-bold mt-0.5 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Expires {p.endDate || 'N/A'}</div>
-                                        </div>
-                                    </div>
-                                    {p.fileData && (
-                                        <div className="px-3 pb-2.5">
-                                            <button onClick={() => setPreviewFile({ fileName: p.fileName, fileData: p.fileData })} className={`w-full flex items-center justify-center gap-1.5 text-[9px] font-black px-2 py-1.5 rounded-lg uppercase tracking-wide transition-colors ${isDark ? 'bg-[#2a3258] text-[#818cf8] hover:bg-[#36407a]' : 'bg-blue-50 text-blue-600 hover:bg-blue-100'}`}>
-                                                <IconDoc size={10} /> View Document
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })
-                    ) : (
-                        <div className={`flex flex-col items-center justify-center h-full gap-2 ${isDark ? 'text-[#2c3568]' : 'text-slate-300'}`}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-center">No active promotions</span>
+                {useOutlookCalendar ? (
+                    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${isDark ? 'bg-[#2a3258] text-[#818cf8]' : 'bg-blue-50 text-blue-600'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" width="32" height="32"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                         </div>
-                    )}
-                </div>
+                        <div>
+                            <h4 className={`text-[13px] font-black uppercase tracking-wider mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Outlook Synchronized</h4>
+                            <p className={`text-[11px] leading-relaxed font-bold opacity-60 ${isDark ? 'text-[#94abda]' : 'text-slate-500'}`}>
+                                You are viewing your real-time Microsoft Outlook calendar events. Local CRM tasks and promotions are hidden in this mode.
+                            </p>
+                        </div>
+                        <div className={`mt-4 w-full p-4 rounded-xl border flex flex-col gap-2 ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`}>
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-black uppercase opacity-40">Status</span>
+                                <span className="text-[10px] font-bold text-emerald-500">Active Sync</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-[10px] font-black uppercase opacity-40">Account</span>
+                                <span className="text-[10px] font-bold truncate max-w-[120px]">{outlookAccount?.username || 'Connected'}</span>
+                            </div>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <div className={`px-4 py-2.5 border-b shrink-0 flex items-center justify-between ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>PROMOTIONS</span>
+                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${isDark ? 'bg-white/5 text-white/40' : 'bg-slate-200 text-slate-500'}`}>
+                                {filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).length}
+                            </span>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2">
+                            {filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).length > 0 ? (
+                                filteredTasks.filter(t => t.isPromotion && (!t.endDate || t.endDate >= new Date().toISOString().split('T')[0])).map(p => {
+                                    const hue = ((p.title.length * 53) % 360);
+                                    const accentColor = isDark ? `hsla(${hue}, 70%, 65%, 1)` : `hsla(${hue}, 70%, 45%, 1)`;
+                                    return (
+                                        <div key={p.id} className={`rounded-xl border-l-[3px] border transition-all hover:shadow-sm ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`} style={{ borderLeftColor: accentColor }}>
+                                            <div className="flex items-center gap-2.5 px-3 py-3">
+                                                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: isDark ? `hsla(${hue}, 40%, 25%, 0.5)` : `hsla(${hue}, 70%, 95%, 1)`, color: accentColor }}>
+                                                    <IconDoc size={12} />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between gap-2 mb-0.5">
+                                                        <span className={`text-[11px] font-black truncate ${isDark ? 'text-[#e4ecff]' : 'text-slate-900'}`}>{p.title.replace('PROMO: ', '')}</span>
+                                                        <span className={`text-[8px] font-black px-1 rounded uppercase bg-opacity-10 ${isDark ? 'bg-white text-white/40' : 'bg-slate-200 text-slate-500'}`}>Live</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <span className={`text-[9px] font-black ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{p.date}</span>
+                                                        <span className="w-0.5 h-0.5 rounded-full bg-slate-300" />
+                                                        <button onClick={() => setPreviewFile({ name: p.fileName, data: p.fileData })} className="text-[9px] font-black text-[#2447d7] hover:underline uppercase tracking-tight">View Details</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <div className="flex flex-col items-center justify-center h-full gap-2 opacity-20 py-10 scale-90">
+                                    <IconActivity size={40} className={isDark ? 'text-white' : 'text-slate-300'} />
+                                    <span className="text-[10px] font-black uppercase tracking-widest text-center">No active promotions</span>
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
             </div>
         </div>
 
