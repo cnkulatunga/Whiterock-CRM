@@ -318,11 +318,11 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
     };
 
     return (
-        <div className={`flex flex-col h-[calc(100vh-68px)] gap-0 animate-fadeIn font-['Sora',sans-serif] overflow-hidden ${isDark ? 'text-[#e4ecff]' : 'text-[#0f172a]'}`}>
+        <div className={`flex flex-col h-[calc(100vh-68px)] lg:h-auto lg:min-h-[calc(100vh-68px)] gap-0 animate-fadeIn font-['Sora',sans-serif] overflow-hidden lg:overflow-visible ${isDark ? 'text-[#e4ecff]' : 'text-[#0f172a]'}`}>
 
         {/* ── TOP BAR ── */}
-        <div className={`flex items-center justify-between px-5 py-3 border-b shrink-0 ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`}>
-            <div className="flex items-center gap-3">
+        <div className={`flex flex-wrap items-start justify-between gap-3 px-5 py-3 lg:px-3 border-b shrink-0 ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-100'}`}>
+            <div className="flex flex-wrap items-center gap-2">
                 {[
                     { label: 'Total', value: stats.total, color: isDark ? 'bg-indigo-500/15 text-indigo-400' : 'bg-indigo-50 text-indigo-600' },
                     { label: 'Pending', value: stats.pending, color: isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-50 text-amber-600' },
@@ -335,12 +335,12 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
                     </div>
                 ))}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 lg:w-full">
                 <div className={`flex p-0.5 rounded-lg border text-[10px] font-black ${isDark ? 'bg-[#2a3258] border-[#36407a]' : 'bg-slate-100 border-slate-200'}`}>
                     <button className={`px-3 py-1.5 rounded-md transition-all ${!useOutlookCalendar ? (isDark ? 'bg-[#6366f1] text-white' : 'bg-white text-[#2447d7] shadow-sm') : (isDark ? 'text-[#94abda]' : 'text-slate-500')}`} onClick={() => setUseOutlookCalendar(false)}>Local</button>
                     <button className={`px-3 py-1.5 rounded-md transition-all ${useOutlookCalendar ? (isDark ? 'bg-[#6366f1] text-white' : 'bg-white text-[#2447d7] shadow-sm') : (isDark ? 'text-[#94abda]' : 'text-slate-500')}`} onClick={() => setUseOutlookCalendar(true)}>Outlook</button>
                 </div>
-                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border w-[220px] ${isDark ? 'bg-[#2a3258] border-[#36407a]' : 'bg-slate-50 border-slate-200'}`}>
+                <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border w-[220px] lg:w-full ${isDark ? 'bg-[#2a3258] border-[#36407a]' : 'bg-slate-50 border-slate-200'}`}>
                     <IconSearch size={13} className={isDark ? 'text-[#546298]' : 'text-slate-400'} />
                     <input type="text" className="bg-transparent border-none outline-none text-[12px] font-medium w-full placeholder:text-slate-400" placeholder="Search operations..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 </div>
@@ -370,10 +370,10 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
         </div>
 
         {/* ── MAIN 3-PANEL LAYOUT ── */}
-        <div className="flex flex-1 min-h-0">
+        <div className="flex flex-1 min-h-0 lg:flex-col">
 
             {/* LEFT: Calendar panel */}
-            <div className={`w-[380px] shrink-0 flex flex-col border-r overflow-y-hidden ${isDark ? 'bg-[#151932] border-white/5' : 'bg-[#f4f7ff] border-[#e2e8f0]'}`}>
+            <div className={`w-[380px] shrink-0 flex flex-col border-r overflow-y-hidden lg:w-full lg:border-r-0 lg:border-b ${isDark ? 'bg-[#151932] border-white/5' : 'bg-[#f4f7ff] border-[#e2e8f0]'}`}>
                 <div className="p-4">
                     {renderCalendar()}
                 </div>
@@ -394,7 +394,7 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
             </div>
 
             {/* CENTER: Tasks list */}
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden lg:min-h-[420px]">
                 <div className={`px-4 py-2.5 border-b shrink-0 flex items-center justify-between ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
                     <span className={`text-[10px] font-black uppercase tracking-widest ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>
                         OPERATIONS · {filteredTasks.filter(t => !t.isPromotion && t.date === selectedDate).length} for {selectedDate}
@@ -487,7 +487,7 @@ const AMTasksFollowups = ({ tasks: initialTasks, setTasks, initialDate, notifyRe
             </div>
 
             {/* RIGHT: Promotions / Sync Info panel */}
-            <div className={`w-[320px] shrink-0 flex flex-col border-l overflow-hidden ${isDark ? 'bg-[#151932] border-white/5' : 'bg-[#f4f7ff] border-[#e2e8f0]'}`}>
+            <div className={`w-[320px] shrink-0 flex flex-col border-l overflow-hidden lg:w-full lg:border-l-0 lg:border-t ${isDark ? 'bg-[#151932] border-white/5' : 'bg-[#f4f7ff] border-[#e2e8f0]'}`}>
                 {useOutlookCalendar ? (
                     <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-4">
                         <div className={`w-16 h-16 rounded-2xl flex items-center justify-center ${isDark ? 'bg-[#2a3258] text-[#818cf8]' : 'bg-blue-50 text-blue-600'}`}>

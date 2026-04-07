@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import alphaLogo from '../../assets/images/alpha.png';
 import ThemeToggle from '../theme/ThemeToggle';
@@ -32,6 +32,18 @@ const TeleAgentSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCollapse
         onCollapseChange && onCollapseChange(next);
     };
 
+    useEffect(() => {
+        const syncMobileCollapse = () => {
+            if (window.innerWidth <= 1024 && isCollapsed) {
+                setIsCollapsed(false);
+                onCollapseChange && onCollapseChange(false);
+            }
+        };
+        syncMobileCollapse();
+        window.addEventListener('resize', syncMobileCollapse);
+        return () => window.removeEventListener('resize', syncMobileCollapse);
+    }, [isCollapsed, onCollapseChange]);
+
     return (
         <aside
             className={`${isCollapsed ? 'w-[60px]' : 'w-[280px]'} h-screen flex flex-col fixed left-0 top-0 z-[101] font-['Sora',sans-serif] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${isOpen ? 'translate-x-0' : 'lg:-translate-x-full'}`}
@@ -62,7 +74,7 @@ const TeleAgentSidebar = ({ activePage, onNavigate, onLogout, isOpen, onCollapse
 
                 <button
                     onClick={toggle}
-                    className={`absolute top-[40px] flex items-center justify-center transition-all hover:scale-105 shadow-sm border ${isCollapsed ? '-right-3.5 w-7 h-7 rounded-full' : 'right-4 w-7 h-7 rounded-lg'}`}
+                    className={`absolute top-[40px] flex items-center justify-center transition-all hover:scale-105 shadow-sm border lg:hidden ${isCollapsed ? '-right-3.5 w-7 h-7 rounded-full' : 'right-4 w-7 h-7 rounded-lg'}`}
                     style={{
                         color: isDark ? '#1d4ed8' : 'rgba(255,255,255,0.85)',
                         background: isDark ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.1)',

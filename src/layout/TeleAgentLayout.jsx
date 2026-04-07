@@ -120,7 +120,7 @@ const TeleAgentLayout = ({ onLogout }) => {
             />
             <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-[margin] duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[280px] lg:ml-0'}`}>
                 <div
-                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-5 sm:px-3 sm:gap-2 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
+                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-3 lg:gap-2 sm:px-2 sm:gap-1.5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
                     style={{
                         background: isDark ? 'rgba(22,26,48,0.97)' : 'rgba(255,255,255,0.98)',
                         borderBottom: `1px solid ${isDark ? '#36407a' : '#e6ebf5'}`,
@@ -139,13 +139,13 @@ const TeleAgentLayout = ({ onLogout }) => {
                         </svg>
                     </button>
                     
-                    <div className="flex-1 flex items-center pl-2 lg:pl-0">
-                        <h1 className="text-[16px] font-black tracking-widest uppercase text-slate-900 dark:text-white truncate">
+                    <div className="flex-1 flex items-center pl-2 lg:pl-0 min-w-0">
+                        <h1 className="text-[16px] lg:text-[13px] sm:text-[12px] font-black tracking-widest uppercase text-slate-900 dark:text-white truncate">
                             {getPageTitle()}
                         </h1>
                     </div>
                     
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 lg:gap-2">
                         {/* Notification Bell */}
                         <div className="relative">
                             <button
@@ -162,7 +162,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                                 </svg>
                             </button>
                             {showNotifications && (
-                                <div className={`absolute top-14 right-0 w-[300px] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${
+                                <div className={`absolute top-14 right-0 w-[300px] lg:w-[min(88vw,300px)] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${
                                     isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'
                                 }`}>
                                     <div className={`p-4 border-b text-sm font-bold ${
@@ -219,7 +219,7 @@ const TeleAgentLayout = ({ onLogout }) => {
                                         <line x1="5" y1="12" x2="19" y2="12" />
                                     </svg>
                                 </div>
-                                <span className="md:hidden lg:inline-block">Create Lead</span>
+                                <span className="lg:hidden">Create Lead</span>
                             </button>
                         )}
                     </div>

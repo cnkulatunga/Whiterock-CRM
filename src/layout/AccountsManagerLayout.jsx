@@ -128,7 +128,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
             />
             <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-[margin] duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[280px] lg:ml-0'}`}>
                 <div
-                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
+                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-3 lg:gap-2 sm:px-2 sm:gap-1.5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
                     style={{
                         background: isDark ? 'rgba(22,26,48,0.97)' : 'rgba(255,255,255,0.98)',
                         borderBottom: `1px solid ${isDark ? '#36407a' : '#e6ebf5'}`,
@@ -148,17 +148,17 @@ const AccountsManagerLayout = ({ onLogout }) => {
                     </button>
 
                     {/* DYNAMIC PAGE TITLE */}
-                    <div className="flex flex-col">
-                        <h2 className={`text-md font-black uppercase tracking-tight leading-tight ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>
+                    <div className="flex flex-col min-w-0">
+                        <h2 className={`text-md lg:text-[13px] sm:text-[12px] font-black uppercase tracking-tight leading-tight truncate ${isDark ? 'text-[#e4ecff]' : 'text-[#1a202c]'}`}>
                             {getPageTitle().title}
                         </h2>
-                        <p className={`text-[9px] font-bold uppercase tracking-widest ${isDark ? 'text-[#8ea0d4]' : 'text-[#718096]'}`}>
+                        <p className={`text-[9px] font-bold uppercase tracking-widest lg:hidden ${isDark ? 'text-[#8ea0d4]' : 'text-[#718096]'}`}>
                             {getPageTitle().subtitle}
                         </p>
                     </div>
 
                     <div className="flex-1" />
-                    <div className="flex items-center gap-4 lg:gap-3">
+                    <div className="flex items-center gap-4 lg:gap-2">
                         {/* Notification Bell */}
                         <div className="relative">
                             <button
@@ -174,7 +174,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                                 </svg>
                             </button>
                             {showNotifications && (
-                                <div className={`absolute top-14 right-0 w-[300px] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'
+                                <div className={`absolute top-14 right-0 w-[300px] lg:w-[min(88vw,300px)] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'
                                     }`}>
                                     <div className={`p-4 border-b text-sm font-bold ${isDark ? 'bg-[#141829] border-[#2c3568] text-[#e4ecff]' : 'bg-[#f8fafc] border-[#edf2f7] text-[#1a202c]'
                                         }`}>Reminders &amp; Alerts</div>

@@ -291,8 +291,8 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                     </div>
                 </div>
 
-                <div className="overflow-hidden">
-                    <table className="w-full border-collapse">
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[760px] md:min-w-[640px] sm:min-w-[560px] border-collapse">
                         <thead>
                             <tr className={`${isDark ? 'bg-[#141829]/50' : 'bg-[#fbfeff]'}`}>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[180px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>ID / Client</th>
