@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { MOCK_LEADS, INITIAL_MEMBERSHIPS, SHARED_INITIAL_USERS } from '../data/dummyData';
+import { INITIAL_MEMBERSHIPS, SHARED_INITIAL_USERS } from '../data/dummyData';
+import { leadsApi } from '../services/crmApi';
 
 const LeadsContext = createContext(null);
 
@@ -14,24 +15,14 @@ const generateLeadId = (leads) => {
 };
 
 export const LeadsProvider = ({ children }) => {
-    const [leads, setLeads] = useState(() => {
-        try {
-            const saved = localStorage.getItem('crm_leads');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                const validStages = ['Document Collection', 'Document Verification Done', 'Document Rejected', 'Lender Selection', 'Completed', 'Rejected'];
-                // Filter out stale leads with invalid IDs or unknown stages
-                const clean = parsed.filter(l => l.id?.startsWith('AF-') && validStages.includes(l.stage));
-                if (clean.length !== parsed.length) {
-                    localStorage.setItem('crm_leads', JSON.stringify(clean));
-                }
-                return clean.length ? clean : MOCK_LEADS;
-            }
-            return MOCK_LEADS;
-        } catch {
-            return MOCK_LEADS;
-        }
-    });
+    const [leads, setLeads] = useState([]);
+
+    // Fetch initial leads from the mocked API
+    useEffect(() => {
+        leadsApi.getAll().then(data => {
+            setLeads(data);
+        }).catch(err => console.error("Failed to load leads from API", err));
+    }, []);
 
     // Persist to localStorage on every change
     useEffect(() => {
@@ -137,6 +128,13 @@ export const LeadsProvider = ({ children }) => {
             documents: formData.documents || [],
         };
 
+        // Send to backend via API
+        leadsApi.create(newLead).then(createdLead => {
+            // Update local state with the exact backend response
+            setLeads(prev => [createdLead, ...prev.filter(l => l.id !== createdLead.id)]);
+        });
+
+        // Optimistic UI update
         setLeads(prev => [newLead, ...prev]);
         return newLead;
     };
@@ -145,7 +143,11 @@ export const LeadsProvider = ({ children }) => {
      * Update any fields on an existing lead by ID.
      */
     const updateLead = (id, changes) => {
+        // Optimistic UI update
         setLeads(prev => prev.map(l => l.id === id ? { ...l, ...changes } : l));
+        
+        // Background API call
+        leadsApi.update(id, changes).catch(err => console.error('Failed to update lead', err));
     };
 
     /**
@@ -153,6 +155,7 @@ export const LeadsProvider = ({ children }) => {
      */
     const deleteLead = (id) => {
         setLeads(prev => prev.filter(l => l.id !== id));
+        leadsApi.delete(id).catch(err => console.error('Failed to delete lead', err));
     };
 
     return (

@@ -102,8 +102,9 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
 
     const handleUpload = (leadId, docId, docName, file) => {
         const targetDocId = docId || Date.now();
-        const previewUrl = file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        const previewUrl = file ? URL.createObjectURL(file) : null;
         const fileName = file?.name || docName;
+        const fileType = file?.type || null;
         const today = new Date().toISOString().split('T')[0];
         setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0, file, previewUrl } }));
         let progress = 0;
@@ -111,11 +112,11 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
             progress += 10;
             if (progress >= 100) {
                 clearInterval(interval);
-                const newDoc = { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName };
+                const newDoc = { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName, fileType };
                 setLead(prev => {
                     const exists = prev.documents.find(d => d.id === targetDocId);
                     const newDocs = exists
-                        ? prev.documents.map(d => d.id === targetDocId ? { ...newDoc, ...d, status: 'Pending', url: previewUrl, fileName } : d)
+                        ? prev.documents.map(d => d.id === targetDocId ? { ...newDoc, ...d, status: 'Pending', url: previewUrl, fileName, fileType } : d)
                         : [...prev.documents, newDoc];
                     const updated = { ...prev, documents: newDocs };
                     updateLead(prev.id, { documents: newDocs });
@@ -556,7 +557,11 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                             <button onClick={() => setPreviewDoc(null)} className="p-1.5 rounded-lg hover:bg-gray-100"><IconClose size={16} /></button>
                         </div>
                         {previewDoc.url ? (
-                            <img src={previewDoc.url} alt={previewDoc.type} className="w-full rounded-lg border border-[#edf2f7]" />
+                            (previewDoc.fileType?.includes('pdf') || previewDoc.url?.endsWith('.pdf') || previewDoc.fileName?.endsWith('.pdf')) ? (
+                                <iframe src={previewDoc.url} title={previewDoc.type} className="w-full h-[500px] rounded-lg border border-[#edf2f7] bg-white"></iframe>
+                            ) : (
+                                <img src={previewDoc.url} alt={previewDoc.type} className="w-full rounded-lg border border-[#edf2f7]" />
+                            )
                         ) : (
                             <div className="flex flex-col items-center gap-3 py-8 text-[#94a3b8]">
                                 <IconFile size={40} />

@@ -111,8 +111,9 @@ const LeadMonitoring = ({ onViewDetails }) => {
     const handleUploadClick = (leadId, docId, docName, file) => {
         if (!file) return;
         const targetDocId = docId || Date.now();
-        const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        const previewUrl = URL.createObjectURL(file);
         const fileName = file.name;
+        const fileType = file.type;
 
         setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0, file, previewUrl } }));
 
@@ -121,7 +122,7 @@ const LeadMonitoring = ({ onViewDetails }) => {
             progress += 10;
             if (progress >= 100) {
                 clearInterval(interval);
-                finishUpload(leadId, targetDocId, docName, previewUrl, fileName);
+                finishUpload(leadId, targetDocId, docName, previewUrl, fileName, fileType);
             } else {
                 setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress } }));
             }
@@ -133,11 +134,11 @@ const LeadMonitoring = ({ onViewDetails }) => {
         setSelectedLeadForDocs(prev => prev && prev.id === leadId ? { ...prev, documents: (prev.documents || []).filter(d => d.id !== docId) } : prev);
     };
 
-    const finishUpload = (leadId, targetDocId, docName, previewUrl, fileName) => {
+    const finishUpload = (leadId, targetDocId, docName, previewUrl, fileName, fileType) => {
         const today = new Date().toISOString().split('T')[0];
         const buildDoc = (existing) => existing
-            ? { ...existing, status: 'Pending', date: today, url: previewUrl, fileName }
-            : { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName };
+            ? { ...existing, status: 'Pending', date: today, url: previewUrl, fileName, fileType }
+            : { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName, fileType };
 
         const updateDocList = (docs = []) => {
             const idx = docs.findIndex(d => d.id === targetDocId);

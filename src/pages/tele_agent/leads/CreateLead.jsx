@@ -246,7 +246,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                     clearInterval(interval);
                     setFormData(prev => ({
                         ...prev,
-                        documents: [...prev.documents, { id: tempId, type: uploadingDocs[tempId].name, status: 'Pending', date: new Date().toISOString().split('T')[0] }]
+                        documents: [...prev.documents, { id: tempId, type: uploadingDocs[tempId].name, status: 'Pending', date: new Date().toISOString().split('T')[0], url: uploadingDocs[tempId].previewUrl, fileName: uploadingDocs[tempId].file?.name, fileType: uploadingDocs[tempId].file?.type }]
                     }));
                     setUploadingDocs(prev => {
                         const next = { ...prev };
@@ -270,7 +270,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
         if (!file) return;
         const docName = customDocName.trim() || `Document ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         const tempId = Date.now();
-        const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        const previewUrl = URL.createObjectURL(file);
         setUploadingDocs(prev => ({ ...prev, [tempId]: { name: docName, progress: 0, isSimulating: false, file, previewUrl } }));
         setCustomDocName('');
         e.target.value = '';

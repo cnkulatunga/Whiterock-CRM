@@ -23,7 +23,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const { users } = useUsers() || {};
-    const { leads, setLeads } = useLeads() || { leads: [] };
+    const { leads, setLeads, updateLead } = useLeads() || { leads: [] };
     const { tasks } = useTasks() || { tasks: [] };
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
@@ -111,8 +111,9 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
         if (!file) return;
         const targetDocId = docId || Date.now();
         // Capture file info in local variables — avoids stale-closure bug when reading state later
-        const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        const previewUrl = URL.createObjectURL(file);
         const fileName = file.name;
+        const fileType = file.type;
 
         setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0, file, previewUrl } }));
 
@@ -121,19 +122,19 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
             progress += 10;
             if (progress >= 100) {
                 clearInterval(interval);
-                // Pass captured values directly — no stale closure on uploadingDocs state
-                finishUpload(leadId, targetDocId, docName, previewUrl, fileName);
+                // Pass captured values directly
+                finishUpload(leadId, targetDocId, docName, previewUrl, fileName, fileType);
             } else {
                 setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress } }));
             }
         }, 150);
     };
 
-    const finishUpload = (leadId, targetDocId, docName, previewUrl, fileName) => {
+    const finishUpload = (leadId, targetDocId, docName, previewUrl, fileName, fileType) => {
         const today = new Date().toISOString().split('T')[0];
         const buildDoc = (existing) => existing
-            ? { ...existing, status: 'Pending', date: today, url: previewUrl, fileName }
-            : { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName };
+            ? { ...existing, status: 'Pending', date: today, url: previewUrl, fileName, fileType }
+            : { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName, fileType };
 
         const updateDocList = (docs = []) => {
             const idx = docs.findIndex(d => d.id === targetDocId);
@@ -142,9 +143,12 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                 : [...docs, buildDoc(null)];
         };
 
-        setLeads(prev => prev.map(l =>
-            l.id === leadId ? { ...l, documents: updateDocList(l.documents) } : l
-        ));
+        const currentLead = leads.find(l => l.id === leadId);
+        if (currentLead) {
+            const updatedDocs = updateDocList(currentLead.documents);
+            updateLead(leadId, { documents: updatedDocs });
+        }
+
         setSelectedLead(prev =>
             prev?.id === leadId ? { ...prev, documents: updateDocList(prev.documents) } : prev
         );
@@ -155,7 +159,10 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     };
 
     const handleDeleteDocument = (leadId, docId) => {
-        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, documents: l.documents.filter(d => d.id !== docId) } : l));
+        const currentLead = leads.find(l => l.id === leadId);
+        if (currentLead) {
+            updateLead(leadId, { documents: currentLead.documents.filter(d => d.id !== docId) });
+        }
         setSelectedLead(prev => prev && prev.id === leadId ? { ...prev, documents: prev.documents.filter(d => d.id !== docId) } : prev);
     };
 
@@ -526,11 +533,13 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                     onUpload={handleUploadClick}
                     onDelete={handleDeleteDocument}
                     onApprove={(leadId, docId) => {
-                        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, documents: (l.documents || []).map(d => d.id === docId ? { ...d, status: 'Approved' } : d) } : l));
+                        const currentLead = leads.find(l => l.id === leadId);
+                        if (currentLead) updateLead(leadId, { documents: (currentLead.documents || []).map(d => d.id === docId ? { ...d, status: 'Approved' } : d) });
                         setSelectedLead(prev => prev && prev.id === leadId ? { ...prev, documents: (prev.documents || []).map(d => d.id === docId ? { ...d, status: 'Approved' } : d) } : prev);
                     }}
                     onReject={(leadId, docId, reason) => {
-                        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, documents: (l.documents || []).map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d) } : l));
+                        const currentLead = leads.find(l => l.id === leadId);
+                        if (currentLead) updateLead(leadId, { documents: (currentLead.documents || []).map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d) });
                         setSelectedLead(prev => prev && prev.id === leadId ? { ...prev, documents: (prev.documents || []).map(d => d.id === docId ? { ...d, status: 'Rejected', note: reason } : d) } : prev);
                     }}
                     uploadingDocs={uploadingDocs}

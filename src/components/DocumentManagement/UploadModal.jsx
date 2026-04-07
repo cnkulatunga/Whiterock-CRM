@@ -285,13 +285,21 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                         </div>
                         <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-[400px] p-8 relative overflow-hidden">
                             {(previewDoc.url || uploadingDocs[previewDoc.id]?.previewUrl) ? (
-                                <img 
-                                    src={previewDoc.url || uploadingDocs[previewDoc.id]?.previewUrl} 
-                                    alt="Preview" 
-                                    className="max-w-full max-h-full object-contain shadow-2xl animate-scaleIn"
-                                />
+                                (previewDoc.fileType?.includes('pdf') || previewDoc.url?.endsWith('.pdf') || uploadingDocs[previewDoc.id]?.file?.type === 'application/pdf') ? (
+                                    <iframe 
+                                        src={previewDoc.url || uploadingDocs[previewDoc.id]?.previewUrl} 
+                                        title="Document Preview"
+                                        className="w-full h-full min-h-[500px] rounded-xl shadow-2xl animate-scaleIn border bg-white"
+                                    />
+                                ) : (
+                                    <img 
+                                        src={previewDoc.url || uploadingDocs[previewDoc.id]?.previewUrl} 
+                                        alt="Preview" 
+                                        className="max-w-full max-h-full object-contain shadow-2xl animate-scaleIn"
+                                    />
+                                )
                             ) : (
-                                /* Mock Document Preview Content for Non-images */
+                                /* Mock Document Preview Content for Non-images (Fallback) */
                                 <div className="bg-white w-full h-full max-w-md shadow-lg p-8 flex flex-col gap-5 animate-slideUp border border-gray-100">
                                     <div className="h-6 w-1/2 bg-gray-100 rounded-lg flex items-center px-3 text-[10px] font-bold text-gray-400">FILE METADATA</div>
                                     <div className="flex flex-col gap-4 mt-4">
@@ -301,7 +309,7 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                         </div>
                                         <div className="flex justify-between border-b pb-2">
                                             <span className="text-xs text-gray-400">File Type</span>
-                                            <span className="text-xs font-bold text-gray-700">{uploadingDocs[previewDoc.id]?.file?.type || 'application/pdf'}</span>
+                                            <span className="text-xs font-bold text-gray-700">{uploadingDocs[previewDoc.id]?.file?.type || previewDoc.fileType || 'application/pdf'}</span>
                                         </div>
                                         <div className="flex justify-between border-b pb-2">
                                             <span className="text-xs text-gray-400">Size</span>

@@ -6,7 +6,7 @@ import { IconAlert, IconCheck, IconDocs } from '../../../components/DocumentMana
 import { useLeads } from '../../../context/LeadsContext';
 
 const DocumentVerification = () => {
-    const { leads, setLeads } = useLeads();
+    const { leads, updateLead } = useLeads();
     const [selectedLead, setSelectedLead] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -25,43 +25,39 @@ const DocumentVerification = () => {
     };
 
     const handleApproveDoc = (leadId, docId) => {
-        setLeads(prev => prev.map(lead => {
-            if (lead.id !== leadId) return lead;
-            const newDocs = lead.documents.map(doc =>
-                doc.id === docId ? { ...doc, status: 'Approved' } : doc
-            );
-            const allApproved = newDocs.length > 0 && newDocs.every(d => d.status === 'Approved');
-            const updatedLead = {
-                ...lead,
-                documents: newDocs,
-                ...(allApproved && lead.stage === 'Document Collection' ? {
-                    stage: 'Document Verification Done',
-                    status: 'Document Verification Done',
-                    progress: 40,
-                } : {}),
-            };
-            if (selectedLead?.id === leadId) setSelectedLead(updatedLead);
-            return updatedLead;
-        }));
+        const lead = leads.find(l => l.id === leadId);
+        if (!lead) return;
+        const newDocs = lead.documents.map(doc => doc.id === docId ? { ...doc, status: 'Approved' } : doc);
+        const allApproved = newDocs.length > 0 && newDocs.every(d => d.status === 'Approved');
+        
+        const updates = {
+            documents: newDocs,
+            ...(allApproved && lead.stage === 'Document Collection' ? {
+                stage: 'Document Verification Done',
+                status: 'Document Verification Done',
+                progress: 40,
+            } : {})
+        };
+        
+        updateLead(leadId, updates);
+        if (selectedLead?.id === leadId) setSelectedLead({ ...selectedLead, ...updates });
     };
 
     const handleRejectDoc = (leadId, docId, reason) => {
-        setLeads(prev => prev.map(lead => {
-            if (lead.id !== leadId) return lead;
-            const newDocs = lead.documents.map(doc =>
-                doc.id === docId ? { ...doc, status: 'Rejected', note: reason } : doc
-            );
-            const updatedLead = { ...lead, documents: newDocs };
-            if (selectedLead?.id === leadId) setSelectedLead(updatedLead);
-            return updatedLead;
-        }));
+        const lead = leads.find(l => l.id === leadId);
+        if (!lead) return;
+        const newDocs = lead.documents.map(doc => doc.id === docId ? { ...doc, status: 'Rejected', note: reason } : doc);
+        
+        updateLead(leadId, { documents: newDocs });
+        if (selectedLead?.id === leadId) setSelectedLead({ ...selectedLead, documents: newDocs });
     };
 
     const handleUploadClick = (leadId, docId, docName, file) => {
         if (!file) return;
         const targetDocId = docId || Date.now();
-        const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        const previewUrl = URL.createObjectURL(file);
         const fileName = file.name;
+        const fileType = file.type;
 
         setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress: 0, file, previewUrl } }));
 
@@ -70,18 +66,18 @@ const DocumentVerification = () => {
             progress += 10;
             if (progress >= 100) {
                 clearInterval(interval);
-                finishUpload(leadId, targetDocId, docName, previewUrl, fileName);
+                finishUpload(leadId, targetDocId, docName, previewUrl, fileName, fileType);
             } else {
                 setUploadingDocs(prev => ({ ...prev, [targetDocId]: { progress } }));
             }
         }, 150);
     };
 
-    const finishUpload = (leadId, targetDocId, docName, previewUrl, fileName) => {
+    const finishUpload = (leadId, targetDocId, docName, previewUrl, fileName, fileType) => {
         const today = new Date().toISOString().split('T')[0];
         const buildDoc = (existing) => existing
-            ? { ...existing, status: 'Pending', date: today, url: previewUrl, fileName }
-            : { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName };
+            ? { ...existing, status: 'Pending', date: today, url: previewUrl, fileName, fileType }
+            : { id: targetDocId, type: docName, status: 'Pending', note: '', date: today, url: previewUrl, fileName, fileType };
 
         const updateDocList = (docs = []) => {
             const idx = docs.findIndex(d => d.id === targetDocId);
@@ -90,9 +86,11 @@ const DocumentVerification = () => {
                 : [...docs, buildDoc(null)];
         };
 
-        setLeads(prev => prev.map(l =>
-            l.id === leadId ? { ...l, documents: updateDocList(l.documents) } : l
-        ));
+        const currentLead = leads.find(l => l.id === leadId);
+        if (currentLead) {
+            updateLead(leadId, { documents: updateDocList(currentLead.documents) });
+        }
+        
         setSelectedLead(prev =>
             prev?.id === leadId ? { ...prev, documents: updateDocList(prev.documents) } : prev
         );
@@ -103,7 +101,10 @@ const DocumentVerification = () => {
     };
 
     const handleDeleteDocument = (leadId, docId) => {
-        setLeads(prev => prev.map(l => l.id === leadId ? { ...l, documents: l.documents.filter(d => d.id !== docId) } : l));
+        const currentLead = leads.find(l => l.id === leadId);
+        if (currentLead) {
+            updateLead(leadId, { documents: currentLead.documents.filter(d => d.id !== docId) });
+        }
         setSelectedLead(prev => prev && prev.id === leadId ? { ...prev, documents: prev.documents.filter(d => d.id !== docId) } : prev);
     };
 
