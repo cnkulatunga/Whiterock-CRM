@@ -104,7 +104,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
             />
             <div className={`flex-1 flex flex-col min-h-screen min-w-0 transition-all duration-300 ease-in-out ${isSidebarOpen ? 'ml-0' : isSidebarCollapsed ? 'ml-[60px] lg:ml-0' : 'ml-[280px] lg:ml-0'}`}>
                 <div
-                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
+                    className={`h-[68px] flex items-center gap-4 px-8 fixed top-0 right-0 z-[90] transition-all duration-300 ease-in-out lg:px-3 lg:gap-2 sm:px-2 sm:gap-1.5 ${isSidebarOpen ? 'left-0' : isSidebarCollapsed ? 'left-[60px] lg:left-0' : 'left-[280px] lg:left-0'}`}
                     style={{
                         background: isDark ? 'rgba(22,26,48,0.97)' : 'rgba(255,255,255,0.98)',
                         borderBottom: `1px solid ${isDark ? '#36407a' : '#e6ebf5'}`,
@@ -125,39 +125,39 @@ const TeamLeaderLayout = ({ onLogout }) => {
                     
                     {/* Page Title in Top Menu Bar */}
                     {location.pathname === '/team-leader/dashboard' && (
-                        <div className="flex flex-col">
-                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        <div className="flex flex-col min-w-0">
+                            <h1 className={`text-lg lg:text-[14px] sm:text-[12px] font-bold tracking-tight truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 Team Leader Dashboard
                             </h1>
-                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className={`text-xs font-medium lg:hidden ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Monitor team performance, track leads, and manage operations.
                             </p>
                         </div>
                     )}
                     {location.pathname === '/team-leader/lead-monitoring' && (
-                        <div className="flex flex-col">
-                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        <div className="flex flex-col min-w-0">
+                            <h1 className={`text-lg lg:text-[14px] sm:text-[12px] font-bold tracking-tight truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 Lead Monitoring
                             </h1>
-                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className={`text-xs font-medium lg:hidden ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Track lead progress through workflow stages and team performance.
                             </p>
                         </div>
                     )}
 
                     {location.pathname === '/team-leader/calendar' && (
-                        <div className="flex flex-col">
-                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        <div className="flex flex-col min-w-0">
+                            <h1 className={`text-lg lg:text-[14px] sm:text-[12px] font-bold tracking-tight truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 Tasks and Followups
                             </h1>
-                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className={`text-xs font-medium lg:hidden ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Manage tasks, schedule followups, and track team activities.
                             </p>
                         </div>
                     )}
                     
                     <div className="flex-1" />
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 lg:gap-2">
                         {/* Notification Bell */}
                         <div className="relative">
                             <button
@@ -174,7 +174,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
                                 </svg>
                             </button>
                             {showNotifications && (
-                                <div className={`absolute top-14 right-0 w-[300px] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${
+                                <div className={`absolute top-14 right-0 w-[300px] lg:w-[min(88vw,300px)] rounded-2xl shadow-xl z-[100] overflow-hidden animate-fadeIn border ${
                                     isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-[#edf2f7]'
                                 }`}>
                                     <div className={`p-4 border-b text-sm font-bold ${

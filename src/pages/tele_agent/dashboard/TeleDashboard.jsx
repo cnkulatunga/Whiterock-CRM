@@ -733,13 +733,13 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     };
 
     return (
-        <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-[calc(100vh-116px)] sm:h-[calc(100vh-108px)]">
+        <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-auto lg:min-h-[calc(100vh-116px)] sm:min-h-[calc(100vh-108px)]">
 
             {/* STRICT SINGLE SCREEN GRID (Row 1: Tiles, Row 2: Main Stacks) */}
-            <div className="grid grid-cols-7 grid-rows-[min-content_1fr] flex-1 gap-4 min-h-0 w-full mb-1">
+            <div className="grid grid-cols-7 grid-rows-[min-content_1fr] flex-1 gap-4 min-h-0 w-full mb-1 lg:grid-cols-2 lg:grid-rows-none sm:grid-cols-1">
 
                 {/* === ROW 1: 7 SMALL SQUARES === (Cols 1 to 7) */}
-                <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUserGroup width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">
                         {(leads || []).filter(l => l.assignedStaffId === user.id && l.status !== 'Completed').length.toLocaleString()}
@@ -747,13 +747,13 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MY LEAD COUNT</span>
                 </div>
 
-                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-orange-100/40 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200 dark:border-orange-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-orange-100/40 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200 dark:border-orange-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-orange-500/20"><IconClock width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{tasks.length}</h2>
                     <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest">MY FOLLOWUPS</span>
                 </div>
 
-                <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconFolder width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">
                         {(leads || []).filter(l => l.assignedStaffId === user.id && (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))).length}
@@ -761,22 +761,22 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">PENDING DOCUMENTS</span>
                 </div>
 
-                <div onClick={() => onNavigate('create-lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => onNavigate('create-lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20"><IconUserGroup width="24" height="24" /></div>
                     <h2 className="text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">CREATE<br />LEAD</h2>
                 </div>
 
-                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center mb-1 shadow-md shadow-amber-500/20"><IconBulb width="24" height="24" /></div>
                     <h2 className="text-[14px] font-black leading-tight text-amber-700 dark:text-amber-400">KNOWLEDGE<br />BASE</h2>
                 </div>
 
-                <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square text-center hover:-translate-y-0.5 transition-transform">
+                <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-md shadow-[#5b5fc7]/30"><IconTeams width="24" height="24" /></div>
                     <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">CONNECT<br />TEAMS</h2>
                 </div>
 
-                <div className="bg-slate-100/30 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square text-center relative overflow-hidden grayscale opacity-70">
+                <div className="bg-slate-100/30 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square lg:aspect-auto lg:min-h-[112px] text-center relative overflow-hidden grayscale opacity-70">
                     <div className="w-11 h-11 rounded-full bg-slate-400 text-white flex items-center justify-center mb-1 shadow-md relative z-10"><IconBulb width="24" height="24" /></div>
                     <h2 className="text-[14px] font-black leading-tight text-slate-500 dark:text-slate-400 relative z-10">AI<br />ANALYTICS</h2>
                     <div className="absolute top-2 -right-6 w-24 bg-[#ff4d4d] text-white text-[8px] font-black py-0.5 rotate-45 transform flex items-center justify-center shadow-lg border-y border-white/20 z-20">
@@ -787,7 +787,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 {/* === ROW 2: COLUMN STACKS === */}
 
                 {/* STACK 1: TIMELINE (Cols 1-2) */}
-                <div className="col-span-2 flex flex-col min-h-0 shadow-sm overflow-hidden bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5">
+                <div className="col-span-2 lg:col-span-2 sm:col-span-1 flex flex-col min-h-0 shadow-sm overflow-hidden bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5">
                     {/* WIDGET TOP MENU BAR */}
                     <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-3 shrink-0 flex items-center justify-between">
                         <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate mr-2">Timeline</h2>
@@ -882,7 +882,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 </div>
 
                 {/* STACK 2: MIDDLE (Cols 3-5) */}
-                <div className="col-span-3 flex flex-col gap-4 min-h-0">
+                <div className="col-span-3 lg:col-span-2 sm:col-span-1 flex flex-col gap-4 min-h-0">
 
                     {/* ASSET CLASSES (Calculates tight height automatically) */}
                     <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden">
@@ -890,7 +890,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Asset Products</h2>
                             <span className="text-[8px] bg-indigo-50 dark:bg-indigo-900/30 font-bold px-1.5 py-0.5 rounded text-indigo-500">4 Types</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 p-3">
+                        <div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-1">
                             {ASSET_PRODUCTS.map(p => (
                                 <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-3 px-3 py-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition w-full h-full min-h-[42px]">
                                     <div className={`w-2 h-2 rounded-full shrink-0 ${p.dotColor}`} />
@@ -952,7 +952,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 </div>
 
                 {/* STACK 3: RIGHT (Cols 6-7) */}
-                <div className="col-span-2 flex flex-col gap-4 min-h-0">
+                <div className="col-span-2 lg:col-span-2 sm:col-span-1 flex flex-col gap-4 min-h-0">
 
                     {/* LOAN ESTIMATOR */}
                     <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden relative">
