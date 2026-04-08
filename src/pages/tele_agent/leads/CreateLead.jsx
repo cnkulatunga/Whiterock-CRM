@@ -57,6 +57,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
         // Loan Details
         loanAmount: '',
         loanPurpose: '',
+        leadStatus: 'Warm',
         existingLoan: 'No',
         existingLoanLenderName: '',
         existingLoanAmount: '',
@@ -328,9 +329,40 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                         <span className="w-8 h-8 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center shrink-0"><IconDocs /></span>
                         <h3 className="text-base font-bold text-[#1a202c]">Lead Specification</h3>
                     </div>
-                    <div className="flex items-center gap-2 bg-[#f0f4ff] px-3 py-1.5 rounded-lg">
-                        <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider">SYSTEM ID:</span>
-                        <span className="text-[12px] font-bold text-[#2447d7]">AF-2026-0001</span>
+                    <div className="flex items-center gap-3">
+                        {/* Lead Status Dropdown */}
+                        <div className="relative flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider whitespace-nowrap">Lead Status:</span>
+                            <div className="relative">
+                                <select
+                                    name="leadStatus"
+                                    value={formData.leadStatus}
+                                    onChange={handleInputChange}
+                                    className="appearance-none pl-6 pr-7 py-1.5 rounded-lg text-[12px] font-bold outline-none cursor-pointer border transition-all"
+                                    style={{
+                                        borderColor: formData.leadStatus === 'Hot' ? '#fecaca' : formData.leadStatus === 'Warm' ? '#fed7aa' : '#bfdbfe',
+                                        backgroundColor: formData.leadStatus === 'Hot' ? '#fef2f2' : formData.leadStatus === 'Warm' ? '#fff7ed' : '#eff6ff',
+                                        color: formData.leadStatus === 'Hot' ? '#dc2626' : formData.leadStatus === 'Warm' ? '#ea580c' : '#2563eb',
+                                    }}
+                                >
+                                    <option value="Hot">Hot</option>
+                                    <option value="Warm">Warm</option>
+                                    <option value="Cool">Cool</option>
+                                </select>
+                                {/* Colored dot */}
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full pointer-events-none"
+                                    style={{ backgroundColor: formData.leadStatus === 'Hot' ? '#ef4444' : formData.leadStatus === 'Warm' ? '#f97316' : '#3b82f6' }} />
+                                <svg className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="9" height="9"
+                                    style={{ color: formData.leadStatus === 'Hot' ? '#dc2626' : formData.leadStatus === 'Warm' ? '#ea580c' : '#2563eb' }}>
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                        </div>
+                        {/* System ID */}
+                        <div className="flex items-center gap-2 bg-[#f0f4ff] px-3 py-1.5 rounded-lg">
+                            <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider">SYSTEM ID:</span>
+                            <span className="text-[12px] font-bold text-[#2447d7]">AF-2026-0001</span>
+                        </div>
                     </div>
                 </div>
 

@@ -61,8 +61,7 @@ const SearchIcon = () => (
 const OperationalFlow = () => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const { leads } = useLeads();
-    const { tasks, setTasks } = useTasks();
+    const { leads, setLeads } = useLeads();    const { tasks, setTasks } = useTasks();
     const location = useLocation();
 
     const [search, setSearch]           = useState('');
@@ -97,6 +96,9 @@ const OperationalFlow = () => {
             (filterStage === 'closed' && (mapped === 'won' || mapped === 'rejected'));
 
         return matchSearch && matchStage;
+    }).sort((a, b) => {
+        const ORDER = { Hot: 0, Warm: 1, Cool: 2 };
+        return (ORDER[a.leadStatus] ?? 1) - (ORDER[b.leadStatus] ?? 1);
     });
 
     const card = isDark ? 'bg-[#1a1f3a] border-white/5' : 'bg-white border-slate-100';
@@ -283,7 +285,7 @@ const OperationalFlow = () => {
                         <table className="w-full border-collapse text-sm">
                             <thead>
                                 <tr className={isDark ? 'bg-white/[0.02]' : 'bg-slate-50/70'}>
-                                    {['Client', 'Business', 'Personnel Flow', 'Stage', 'Progress', 'Action'].map(h => (
+                                    {['Client', 'Business', 'Personnel Flow', 'Stage', 'Lead Status', 'Amount', 'Progress', 'Action'].map(h => (
                                         <th key={h} className="px-4 py-3 text-left text-[10px] font-semibold text-slate-400 uppercase tracking-wider whitespace-nowrap">{h}</th>
                                     ))}
                                 </tr>
@@ -291,7 +293,7 @@ const OperationalFlow = () => {
                             <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-50'}`}>
                                 {filteredClients.length === 0 && (
                                     <tr>
-                                        <td colSpan={6} className="px-4 py-12 text-center text-sm text-slate-400">No leads match your filters.</td>
+                                        <td colSpan={8} className="px-4 py-12 text-center text-sm text-slate-400">No leads match your filters.</td>
                                     </tr>
                                 )}
                                 {filteredClients.map((client) => {
@@ -368,6 +370,43 @@ const OperationalFlow = () => {
                                             </td>
                                             {/* Stage */}
                                             <td className="px-4 py-3"><StagePill stageId={stageId} /></td>
+                                            {/* Lead Status */}
+                                            <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                                {(() => {
+                                                    const ls = client.leadStatus || 'Warm';
+                                                    const cfg = {
+                                                        Hot:  { cls: 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20', dot: 'bg-red-500' },
+                                                        Warm: { cls: 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20', dot: 'bg-orange-500' },
+                                                        Cool: { cls: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20', dot: 'bg-blue-500' },
+                                                    }[ls] || { cls: 'bg-slate-50 text-slate-500 border-slate-100', dot: 'bg-slate-400' };
+                                                    return (
+                                                        <div className="relative inline-block">
+                                                            <select
+                                                                value={ls}
+                                                                onChange={(e) => {
+                                                                    e.stopPropagation();
+                                                                    setLeads(prev => prev.map(l => l.id === client.id ? { ...l, leadStatus: e.target.value } : l));
+                                                                }}
+                                                                className={`appearance-none pl-5 pr-6 py-1 rounded-full text-[10px] font-semibold border whitespace-nowrap cursor-pointer outline-none hover:opacity-80 transition-opacity ${cfg.cls}`}
+                                                            >
+                                                                <option value="Hot">Hot</option>
+                                                                <option value="Warm">Warm</option>
+                                                                <option value="Cool">Cool</option>
+                                                            </select>
+                                                            <span className={`absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none ${cfg.dot}`} />
+                                                            <svg className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="8" height="8">
+                                                                <polyline points="6 9 12 15 18 9"/>
+                                                            </svg>
+                                                        </div>
+                                                    );
+                                                })()}
+                                            </td>
+                                            {/* Amount */}
+                                            <td className="px-4 py-3">
+                                                <span className={`text-[11px] font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                                    {client.loanAmount || '—'}
+                                                </span>
+                                            </td>
                                             {/* Progress */}
                                             <td className="px-4 py-3">
                                                 <div className="flex items-center gap-2">

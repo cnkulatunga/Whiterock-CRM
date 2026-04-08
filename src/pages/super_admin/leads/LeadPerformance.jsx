@@ -218,7 +218,7 @@ const COLOR_MAP = {
 
 /* ─── Main Component ─── */
 const LeadPerformance = () => {
-    const { leads } = useLeads();
+    const { leads, setLeads } = useLeads();
     const { theme } = useTheme();
     const isDark = theme === 'dark';
 
@@ -241,6 +241,11 @@ const LeadPerformance = () => {
             return l.name.toLowerCase().includes(q) || l.id.toLowerCase().includes(q) || l.agent.toLowerCase().includes(q);
         }
         return true;
+    }).sort((a, b) => {
+        const ORDER = { Hot: 0, Warm: 1, Cool: 2 };
+        const rawA = leads.find(l => l.id === a.id);
+        const rawB = leads.find(l => l.id === b.id);
+        return (ORDER[rawA?.leadStatus] ?? 1) - (ORDER[rawB?.leadStatus] ?? 1);
     });
 
     const card = isDark
@@ -373,7 +378,7 @@ const LeadPerformance = () => {
                     <table className="w-full border-collapse text-sm">
                         <thead>
                             <tr className={isDark ? 'bg-white/[0.02]' : 'bg-slate-50/70'}>
-                                {['Lead Entity', 'Business Name', 'Personnel Flow', 'Application Stage', 'Amount', 'Bank', 'Lender Partner'].map(h => (
+                                {['Lead Entity', 'Business Name', 'Personnel Flow', 'Application Stage', 'Lead Status', 'Amount', 'Bank', 'Lender Partner'].map(h => (
                                     <th key={h} className="px-4 py-2.5 text-left text-[9px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">{h}</th>
                                 ))}
                             </tr>
@@ -410,6 +415,38 @@ const LeadPerformance = () => {
                                         </td>
                                         {/* Stage */}
                                         <td className="px-4 py-3"><StagePill stage={lead.stage} /></td>
+                                        {/* Lead Status */}
+                                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                                            {(() => {
+                                                const rawLead = leads.find(l => l.id === lead.id);
+                                                const ls = rawLead?.leadStatus || 'Warm';
+                                                const cfg = {
+                                                    Hot:  { cls: 'bg-red-500/10 text-red-500 border-red-500/20', dot: 'bg-red-500' },
+                                                    Warm: { cls: 'bg-orange-500/10 text-orange-500 border-orange-500/20', dot: 'bg-orange-500' },
+                                                    Cool: { cls: 'bg-blue-500/10 text-blue-500 border-blue-500/20', dot: 'bg-blue-500' },
+                                                }[ls] || { cls: 'bg-slate-400/10 text-slate-400 border-slate-400/20', dot: 'bg-slate-400' };
+                                                return (
+                                                    <div className="relative inline-block">
+                                                        <select
+                                                            value={ls}
+                                                            onChange={(e) => {
+                                                                e.stopPropagation();
+                                                                setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, leadStatus: e.target.value } : l));
+                                                            }}
+                                                            className={`appearance-none pl-5 pr-6 py-1 rounded-full text-[10px] font-semibold border whitespace-nowrap cursor-pointer outline-none hover:opacity-80 transition-opacity ${cfg.cls}`}
+                                                        >
+                                                            <option value="Hot">Hot</option>
+                                                            <option value="Warm">Warm</option>
+                                                            <option value="Cool">Cool</option>
+                                                        </select>
+                                                        <span className={`absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none ${cfg.dot}`} />
+                                                        <svg className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="8" height="8">
+                                                            <polyline points="6 9 12 15 18 9"/>
+                                                        </svg>
+                                                    </div>
+                                                );
+                                            })()}
+                                        </td>
                                         {/* Amount */}
                                         <td className="px-4 py-3">
                                             <p className={`text-[12px] font-black leading-none ${isDark ? 'text-white' : 'text-slate-900'}`}>{lead.amount}</p>

@@ -57,6 +57,7 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
         previousAddress: '',
         loanAmount: '',
         loanPurpose: '',
+        leadStatus: 'Warm',
         existingLoan: '',
         existingLoanLenderName: '',
         existingLoanAmount: '',
@@ -93,6 +94,7 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
                 previousAddress: lead.previousAddress || '',
                 loanAmount: lead.amount ? lead.amount.replace(/[^0-9.]/g, '') : (lead.loanAmount ? lead.loanAmount.replace(/[^0-9.]/g, '') : ''),
                 loanPurpose: lead.loanPurpose || '',
+                leadStatus: lead.leadStatus || 'Warm',
                 existingLoan: lead.existingLoan || 'No',
                 existingLoanLenderName: lead.existingLoanLenderName || '',
                 existingLoanAmount: lead.existingLoanAmount || '',
@@ -151,6 +153,7 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
             amount: formData.loanAmount ? `£${Number(formData.loanAmount).toLocaleString()}` : lead.amount,
             loanAmount: formData.loanAmount ? `£${Number(formData.loanAmount).toLocaleString()}` : lead.loanAmount,
             loanPurpose: formData.loanPurpose,
+            leadStatus: formData.leadStatus,
             existingLoan: formData.existingLoan,
             existingLoanLenderName: formData.existingLoanLenderName,
             existingLoanAmount: formData.existingLoanAmount,
@@ -212,9 +215,38 @@ const EditLeadModal = ({ isOpen, onClose, lead, onSave }) => {
                         <h2 className="text-2xl font-bold text-[#1a202c]">Edit Lead Details</h2>
                         <p className="text-sm text-[#718096] mt-1">Update information for {lead.name}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 bg-[#f8fafc] text-[#64748b] rounded-xl hover:bg-[#e2e8f0] hover:text-[#0f172a] transition-all">
-                        <IconClose size={24} />
-                    </button>
+                    <div className="flex items-center gap-3">
+                        {/* Lead Status Dropdown */}
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider whitespace-nowrap">Lead Status:</span>
+                            <div className="relative">
+                                <select
+                                    name="leadStatus"
+                                    value={formData.leadStatus}
+                                    onChange={handleInputChange}
+                                    className="appearance-none pl-6 pr-7 py-1.5 rounded-lg text-[12px] font-bold outline-none cursor-pointer border transition-all"
+                                    style={{
+                                        borderColor: formData.leadStatus === 'Hot' ? '#fecaca' : formData.leadStatus === 'Warm' ? '#fed7aa' : '#bfdbfe',
+                                        backgroundColor: formData.leadStatus === 'Hot' ? '#fef2f2' : formData.leadStatus === 'Warm' ? '#fff7ed' : '#eff6ff',
+                                        color: formData.leadStatus === 'Hot' ? '#dc2626' : formData.leadStatus === 'Warm' ? '#ea580c' : '#2563eb',
+                                    }}
+                                >
+                                    <option value="Hot">Hot</option>
+                                    <option value="Warm">Warm</option>
+                                    <option value="Cool">Cool</option>
+                                </select>
+                                <span className="absolute left-2 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full pointer-events-none"
+                                    style={{ backgroundColor: formData.leadStatus === 'Hot' ? '#ef4444' : formData.leadStatus === 'Warm' ? '#f97316' : '#3b82f6' }} />
+                                <svg className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="9" height="9"
+                                    style={{ color: formData.leadStatus === 'Hot' ? '#dc2626' : formData.leadStatus === 'Warm' ? '#ea580c' : '#2563eb' }}>
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <button onClick={onClose} className="p-2 bg-[#f8fafc] text-[#64748b] rounded-xl hover:bg-[#e2e8f0] hover:text-[#0f172a] transition-all">
+                            <IconClose size={24} />
+                        </button>
+                    </div>
                 </div>
 
                 {/* Form Body — scrollable */}

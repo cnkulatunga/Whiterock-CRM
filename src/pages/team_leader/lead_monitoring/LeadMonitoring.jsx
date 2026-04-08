@@ -52,16 +52,14 @@ const LeadMonitoring = ({ onViewDetails }) => {
     }), [leads]);
 
     const filtered = useMemo(() => {
+        const STATUS_ORDER = { Hot: 0, Warm: 1, Cool: 2 };
         const q = search.toLowerCase();
         return leads.filter(l => {
             const matchSearch = !q || l.name.toLowerCase().includes(q) || l.leadId.toLowerCase().includes(q) || l.businessName?.toLowerCase().includes(q);
             const matchAgent = agentFilter === 'All Agents' || l.agentName === agentFilter;
             const matchStage = stageFilter === 'All Stages' || l.stage === stageFilter;
-            
-            // Special logic for verification tab: usually show all but maybe prioritize those with pending docs
-            // For now, we use the same search/filters for both tabs for consistency
             return matchSearch && matchAgent && matchStage;
-        });
+        }).sort((a, b) => (STATUS_ORDER[a.leadStatus] ?? 1) - (STATUS_ORDER[b.leadStatus] ?? 1));
     }, [leads, search, agentFilter, stageFilter]);
 
     const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -216,6 +214,7 @@ const LeadMonitoring = ({ onViewDetails }) => {
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Phone</th>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Agent</th>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Doc Status</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Lead Status</th>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Last Note</th>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Actions</th>
                             </tr>
@@ -288,6 +287,38 @@ const LeadMonitoring = ({ onViewDetails }) => {
                                         })()}
                                     </td>
 
+                                    {/* Lead Status */}
+                                    <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                                        {(() => {
+                                            const ls = lead.leadStatus || 'Warm';
+                                            const cfg = {
+                                                Hot:  { cls: 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-100 dark:border-red-500/20', dot: 'bg-red-500' },
+                                                Warm: { cls: 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-500/20', dot: 'bg-orange-500' },
+                                                Cool: { cls: 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20', dot: 'bg-blue-500' },
+                                            }[ls] || { cls: 'bg-slate-50 text-slate-500 border-slate-100', dot: 'bg-slate-400' };
+                                            return (
+                                                <div className="relative inline-block">
+                                                    <select
+                                                        value={ls}
+                                                        onChange={(e) => {
+                                                            e.stopPropagation();
+                                                            setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, leadStatus: e.target.value } : l));
+                                                        }}
+                                                        className={`appearance-none pl-5 pr-6 py-1 rounded-full text-[8px] font-black uppercase tracking-wide border whitespace-nowrap cursor-pointer outline-none hover:opacity-80 transition-opacity ${cfg.cls}`}
+                                                    >
+                                                        <option value="Hot">Hot</option>
+                                                        <option value="Warm">Warm</option>
+                                                        <option value="Cool">Cool</option>
+                                                    </select>
+                                                    <span className={`absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none ${cfg.dot}`} />
+                                                    <svg className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="8" height="8">
+                                                        <polyline points="6 9 12 15 18 9"/>
+                                                    </svg>
+                                                </div>
+                                            );
+                                        })()}
+                                    </td>
+
                                     <td className="px-3 py-2.5 w-[160px]">
                                         {(() => {
                                             const leadName = lead.name.toLowerCase();
@@ -321,7 +352,7 @@ const LeadMonitoring = ({ onViewDetails }) => {
                                 </tr>
                             )) : (
                                 <tr>
-                                    <td colSpan={8} className="py-16 text-center">
+                                    <td colSpan={9} className="py-16 text-center">
                                         <div className="flex flex-col items-center gap-3 animate-fadeIn">
                                             <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-slate-300 ${isDark ? 'bg-[#1a1f35]' : 'bg-slate-50'}`}>
                                                 <IconDocs width={24} height={24} />
