@@ -20,6 +20,7 @@ const IconBell   = ({ color }) => <Ico d="M15 17h5l-1.405-1.405A2.032 2.032 0 01
 const IconPlus   = () => <Ico d="M12 4v16m8-8H4" size={14} />;
 const IconClose  = ({ size = 16 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width={size} height={size}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>;
 const IconFile   = ({ size = 16 }) => <Ico d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" size={size} />;
+const IconTrash  = ({ size = 14 }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width={size} height={size}><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 
 /* ── reusable table row ── */
 const Row = ({ label, value, span, highlight }) => (
@@ -87,9 +88,27 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
     const handleAddNote = () => {
         if (!newNote.trim()) return;
         const now = new Date();
+        
+        // Resolve author name consistently
+        let authorName = currentUser.name;
+        if (!authorName && (currentUser.first_name || currentUser.last_name)) {
+            authorName = `${currentUser.first_name || ''} ${currentUser.last_name || ''}`.trim();
+        }
+        if (!authorName) authorName = 'Tele Agent';
+
+        const roleFormatted = (currentUser.role || 'Tele Agent')
+            .toLowerCase()
+            .replaceAll('_', ' ')
+            .split(' ')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+
         const noteObj = {
-            id: Date.now(), text: newNote, author: currentUser.name || 'Tele Agent',
-            role: (currentUser.role || 'Tele Agent').toUpperCase(),
+            id: Date.now(), 
+            text: newNote, 
+            author: authorName,
+            authorId: currentUser.id,
+            role: roleFormatted,
             date: now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
             time: now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
         };
@@ -98,6 +117,14 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
         setLead(updatedLead);
         updateLead(lead.id, { noteHistory: updatedHistory, notes: newNote });
         setNewNote('');
+    };
+
+    const handleDeleteNote = (noteId) => {
+        const updatedHistory = lead.noteHistory.filter(n => n.id !== noteId);
+        const latestNote = updatedHistory[0]?.text || '';
+        const updatedLead = { ...lead, noteHistory: updatedHistory, notes: latestNote };
+        setLead(updatedLead);
+        updateLead(lead.id, { noteHistory: updatedHistory, notes: latestNote });
     };
 
     const handleUpload = (leadId, docId, docName, file) => {
@@ -306,12 +333,82 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                     </Card>
 
                     {/* Notes */}
-                    <Card icon={<IconBell />} iconBg="bg-[#fdf4ff]" iconColor="text-[#a855f7]" title="Notes">
-                        <div className="p-4">
-                            {lead.notes
-                                ? <p className="text-xs text-[#4a5568] dark:text-slate-300 bg-[#f8fafc] dark:bg-white/5 rounded-lg p-3 border border-[#edf2f7] dark:border-white/10 italic">{lead.notes}</p>
-                                : <p className="text-[11px] text-[#94a3b8] italic text-center py-2">No notes added.</p>
-                            }
+                    <Card 
+                        icon={<IconBell />} 
+                        iconBg="bg-[#fdf4ff]" 
+                        iconColor="text-[#a855f7]" 
+                        title="Notes"
+                    >
+                        <div className="p-4 flex flex-col gap-4">
+                            {/* Note Input */}
+                            <div className="flex flex-col gap-2">
+                                <textarea
+                                    className="w-full p-3 text-xs bg-[#f8fafc] dark:bg-white/5 border border-[#edf2f7] dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 resize-none min-h-[80px] text-[#4a5568] dark:text-slate-300 placeholder:text-slate-400"
+                                    placeholder="Add a progress update..."
+                                    value={newNote}
+                                    onChange={(e) => setNewNote(e.target.value)}
+                                />
+                                <div className="flex justify-end">
+                                    <button
+                                        onClick={handleAddNote}
+                                        disabled={!newNote.trim()}
+                                        className="px-4 py-1.5 bg-[#a855f7] hover:bg-[#9333ea] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all shadow-sm flex items-center gap-1.5"
+                                    >
+                                        <IconPlus /> Post Note
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Divider if there are notes */}
+                            {(lead.noteHistory && lead.noteHistory.length > 0) && (
+                                <div className="h-px bg-[#f1f5f9] dark:bg-white/5" />
+                            )}
+
+                            {/* Note History */}
+                            <div className="flex flex-col gap-3 max-h-[140px] overflow-y-auto scrollbar-thin pr-1">
+                                {lead.noteHistory && lead.noteHistory.length > 0 ? (
+                                    lead.noteHistory.map((note) => (
+                                        <div key={note.id} className="group relative bg-[#f8fafc] dark:bg-white/[0.02] border border-[#edf2f7] dark:border-white/5 rounded-xl p-3 hover:border-purple-200 dark:hover:border-purple-500/20 transition-all">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-[10px] font-bold text-purple-600">
+                                                        {note.author?.[0]}
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                                        <span className="text-[12px] font-bold text-[#1a202c] dark:text-white leading-none">{note.author}</span>
+                                                        <span className="text-[10px] text-purple-600 dark:text-purple-400 font-medium bg-purple-50 dark:bg-purple-500/10 px-1.5 py-0.5 rounded-md leading-none border border-purple-100 dark:border-purple-500/20">{note.role}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right flex items-center gap-3">
+                                                    <div>
+                                                        <p className="text-[9px] text-[#94a3b8] font-medium">{note.date}</p>
+                                                        <p className="text-[9px] text-[#cbd5e1] font-medium">{note.time}</p>
+                                                    </div>
+                                                    {note.authorId === currentUser.id && (
+                                                        <button 
+                                                            onClick={() => handleDeleteNote(note.id)}
+                                                            className="p-1.5 rounded-lg text-slate-300 hover:bg-red-50 hover:text-red-500 transition-all active:scale-95"
+                                                            title="Delete my note"
+                                                        >
+                                                            <IconTrash size={12} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-[#4a5568] dark:text-slate-300 leading-relaxed break-words whitespace-pre-wrap">
+                                                {note.text}
+                                            </p>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="py-6 flex flex-col items-center justify-center text-center">
+                                        <div className="w-10 h-10 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center mb-2">
+                                            <IconBell d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" size={20} color="#cbd5e1" />
+                                        </div>
+                                        <p className="text-[11px] text-[#94a3b8] font-medium italic">No updates in history.</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </Card>
                 </div>
