@@ -95,9 +95,13 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
         return matchesSearch && matchesStatus;
     });
 
+    const STATUS_ORDER = { Hot: 0, Warm: 1, Cool: 2 };
+
     const totalPages = Math.ceil(filteredLeads.length / ITEMS_PER_PAGE);
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const displayedLeads = filteredLeads.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+    const displayedLeads = [...filteredLeads]
+        .sort((a, b) => (STATUS_ORDER[a.leadStatus] ?? 1) - (STATUS_ORDER[b.leadStatus] ?? 1))
+        .slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
     const handlePrevPage = () => setCurrentPage(prev => Math.max(prev - 1, 1));
     const handleNextPage = () => setCurrentPage(prev => Math.min(prev + 1, totalPages));
@@ -302,6 +306,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                 {isAccountsManager && <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[120px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Staff</th>}
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[160px] sm:hidden ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Last Note</th>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[110px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Status</th>
+                                <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[90px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Lead Status</th>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[130px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>Actions</th>
                             </tr>
                         </thead>
@@ -456,6 +461,37 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                                 );
                                             })()}
                                         </div>
+                                    </td>
+                                    {/* Lead Status */}
+                                    <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                                        {(() => {
+                                            const ls = lead.leadStatus || 'Warm';
+                                            const cfg = {
+                                                Hot:  { cls: `bg-red-50 text-red-600 border-red-100 ${isDark ? 'dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' : ''}`, dot: 'bg-red-500' },
+                                                Warm: { cls: `bg-orange-50 text-orange-600 border-orange-100 ${isDark ? 'dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20' : ''}`, dot: 'bg-orange-500' },
+                                                Cool: { cls: `bg-blue-50 text-blue-600 border-blue-100 ${isDark ? 'dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20' : ''}`, dot: 'bg-blue-500' },
+                                            }[ls] || { cls: 'bg-slate-50 text-slate-500 border-slate-100', dot: 'bg-slate-400' };
+                                            return (
+                                                <div className="relative inline-block">
+                                                    <select
+                                                        value={ls}
+                                                        onChange={(e) => {
+                                                            e.stopPropagation();
+                                                            updateLead(lead.id, { leadStatus: e.target.value });
+                                                        }}
+                                                        className={`appearance-none pl-5 pr-6 py-1 rounded-full text-[8px] font-black uppercase tracking-wide border whitespace-nowrap cursor-pointer outline-none hover:opacity-80 transition-opacity ${cfg.cls}`}
+                                                    >
+                                                        <option value="Hot">Hot</option>
+                                                        <option value="Warm">Warm</option>
+                                                        <option value="Cool">Cool</option>
+                                                    </select>
+                                                    <span className={`absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none ${cfg.dot}`} />
+                                                    <svg className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="8" height="8">
+                                                        <polyline points="6 9 12 15 18 9"/>
+                                                    </svg>
+                                                </div>
+                                            );
+                                        })()}
                                     </td>
                                     <td className="px-3 py-2.5">
                                         <div className="flex items-center gap-1">

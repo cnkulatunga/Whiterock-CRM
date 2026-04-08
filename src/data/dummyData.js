@@ -269,7 +269,7 @@ export const AM_RECENT_LEADS = [
 export const MOCK_LEADS = [
     {
         id: 'AF-001', leadId: 'AF-001', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-15', name: 'Robert Miller',
-        businessName: 'Miller Logistics Co.', email: 'robert@example.com', phone: '+1 234-567-890', nic: 'NIC-001', source: 'Website Form', status: 'Document Collection', lastContact: '2 hours ago', stage: 'Document Collection', progress: 20, assignedStaffId: 3,
+        businessName: 'Miller Logistics Co.', email: 'robert@example.com', phone: '+1 234-567-890', nic: 'NIC-001', source: 'Website Form', status: 'Document Collection', lastContact: '2 hours ago', stage: 'Document Collection', progress: 20, assignedStaffId: 3, leadStatus: 'Hot',
         dob: '1985-05-12', residentialAddress: '123 Logistics Way, London, E1 6AN', timeAtCurrentAddress: '5 years', previousAddress: '',
         loanAmount: '£250,000', loanPurpose: 'Fleet Expansion', homeOwner: 'Yes', companyBank: 'Barclays', businessAnnualTurnover: '1,200,000', fundingTimeline: 'Within 1 month', industry: 'Logistics', jobTitle: 'CEO',
         existingLoan: 'Yes', existingLoanLenderName: 'HSBC', existingLoanAmount: '50,000', existingLoanInterestRate: '4.5', existingLoanMonthlyRepayment: '1,200', existingLoanTerm: '36 months', overdraftFacility: 'Yes',
@@ -282,7 +282,7 @@ export const MOCK_LEADS = [
     },
     {
         id: 'AF-002', leadId: 'AF-002', agentName: 'Leo Kumar', tl: 'Diana Fernandez', manager: 'Sarah White', submissionDate: '2026-03-16', name: 'Alice Huang',
-        businessName: 'Huang Tech Solutions', email: 'alice.h@gmail.com', phone: '+1 987-654-321', nic: 'NIC-002', source: 'Referral', status: 'Document Verification Done', lastContact: 'Today, 10:30 AM', stage: 'Document Verification Done', progress: 40, assignedStaffId: 6,
+        businessName: 'Huang Tech Solutions', email: 'alice.h@gmail.com', phone: '+1 987-654-321', nic: 'NIC-002', source: 'Referral', status: 'Document Verification Done', lastContact: 'Today, 10:30 AM', stage: 'Document Verification Done', progress: 40, assignedStaffId: 6, leadStatus: 'Warm',
         dob: '1992-11-20', residentialAddress: '45 Tech Plaza, Manchester, M1 4BT', timeAtCurrentAddress: '2 years', previousAddress: '12 Old Lane, Liverpool, L3 5DA',
         loanAmount: '£1,200,000', loanPurpose: 'Research & Development', homeOwner: 'No', companyBank: 'HSBC', businessAnnualTurnover: '5,000,000', fundingTimeline: 'ASAP', industry: 'Software', jobTitle: 'Founder',
         existingLoan: 'No', overdraftFacility: 'No',
@@ -294,7 +294,7 @@ export const MOCK_LEADS = [
     },
     {
         id: 'AF-011', leadId: 'AF-011', agentName: 'Priya Sharma', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-19', name: 'Bruce Wayne',
-        businessName: 'Wayne Enterprises', email: 'bruce@waynecorp.com', phone: '+1 800-BATMAN', nic: 'NIC-011', source: 'Direct Call', status: 'Pending', lastContact: '10 mins ago', stage: 'Document Collection', progress: 10, assignedStaffId: 11,
+        businessName: 'Wayne Enterprises', email: 'bruce@waynecorp.com', phone: '+1 800-BATMAN', nic: 'NIC-011', source: 'Direct Call', status: 'Pending', lastContact: '10 mins ago', stage: 'Document Collection', progress: 10, assignedStaffId: 11, leadStatus: 'Hot',
         dob: '1975-02-19', residentialAddress: 'Wayne Manor, Gotham', timeAtCurrentAddress: '15 years', previousAddress: '',
         loanAmount: '£50,000,000', loanPurpose: 'Infrastructure', homeOwner: 'Yes', companyBank: 'HSBC', businessAnnualTurnover: '500,000,000', fundingTimeline: 'Immediate', industry: 'Hardware', jobTitle: 'Chairman',
         existingLoan: 'No', overdraftFacility: 'Yes',
@@ -302,10 +302,10 @@ export const MOCK_LEADS = [
         documents: []
     },
     { id: 'AF-003', leadId: 'AF-003', agentName: 'Priya Sharma', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-14', name: 'David Rivera', businessName: 'Rivera Designs',
- email: 'd.rivera@outlook.com', phone: '+1 456-123-789', nic: 'NIC-003', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'Lender Selection', progress: 60, assignedStaffId: 11, documents: [] },
+ email: 'd.rivera@outlook.com', phone: '+1 456-123-789', nic: 'NIC-003', source: 'LinkedIn', status: 'Lender Selection', lastContact: 'Yesterday', stage: 'Lender Selection', progress: 60, assignedStaffId: 11, leadStatus: 'Cool', documents: [] },
     {
         id: 'AF-004', leadId: 'AF-004', agentName: 'Jake Morrison', tl: 'Ryan Patel', manager: 'Alex Johnson', submissionDate: '2026-03-13', name: 'Sarah Connor',
- businessName: 'Connor Security Group', email: 'sconnor@tech.co', phone: '+1 555-010-999', nic: 'NIC-004', source: 'Direct Call', status: 'Rejected', lastContact: 'Mar 04, 2024', stage: 'Rejected', progress: 100, assignedStaffId: 12,
+ businessName: 'Connor Security Group', email: 'sconnor@tech.co', phone: '+1 555-010-999', nic: 'NIC-004', source: 'Direct Call', status: 'Rejected', lastContact: 'Mar 04, 2024', stage: 'Rejected', progress: 100, assignedStaffId: 12, leadStatus: 'Cool',
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Rejected', note: 'Unclear scan', date: '2024-03-01' },
             { id: 2, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-01' }
@@ -313,7 +313,7 @@ export const MOCK_LEADS = [
     },
     {
         id: 'AF-005', leadId: 'AF-005', agentName: 'Jake Morrison', tl: 'Ryan Patel', manager: 'Alex Johnson', submissionDate: '2026-03-12', name: 'Michael Chen',
- businessName: 'Chen Finance Hub', email: 'm.chen@sales.com', phone: '+1 888-222-333', nic: 'NIC-005', source: 'Facebook Ads', status: 'Completed', lastContact: '3 days ago', stage: 'Completed', progress: 100, assignedStaffId: 12,
+ businessName: 'Chen Finance Hub', email: 'm.chen@sales.com', phone: '+1 888-222-333', nic: 'NIC-005', source: 'Facebook Ads', status: 'Completed', lastContact: '3 days ago', stage: 'Completed', progress: 100, assignedStaffId: 12, leadStatus: 'Warm',
         documents: [
             { id: 1, type: 'Bank Statement', status: 'Approved', note: 'Final review OK', date: '2024-03-10' },
             { id: 2, type: 'Payslip', status: 'Approved', note: 'Verified', date: '2024-03-10' },
@@ -323,22 +323,22 @@ export const MOCK_LEADS = [
     },
     {
         id: 'AF-006', leadId: 'AF-006', agentName: 'Elena Vasquez', tl: 'Diana Fernandez', manager: 'Sarah White', submissionDate: '2026-03-16', name: 'Emma Watson',
- businessName: 'Watson Creative Agency', email: 'emma@watson.inc', phone: '+1 777-555-444', nic: 'NIC-006', source: 'Webinar', status: 'Document Verification Done', lastContact: 'Feb 28, 2024', stage: 'Document Verification Done', progress: 40, assignedStaffId: 13,
+ businessName: 'Watson Creative Agency', email: 'emma@watson.inc', phone: '+1 777-555-444', nic: 'NIC-006', source: 'Webinar', status: 'Document Verification Done', lastContact: 'Feb 28, 2024', stage: 'Document Verification Done', progress: 40, assignedStaffId: 13, leadStatus: 'Hot',
         documents: [
             { id: 1, type: 'ID Document', status: 'Approved', note: 'Verified', date: '2024-03-15' }
         ]
     },
     {
         id: 'AF-007', leadId: 'AF-007', agentName: 'Sophie Tan', tl: 'Ryan Patel', manager: 'Alex Johnson', submissionDate: '2026-03-17', name: 'Liam Neeson',
- businessName: 'Neeson Security', email: 'liam@security.com', phone: '+1 222-333-444', nic: 'NIC-007', source: 'Referral', status: 'Lender Selection', lastContact: '1 hour ago', stage: 'Lender Selection', progress: 80, assignedStaffId: 15, documents: []
+ businessName: 'Neeson Security', email: 'liam@security.com', phone: '+1 222-333-444', nic: 'NIC-007', source: 'Referral', status: 'Lender Selection', lastContact: '1 hour ago', stage: 'Lender Selection', progress: 80, assignedStaffId: 15, leadStatus: 'Warm', documents: []
     },
     {
         id: 'AF-008', leadId: 'AF-008', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-15', name: 'Marcus Aurelius',
-        businessName: 'Aurelius Consulting', email: 'marcus@consulting.it', phone: '+1 555-999-888', nic: 'NIC-008', source: 'LinkedIn', status: 'Completed', lastContact: '2 days ago', stage: 'Completed', progress: 100, assignedStaffId: 3, documents: []
+        businessName: 'Aurelius Consulting', email: 'marcus@consulting.it', phone: '+1 555-999-888', nic: 'NIC-008', source: 'LinkedIn', status: 'Completed', lastContact: '2 days ago', stage: 'Completed', progress: 100, assignedStaffId: 3, leadStatus: 'Cool', documents: []
     },
     {
         id: 'AF-009', leadId: 'AF-009', agentName: 'Cody Lane', tl: 'Marcus Smith', manager: 'Sarah White', submissionDate: '2026-03-18', name: 'Thomas Shelby',
-        businessName: 'Shelby Company Ltd', email: 'tommy@shelby.co.uk', phone: '+44 121 496 0000', nic: 'NIC-009', source: 'Direct Call', status: 'Document Collection', lastContact: 'Just now', stage: 'Document Collection', progress: 10, assignedStaffId: 3,
+        businessName: 'Shelby Company Ltd', email: 'tommy@shelby.co.uk', phone: '+44 121 496 0000', nic: 'NIC-009', source: 'Direct Call', status: 'Document Collection', lastContact: 'Just now', stage: 'Document Collection', progress: 10, assignedStaffId: 3, leadStatus: 'Hot',
         dob: '1890-11-01', residentialAddress: 'Small Heath, Birmingham', timeAtCurrentAddress: '10 years', previousAddress: '',
         loanAmount: '£5,000,000', loanPurpose: 'Expansion', homeOwner: 'Yes', companyBank: 'Lloyds Bank', businessAnnualTurnover: '10,000,000', fundingTimeline: 'Immediate', industry: 'Logistics', jobTitle: 'MD',
         existingLoan: 'No', overdraftFacility: 'Yes',
@@ -347,7 +347,7 @@ export const MOCK_LEADS = [
     },
     {
         id: 'AF-010', leadId: 'AF-010', agentName: 'Leo Kumar', tl: 'Diana Fernandez', manager: 'Sarah White', submissionDate: '2026-03-19', name: 'Diana Prince',
-        businessName: 'Themyscira Artifacts', email: 'diana@wonder.com', phone: '+1 800-JUSTICE', nic: 'NIC-010', source: 'Partner', status: 'Lender Selection', lastContact: '5 mins ago', stage: 'Lender Selection', progress: 60, assignedStaffId: 6,
+        businessName: 'Themyscira Artifacts', email: 'diana@wonder.com', phone: '+1 800-JUSTICE', nic: 'NIC-010', source: 'Partner', status: 'Lender Selection', lastContact: '5 mins ago', stage: 'Lender Selection', progress: 60, assignedStaffId: 6, leadStatus: 'Warm',
         dob: '1900-01-01', residentialAddress: '1 Wonder Way, Gateway City', timeAtCurrentAddress: '20 years', previousAddress: '',
         loanAmount: '£850,000', loanPurpose: 'Museum Acquisition', homeOwner: 'Yes', companyBank: 'Starling', businessAnnualTurnover: '2,500,000', fundingTimeline: '2 weeks', industry: 'Arts', jobTitle: 'Curator',
         existingLoan: 'Yes', existingLoanLenderName: 'Gotham Bank', existingLoanAmount: '200,000', existingLoanInterestRate: '3.2', existingLoanMonthlyRepayment: '4,000', existingLoanTerm: '60 months', overdraftFacility: 'No',
