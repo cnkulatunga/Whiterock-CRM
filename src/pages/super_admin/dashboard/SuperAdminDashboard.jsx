@@ -439,35 +439,92 @@ const Notes = () => {
 };
 
 /* ─── PENDING PAYOUTS ────────────────────── */
-const PendingPayouts = () => {
+const PendingPayouts = ({ onNavigate, leads = [] }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const payouts = [
-        { name: 'Robert Miller', amount: '$25,000', status: 'Pending', date: 'Mar 26' },
-        { name: 'Alice Huang', amount: '$120,500', status: 'Pending', date: 'Mar 25' },
-        { name: 'Marcus Aurelius', amount: '$7,500', status: 'Processing', date: 'Mar 24' },
-    ];
+    const [showAll, setShowAll] = useState(false);
+
+    // Pending payouts = leads at Lender Selection stage
+    const pendingLeads = leads.filter(l => l.stage === 'Lender Selection' || l.status === 'Lender Selection');
+    const preview = pendingLeads.slice(0, 3);
+
+    const PayoutRow = ({ lead, onClick }) => (
+        <div
+            onClick={onClick}
+            className={`flex items-center justify-between px-3 py-2 rounded-xl border transition-all cursor-pointer ${isDark ? 'bg-orange-500/5 border-orange-500/10 hover:border-orange-500/30 hover:bg-orange-500/10' : 'bg-orange-50/50 border-orange-100/60 hover:border-orange-200 hover:bg-orange-50'}`}>
+            <div className="min-w-0 flex-1">
+                <p className={`text-[12px] font-bold truncate ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{lead.name}</p>
+                <p className={`text-[10px] font-medium truncate ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{lead.businessName || lead.submissionDate}</p>
+            </div>
+            <div className="text-right shrink-0 ml-2">
+                <p className={`text-[12px] font-black ${isDark ? 'text-orange-400' : 'text-orange-700'}`}>{lead.loanAmount || '—'}</p>
+                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${isDark ? 'bg-orange-500/15 text-orange-400' : 'bg-orange-100 text-orange-600'}`}>Pending</span>
+            </div>
+        </div>
+    );
+
     return (
-        <Card className="h-full">
-            <CardHeader dotColor="#f97316" title="Pending Payouts" badge="Top Layer" badgeClass="bg-orange-100 text-orange-600" />
-            <div className="p-2 flex flex-col gap-1">
-                {payouts.map((p, i) => (
-                    <div key={i} className={`flex items-center justify-between px-3 py-1.5 rounded-xl border transition-colors cursor-pointer ${isDark ? 'bg-orange-500/5 border-orange-500/10 hover:border-orange-500/20' : 'bg-orange-50/50 border-orange-100/60 hover:border-orange-200'}`}>
-                        <div>
-                            <p className={`text-[12px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{p.name}</p>
-                            <p className={`text-[10px] font-medium ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{p.date}</p>
+        <>
+            <Card className="h-full">
+                <CardHeader dotColor="#f97316" title="Pending Payouts" badge={`${pendingLeads.length}`} badgeClass="bg-orange-100 text-orange-600" />
+                <div className="p-2 flex flex-col gap-1">
+                    {preview.length > 0 ? preview.map(lead => (
+                        <PayoutRow key={lead.id} lead={lead} onClick={() => onNavigate?.('lead-details', lead)} />
+                    )) : (
+                        <p className={`text-[11px] text-center py-4 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>No pending payouts</p>
+                    )}
+                    {pendingLeads.length > 0 && (
+                        <button
+                            onClick={() => setShowAll(true)}
+                            className={`text-[10px] font-black flex items-center gap-1 self-end py-1 mt-1 ${isDark ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-700'}`}>
+                            View all ({pendingLeads.length}) <IconChevron width="11" height="11" />
+                        </button>
+                    )}
+                </div>
+            </Card>
+
+            {/* Full popup modal */}
+            {showAll && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowAll(false)} />
+                    <div className={`relative w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}
+                        style={{ maxHeight: 'calc(100vh - 2rem)' }}>
+                        {/* Header */}
+                        <div className={`flex items-center justify-between px-6 py-4 border-b shrink-0 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                            <div>
+                                <h3 className={`text-base font-black ${isDark ? 'text-white' : 'text-slate-900'}`}>Pending Payouts</h3>
+                                <p className={`text-[11px] font-medium mt-0.5 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{pendingLeads.length} leads awaiting payout</p>
+                            </div>
+                            <button onClick={() => setShowAll(false)} className={`p-2 rounded-xl transition-colors ${isDark ? 'hover:bg-white/5 text-slate-400' : 'hover:bg-slate-100 text-slate-500'}`}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
                         </div>
-                        <div className="text-right">
-                            <p className={`text-[12px] font-black ${isDark ? 'text-orange-400' : 'text-orange-700'}`}>{p.amount}</p>
-                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${p.status === 'Processing' ? (isDark ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-100 text-blue-600') : (isDark ? 'bg-orange-500/15 text-orange-400' : 'bg-orange-100 text-orange-600')}`}>{p.status}</span>
+                        {/* List */}
+                        <div className="overflow-y-auto flex-1 p-4 flex flex-col gap-2">
+                            {pendingLeads.map(lead => (
+                                <div key={lead.id}
+                                    onClick={() => { setShowAll(false); onNavigate?.('lead-details', lead); }}
+                                    className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-all cursor-pointer group ${isDark ? 'bg-orange-500/5 border-orange-500/10 hover:border-orange-500/30 hover:bg-orange-500/10' : 'bg-orange-50/40 border-orange-100 hover:border-orange-300 hover:bg-orange-50'}`}>
+                                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-black shrink-0 ${isDark ? 'bg-orange-500/20 text-orange-400' : 'bg-orange-100 text-orange-700'}`}>
+                                            {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <p className={`text-[13px] font-black truncate group-hover:text-orange-600 transition-colors ${isDark ? 'text-white' : 'text-slate-800'}`}>{lead.name}</p>
+                                            <p className={`text-[10px] font-medium truncate ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{lead.businessName} · #{lead.id}</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-right shrink-0 ml-3">
+                                        <p className={`text-[13px] font-black ${isDark ? 'text-orange-400' : 'text-orange-700'}`}>{lead.loanAmount || '—'}</p>
+                                        <p className={`text-[10px] font-medium ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{lead.submissionDate}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
-                ))}
-                <button className={`text-[10px] font-black flex items-center gap-1 self-end py-1 mt-1 ${isDark ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-700'}`}>
-                    View all <IconChevron width="11" height="11" />
-                </button>
-            </div>
-        </Card>
+                </div>
+            )}
+        </>
     );
 };
 
@@ -965,7 +1022,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
 
                     {/* ROW 3 — Pending Payouts | Licenses & Insurance | Knowledge Base */}
                     <div className="grid grid-cols-3 xl:grid-cols-2 lg:grid-cols-1 gap-2 xl:gap-3">
-                        <PendingPayouts />
+                        <PendingPayouts onNavigate={onNavigate} leads={leads} />
                         <LicensesInsurance />
                         <KnowledgeBase />
                     </div>

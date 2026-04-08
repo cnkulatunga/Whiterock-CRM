@@ -79,6 +79,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     const [interestRate, setInterestRate] = useState(8.5);
     const [loanTerm, setLoanTerm] = useState(24);
     const [localTasks, setLocalTasks] = useState(tasks);
+    const [followUpAgent, setFollowUpAgent] = useState('me');
     const [confirmDialog, setConfirmDialog] = useState({ open: false, message: '', onConfirm: null });
     const [alertDialog, setAlertDialog] = useState({ open: false, message: '' });
     const showConfirm = (message, onConfirm) => setConfirmDialog({ open: true, message, onConfirm });
@@ -139,7 +140,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
     const prevMonth = () => setViewDate(new Date(currentYear, currentMonth - 1, 1));
     const nextMonth = () => setViewDate(new Date(currentYear, currentMonth + 1, 1));
-    const closeModal = () => setActiveModal(null);
+    const closeModal = () => { setActiveModal(null); setFollowUpAgent('me'); };
 
     const addNewNote = () => {
         if (!newNote.trim()) return;
@@ -421,6 +422,14 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 );
             }
             case 'FOLLOW_UPS': {
+                const teamMembers = INITIAL_MEMBERSHIPS[user.id] || [];
+                const allAgentTasks = localTasks.filter(t => {
+                    if (followUpAgent === 'me') {
+                        return t.assignedTo === String(user.id) || t.assignedTo === 'Self';
+                    }
+                    return t.assignedTo === followUpAgent;
+                });
+
                 const getProgressBadge = (task) => {
                     const statusConfig = {
                         'Complete': {
@@ -497,11 +506,27 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                 return (
                     <div className="flex flex-col gap-3">
-                        <div className="flex flex-col gap-0.5 mb-2 px-1">
-                            <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Management</h3>
-                            <div className="text-[20px] font-black dark:text-white uppercase tracking-tight">Active Follow-ups</div>
+                        <div className="flex items-end justify-between mb-2 px-1 gap-3 flex-wrap">
+                            <div className="flex flex-col gap-0.5">
+                                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Management</h3>
+                                <div className="text-[20px] font-black dark:text-white uppercase tracking-tight">Active Follow-ups</div>
+                            </div>
+                            {/* Agent filter dropdown */}
+                            <div className="relative">
+                                <select
+                                    value={followUpAgent}
+                                    onChange={(e) => setFollowUpAgent(e.target.value)}
+                                    className={`appearance-none pl-3 pr-8 py-2 rounded-xl text-[11px] font-bold outline-none cursor-pointer border transition-all ${isDark ? 'bg-[#1e2347] border-white/10 text-slate-200' : 'bg-white border-slate-200 text-slate-700'} focus:ring-2 focus:ring-violet-500/30`}
+                                >
+                                    <option value="me">My Tasks</option>
+                                    {teamMembers.map(m => (
+                                        <option key={m.id} value={String(m.id)}>{m.name}</option>
+                                    ))}
+                                </select>
+                                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
                         </div>
-                        {localTasks.length > 0 ? (
+                        {allAgentTasks.length > 0 ? (
                             <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
                                 <table className="w-full text-left border-collapse min-w-[1200px]">
                                     <thead>
@@ -519,12 +544,16 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                                         {(() => {
                                             const todayStr = new Date().toISOString().split('T')[0];
-                                            const sortedTasks = [...localTasks].sort((a, b) => {
+                                            const LEAD_ORDER = { Hot: 0, Warm: 1, Cool: 2 };
+                                            const sortedTasks = [...allAgentTasks].sort((a, b) => {
                                                 const aComplete = a.status === 'Complete';
                                                 const bComplete = b.status === 'Complete';
 
                                                 if (aComplete && !bComplete) return 1;
                                                 if (!aComplete && bComplete) return -1;
+
+                                                const lsDiff = (LEAD_ORDER[a.leadStatus] ?? 1) - (LEAD_ORDER[b.leadStatus] ?? 1);
+                                                if (lsDiff !== 0) return lsDiff;
 
                                                 if (a.date === todayStr && b.date !== todayStr) return -1;
                                                 if (a.date !== todayStr && b.date === todayStr) return 1;
@@ -594,7 +623,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             </div>
                         ) : (
                             <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
-                                No upcoming followups
+                                {followUpAgent === 'me' ? 'No upcoming followups' : `No followups for ${teamMembers.find(m => String(m.id) === followUpAgent)?.name || 'this agent'}`}
                             </div>
                         )}
                         <button
@@ -855,6 +884,12 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">LEADS</span>
                 </div>
 
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-violet-100/40 dark:bg-[#1e1a2e] rounded-2xl border border-violet-200 dark:border-violet-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-11 h-11 rounded-full bg-violet-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-violet-500/20"><IconClock width="24" height="24" /></div>
+                    <h2 className="text-3xl font-black leading-none text-violet-700 dark:text-violet-300">{tasks.length}</h2>
+                    <span className="text-[11px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">MY FOLLOWUPS</span>
+                </div>
+
                 <div onClick={() => { setActiveModal('MY_TEAM'); setSelectedAgent(null); }} className="bg-orange-100/40 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200 dark:border-orange-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-orange-500/20"><IconUserGroup width="24" height="24" /></div>
                     <h2 className="text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{agentPerformance.length}</h2>
@@ -882,14 +917,6 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-md shadow-[#5b5fc7]/30"><IconTeams width="24" height="24" /></div>
                     <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">CONNECT<br />TEAMS</h2>
-                </div>
-
-                <div className="bg-slate-100/30 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square lg:aspect-auto lg:min-h-[112px] text-center relative overflow-hidden grayscale opacity-70">
-                    <div className="w-11 h-11 rounded-full bg-slate-400 text-white flex items-center justify-center mb-1 shadow-md relative z-10"><IconBulb width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-slate-500 dark:text-slate-400 relative z-10">AI<br />ANALYTICS</h2>
-                    <div className="absolute top-2 -right-6 w-24 bg-[#ff4d4d] text-white text-[8px] font-black py-0.5 rotate-45 transform flex items-center justify-center shadow-lg border-y border-white/20 z-20">
-                        SOON
-                    </div>
                 </div>
 
                 {/* === ROW 2: COLUMN STACKS === */}
@@ -1027,7 +1054,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                             <div className="flex justify-between items-center mb-1.5">
                                                 <div className="flex items-center gap-1.5">
                                                     {note.isPinned && <IconPin className="text-yellow-600 dark:text-yellow-400" />}
-                                                    <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `• ${note.time}`}</span>
+                                                    <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `��� ${note.time}`}</span>
                                                 </div>
                                                 <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                                                     <button onClick={() => toggleNotePin(note.id)} className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors shadow-sm ${note.isPinned ? 'bg-yellow-400 text-yellow-950 hover:bg-yellow-500' : 'bg-yellow-100 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-300'}`} title={note.isPinned ? "Unpin" : "Pin"}>

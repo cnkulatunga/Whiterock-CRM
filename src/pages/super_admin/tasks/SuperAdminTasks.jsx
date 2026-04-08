@@ -7,6 +7,7 @@ import { useUsers } from '../../../context/UsersContext';
 import { canManageTask } from '../../../utils/permissionUtils';
 import { usePromotions } from '../../../context/PromotionsContext';
 import { useLeads } from '../../../context/LeadsContext';
+import { SHARED_INITIAL_USERS } from '../../../data/dummyData';
 import TaskModal from '../../../components/modals/TaskModal';
 import { DocumentPreviewModal } from '../../shared/promotions/LenderPromotionsView';
 
@@ -130,6 +131,7 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
 
     const [filter, setFilter] = useState('All');
     const [assignmentFilter, setAssignmentFilter] = useState('All');
+    const [memberFilter, setMemberFilter] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [isAddingTask, setIsAddingTask] = useState(false);
     const [previewFile, setPreviewFile] = useState(null);
@@ -246,8 +248,17 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
         } else if (assignmentFilter === 'Team') {
             matchesAssignment = Array.isArray(task.assignedTo) ? task.assignedTo.some(id => id !== 'Self' && id !== user.id?.toString()) : (task.assignedTo !== 'Self' && task.assignedTo?.toString() !== user.id?.toString());
         }
+
+        let matchesMember = true;
+        if (memberFilter !== 'all') {
+            if (memberFilter === 'me') {
+                matchesMember = task.assignedTo === 'Self' || task.assignedTo?.toString() === user.id?.toString();
+            } else {
+                matchesMember = task.assignedTo?.toString() === memberFilter;
+            }
+        }
         
-        return matchesSearch && matchesStatus && (task.isPromotion || matchesAssignment);
+        return matchesSearch && matchesStatus && (task.isPromotion || (matchesAssignment && matchesMember));
     });
 
     const stats = {
@@ -323,10 +334,26 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                     <IconSearch size={13} className={isDark ? 'text-[#546298]' : 'text-slate-400'} />
                     <input type="text" className="bg-transparent border-none outline-none text-[12px] font-medium w-full placeholder:text-slate-400" placeholder="Search global operations..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
                 </div>
-                <div className={`flex p-0.5 rounded-lg border text-[10px] font-black ${isDark ? 'bg-[#2a3258] border-[#36407a]' : 'bg-slate-100 border-slate-200'}`}>
-                    {['All', 'Personal', 'Team'].map(t => (
-                        <button key={t} className={`px-3 py-1.5 rounded-md transition-all ${assignmentFilter === t ? (isDark ? 'bg-[#6366f1] text-white' : 'bg-white text-[#2447d7] shadow-sm') : (isDark ? 'text-[#94abda]' : 'text-slate-500')}`} onClick={() => setAssignmentFilter(t)}>{t}</button>
-                    ))}
+                {/* View by member dropdown */}
+                <div className="relative">
+                    <select
+                        value={memberFilter}
+                        onChange={e => setMemberFilter(e.target.value)}
+                        className={`appearance-none pl-3 pr-8 py-2 rounded-lg text-[11px] font-bold outline-none cursor-pointer border transition-all ${isDark ? 'bg-[#2a3258] border-[#36407a] text-slate-200' : 'bg-white border-slate-200 text-slate-700'} focus:ring-2 focus:ring-[#2447d7]/20`}
+                    >
+                        <option value="all">All Members</option>
+                        <option value="me">Me (Admin)</option>
+                        {SHARED_INITIAL_USERS.filter(u => u.role === 'Accounts Manager' && u.status === 'Active').map(u => (
+                            <option key={u.id} value={String(u.id)}>{u.name} · Accounts Manager</option>
+                        ))}
+                        {SHARED_INITIAL_USERS.filter(u => u.role === 'Team Leader' && u.status === 'Active').map(u => (
+                            <option key={u.id} value={String(u.id)}>{u.name} · Team Leader</option>
+                        ))}
+                        {SHARED_INITIAL_USERS.filter(u => u.role === 'Tele Agent' && u.status === 'Active').map(u => (
+                            <option key={u.id} value={String(u.id)}>{u.name} · Tele Agent</option>
+                        ))}
+                    </select>
+                    <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
                 </div>
                 {!useOutlookCalendar && (
                     <button className="flex items-center gap-1.5 bg-[#2447d7] text-white px-4 py-2 rounded-lg text-[11px] font-black uppercase tracking-wide shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] transition-all" onClick={() => { setIsAddingTask(true); setEditingTask(null); }}>
@@ -435,6 +462,22 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                                                 <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${isDark ? 'bg-white/5 text-white/40' : 'bg-slate-100 text-slate-400'}`}>{task.type || 'Task'}</span>
                                                 {task.reminder && task.reminder !== 'none' && <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>⏰ {task.reminder}</span>}
                                                 {task.assignedTo && <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${Array.isArray(task.assignedTo) && task.assignedTo.includes('Self') ? (isDark ? 'bg-blue-500/15 text-blue-400' : 'bg-blue-50 text-blue-600') : (isDark ? 'bg-purple-500/15 text-purple-400' : 'bg-purple-50 text-purple-600')}`}>{Array.isArray(task.assignedTo) && task.assignedTo.includes('Self') ? 'Personal' : 'Team'}</span>}
+                                                {(() => {
+                                                    const assignedId = task.assignedTo?.toString();
+                                                    if (!assignedId || assignedId === 'Self') return null;
+                                                    const member = SHARED_INITIAL_USERS.find(u => String(u.id) === assignedId);
+                                                    if (!member) return null;
+                                                    const roleCfg = member.role === 'Accounts Manager'
+                                                        ? (isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-50 text-amber-700')
+                                                        : member.role === 'Team Leader'
+                                                        ? (isDark ? 'bg-violet-500/15 text-violet-400' : 'bg-violet-50 text-violet-700')
+                                                        : (isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-50 text-emerald-700');
+                                                    return (
+                                                        <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${roleCfg}`}>
+                                                            {member.name} · {member.role}
+                                                        </span>
+                                                    );
+                                                })()}
                                                 {task.isOutlook && task.webLink && (
                                                     <a href={task.webLink} target="_blank" rel="noopener noreferrer" className={`text-[8px] font-black px-1.5 py-0.5 rounded border transition-colors ${isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/20 hover:bg-blue-500/30' : 'bg-blue-50 text-[#2447d7] border-blue-100 hover:bg-blue-100'}`}>
                                                         Open in Outlook ↗

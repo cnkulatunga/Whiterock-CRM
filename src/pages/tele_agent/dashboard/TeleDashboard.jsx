@@ -433,12 +433,16 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                     <tbody className="divide-y divide-slate-100 dark:divide-white/5">
                                         {(() => {
                                             const todayStr = new Date().toISOString().split('T')[0];
+                                            const LEAD_ORDER = { Hot: 0, Warm: 1, Cool: 2 };
                                             const sortedTasks = [...localTasks].sort((a, b) => {
                                                 const aComplete = a.status === 'Complete';
                                                 const bComplete = b.status === 'Complete';
 
                                                 if (aComplete && !bComplete) return 1;
                                                 if (!aComplete && bComplete) return -1;
+
+                                                const lsDiff = (LEAD_ORDER[a.leadStatus] ?? 1) - (LEAD_ORDER[b.leadStatus] ?? 1);
+                                                if (lsDiff !== 0) return lsDiff;
 
                                                 if (a.date === todayStr && b.date !== todayStr) return -1;
                                                 if (a.date !== todayStr && b.date === todayStr) return 1;

@@ -384,87 +384,84 @@ const Lenders = ({ readOnly = false }) => {
 
             {showModal && (
                 <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-md flex items-center justify-center z-[9999] animate-fadeIn p-4">
-                    <div className="bg-white dark:bg-[#1e2347] w-full max-w-[540px] rounded-[2rem] shadow-[0_25px_70px_rgba(0,0,0,0.15)] overflow-hidden animate-slideUp border border-white/20 dark:border-white/10">
-                        <div className="flex items-center justify-between px-8 py-6 border-b border-[#f1f5f9] dark:border-white/10">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] dark:bg-blue-500/10 flex items-center justify-center text-[#2447d7] dark:text-blue-400 shadow-inner">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="22" height="22"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
+                    <div className="bg-white dark:bg-[#1e2347] w-full max-w-[480px] rounded-2xl shadow-[0_25px_70px_rgba(0,0,0,0.15)] overflow-hidden animate-slideUp border border-white/20 dark:border-white/10" style={{ maxHeight: 'calc(100vh - 2rem)' }}>
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-[#f1f5f9] dark:border-white/10 shrink-0">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl bg-[#eef2ff] dark:bg-blue-500/10 flex items-center justify-center text-[#2447d7] dark:text-blue-400">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>
                                 </div>
                                 <div>
-                                    <h2 className="text-[17px] font-bold text-[#1a202c] dark:text-white leading-tight">{editingLender ? 'Edit Lender Profile' : 'Add New Partner'}</h2>
-                                    <p className="text-[11px] text-[#94a3b8] font-bold uppercase tracking-wider mt-0.5">Lender Management System</p>
+                                    <h2 className="text-[14px] font-bold text-[#1a202c] dark:text-white leading-tight">{editingLender ? 'Edit Lender Profile' : 'Add New Partner'}</h2>
+                                    <p className="text-[10px] text-[#94a3b8] font-bold uppercase tracking-wider">Lender Management</p>
                                 </div>
                             </div>
-                            <button onClick={() => setShowModal(false)} className="w-10 h-10 rounded-xl flex items-center justify-center text-[#94a3b8] hover:bg-[#f1f5f9] dark:hover:bg-white/10 hover:text-[#1a202c] dark:hover:text-white transition-all duration-200 group">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18" className="group-hover:rotate-90 transition-transform duration-300"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-lg flex items-center justify-center text-[#94a3b8] hover:bg-[#f1f5f9] dark:hover:bg-white/10 hover:text-[#1a202c] dark:hover:text-white transition-all">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="15" height="15"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                             </button>
                         </div>
-                        <div className="p-8 flex flex-col gap-6">
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="col-span-2 flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Lender Name *</label>
-                                    <input type="text" className="bg-[#f8fafc] dark:bg-white/5 border-2 border-[#f1f5f9] dark:border-white/10 px-5 py-3 rounded-2xl text-[14px] font-semibold text-[#1a202c] dark:text-white outline-none focus:bg-white dark:focus:bg-white/10 focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0] dark:placeholder:text-slate-600"
+                        {/* Body */}
+                        <div className="p-5 flex flex-col gap-4 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 10rem)' }}>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="col-span-2 flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Lender Name *</label>
+                                    <input type="text" className="bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0]"
                                         placeholder="e.g. Alpha Funding Partners" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
                                 </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Current Status</label>
-                                    <div className="relative group">
-                                        <select className="w-full bg-[#f8fafc] dark:bg-white/5 border-2 border-[#f1f5f9] dark:border-white/10 px-5 py-3 rounded-2xl text-[14px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all appearance-none cursor-pointer pr-12"
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Status</label>
+                                    <div className="relative">
+                                        <select className="w-full bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all appearance-none cursor-pointer pr-8"
                                             value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
                                             <option>Active</option><option>Inactive</option>
                                         </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]">
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><polyline points="6 9 12 15 18 9" /></svg>
-                                        </div>
+                                        <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" width="12" height="12"><polyline points="6 9 12 15 18 9" /></svg>
                                     </div>
                                 </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Contact Email</label>
-                                    <input type="email" className="bg-[#f8fafc] dark:bg-white/5 border-2 border-[#f1f5f9] dark:border-white/10 px-5 py-3 rounded-2xl text-[14px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0] dark:placeholder:text-slate-600"
-                                        placeholder="lender@alphafunding.com" value={form.contact} onChange={e => setForm(f => ({ ...f, contact: e.target.value }))} />
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Contact Email</label>
+                                    <input type="email" className="bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0]"
+                                        placeholder="lender@example.com" value={form.contact} onChange={e => setForm(f => ({ ...f, contact: e.target.value }))} />
                                 </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Account Manager Name</label>
-                                    <input type="text" className="bg-[#f8fafc] dark:bg-white/5 border-2 border-[#f1f5f9] dark:border-white/10 px-5 py-3 rounded-2xl text-[14px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0] dark:placeholder:text-slate-600"
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Manager Name</label>
+                                    <input type="text" className="bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0]"
                                         placeholder="e.g. John Smith" value={form.managerName} onChange={e => setForm(f => ({ ...f, managerName: e.target.value }))} />
                                 </div>
-                                <div className="flex flex-col gap-2">
-                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Account Manager Email</label>
-                                    <input type="email" className="bg-[#f8fafc] dark:bg-white/5 border-2 border-[#f1f5f9] dark:border-white/10 px-5 py-3 rounded-2xl text-[14px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0] dark:placeholder:text-slate-600"
-                                        placeholder="john@alphafunding.com" value={form.managerEmail} onChange={e => setForm(f => ({ ...f, managerEmail: e.target.value }))} />
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Manager Email</label>
+                                    <input type="email" className="bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0]"
+                                        placeholder="john@example.com" value={form.managerEmail} onChange={e => setForm(f => ({ ...f, managerEmail: e.target.value }))} />
                                 </div>
-                                <div className="col-span-2 flex flex-col gap-4 mt-2">
-                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest ml-1">Lending Categories</label>
-                                    <div className="grid grid-cols-2 gap-3">
+                                <div className="col-span-2 flex flex-col gap-2">
+                                    <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Lending Categories</label>
+                                    <div className="grid grid-cols-2 gap-2">
                                         {[
-                                            { id: 'unsecured', label: 'Unsecured', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M7 11V7a5 5 0 0 1 10 0v4" /><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M12 15v3" /></svg> },
-                                            { id: 'secured', label: 'Secured', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /><path d="M12 15v3" /></svg> },
-                                            { id: 'commercial', label: 'Commercial', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M3 21h18" /><path d="M9 8h1" /><path d="M9 12h1" /><path d="M9 16h1" /><path d="M14 8h1" /><path d="M14 12h1" /><path d="M14 16h1" /><rect x="5" y="3" width="14" height="18" rx="2" /></svg> },
-                                            { id: 'refinance', label: 'Refinance', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg> },
+                                            { id: 'unsecured', label: 'Unsecured' },
+                                            { id: 'secured', label: 'Secured' },
+                                            { id: 'commercial', label: 'Commercial' },
+                                            { id: 'refinance', label: 'Refinance' },
                                         ].map(item => (
-                                            <label key={item.id} className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 cursor-pointer group ${form[item.id]
-                                                    ? 'bg-[#eef2ff] dark:bg-blue-500/10 border-[#2447d7] dark:border-blue-500/40 text-[#2447d7] dark:text-blue-400 shadow-sm'
-                                                    : 'bg-white dark:bg-white/[0.02] border-[#f1f5f9] dark:border-white/10 text-[#718096] dark:text-slate-500 hover:border-[#cbd5e0] dark:hover:border-white/20'
+                                            <label key={item.id} className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border transition-all cursor-pointer ${form[item.id]
+                                                    ? 'bg-[#eef2ff] dark:bg-blue-500/10 border-[#2447d7] dark:border-blue-500/40 text-[#2447d7] dark:text-blue-400'
+                                                    : 'bg-white dark:bg-white/[0.02] border-[#e2e8f0] dark:border-white/10 text-[#718096] dark:text-slate-500 hover:border-[#cbd5e0]'
                                                 }`}>
                                                 <input type="checkbox" className="hidden" checked={form[item.id] || false} onChange={e => setForm(f => ({ ...f, [item.id]: e.target.checked }))} />
-                                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-300 ${form[item.id] ? 'bg-[#2447d7] text-white' : 'bg-[#f1f5f9] dark:bg-white/5 text-[#94a3b8]'}`}>
-                                                    {item.icon}
+                                                <div className={`w-4 h-4 rounded flex items-center justify-center border transition-colors ${form[item.id] ? 'bg-[#2447d7] border-[#2447d7]' : 'border-[#cbd5e0] dark:border-white/20'}`}>
+                                                    {form[item.id] && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" width="10" height="10"><polyline points="20 6 9 17 4 12" /></svg>}
                                                 </div>
-                                                <div className="flex flex-col">
-                                                    <span className={`text-[13px] font-bold transition-colors ${form[item.id] ? 'text-[#2447d7] dark:text-blue-400' : 'text-[#4a5568] dark:text-slate-400'}`}>{item.label}</span>
-                                                    <span className="text-[10px] font-medium opacity-60">Lending Type</span>
-                                                </div>
-                                                {form[item.id] && <div className="ml-auto animate-fadeIn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" width="14" height="14"><polyline points="20 6 9 17 4 12" /></svg></div>}
+                                                <span className="text-[12px] font-bold">{item.label}</span>
                                             </label>
                                         ))}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center justify-end gap-4 px-8 py-6 border-t border-[#f1f5f9] dark:border-white/10 bg-[#f8fafc]/50 dark:bg-white/[0.02]">
-                            <button onClick={() => setShowModal(false)} className="px-6 py-3 rounded-2xl bg-white dark:bg-white/5 border-2 border-[#f1f5f9] dark:border-white/10 text-[#64748b] dark:text-slate-400 text-[13px] font-bold hover:bg-[#f1f5f9] dark:hover:bg-white/10 transition-all duration-200">Cancel Effort</button>
-                            <button onClick={handleSave} disabled={!form.name.trim()} className="px-8 py-3 rounded-2xl bg-[#2447d7] text-white text-[13px] font-bold shadow-[0_10px_25px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] hover:-translate-y-px active:translate-y-0 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed">
-                                {editingLender ? 'Update Partner Profile' : 'Confirm New Partner'}
+                        {/* Footer */}
+                        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-[#f1f5f9] dark:border-white/10 bg-[#f8fafc]/50 dark:bg-white/[0.02] shrink-0">
+                            <button onClick={() => setShowModal(false)} className="px-5 py-2 rounded-xl bg-white dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 text-[#64748b] dark:text-slate-400 text-[12px] font-bold hover:bg-[#f1f5f9] dark:hover:bg-white/10 transition-all">Cancel</button>
+                            <button onClick={handleSave} disabled={!form.name.trim()} className="px-6 py-2 rounded-xl bg-[#2447d7] text-white text-[12px] font-bold shadow-[0_4px_12px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] transition-all disabled:opacity-40 disabled:cursor-not-allowed">
+                                {editingLender ? 'Update Partner' : 'Add Partner'}
                             </button>
                         </div>
                     </div>

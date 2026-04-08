@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../../context/ThemeContext';
 import { useUsers } from '../../../context/UsersContext';
 import { useLeads } from '../../../context/LeadsContext';
-import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS, RECENT_LENDERS, LENDER_TYPE_COLORS } from '../../../data/dummyData';
+import { INITIAL_MEMBERSHIPS, MOCK_LEAD_COUNTS, RECENT_LENDERS, LENDER_TYPE_COLORS, SHARED_INITIAL_USERS } from '../../../data/dummyData';
 import { useTasks } from '../../../context/TasksContext';
 import { usePromotions } from '../../../context/PromotionsContext';
 import { DocumentPreviewModal } from '../../shared/promotions/LenderPromotionsView';
@@ -22,14 +22,15 @@ const IconBank = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColo
 const IconPin = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="11" height="11" {...p}><path d="M21 4.5a2.5 2.5 0 0 0-2.5-2.5h-13a2.5 2.5 0 0 0-2.5 2.5V8c0 1.25.9 2.3 2.1 2.5l2.4.4V14l-1.5 1.5 1.5 1.5 1.5-1.5L10 14V10.9l2.4-.4c1.2-.2 2.1-1.25 2.1-2.5V4.5z" /></svg>;
 const IconArrow = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" {...p}><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg>;
 const IconMail = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13" {...p}><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>;
+const IconPhone = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="13" height="13" {...p}><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l2.28-2.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>;
 
 /* ─── MODAL ─── */
-const DashboardModal = ({ isOpen, onClose, title, children, isSmall }) => {
+const DashboardModal = ({ isOpen, onClose, title, children, isSmall, isWide }) => {
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full ${isSmall ? 'max-w-md' : 'max-w-6xl'} rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn`}>
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full ${isSmall ? 'max-w-md' : isWide ? 'max-w-7xl' : 'max-w-6xl'} rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn`}>
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors">
@@ -68,6 +69,17 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
     const [selectedTeam, setSelectedTeam] = useState(null);
     const [selectedMember, setSelectedMember] = useState(null);
     const [selectedPromoDetails, setSelectedPromoDetails] = useState(null);
+
+    const [localTasks, setLocalTasks] = useState(tasks);
+    useEffect(() => { setLocalTasks(tasks); }, [tasks]);
+    const [followUpMember, setFollowUpMember] = useState('all');
+
+    const handleUpdateTaskStatus = (taskId, newStatus) => {
+        setLocalTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
+    };
+    const handleUpdateLeadStatus = (taskId, newLeadStatus) => {
+        setLocalTasks(prev => prev.map(t => t.id === taskId ? { ...t, leadStatus: newLeadStatus } : t));
+    };
     const [selectedTask, setSelectedTask] = useState(null);
     const [previewFile, setPreviewFile] = useState(null);
 
@@ -255,21 +267,190 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 );
             }
             default: return null;
+            case 'FOLLOW_UPS': {
+                const getProgressBadge = (task) => {
+                    const statusConfig = {
+                        'Complete':    { bg: 'bg-[#ecfdf5] dark:bg-emerald-900/40', text: 'text-[#059669] dark:text-emerald-400' },
+                        'Pending':     { bg: 'bg-[#fff7ed] dark:bg-amber-900/30',   text: 'text-[#d97706] dark:text-amber-400' },
+                        'In Progress': { bg: 'bg-[#eff6ff] dark:bg-blue-900/30',    text: 'text-[#2563eb] dark:text-blue-400' },
+                    };
+                    const config = statusConfig[task.status] || statusConfig['Pending'];
+                    return (
+                        <select
+                            value={task.status}
+                            onChange={(e) => { e.stopPropagation(); handleUpdateTaskStatus(task.id, e.target.value); }}
+                            className={`appearance-none cursor-pointer outline-none text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight border-none ${config.bg} ${config.text} hover:ring-2 ring-blue-500/20 shadow-sm`}
+                        >
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Complete">Complete</option>
+                        </select>
+                    );
+                };
+                const getLeadStatusBadge = (task) => {
+                    const statusConfig = {
+                        'Hot':  { bg: 'bg-[#fef2f2] dark:bg-red-900/40',    text: 'text-[#dc2626] dark:text-red-400' },
+                        'Warm': { bg: 'bg-[#fffbeb] dark:bg-amber-900/30',   text: 'text-[#d97706] dark:text-amber-400' },
+                        'Cool': { bg: 'bg-[#f0f9ff] dark:bg-sky-900/30',     text: 'text-[#0284c7] dark:text-sky-400' },
+                    };
+                    const ls = task.leadStatus || 'Cool';
+                    const config = statusConfig[ls] || statusConfig['Cool'];
+                    return (
+                        <select
+                            value={ls}
+                            onChange={(e) => { e.stopPropagation(); handleUpdateLeadStatus(task.id, e.target.value); }}
+                            className={`appearance-none cursor-pointer outline-none text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight border-none ${config.bg} ${config.text} hover:ring-2 ring-blue-500/20 shadow-sm`}
+                        >
+                            <option value="Hot">Hot</option>
+                            <option value="Warm">Warm</option>
+                            <option value="Cool">Cool</option>
+                        </select>
+                    );
+                };
+                const todayStr = new Date().toISOString().split('T')[0];
+                const nonPromo = localTasks.filter(t => {
+                    if (!t.isPromotion) {
+                        if (followUpMember === 'all') return true;
+                        if (followUpMember === 'me') return t.assignedTo === 'Self' || t.assignedTo?.toString() === user.id?.toString();
+                        return t.assignedTo?.toString() === followUpMember;
+                    }
+                    return false;
+                });
+                const LEAD_ORDER = { Hot: 0, Warm: 1, Cool: 2 };
+                const sortedTasks = [...nonPromo].sort((a, b) => {
+                    if (a.status === 'Complete' && b.status !== 'Complete') return 1;
+                    if (a.status !== 'Complete' && b.status === 'Complete') return -1;
+                    const lsDiff = (LEAD_ORDER[a.leadStatus] ?? 1) - (LEAD_ORDER[b.leadStatus] ?? 1);
+                    if (lsDiff !== 0) return lsDiff;
+                    if (a.date === todayStr && b.date !== todayStr) return -1;
+                    if (a.date !== todayStr && b.date === todayStr) return 1;
+                    return new Date(b.date + ' ' + (b.time || '00:00')) - new Date(a.date + ' ' + (a.time || '00:00'));
+                });
+                return (
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-end justify-between mb-2 px-1 gap-3 flex-wrap">
+                            <div className="flex flex-col gap-0.5">
+                                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Management</h3>
+                                <div className="text-[20px] font-black dark:text-white uppercase tracking-tight">Active Follow-ups</div>
+                            </div>
+                            {/* Member filter dropdown */}
+                            <div className="relative">
+                                <select
+                                    value={followUpMember}
+                                    onChange={(e) => setFollowUpMember(e.target.value)}
+                                    className={`appearance-none pl-3 pr-8 py-2 rounded-xl text-[11px] font-bold outline-none cursor-pointer border transition-all ${isDark ? 'bg-[#1e2347] border-white/10 text-slate-200' : 'bg-white border-slate-200 text-slate-700'} focus:ring-2 focus:ring-[#2447d7]/20`}
+                                >
+                                    <option value="all">All Members</option>
+                                    <option value="me">Me (AM)</option>
+                                    {SHARED_INITIAL_USERS.filter(u => u.role === 'Team Leader' && u.status === 'Active').map(u => (
+                                        <option key={u.id} value={String(u.id)}>{u.name} · Team Leader</option>
+                                    ))}
+                                    {SHARED_INITIAL_USERS.filter(u => u.role === 'Tele Agent' && u.status === 'Active').map(u => (
+                                        <option key={u.id} value={String(u.id)}>{u.name} · Tele Agent</option>
+                                    ))}
+                                </select>
+                                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                            </div>
+                        </div>
+                        {sortedTasks.length > 0 ? (
+                            <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
+                                <table className="w-full text-left border-collapse min-w-[1100px]">
+                                    <thead>
+                                        <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Lead Name</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Lead Status</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Note / Message</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Schedule</th>
+                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Progress</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                        {sortedTasks.slice(0, 8).map((task, idx) => {
+                                            const relatedLead = (leads || []).find(l => l.name === task.lead || l.email === task.email);
+                                            const displayEmail = task.email || relatedLead?.email || '—';
+                                            const displayPhone = task.phone || relatedLead?.phone || '—';
+                                            const combinedNotes = [task.title, task.description, task.message].filter(Boolean).join(' - ');
+                                            return (
+                                                <tr key={task.id} className={`group bg-white dark:bg-transparent hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-all border-b border-slate-50 dark:border-white/5 last:border-0 ${task.status === 'Complete' ? 'opacity-60 grayscale-[0.3]' : ''}`}>
+                                                    <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2.5">
+                                                            <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#2447d7] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
+                                                                {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                            </div>
+                                                            <span className="text-[12px] font-bold text-[#2447d7] dark:text-blue-400 uppercase tracking-tight">{task.lead || 'Unknown Lead'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">{getLeadStatusBadge(task)}</td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                            <IconMail className="text-slate-300 dark:text-slate-600 shrink-0" />
+                                                            <span className="truncate max-w-[150px]">{displayEmail}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                            <IconPhone className="text-slate-300 dark:text-slate-600 shrink-0" />
+                                                            <span>{displayPhone}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 max-w-[180px] leading-relaxed" title={combinedNotes}>{combinedNotes}</p>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex flex-col leading-tight text-right">
+                                                            <span className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{task.date}</span>
+                                                            <div className="flex items-center justify-end gap-1 text-[10px] font-black text-[#2447d7] dark:text-blue-400 uppercase tracking-tighter">
+                                                                <IconClock width="10" height="10" /> {task.time}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">{getProgressBadge(task)}</td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ) : (
+                            <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-white/10 rounded-2xl">
+                                No upcoming follow-ups
+                            </div>
+                        )}
+                        <button
+                            className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 font-black py-3 rounded-2xl mt-1 border border-slate-100 dark:border-white/5 text-[10px] uppercase tracking-widest"
+                            onClick={() => { onNavigate && onNavigate('tasks'); setActiveModal(null); }}
+                        >
+                            View All Follow-ups →
+                        </button>
+                    </div>
+                );
+            }
         }
     };
 
-    const modalTitles = { MY_LEADS: 'My Leads', VERIFIED: 'Verified Leads', PENDING: 'Pending Lead Approval', TOTAL_TEAMS: 'All Teams' };
+    const modalTitles = { MY_LEADS: 'My Leads', VERIFIED: 'Verified Leads', PENDING: 'Pending Lead Approval', TOTAL_TEAMS: 'All Teams', FOLLOW_UPS: 'My Follow-ups' };
 
     return (
         <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-[calc(100vh-116px)] md:h-auto md:overflow-visible">
 
-            {/* ROW 1: 6 STAT TILES */}
-            <div className="grid grid-cols-6 md:grid-cols-3 sm:grid-cols-2 gap-3 shrink-0">
+            {/* ROW 1: 7 STAT TILES */}
+            <div className="grid grid-cols-7 md:grid-cols-3 sm:grid-cols-2 gap-3 shrink-0">
                 {/* My Leads */}
                 <div onClick={() => setActiveModal('MY_LEADS')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
                     <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUsers width="22" height="22" /></div>
                     <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">{myLeads.length}</h2>
                     <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MY LEADS</span>
+                </div>
+
+                {/* My Follow-ups */}
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-teal-100/40 dark:bg-[#0f2420] rounded-2xl border border-teal-200 dark:border-teal-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-11 h-11 rounded-full bg-teal-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-teal-500/20"><IconClock width="22" height="22" /></div>
+                    <h2 className="text-3xl font-black leading-none text-teal-700 dark:text-teal-300">{tasks.filter(t => !t.isPromotion).length}</h2>
+                    <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest">MY FOLLOWUPS</span>
                 </div>
 
                 {/* Create Lead */}
@@ -489,9 +670,10 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
             {/* Dashboard Stat Modals */}
             <DashboardModal
                 isOpen={!!activeModal}
-                onClose={() => setActiveModal(null)}
+                onClose={() => { setActiveModal(null); setFollowUpMember('all'); }}
                 title={modalTitles[activeModal] || ''}
                 isSmall={activeModal === 'TOTAL_TEAMS'}
+                isWide={activeModal === 'FOLLOW_UPS'}
             >
                 {renderModalContent()}
             </DashboardModal>
