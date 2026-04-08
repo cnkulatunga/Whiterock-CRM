@@ -10,6 +10,8 @@ import {
     INITIAL_TASKS,
     TL_AGENT_PERFORMANCE,
     DATE_RANGE_OPTIONS,
+    AUDIT_STATS,
+    KNOWLEDGE_BASE_RESOURCES
 } from '../../../data/dummyData';
 import { useTasks } from '../../../context/TasksContext';
 import TaskModal from '../../../components/modals/TaskModal';
@@ -660,13 +662,6 @@ const LicensesInsurance = () => {
 };
 
 /* ─── KNOWLEDGE BASE TELE AGENT POPUP ───── */
-const KB_TELE_DOCS = [
-    { id: 1, category: 'Guides', name: 'Lead Qualification Checklist', type: 'PDF', size: '0.8 MB', tag: 'blue', content: '✓ Business trading 6+ months\n✓ Annual turnover £100K+\n✓ No active insolvency\n✓ Director/owner contact confirmed\n✓ Loan purpose clearly defined\n✓ Funding timeline captured' },
-    { id: 2, category: 'Guides', name: 'Document Collection SOP', type: 'DOCX', size: '1.5 MB', tag: 'blue', content: 'Required documents per lead:\n1. Last 6 months bank statements\n2. Latest 2 years accounts\n3. Photo ID (passport/driving licence)\n4. Proof of address (utility bill < 3 months)\n5. Signed authority form' },
-    { id: 3, category: 'FAQs', name: 'Common Customer FAQs', type: 'PDF', size: '0.6 MB', tag: 'violet', content: 'Q: How long does approval take?\nA: Typically 24–72 hours once all documents are received.\n\nQ: What loan amounts are available?\nA: £10,000 to £5,000,000 depending on turnover.\n\nQ: Is my credit score checked?\nA: A soft search is done initially — no impact on credit.' },
-    { id: 4, category: 'Products', name: 'Lender Products Overview 2026', type: 'PDF', size: '3.8 MB', tag: 'orange', content: 'Key products available:\n• Working Capital Loans — 3–36 months\n• Equipment Finance — up to 60 months\n• Commercial Mortgages — up to 25 years\n• Invoice Finance — revolving facility\n• Bridging Loans — 1–24 months' },
-];
-
 const TAG_COLORS = {
     teal: { bg: 'bg-teal-50', text: 'text-teal-600', border: 'border-teal-100', dot: 'bg-teal-500' },
     blue: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100', dot: 'bg-blue-500' },
@@ -674,7 +669,7 @@ const TAG_COLORS = {
     orange: { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-100', dot: 'bg-orange-500' },
 };
 
-const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KB_TELE_DOCS }) => {
+const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_BASE_RESOURCES.filter(d => d.category !== 'Audit') }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const [selected, setSelected] = useState(initialDoc);
@@ -696,8 +691,8 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KB_TELE_DOC
                             <IconBook width="14" height="14" className="text-teal-600" />
                         </div>
                         <div>
-                            <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Tele Agent Knowledge Base</p>
-                            <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{KB_TELE_DOCS.length} resources available</p>
+                            <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Knowledge Base Repository</p>
+                            <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{allDocs.length} resources available</p>
                         </div>
                     </div>
                     <button onClick={onClose} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
@@ -823,7 +818,7 @@ const KnowledgeBase = () => {
     const [extraDocs, setExtraDocs] = useState([]);
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const allDocs = [...KB_TELE_DOCS, ...extraDocs];
+    const allDocs = [...KNOWLEDGE_BASE_RESOURCES, ...extraDocs];
     const previewDocs = allDocs.slice(0, 3);
 
     return (
