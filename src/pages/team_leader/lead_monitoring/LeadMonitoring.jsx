@@ -204,7 +204,104 @@ const LeadMonitoring = ({ onViewDetails }) => {
                         </div>
                     </div>
                 </div>
-                <div className="overflow-x-auto">
+                {/* Mobile Leads List */}
+                <div className="hidden sm:flex flex-col gap-3 p-4">
+                    {paginated.length > 0 ? paginated.map((lead) => {
+                        const ls = lead.leadStatus || 'Warm';
+                        const lsCfg = {
+                            Hot:  { cls: 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-100 dark:border-red-500/20', dot: 'bg-red-500' },
+                            Warm: { cls: 'bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-100 dark:border-orange-500/20', dot: 'bg-orange-500' },
+                            Cool: { cls: 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20', dot: 'bg-blue-500' },
+                        }[ls] || { cls: 'bg-slate-50 text-slate-500 border-slate-100', dot: 'bg-slate-400' };
+
+                        const hasRejected = lead.documents?.some(d => d.status === 'Rejected');
+                        const isAllVerified = lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0;
+                        const docCount = lead.documents?.length || 0;
+                        const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
+
+                        return (
+                            <div 
+                                key={lead.id} 
+                                onClick={() => onViewDetails?.(lead)}
+                                className={`p-4 rounded-2xl border flex flex-col gap-4 transition-all active:scale-[0.98] ${isDark ? 'bg-white/5 border-white/5 shadow-xl' : 'bg-white border-slate-100 shadow-sm'}`}
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-sm" style={{ background: agentColorMap[lead.agentName] || '#64748b' }}>
+                                            {lead.name?.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className={`text-[14px] font-black leading-tight ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{lead.name}</span>
+                                            <span className={`text-[10px] font-bold tracking-tight ${isDark ? 'text-blue-400' : 'text-[#0061ff]'}`}>#{lead.leadId}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end gap-1.5">
+                                        <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+                                            <select
+                                                value={ls}
+                                                onChange={(e) => {
+                                                    e.stopPropagation();
+                                                    setLeads(prev => prev.map(l => l.id === lead.id ? { ...l, leadStatus: e.target.value } : l));
+                                                }}
+                                                className={`appearance-none pl-5 pr-6 py-1 rounded-full text-[8px] font-black uppercase tracking-wide border whitespace-nowrap cursor-pointer outline-none ${lsCfg.cls}`}
+                                            >
+                                                <option value="Hot">Hot</option>
+                                                <option value="Warm">Warm</option>
+                                                <option value="Cool">Cool</option>
+                                            </select>
+                                            <span className={`absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none ${lsCfg.dot}`} />
+                                            <svg className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="8" height="8">
+                                                <polyline points="6 9 12 15 18 9"/>
+                                            </svg>
+                                        </div>
+                                        {hasRejected ? (
+                                            <span className="px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-100 dark:border-red-500/20">Action Required</span>
+                                        ) : isAllVerified ? (
+                                            <span className="px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 border border-emerald-100 dark:border-emerald-500/20">Verified</span>
+                                        ) : null}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 py-3 border-y border-slate-50 dark:border-white/5">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">Business</span>
+                                        <span className={`text-[11px] font-black truncate ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>{lead.businessName || 'Personal'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1 items-end text-right">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.1em]">Agent</span>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="w-4 h-4 rounded-md flex items-center justify-center text-[7px] font-black text-white" style={{ background: agentColorMap[lead.agentName] || '#64748b' }}>
+                                                {lead.agentName?.split(' ').map(n => n[0]).join('').slice(0,1).toUpperCase()}
+                                            </div>
+                                            <span className={`text-[11px] font-bold ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{lead.agentName}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`px-3 py-1.5 rounded-xl border flex items-center gap-2 ${isDark ? 'bg-blue-500/5 border-white/5' : 'bg-blue-50/50 border-blue-100/50'}`}>
+                                            <span className={`text-[10px] font-black ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>DOCS</span>
+                                            <span className={`text-[10px] font-black ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{approvedCount}/{docCount}</span>
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleOpenDocModal(lead); }}
+                                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isDark ? 'bg-blue-500 text-white shadow-blue-500/20' : 'bg-[#2447d7] text-white shadow-lg shadow-blue-200'}`}
+                                    >
+                                        Manage Documents
+                                    </button>
+                                </div>
+                            </div>
+                        );
+                    }) : (
+                        <div className="py-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                            No match found
+                        </div>
+                    )}
+                </div>
+
+                <div className="sm:hidden overflow-x-auto">
                     <table className="w-full border-collapse">
                         <thead>
                             <tr className={`${isDark ? 'bg-[#141829]/50' : 'bg-[#fbfeff]'}`}>

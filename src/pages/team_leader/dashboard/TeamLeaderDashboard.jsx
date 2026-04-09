@@ -455,9 +455,58 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 return (
                     <div className="flex flex-col gap-3">
                         <div className="mb-2">
-                            <input type="text" placeholder="Search team members..." value={teamSearch} onChange={e => setTeamSearch(e.target.value)} className="w-full p-3 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-white/5 text-[13px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20" />
+                            <input 
+                                type="text" 
+                                placeholder="Search team members..." 
+                                value={teamSearch} 
+                                onChange={e => setTeamSearch(e.target.value)} 
+                                className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-white/5 text-[14px] font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20 shadow-inner" 
+                            />
                         </div>
-                        <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-hidden shadow-sm max-h-[60vh] overflow-y-auto pr-1">
+
+                        {/* Mobile Agent Cards */}
+                        <div className="hidden sm:flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-1">
+                            {filteredAgents.length > 0 ? filteredAgents.map((agent, idx) => (
+                                <div 
+                                    key={idx} 
+                                    onClick={() => setSelectedAgent(agent)}
+                                    className={`p-4 rounded-2xl border flex flex-col gap-3 transition-all active:scale-[0.98] ${isDark ? 'bg-white/5 border-white/5 shadow-xl' : 'bg-white border-slate-100 shadow-sm'}`}
+                                >
+                                    <div className="flex justify-between items-center">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-[12px] font-black text-white shrink-0 shadow-lg" style={{ backgroundColor: agent.color || '#f59e0b' }}>
+                                                {agent.initials}
+                                            </div>
+                                            <div className="flex flex-col">
+                                                <span className="text-[15px] font-black text-slate-800 dark:text-white uppercase tracking-tight leading-tight">{agent.name}</span>
+                                                <span className="text-[11px] font-bold text-slate-400 mt-0.5">{SHARED_INITIAL_USERS.find(user => user.name === agent.name)?.email || '-'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-full bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-500">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-slate-50 dark:border-white/5">
+                                        <div className="flex flex-col items-center p-2 bg-slate-50 dark:bg-slate-900/40 rounded-xl">
+                                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Active Leads</span>
+                                            <span className="text-[16px] font-black text-slate-700 dark:text-slate-200">{agent.activeLeads}</span>
+                                        </div>
+                                        <div className="flex flex-col items-center p-2 bg-emerald-50/50 dark:bg-emerald-500/10 rounded-xl border border-emerald-100 dark:border-emerald-500/20">
+                                            <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-1">Closed Deals</span>
+                                            <span className="text-[16px] font-black text-emerald-600 dark:text-emerald-400">{agent.closedDeals}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            )) : (
+                                <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
+                                    No agents found
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Desktop Agent Table */}
+                        <div className="sm:hidden rounded-xl border border-slate-100 dark:border-white/5 overflow-hidden shadow-sm max-h-[60vh] overflow-y-auto pr-1">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
@@ -595,100 +644,164 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             </div>
                         </div>
                         {allAgentTasks.length > 0 ? (
-                            <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
-                                <table className="w-full text-left border-collapse min-w-[1200px]">
-                                    <thead>
-                                        <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Lead Name</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Lead Status</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone Number</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Note / Message</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Schedule</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Progress</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                                        {(() => {
-                                            const todayStr = new Date().toISOString().split('T')[0];
-                                            const LEAD_ORDER = { Hot: 0, Warm: 1, Cool: 2 };
-                                            const sortedTasks = [...allAgentTasks].sort((a, b) => {
-                                                const aComplete = a.status === 'Complete';
-                                                const bComplete = b.status === 'Complete';
+                            <>
+                                {/* Mobile Follow-up Cards */}
+                                <div className="hidden sm:flex flex-col gap-3">
+                                    {([...allAgentTasks].sort((a, b) => {
+                                        const todayStr = new Date().toISOString().split('T')[0];
+                                        const LEAD_ORDER = { Hot: 0, Warm: 1, Cool: 2 };
+                                        const aComplete = a.status === 'Complete';
+                                        const bComplete = b.status === 'Complete';
+                                        if (aComplete && !bComplete) return 1;
+                                        if (!aComplete && bComplete) return -1;
+                                        const lsDiff = (LEAD_ORDER[a.leadStatus] ?? 1) - (LEAD_ORDER[b.leadStatus] ?? 1);
+                                        if (lsDiff !== 0) return lsDiff;
+                                        if (a.date === todayStr && b.date !== todayStr) return -1;
+                                        if (a.date !== todayStr && b.date === todayStr) return 1;
+                                        return new Date(b.date + ' ' + (b.time || '00:00')) - new Date(a.date + ' ' + (a.time || '00:00'));
+                                    }).slice(0, 6)).map((task) => {
+                                        const relatedLead = (leads || []).find(l => l.name === task.lead || l.email === task.email);
+                                        const combinedNotes = [task.title, task.description, task.message].filter(Boolean).join(' - ');
+                                        return (
+                                            <div 
+                                                key={task.id} 
+                                                className={`p-4 rounded-2xl border flex flex-col gap-3 transition-all ${isDark ? 'bg-white/5 border-white/5 shadow-xl' : 'bg-white border-slate-100 shadow-sm'} ${task.status === 'Complete' ? 'opacity-60 grayscale-[0.3]' : ''}`}
+                                            >
+                                                <div className="flex justify-between items-start">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-xl bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[11px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
+                                                            {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[14px] font-black text-[#0061ff] dark:text-blue-400 leading-tight uppercase tracking-tight">{task.lead || 'Unknown Lead'}</span>
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">{task.date}</span>
+                                                                <span className="w-1 h-1 rounded-full bg-slate-300" />
+                                                                <span className="text-[10px] font-black text-[#0061ff] dark:text-blue-400 uppercase tracking-tighter">{task.time}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    {getLeadStatusBadge(task)}
+                                                </div>
 
-                                                if (aComplete && !bComplete) return 1;
-                                                if (!aComplete && bComplete) return -1;
+                                                <div className="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-white/5">
+                                                    <p className="text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed italic line-clamp-2">
+                                                        "{combinedNotes || 'No specific notes'}"
+                                                    </p>
+                                                </div>
 
-                                                const lsDiff = (LEAD_ORDER[a.leadStatus] ?? 1) - (LEAD_ORDER[b.leadStatus] ?? 1);
-                                                if (lsDiff !== 0) return lsDiff;
+                                                <div className="flex items-center justify-between gap-4">
+                                                    <div className="flex items-center gap-3 text-[10px] text-slate-500 font-bold uppercase tracking-tight overflow-hidden">
+                                                        <div className="flex items-center gap-1 truncate">
+                                                            <IconMail width="12" height="12" className="text-slate-400" /> {task.email || relatedLead?.email || '—'}
+                                                        </div>
+                                                        <div className="flex items-center gap-1 shrink-0">
+                                                            <IconPhone width="12" height="12" className="text-slate-400" /> {task.phone || relatedLead?.phone || '—'}
+                                                        </div>
+                                                    </div>
+                                                    {getProgressBadge(task)}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
 
-                                                if (a.date === todayStr && b.date !== todayStr) return -1;
-                                                if (a.date !== todayStr && b.date === todayStr) return 1;
+                                {/* Desktop Follow-up Table */}
+                                <div className="sm:hidden overflow-x-auto rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
+                                    <table className="w-full text-left border-collapse min-w-[1200px]">
+                                        <thead>
+                                            <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
+                                                <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
+                                                <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Lead Name</th>
+                                                <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Lead Status</th>
+                                                <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
+                                                <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone Number</th>
+                                                <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Note / Message</th>
+                                                <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Schedule</th>
+                                                <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Progress</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                            {(() => {
+                                                const todayStr = new Date().toISOString().split('T')[0];
+                                                const LEAD_ORDER = { Hot: 0, Warm: 1, Cool: 2 };
+                                                const sortedTasks = [...allAgentTasks].sort((a, b) => {
+                                                    const aComplete = a.status === 'Complete';
+                                                    const bComplete = b.status === 'Complete';
 
-                                                const aDateTime = new Date(a.date + ' ' + (a.time || '00:00'));
-                                                const bDateTime = new Date(b.date + ' ' + (b.time || '00:00'));
-                                                return bDateTime - aDateTime;
-                                            });
+                                                    if (aComplete && !bComplete) return 1;
+                                                    if (!aComplete && bComplete) return -1;
 
-                                            return sortedTasks.slice(0, 6).map((task, idx) => {
-                                                const relatedLead = (leads || []).find(l => l.name === task.lead || l.email === task.email);
-                                                const displayEmail = task.email || relatedLead?.email || '—';
-                                                const displayPhone = task.phone || relatedLead?.phone || '—';
-                                                const combinedNotes = [task.title, task.description, task.message].filter(Boolean).join(' - ');
+                                                    const lsDiff = (LEAD_ORDER[a.leadStatus] ?? 1) - (LEAD_ORDER[b.leadStatus] ?? 1);
+                                                    if (lsDiff !== 0) return lsDiff;
 
-                                                return (
-                                                    <tr
-                                                        key={task.id}
-                                                        className={`group bg-white dark:bg-transparent hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-all border-b border-slate-50 dark:border-white/5 last:border-0 ${task.status === 'Complete' ? 'opacity-60 grayscale-[0.3]' : ''}`}
-                                                    >
-                                                        <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
-                                                        <td className="px-4 py-3">
-                                                            <div className="flex items-center gap-2.5">
-                                                                <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
-                                                                    {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                    if (a.date === todayStr && b.date !== todayStr) return -1;
+                                                    if (a.date !== todayStr && b.date === todayStr) return 1;
+
+                                                    const aDateTime = new Date(a.date + ' ' + (a.time || '00:00'));
+                                                    const bDateTime = new Date(b.date + ' ' + (b.time || '00:00'));
+                                                    return bDateTime - aDateTime;
+                                                });
+
+                                                return sortedTasks.slice(0, 6).map((task, idx) => {
+                                                    const relatedLead = (leads || []).find(l => l.name === task.lead || l.email === task.email);
+                                                    const displayEmail = task.email || relatedLead?.email || '—';
+                                                    const displayPhone = task.phone || relatedLead?.phone || '—';
+                                                    const combinedNotes = [task.title, task.description, task.message].filter(Boolean).join(' - ');
+
+                                                    return (
+                                                        <tr
+                                                            key={task.id}
+                                                            className={`group bg-white dark:bg-transparent hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-all border-b border-slate-50 dark:border-white/5 last:border-0 ${task.status === 'Complete' ? 'opacity-60 grayscale-[0.3]' : ''}`}
+                                                        >
+                                                            <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
+                                                            <td className="px-4 py-3">
+                                                                <div className="flex items-center gap-2.5">
+                                                                    <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
+                                                                        {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                                    </div>
+                                                                    <span className="text-[12px] font-bold text-[#0061ff] dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors uppercase tracking-tight">{task.lead || 'Unknown Lead'}</span>
                                                                 </div>
-                                                                <span className="text-[12px] font-bold text-[#0061ff] dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors uppercase tracking-tight">{task.lead || 'Unknown Lead'}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-3 text-center">
-                                                            {getLeadStatusBadge(task)}
-                                                        </td>
-                                                        <td className="px-4 py-3">
-                                                            <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                                                <IconMail width="13" height="13" className="text-slate-300 dark:text-slate-600" />
-                                                                <span className="truncate max-w-[160px]">{displayEmail}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-3">
-                                                            <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                                                <IconPhone width="13" height="13" className="text-slate-300 dark:text-slate-600" />
-                                                                <span>{displayPhone}</span>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-3">
-                                                            <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 max-w-[200px] leading-relaxed" title={combinedNotes}>
-                                                                {combinedNotes}
-                                                            </p>
-                                                        </td>
-                                                        <td className="px-4 py-3">
-                                                            <div className="flex flex-col leading-tight text-right">
-                                                                <span className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{task.date}</span>
-                                                                <div className="flex items-center justify-end gap-1 text-[10px] font-black text-[#0061ff] dark:text-blue-400 uppercase tracking-tighter">
-                                                                    <IconClock width="10" height="10" /> {task.time}
+                                                            </td>
+                                                            <td className="px-4 py-3 text-center">
+                                                                {getLeadStatusBadge(task)}
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                                    <IconMail width="13" height="13" className="text-slate-300 dark:text-slate-600" />
+                                                                    <span className="truncate max-w-[160px]">{displayEmail}</span>
                                                                 </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-3 text-center">
-                                                            {getProgressBadge(task)}
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            });
-                                        })()}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                                    <IconPhone width="13" height="13" className="text-slate-300 dark:text-slate-600" />
+                                                                    <span>{displayPhone}</span>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 max-w-[200px] leading-relaxed" title={combinedNotes}>
+                                                                    {combinedNotes}
+                                                                </p>
+                                                            </td>
+                                                            <td className="px-4 py-3">
+                                                                <div className="flex flex-col leading-tight text-right">
+                                                                    <span className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{task.date}</span>
+                                                                    <div className="flex items-center justify-end gap-1 text-[10px] font-black text-[#0061ff] dark:text-blue-400 uppercase tracking-tighter">
+                                                                        <IconClock width="10" height="10" /> {task.time}
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-4 py-3 text-center">
+                                                                {getProgressBadge(task)}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                });
+                                            })()}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
                         ) : (
                             <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
                                 {followUpAgent === 'me' ? 'No upcoming followups' : `No followups for ${teamMembers.find(m => String(m.id) === followUpAgent)?.name || 'this agent'}`}
