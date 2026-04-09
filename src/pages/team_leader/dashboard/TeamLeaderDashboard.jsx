@@ -26,6 +26,7 @@ const IconPin = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentC
 const IconBook = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" {...props}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>;
 const IconSearch = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>;
 const IconDoc = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>;
+const IconPlus = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" {...props}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>;
 
 
 /* ─── MODAL COMPONENT ─── */
@@ -33,20 +34,20 @@ const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false
     if (!isOpen) return null;
     return (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center sm:items-end p-4 sm:p-0">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn sm:animate-slideUp ${isFullScreen ? 'h-[98vh] sm:h-[95vh] max-w-[98vw] sm:max-w-full rounded-3xl sm:rounded-t-3xl sm:rounded-b-none' : isSmall ? 'max-w-[700px] sm:max-w-full rounded-2xl sm:rounded-t-2xl sm:rounded-b-none' : isWide ? 'max-w-[90vw] sm:max-w-full rounded-2xl sm:rounded-t-2xl sm:rounded-b-none' : 'max-w-xl sm:max-w-full rounded-2xl sm:rounded-t-2xl sm:rounded-b-none'}`}>
+            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-md animate-fadeIn" onClick={onClose} />
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] overflow-hidden flex flex-col animate-zoomIn sm:animate-slideUp ${isFullScreen ? 'h-[98vh] sm:h-[95vh] max-w-[98vw] sm:max-w-full rounded-[32px] sm:rounded-t-[32px] sm:rounded-b-none' : isSmall ? 'max-w-[700px] sm:max-w-full rounded-[28px] sm:rounded-t-[28px] sm:rounded-b-none' : isWide ? 'max-w-[90vw] sm:max-w-full rounded-[28px] sm:rounded-t-[28px] sm:rounded-b-none' : 'max-w-xl sm:max-w-full rounded-[24px] sm:rounded-t-[24px] sm:rounded-b-none'}`}>
                 {/* Mobile Drag Handle */}
-                <div className="hidden sm:block w-12 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full mx-auto mt-3 mb-1 shrink-0" />
+                <div className="hidden sm:block w-12 h-1.5 bg-slate-200 dark:bg-slate-700/50 rounded-full mx-auto mt-4 mb-2 shrink-0" />
                 
-                <div className="flex justify-between items-center p-5 sm:p-4 border-b border-gray-100 dark:border-white/5 shrink-0">
-                    <h3 className="text-xl sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight leading-none">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors shrink-0">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
+                <div className="flex justify-between items-center p-6 sm:p-5 border-b border-slate-100 dark:border-white/5 shrink-0 bg-gradient-to-r from-white to-slate-50/50 dark:from-[#1e2347] dark:to-white/2">
+                    <h3 className="text-2xl sm:text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">{title}</h3>
+                    <button onClick={onClose} className="p-2.5 hover:bg-slate-100 dark:hover:bg-white/5 rounded-2xl transition-all shrink-0 hover:rotate-90">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="20" height="20" className="text-slate-400">
                             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                     </button>
                 </div>
-                <div className={`p-5 sm:p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : isSmall ? 'max-h-[70vh] sm:max-h-[85vh] custom-scrollbar' : 'max-h-[80vh] sm:max-h-[90vh] custom-scrollbar'}`}>
+                <div className={`p-6 sm:p-5 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : isSmall ? 'max-h-[70vh] sm:max-h-[85vh] custom-scrollbar' : 'max-h-[80vh] sm:max-h-[85vh] custom-scrollbar'}`}>
                     {children}
                 </div>
             </div>
@@ -1026,101 +1027,131 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     return (
         <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-auto lg:min-h-[calc(100vh-116px)] sm:min-h-[calc(100vh-108px)]">
 
-            {/* STRICT SINGLE SCREEN GRID (Row 1: Tiles, Row 2: Main Stacks) */}
-            <div className="grid grid-cols-7 grid-rows-[min-content_1fr] flex-1 gap-4 min-h-0 w-full mb-1 lg:grid-cols-2 lg:grid-rows-none sm:grid-cols-1">
+            {/* PREMIUM STAT GRID */}
+            <div className="grid grid-cols-7 xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 gap-3 min-h-0 w-full mb-1">
 
-                {/* === ROW 1: 7 SMALL SQUARES === (Cols 1 to 7) */}
-                <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">
-                        {(() => {
-                            const currentUserName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
-                            const strictlyMine = (leads || []).filter(l => 
-                                (l.assignedStaffId === user.id || l.agentName === currentUserName || l.createdBy === currentUserName) 
-                                && l.status !== 'Completed'
-                            );
-                            const teamMemberIds = (INITIAL_MEMBERSHIPS[user.id] || []).map(m => m.id);
-                            const teamLeads = (leads || []).filter(l => {
-                                const isStrict = l.assignedStaffId === user.id || l.agentName === currentUserName || l.createdBy === currentUserName;
-                                if (isStrict) return false;
-                                return (teamMemberIds.includes(l.assignedStaffId) || l.tl === currentUserName) && l.status !== 'Completed';
-                            });
-                            return (strictlyMine.length + teamLeads.length).toLocaleString();
-                        })()}
-                    </h2>
-                    <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">LEADS</span>
+                {/* Leads Card */}
+                <div onClick={() => setActiveModal('LEAD_COUNT')} className="group bg-blue-50/50 dark:bg-[#1c2340] rounded-2xl border border-blue-200/50 dark:border-blue-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform">
+                        <IconUserGroup width="24" height="24" />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <h2 className="text-3xl lg:text-3xl font-black leading-none text-blue-700 dark:text-blue-300">
+                            {(() => {
+                                const currentUserName = user.name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
+                                const strictlyMine = (leads || []).filter(l => 
+                                    (l.assignedStaffId === user.id || l.agentName === currentUserName || l.createdBy === currentUserName) 
+                                    && l.status !== 'Completed'
+                                );
+                                const teamMemberIds = (INITIAL_MEMBERSHIPS[user.id] || []).map(m => m.id);
+                                const teamLeads = (leads || []).filter(l => {
+                                    const isStrict = l.assignedStaffId === user.id || l.agentName === currentUserName || l.createdBy === currentUserName;
+                                    if (isStrict) return false;
+                                    return (teamMemberIds.includes(l.assignedStaffId) || l.tl === currentUserName) && l.status !== 'Completed';
+                                });
+                                return (strictlyMine.length + teamLeads.length).toLocaleString();
+                            })()}
+                        </h2>
+                        <span className="text-[10px] sm:text-[9px] font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-[0.2em]">LEADS</span>
+                    </div>
                 </div>
 
-                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-violet-100/40 dark:bg-[#1e1a2e] rounded-2xl border border-violet-200 dark:border-violet-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-violet-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-violet-500/20"><IconClock width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-violet-700 dark:text-violet-300">{tasks.length}</h2>
-                    <span className="text-[11px] font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">MY FOLLOWUPS</span>
+                {/* Followups Card */}
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="group bg-violet-50/50 dark:bg-[#1e1a2e] rounded-2xl border border-violet-200/50 dark:border-violet-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-violet-600/20 group-hover:scale-110 transition-transform">
+                        <IconClock width="24" height="24" />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <h2 className="text-3xl lg:text-3xl font-black leading-none text-violet-700 dark:text-violet-300">{tasks.length}</h2>
+                        <span className="text-[10px] sm:text-[9px] font-black text-violet-600/70 dark:text-violet-400/70 uppercase tracking-[0.2em]">MY FOLLOWUPS</span>
+                    </div>
                 </div>
 
-                <div onClick={() => { setActiveModal('MY_TEAM'); setSelectedAgent(null); }} className="bg-orange-100/40 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200 dark:border-orange-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-orange-500/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{agentPerformance.length}</h2>
-                    <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest">MY TEAM</span>
+                {/* Team Card */}
+                <div onClick={() => { setActiveModal('MY_TEAM'); setSelectedAgent(null); }} className="group bg-orange-50/50 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200/50 dark:border-orange-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform">
+                        <IconUserGroup width="24" height="24" />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <h2 className="text-3xl lg:text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{agentPerformance.length}</h2>
+                        <span className="text-[10px] sm:text-[9px] font-black text-orange-600/70 dark:text-orange-400/70 uppercase tracking-[0.2em]">MY TEAM</span>
+                    </div>
                 </div>
 
-                <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconFolder width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">
-                        {(leads || []).filter(l => l.assignedStaffId === user.id && (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))).length}
-                    </h2>
-                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">PENDING DOCUMENTS</span>
+                {/* Docs Card */}
+                <div onClick={() => setActiveModal('PENDING_DOCS')} className="group bg-emerald-50/50 dark:bg-[#182724] rounded-2xl border border-emerald-200/50 dark:border-emerald-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform">
+                        <IconFolder width="24" height="24" />
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <h2 className="text-3xl lg:text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">
+                            {(leads || []).filter(l => l.assignedStaffId === user.id && (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))).length}
+                        </h2>
+                        <span className="text-[10px] sm:text-[9px] font-black text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-[0.2em]">DOCS</span>
+                    </div>
                 </div>
 
-                <div onClick={() => onNavigate('create-lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">CREATE<br />LEAD</h2>
+                {/* Create Lead Card */}
+                <div onClick={() => onNavigate('create-lead')} className="group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-rose-600/20 group-hover:scale-110 transition-transform"><IconPlus /></div>
+                    <h2 className="text-[12px] font-black leading-tight text-rose-700 dark:text-rose-300 uppercase tracking-[0.1em]">CREATE<br />LEAD</h2>
                 </div>
 
-                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center mb-1 shadow-md shadow-amber-500/20"><IconBulb width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-amber-700 dark:text-amber-400">KNOWLEDGE<br />BASE</h2>
+                {/* Knowledge Base Card */}
+                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="group bg-amber-50/50 dark:bg-[#282315] rounded-2xl border border-amber-200/50 dark:border-amber-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform"><IconBulb width="24" height="24" /></div>
+                    <h2 className="text-[12px] font-black leading-tight text-amber-700 dark:text-amber-400 uppercase tracking-[0.1em]">KNOWLEDGE<br />BASE</h2>
                 </div>
 
-                <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-md shadow-[#5b5fc7]/30"><IconTeams width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">CONNECT<br />TEAMS</h2>
+                {/* MS Teams Card */}
+                <div onClick={() => window.open('msteams://', '_blank')} className="group bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-lg shadow-[#5b5fc7]/30 group-hover:scale-110 transition-transform"><IconTeams width="24" height="24" /></div>
+                    <h2 className="text-[12px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef] uppercase tracking-[0.1em]">MICROSOFT<br />TEAMS</h2>
                 </div>
 
-                {/* === ROW 2: COLUMN STACKS === */}
+            </div>
+
+            {/* === MAIN CONTENT GRIDS === */}
+            <div className="grid grid-cols-7 lg:grid-cols-2 sm:grid-cols-1 gap-4 flex-1 min-h-0">
 
                 {/* STACK 1: TIMELINE (Cols 1-2) */}
-                <div className="col-span-2 lg:col-span-2 sm:col-span-1 flex flex-col min-h-0 shadow-sm overflow-hidden bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5">
+                <div className="col-span-2 lg:col-span-2 sm:col-span-1 flex flex-col min-h-0 bg-white dark:bg-[#1e2347] rounded-[24px] border border-slate-200/60 dark:border-white/5 shadow-sm overflow-hidden group/timeline transition-all duration-300 hover:shadow-md">
                     {/* WIDGET TOP MENU BAR */}
-                    <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-3 shrink-0 flex items-center justify-between">
-                        <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest truncate mr-2">Timeline</h2>
-                        <span className="text-[8px] bg-slate-200 dark:bg-slate-700 font-bold px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-300 shrink-0">{tasks.filter(t => t.date === selectedDate).length}</span>
+                    <div className="bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-sm border-b border-slate-100 dark:border-white/5 p-3 px-4 shrink-0 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                            <h2 className="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.15em] leading-tight">Timeline</h2>
+                        </div>
+                        <span className="text-[9px] bg-blue-100 dark:bg-blue-600/30 font-black px-2 py-0.5 rounded-full text-blue-600 dark:text-blue-300 shrink-0 border border-blue-200/50 dark:border-blue-500/20">{tasks.filter(t => t.date === selectedDate).length} EVENTS</span>
                     </div>
 
-                    <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar flex-1 p-2">
+                    <div className="flex flex-col gap-2.5 overflow-y-auto custom-scrollbar flex-1 p-3">
                         {todayPromos.map(promo => (
-                            <div key={promo.id} className="p-3 bg-blue-50/70 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-500/30 shrink-0 hover:border-blue-400 transition-all cursor-pointer group">
-                                <div className="flex justify-between items-center mb-1.5 gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded bg-blue-600 text-white flex items-center justify-center text-[8px] font-black">
+                            <div key={promo.id} className="relative p-4 bg-gradient-to-br from-blue-50/80 via-white to-white dark:from-blue-900/10 dark:via-[#1e2347] dark:to-[#1e2347] rounded-2xl border border-blue-200/60 dark:border-blue-500/20 shrink-0 hover:border-blue-400 dark:hover:border-blue-400 transition-all cursor-pointer group/promo shadow-sm hover:shadow-md">
+                                <div className="absolute top-0 right-0 p-1">
+                                    <div className="bg-blue-600 text-[7px] font-black text-white px-2 py-0.5 rounded-bl-xl rounded-tr-xl tracking-widest uppercase shadow-sm">PROMO</div>
+                                </div>
+                                <div className="flex justify-between items-center mb-2 gap-2">
+                                    <div className="flex items-center gap-2.5">
+                                        <div className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center text-[10px] font-black shadow-lg shadow-blue-600/20 group-hover/promo:scale-110 transition-transform">
                                             {promo.lenderName.slice(0, 1).toUpperCase()}
                                         </div>
-                                        <span className="text-[11px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-tight">{promo.lenderName}</span>
+                                        <span className="text-[12px] font-black text-blue-900 dark:text-blue-200 uppercase tracking-tight">{promo.lenderName}</span>
                                     </div>
-                                    <span className="text-[7px] bg-blue-600 text-white px-1.5 py-0.5 rounded font-black tracking-widest uppercase">PROMO</span>
                                 </div>
-                                <p className="text-[10px] text-slate-700 dark:text-slate-300 font-bold leading-tight mb-2 line-clamp-2">{promo.description}</p>
+                                <p className="text-[11px] text-slate-600 dark:text-slate-400 font-bold leading-relaxed mb-3 line-clamp-2">{promo.description}</p>
 
-                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 border-t border-blue-200/50 dark:border-blue-500/10">
-                                    <div className="flex items-center gap-1 text-[9px] font-medium text-blue-600 dark:text-blue-400">
-                                        <IconCalendar width="10" height="10" />
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-3 border-t border-blue-200/40 dark:border-blue-500/10">
+                                    <div className="flex items-center gap-1.5 text-[9px] font-bold text-blue-600 dark:text-blue-400">
+                                        <IconCalendar width="11" height="11" opacity="0.7" />
                                         <span>{promo.startDate}</span>
-                                        <IconArrowRight width="8" height="8" />
+                                        <IconArrowRight width="8" height="8" opacity="0.5" />
                                         <span>{promo.endDate}</span>
                                     </div>
                                     {promo.fileName && (
-                                        <div className="flex items-center gap-1 text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-1.5 py-0.5 rounded-md border border-emerald-100 dark:border-emerald-800/50 ml-auto">
-                                            <IconFile width="10" height="10" />
-                                            <span className="truncate max-w-[80px]">{promo.fileName}</span>
+                                        <div className="flex items-center gap-1.5 text-[9px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded-lg border border-emerald-200/50 dark:border-emerald-500/20 ml-auto">
+                                            <IconFile width="11" height="11" />
+                                            <span className="truncate max-w-[90px]">{promo.fileName}</span>
                                         </div>
                                     )}
                                 </div>
@@ -1130,41 +1161,41 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             tasks.filter(t => t.date === selectedDate).map((item) => {
                                 const leadObj = (leads || []).find(l => l.name === item.lead || l.name === item.leadName);
                                 return (
-                                    <div key={item.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 shrink-0 hover:border-[#0061ff] dark:hover:border-blue-500 transition-all cursor-pointer group">
-                                        <div className="flex justify-between items-start mb-1.5 gap-2">
-                                            <div className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#0061ff] transition-colors min-w-0 break-words">{item.title}</div>
-                                            <div className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase tracking-tighter shrink-0 border border-blue-200 dark:border-blue-700/50">
+                                    <div key={item.id} className="p-4 bg-slate-50/50 dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-white/5 shrink-0 hover:border-blue-400 dark:hover:border-blue-500 transition-all cursor-pointer group/task hover:shadow-md">
+                                        <div className="flex justify-between items-start mb-2 gap-2">
+                                            <div className="text-[12px] font-black text-slate-800 dark:text-white leading-tight group-hover/task:text-blue-600 transition-colors min-w-0 break-words tracking-tight">{item.title}</div>
+                                            <div className="text-[8px] font-black px-2 py-0.5 bg-blue-100 dark:bg-blue-600/30 text-blue-600 dark:text-blue-300 rounded-lg uppercase tracking-widest shrink-0 border border-blue-200/50 dark:border-blue-500/20">
                                                 {item.type || 'TASK'}
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col gap-1.5 mb-2">
+                                        <div className="flex flex-col gap-2 mb-3">
                                             {/* Lead & Business Info */}
-                                            <div className="flex items-center gap-1.5">
-                                                <div className="w-5 h-5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-[#0061ff] dark:text-blue-400 flex items-center justify-center text-[8px] font-black shrink-0 border border-blue-100 dark:border-blue-800/50">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-6 h-6 rounded-xl bg-blue-50 dark:bg-blue-600/20 text-blue-600 dark:text-blue-400 flex items-center justify-center text-[9px] font-black shrink-0 border border-blue-100 dark:border-blue-500/10 transition-transform group-hover/task:scale-110">
                                                     {(item.lead || item.leadName || '?').slice(0, 1).toUpperCase()}
                                                 </div>
                                                 <div className="flex flex-col min-w-0">
-                                                    <span className="text-[10px] font-black text-[#0061ff] dark:text-blue-400 truncate leading-none mb-0.5">{item.lead || item.leadName || 'No Lead'}</span>
-                                                    {leadObj?.businessName && <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tight truncate">{leadObj.businessName}</span>}
+                                                    <span className="text-[11px] font-black text-blue-600 dark:text-blue-400 truncate leading-none mb-0.5">{item.lead || item.leadName || 'No Lead'}</span>
+                                                    {leadObj?.businessName && <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight truncate">{leadObj.businessName}</span>}
                                                 </div>
                                             </div>
 
                                             {/* Contact Details Grid */}
-                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pl-6">
-                                                <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
-                                                    <IconClock width="10" height="10" className="text-slate-300" />
-                                                    <span className="font-bold">{item.time}</span>
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pl-8">
+                                                <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                                                    <IconClock width="11" height="11" className="text-slate-300" />
+                                                    <span>{item.time}</span>
                                                 </div>
                                                 {leadObj?.email && (
-                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
-                                                        <IconMail width="10" height="10" className="text-slate-300" />
-                                                        <span className="truncate max-w-[100px]">{leadObj.email}</span>
+                                                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                                                        <IconMail width="11" height="11" className="text-slate-300" />
+                                                        <span className="truncate max-w-[120px]">{leadObj.email}</span>
                                                     </div>
                                                 )}
                                                 {leadObj?.phone && (
-                                                    <div className="flex items-center gap-1 text-[9px] font-medium text-slate-500 dark:text-slate-400">
-                                                        <IconPhone width="10" height="10" className="text-slate-300" />
+                                                    <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                                                        <IconPhone width="11" height="11" className="text-slate-300" />
                                                         <span>{leadObj.phone}</span>
                                                     </div>
                                                 )}
@@ -1172,33 +1203,35 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                         </div>
 
                                         {(item.message || item.description) && (
-                                            <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-snug line-clamp-2 pt-1.5 border-t border-slate-100 dark:border-white/5 italic">
-                                                "{item.message || item.description}"
-                                            </p>
+                                            <div className="relative">
+                                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-slate-200 dark:bg-slate-700 rounded-full" />
+                                                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-snug line-clamp-2 pl-3 py-1 italic">
+                                                    "{item.message || item.description}"
+                                                </p>
+                                            </div>
                                         )}
                                     </div>
                                 );
                             })
-                        ) : <div className="text-[9px] text-slate-400 italic p-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl mt-1">Clear calendar. Take a break!</div>}
+                        ) : <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest p-8 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-[20px] mt-2 bg-slate-50/30 dark:bg-white/2 opacity-60">Focus on Leads • Zero Events Today</div>}
                     </div>
                 </div>
-
-                {/* STACK 2: MIDDLE (Cols 3-5) */}
+                        {/* STACK 2: MIDDLE (Cols 3-5) */}
                 <div className="col-span-3 lg:col-span-2 sm:col-span-1 flex flex-col gap-4 min-h-0">
 
-                    {/* ASSET CLASSES (Calculates tight height automatically) */}
-                    <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden">
-                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
-                            <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Asset Products</h2>
-                            <span className="text-[8px] bg-indigo-50 dark:bg-indigo-900/30 font-bold px-1.5 py-0.5 rounded text-indigo-500">{ASSET_PRODUCTS.length} Types</span>
+                    {/* ASSET PRODUCTS (Modern Glassmorphism Feel) */}
+                    <div className="bg-white dark:bg-[#1e2347] rounded-[24px] border border-slate-200/60 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden group/assets transition-all duration-300 hover:shadow-md">
+                        <div className="bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-sm border-b border-slate-100 dark:border-white/5 p-3 px-4 shrink-0 flex items-center justify-between">
+                            <h2 className="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.15em] leading-tight">Asset Products</h2>
+                            <span className="text-[9px] bg-indigo-100 dark:bg-indigo-600/30 font-black px-2 py-0.5 rounded-full text-indigo-600 dark:text-indigo-300 shrink-0 border border-indigo-200/50 dark:border-indigo-500/20">{ASSET_PRODUCTS.length} TYPES</span>
                         </div>
-                        <div className="h-[95px] overflow-y-auto custom-scrollbar p-2">
-                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-1">
+                        <div className="h-[105px] overflow-y-auto custom-scrollbar p-3">
+                            <div className="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 gap-2.5">
                                 {ASSET_PRODUCTS.map(p => (
-                                    <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-2 px-2 py-1.5 bg-slate-50 dark:bg-slate-800/80 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition w-full h-full min-h-[38px] group border border-slate-100 dark:border-white/5">
-                                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${p.dotColor}`} />
+                                    <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-3 px-3 py-2 bg-slate-50/50 dark:bg-white/2 rounded-xl hover:bg-white dark:hover:bg-white/5 transition-all w-full group/btn border border-slate-100 dark:border-white/5 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-sm hover:-translate-y-0.5">
+                                        <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)] group-hover/btn:scale-125 transition-transform" />
                                         <div className="flex flex-col items-start min-w-0 flex-1 text-left">
-                                            <span className="text-[9px] font-black uppercase tracking-tight text-slate-800 dark:text-slate-200 truncate w-full leading-tight">{p.productCategory}</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 truncate w-full leading-tight group-hover/btn:text-indigo-600 transition-colors">{p.productCategory}</span>
                                         </div>
                                     </button>
                                 ))}
@@ -1206,103 +1239,118 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         </div>
                     </div>
 
-                    {/* NOTES (Absorbs remaining space) */}
-                    <div className="bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden">
-                        <div className="bg-[#fff9c4] dark:bg-[#4d4826] border-b border-yellow-200/50 dark:border-yellow-700/30 p-2.5 px-4 shrink-0 flex items-center justify-between">
-                            <div className="flex items-center gap-1.5 text-yellow-700 dark:text-yellow-500"><IconStickyNote /><span className="text-[10px] font-black uppercase tracking-widest">My Notes</span></div>
-                            <button onClick={clearAllNotes} className="text-[9px] font-bold text-yellow-700/60 dark:text-yellow-500/60 hover:text-red-600 dark:hover:text-red-400 transition-colors uppercase tracking-widest">Clear All</button>
+                    {/* MY NOTES (Premium Stationery Feel) */}
+                    <div className="bg-[#fffdf0] dark:bg-[#2a281a] rounded-[24px] border border-yellow-200/50 dark:border-yellow-700/20 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden group/notes transition-all duration-300 hover:shadow-md">
+                        <div className="bg-[#fff9c4]/80 dark:bg-[#4d4826] backdrop-blur-sm border-b border-yellow-200/50 dark:border-yellow-700/30 p-3 px-4 shrink-0 flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-yellow-700 dark:text-yellow-500">
+                                <IconStickyNote className="w-4 h-4" />
+                                <span className="text-[11px] font-black uppercase tracking-[0.15em] leading-tight">My Notes</span>
+                            </div>
+                            <button onClick={clearAllNotes} className="text-[9px] font-black text-yellow-700/60 dark:text-yellow-500/60 hover:text-red-600 dark:hover:text-red-400 transition-all uppercase tracking-widest bg-white/20 dark:bg-black/10 px-2 py-1 rounded-lg">Clear All</button>
                         </div>
-                        <div className="flex-1 p-3 pb-2 flex flex-col min-h-0 overflow-hidden">
-                            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2.5 mb-2 pr-1">
+                        <div className="flex-1 p-4 pb-3 flex flex-col min-h-0 overflow-hidden">
+                            <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3 mb-3 pr-1">
                                 {notesList.length === 0 ? (
-                                    <div className="text-xs text-yellow-700/50 italic text-center mt-4 border border-dashed border-yellow-200 dark:border-yellow-800 p-4 rounded-xl">No notes yet. Type below to start!</div>
+                                    <div className="flex flex-col items-center justify-center py-8 opacity-40">
+                                        <IconStickyNote className="w-8 h-8 text-yellow-300 mb-2" />
+                                        <div className="text-[10px] font-black uppercase tracking-widest text-yellow-700 dark:text-yellow-500">No notes yet</div>
+                                    </div>
                                 ) : (
                                     [...notesList].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)).map(note => (
-                                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group transition-all border shrink-0 ${note.isPinned
-                                            ? 'bg-yellow-100 dark:bg-yellow-600/30 border-yellow-300 dark:border-yellow-500/50 text-yellow-900 dark:text-yellow-50 shadow-sm'
-                                            : 'bg-white/60 dark:bg-black/20 border-yellow-100 dark:border-yellow-700/20 text-yellow-900 dark:text-yellow-100'
+                                        <div key={note.id} className={`p-4 rounded-[20px] text-[12px] relative group transition-all border shrink-0 hover:shadow-sm ${note.isPinned
+                                            ? 'bg-yellow-100/80 dark:bg-yellow-500/10 border-yellow-400/50 dark:border-yellow-500/40 text-yellow-950 dark:text-yellow-50'
+                                            : 'bg-white/80 dark:bg-white/5 border-yellow-200/50 dark:border-white/5 text-yellow-900 dark:text-yellow-100'
                                             }`}>
-                                            <div className="flex justify-between items-center mb-1.5">
-                                                <div className="flex items-center gap-1.5">
-                                                    {note.isPinned && <IconPin className="text-yellow-600 dark:text-yellow-400" />}
-                                                    <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `��� ${note.time}`}</span>
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="flex items-center gap-2">
+                                                    {note.isPinned && (
+                                                        <div className="w-5 h-5 flex items-center justify-center bg-yellow-400 dark:bg-yellow-500 rounded-lg shadow-sm">
+                                                            <IconPin width="12" height="12" className="text-white" />
+                                                        </div>
+                                                    )}
+                                                    <div className="flex flex-col gap-0.5">
+                                                        <span className="text-[8px] font-black text-yellow-600/60 dark:text-yellow-500/60 uppercase tracking-widest">{note.date}</span>
+                                                        <span className="text-[9px] font-black text-yellow-700 dark:text-yellow-400 uppercase tracking-tight">{note.time}</span>
+                                                    </div>
                                                 </div>
-                                                <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => toggleNotePin(note.id)} className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors shadow-sm ${note.isPinned ? 'bg-yellow-400 text-yellow-950 hover:bg-yellow-500' : 'bg-yellow-100 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-300'}`} title={note.isPinned ? "Unpin" : "Pin"}>
+                                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-1 group-hover:translate-y-0">
+                                                    <button onClick={() => toggleNotePin(note.id)} className={`text-[10px] px-3 py-1 rounded-xl font-black transition-all shadow-sm uppercase tracking-widest ${note.isPinned ? 'bg-yellow-400 text-white' : 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300'}`}>
                                                         {note.isPinned ? 'UNPIN' : 'PIN'}
                                                     </button>
-                                                    <button onClick={() => clearNote(note.id)} className="text-[9px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-bold hover:bg-red-200 transition-colors shadow-sm" title="Clear Note">CLEAR</button>
+                                                    <button onClick={() => clearNote(note.id)} className="text-[10px] px-3 py-1 rounded-xl bg-red-500 text-white font-black hover:bg-red-600 transition-all shadow-sm uppercase tracking-widest">DEL</button>
                                                 </div>
                                             </div>
-                                            <p className={`whitespace-pre-wrap leading-relaxed`}>{note.text}</p>
+                                            <p className="whitespace-pre-wrap leading-relaxed font-medium">{note.text}</p>
                                         </div>
                                     ))
                                 )}
                             </div>
-                            <div className="shrink-0 flex gap-2 pt-2 border-t border-yellow-200/50 dark:border-yellow-700/30">
+                            <div className="shrink-0 flex gap-2.5 pt-3 border-t border-yellow-200/50 dark:border-yellow-700/30">
                                 <input
                                     type="text"
                                     value={newNote}
                                     onChange={e => setNewNote(e.target.value)}
                                     onKeyDown={e => e.key === 'Enter' && addNewNote()}
-                                    placeholder="Type a new note & press Enter..."
-                                    className="flex-1 bg-white/60 dark:bg-black/20 border border-yellow-200/60 dark:border-yellow-700/50 rounded-lg px-3 py-1.5 text-[11px] text-yellow-900 dark:text-yellow-100 outline-none focus:border-yellow-400 focus:bg-white transition-colors"
+                                    placeholder="Add a thought..."
+                                    className="flex-1 bg-white/80 dark:bg-black/20 border border-yellow-200 dark:border-yellow-700/50 rounded-xl px-4 py-2 text-[12px] text-yellow-950 dark:text-yellow-100 outline-none focus:ring-2 focus:ring-yellow-400/30 transition-all placeholder:text-yellow-600/30"
                                 />
-                                <button onClick={addNewNote} className="bg-yellow-400 hover:bg-yellow-500 dark:bg-yellow-600 dark:hover:bg-yellow-500 text-yellow-900 dark:text-white px-3.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-colors shadow-sm">Add</button>
+                                <button onClick={addNewNote} className="bg-yellow-400 hover:bg-yellow-500 text-white px-5 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all transform active:scale-95 shadow-lg shadow-yellow-400/20">ADD</button>
                             </div>
                         </div>
                     </div>
-
-
-
                 </div>
 
                 {/* STACK 3: RIGHT (Cols 6-7) */}
                 <div className="col-span-2 lg:col-span-2 sm:col-span-1 flex flex-col gap-4 min-h-0">
 
-                    {/* LOAN ESTIMATOR */}
-                    <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden relative">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50 dark:bg-indigo-500/5 rounded-full blur-2xl -mr-5 -mt-5 pointer-events-none" />
-                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between relative z-10">
-                            <div className="flex items-center gap-1.5 text-slate-500"><IconCalculator /><span className="text-[10px] font-black uppercase tracking-widest">Estimator</span></div>
+                    {/* LOAN ESTIMATOR (High-End Styling) */}
+                    <div className="bg-white dark:bg-[#1e2347] rounded-[24px] border border-slate-200/60 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden relative group/estimator transition-all duration-300 hover:shadow-md">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[40px] -mr-8 -mt-8 pointer-events-none group-hover:scale-110 transition-transform duration-700" />
+                        <div className="absolute bottom-0 left-0 w-24 h-24 bg-emerald-500/5 dark:bg-emerald-500/10 rounded-full blur-[30px] -ml-6 -mb-6 pointer-events-none" />
+                        
+                        <div className="bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-sm border-b border-slate-100 dark:border-white/5 p-3 px-4 shrink-0 flex items-center justify-between relative z-10">
+                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
+                                <IconCalculator className="w-4 h-4" />
+                                <span className="text-[11px] font-black uppercase tracking-[0.15em] leading-tight">Estimator</span>
+                            </div>
                         </div>
 
-                        <div className="flex flex-col gap-1.5 p-2.5 relative z-10 justify-center">
-                            <div className="flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5">
-                                <label className="text-[9px] font-bold text-slate-500 w-12 shrink-0 uppercase tracking-widest">Amount</label>
-                                <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
+                        <div className="flex flex-col gap-2 p-3 relative z-10">
+                            <div className="flex items-center bg-slate-100/50 dark:bg-white/5 rounded-xl px-3 py-2 border border-slate-200/50 dark:border-white/5 focus-within:border-indigo-400 transition-colors">
+                                <label className="text-[9px] font-black text-slate-400 w-16 shrink-0 uppercase tracking-widest">Amount</label>
+                                <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="bg-transparent w-full text-right text-[12px] font-black dark:text-white outline-none min-w-0" />
                             </div>
-                            <div className="flex gap-1.5 w-full">
-                                <div className="flex-1 flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5 min-w-0">
-                                    <label className="text-[9px] font-bold text-slate-500 w-8 shrink-0 uppercase tracking-widest">Rate</label>
-                                    <input type="number" value={interestRate} onChange={e => setInterestRate(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
+                            <div className="grid grid-cols-2 gap-2">
+                                <div className="flex items-center bg-slate-100/50 dark:bg-white/5 rounded-xl px-3 py-2 border border-slate-200/50 dark:border-white/5 focus-within:border-indigo-400 transition-colors">
+                                    <label className="text-[9px] font-black text-slate-400 w-8 shrink-0 uppercase tracking-widest">Rate</label>
+                                    <input type="number" value={interestRate} onChange={e => setInterestRate(e.target.value)} className="bg-transparent w-full text-right text-[12px] font-black dark:text-white outline-none min-w-0" />
                                 </div>
-                                <div className="flex-1 flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2 py-1.5 border border-slate-100 dark:border-white/5 min-w-0">
-                                    <label className="text-[9px] font-bold text-slate-500 w-10 shrink-0 uppercase tracking-widest">Term</label>
-                                    <input type="number" value={loanTerm} onChange={e => setLoanTerm(e.target.value)} className="bg-transparent w-full text-right text-[11px] font-bold dark:text-white outline-none min-w-0" />
+                                <div className="flex items-center bg-slate-100/50 dark:bg-white/5 rounded-xl px-3 py-2 border border-slate-200/50 dark:border-white/5 focus-within:border-indigo-400 transition-colors">
+                                    <label className="text-[9px] font-black text-slate-400 w-10 shrink-0 uppercase tracking-widest">Term</label>
+                                    <input type="number" value={loanTerm} onChange={e => setLoanTerm(e.target.value)} className="bg-transparent w-full text-right text-[12px] font-black dark:text-white outline-none min-w-0" />
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-0.5 pt-1.5 border-t border-slate-100 dark:border-slate-700/50 flex items-center justify-between relative z-10 shrink-0 px-3 pb-2">
-                            <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Est. EMI</span>
-                            <span className="text-sm font-black text-emerald-600 dark:text-emerald-400">${calculateRepayment()} / mo</span>
+                        <div className="bg-emerald-500/10 dark:bg-emerald-500/5 p-4 flex items-center justify-between relative z-10 shrink-0 border-t border-emerald-100/50 dark:border-emerald-500/10">
+                            <span className="text-[10px] font-black text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-[0.2em]">EST. EMI</span>
+                            <span className="text-lg font-black text-emerald-600 dark:text-emerald-400 tabular-nums">${calculateRepayment()} / mo</span>
                         </div>
                     </div>
 
-                    {/* CALENDAR */}
-                    <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden">
-                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2 px-3 shrink-0 flex items-center justify-between">
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{shortMonthNames[currentMonth]} {currentYear}</span>
-                            <div className="flex gap-1 bg-white dark:bg-slate-700/50 rounded p-0.5 shadow-sm">
-                                <button onClick={prevMonth} className="px-1 text-slate-400 hover:text-blue-500"><IconChevronRight /></button>
-                                <button onClick={nextMonth} className="px-1 text-slate-400 hover:text-blue-500 transform rotate-180"><IconChevronRight /></button>
+                    {/* CALENDAR (Interactive Grid) */}
+                    <div className="bg-white dark:bg-[#1e2347] rounded-[24px] border border-slate-200/60 dark:border-white/5 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden group/cal transition-all duration-300 hover:shadow-md">
+                        <div className="bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-sm border-b border-slate-100 dark:border-white/5 p-3 px-4 shrink-0 flex items-center justify-between">
+                            <span className="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.2em] leading-tight">{shortMonthNames[currentMonth]} {currentYear}</span>
+                            <div className="flex gap-2 bg-white dark:bg-white/5 rounded-xl p-1 shadow-inner border border-slate-100 dark:border-white/5">
+                                <button onClick={prevMonth} className="p-1 px-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors hover:text-blue-500"><IconChevronRight className="rotate-180" /></button>
+                                <button onClick={nextMonth} className="p-1 px-1.5 text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors hover:text-blue-500"><IconChevronRight /></button>
                             </div>
                         </div>
-                        <div className="p-2 flex flex-col flex-1 min-h-0 justify-center">
-                            <div className="grid grid-cols-7 gap-1 text-center text-[9px] font-bold text-slate-400 uppercase mb-0.5 shrink-0">
+                        <div className="p-3 flex flex-col flex-1 min-h-0 justify-center bg-gradient-to-b from-transparent to-slate-50/30 dark:to-white/2">
+                            <div className="grid grid-cols-7 gap-1 text-center text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase mb-2 shrink-0 tracking-widest">
                                 {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <div key={i}>{d}</div>)}
                             </div>
-                            <div className="grid grid-cols-7 gap-y-1 gap-x-1.5 text-center flex-1 min-h-0 pb-2 auto-rows-fr">
+                            <div className="grid grid-cols-7 gap-2 text-center flex-1 min-h-0 pb-1 auto-rows-fr">
                                 {[...Array(emptySlots)].map((_, i) => <div key={`empty-${i}`} />)}
                                 {calendarDays.map(day => {
                                     const dStr = `${currentYear}-${getPadded(currentMonth + 1)}-${getPadded(day)}`;
@@ -1310,23 +1358,23 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                     const hasTasks = tasks.some(t => t.date === dStr);
                                     const isToday = day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
                                     return (
-                                        <div key={day} onClick={() => setSelectedDate(dStr)} className={`flex flex-col items-center justify-center rounded-lg cursor-pointer transition-all border shadow-[0_1px_2px_rgba(0,0,0,0.03)] h-full ${isSelected ? 'bg-blue-600 text-white border-blue-600 scale-105' :
-                                            isToday ? 'bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-700' :
-                                                'bg-white dark:bg-slate-800/60 border-slate-100 dark:border-white/5 text-slate-700 dark:text-slate-300 hover:border-blue-300 hover:bg-slate-50'
+                                        <div key={day} onClick={() => setSelectedDate(dStr)} className={`relative flex flex-col items-center justify-center rounded-[14px] cursor-pointer transition-all duration-300 group/day ${isSelected ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/40 scale-105 z-10' :
+                                            isToday ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-500/20' :
+                                                'hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300'
                                             }`}>
-                                            <span className="text-[10px] font-black">{day}</span>
-                                            {hasTasks && <div className={`w-[3px] h-[3px] rounded-full mt-0.5 ${isSelected ? 'bg-white' : 'bg-orange-500'}`} />}
+                                            <span className={`text-[11px] font-black ${isSelected ? 'scale-110' : ''}`}>{day}</span>
+                                            {hasTasks && (
+                                                <div className="absolute top-1 right-1">
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-white' : 'bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)] animate-pulse'}`} />
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}
                             </div>
                         </div>
                     </div>
-
-
-
                 </div>
-
             </div>
 
             <DashboardModal isOpen={activeModal !== null && activeModal !== 'KNOWLEDGE_BASE'} onClose={closeModal} title={
