@@ -117,12 +117,19 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
         setLocalTasks(prev => [newTask, ...prev]);
     };
 
-    const ASSET_PRODUCTS = [
-        { name: 'Unsecured', iconColor: 'text-indigo-500', bgColor: 'bg-indigo-50/50 dark:bg-indigo-500/10', dotColor: 'bg-indigo-400', brief: 'Clean funding for rapid growth without asset pledges.', requirements: ['6+ Months Trading', '$10k+ Monthly Revenue', 'Clear Bank Statements', 'Australian Registered Business'] },
-        { name: 'Secured', iconColor: 'text-emerald-500', bgColor: 'bg-emerald-50/50 dark:bg-emerald-500/10', dotColor: 'bg-emerald-400', brief: 'High-limit financing backed by business or personal assets.', requirements: ['Property/Equipment Equity', '12+ Months Trading', 'Good Credit Score', 'Full Financial Statements'] },
-        { name: 'Commercial', iconColor: 'text-amber-500', bgColor: 'bg-amber-50/50 dark:bg-amber-500/10', dotColor: 'bg-amber-400', brief: 'Strategic capital for property purchase or large-scale expansion.', requirements: ['20% Initial Deposit', 'Proven Cash Flow', 'Property Appraisal', 'Detailed Business Plan'] },
-        { name: 'Refinance', iconColor: 'text-rose-500', bgColor: 'bg-rose-50/50 dark:bg-rose-500/10', dotColor: 'bg-rose-400', brief: 'Debt restructuring to lower payments and optimize cash flow.', requirements: ['Current Loan Status Active', 'Improved Financial Ratios', 'Latest Facility Agreement', 'No Arrears in 6 Months'] }
-    ];
+    const ASSET_PRODUCTS = kbResources.filter(r => r.category === 'Products').map(r => ({
+        name: r.name,
+        productCategory: r.productCategory || 'Other',
+        iconColor: 'text-blue-500',
+        bgColor: 'bg-blue-50/50 dark:bg-blue-500/10',
+        dotColor: 'bg-blue-400',
+        brief: r.content,
+        requirements: [],
+        fileData: r.fileData,
+        fileType: r.fileType,
+        size: r.size,
+        isAdminAdded: true
+    }));
 
     useEffect(() => {
         const acc = getAccount();
@@ -819,11 +826,36 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
             }
             case 'PRODUCT_BRIEF': return selectedProduct && (
                 <div className="flex flex-col gap-4">
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800"><p className="text-sm font-medium dark:text-slate-300">{selectedProduct.brief}</p></div>
-                    <div className="flex flex-col gap-2">
-                        <h4 className="text-[11px] font-black text-slate-400 uppercase tracking-widest px-1">Requirements</h4>
-                        {selectedProduct.requirements.map(req => <div key={req} className="p-2.5 bg-slate-50 dark:bg-slate-800 rounded-lg text-xs font-bold dark:text-slate-200 border border-slate-100 dark:border-white/5">{req}</div>)}
+                    {/* Header Info */}
+                    <div className="flex items-center justify-between px-1">
+                        <div className="flex flex-col">
+                            <h3 className={`text-[14px] font-black uppercase tracking-tight ${isDark ? 'text-white' : 'text-slate-800'}`}>{selectedProduct.name}</h3>
+                            <span className="text-[10px] font-bold text-blue-500 uppercase tracking-widest">{selectedProduct.productCategory}</span>
+                        </div>
+                        {selectedProduct.size && (
+                            <div className="flex items-center gap-2 text-[10px] bg-slate-100 dark:bg-white/5 py-1 px-2 rounded-lg font-bold text-slate-500">
+                                <span>{selectedProduct.fileType || 'DOC'}</span>
+                                <span className="opacity-30">|</span>
+                                <span>{selectedProduct.size}</span>
+                            </div>
+                        )}
                     </div>
+
+                    {selectedProduct.brief && (
+                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800">
+                            <pre className="text-sm font-medium dark:text-slate-300 whitespace-pre-wrap font-sans leading-relaxed">{selectedProduct.brief}</pre>
+                        </div>
+                    )}
+                    {selectedProduct.fileData && selectedProduct.fileType?.startsWith('image/') && (
+                        <div className="rounded-2xl border border-dashed border-slate-200 dark:border-white/10 overflow-hidden bg-white dark:bg-slate-900/50">
+                            <img src={selectedProduct.fileData} alt={selectedProduct.name} className="w-full h-auto object-contain max-h-[500px]" />
+                        </div>
+                    )}
+                    {selectedProduct.fileData && selectedProduct.fileType === 'application/pdf' && (
+                        <div className="h-[500px] border rounded-2xl overflow-hidden shadow-lg border-slate-200 dark:border-white/10">
+                            <iframe src={selectedProduct.fileData} className="w-full h-full" title={selectedProduct.name} />
+                        </div>
+                    )}
                 </div>
             );
             case 'KNOWLEDGE_BASE': {
@@ -1105,15 +1137,19 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden">
                         <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
                             <h2 className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Asset Products</h2>
-                            <span className="text-[8px] bg-indigo-50 dark:bg-indigo-900/30 font-bold px-1.5 py-0.5 rounded text-indigo-500">4 Types</span>
+                            <span className="text-[8px] bg-indigo-50 dark:bg-indigo-900/30 font-bold px-1.5 py-0.5 rounded text-indigo-500">{ASSET_PRODUCTS.length} Types</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-3 p-3 sm:grid-cols-1">
-                            {ASSET_PRODUCTS.map(p => (
-                                <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-3 px-3 py-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-700 transition w-full h-full min-h-[42px]">
-                                    <div className={`w-2 h-2 rounded-full shrink-0 ${p.dotColor}`} />
-                                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate">{p.name}</span>
-                                </button>
-                            ))}
+                        <div className="h-[95px] overflow-y-auto custom-scrollbar p-2">
+                            <div className="grid grid-cols-3 gap-2 sm:grid-cols-1">
+                                {ASSET_PRODUCTS.map(p => (
+                                    <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-2 px-2 py-1.5 bg-slate-50 dark:bg-slate-800/80 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition w-full h-full min-h-[38px] group border border-slate-100 dark:border-white/5">
+                                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${p.dotColor}`} />
+                                        <div className="flex flex-col items-start min-w-0 flex-1 text-left">
+                                            <span className="text-[9px] font-black uppercase tracking-tight text-slate-800 dark:text-slate-200 truncate w-full leading-tight">{p.productCategory}</span>
+                                        </div>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
 

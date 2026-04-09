@@ -837,7 +837,7 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_B
 const AddResourcePopup = ({ onClose, onAdd }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const [form, setForm] = useState({ name: '', category: 'Guides', type: 'PDF', content: '' });
+    const [form, setForm] = useState({ name: '', category: 'Guides', type: 'PDF', content: '', productCategory: 'Unsecured' });
     const [file, setFile] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
 
@@ -846,6 +846,11 @@ const AddResourcePopup = ({ onClose, onAdd }) => {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
+            if (selectedFile.size > 10 * 1024 * 1024) {
+                alert("File is too large! Maximum file size is 10MB to maintain performance.");
+                e.target.value = '';
+                return;
+            }
             setFile(selectedFile);
             set('type', selectedFile.type === 'application/pdf' ? 'PDF' : selectedFile.type.startsWith('image/') ? 'IMG' : 'DOC');
         }
@@ -909,6 +914,17 @@ const AddResourcePopup = ({ onClose, onAdd }) => {
                             {['Guides', 'FAQs', 'Products'].map(c => <option key={c}>{c}</option>)}
                         </select>
                     </div>
+                    {form.category === 'Products' && (
+                        <div className="flex flex-col gap-1">
+                            <label className={labelCls}>Product Category (Asset Class)</label>
+                            <input 
+                                value={form.productCategory || ''} 
+                                onChange={e => set('productCategory', e.target.value)} 
+                                placeholder="e.g. Equipment Finance, SMSF Loan..." 
+                                className={inputCls} 
+                            />
+                        </div>
+                    )}
                     <div className="flex flex-col gap-1">
                         <label className={labelCls}>Upload Document (Optional)</label>
                         <div className={`relative border rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all ${isDark ? 'bg-[#151932] border-white/10 hover:border-teal-500/50' : 'bg-slate-50 border-slate-200 hover:border-teal-400'}`}>
