@@ -26,8 +26,29 @@ mock.onPost('/users').reply(config => {
 let leadsDB = [];
 try {
     const saved = localStorage.getItem('crm_leads_mock_db');
-    if (saved) leadsDB = JSON.parse(saved);
-    else {
+    if (saved) {
+        leadsDB = JSON.parse(saved);
+        // deduplicate check: if multiple leads have the same ID, assign new ones to prevent React unique key errors
+        const seenIds = new Set();
+        let hasDuplicates = false;
+        leadsDB = leadsDB.map(l => {
+            if (seenIds.has(l.id)) {
+                hasDuplicates = true;
+                const nums = leadsDB.map(ld => {
+                    const match = (ld.id || '').match(/AF-(\d+)/);
+                    return match ? parseInt(match[1], 10) : 0;
+                });
+                const max = Math.max(...nums, 24);
+                const nextId = `AF-${String(max + 1).padStart(3, '0')}`;
+                return { ...l, id: nextId, leadId: nextId };
+            }
+            seenIds.add(l.id);
+            return l;
+        });
+        if (hasDuplicates) {
+            localStorage.setItem('crm_leads_mock_db', JSON.stringify(leadsDB));
+        }
+    } else {
         leadsDB = [...MOCK_LEADS];
         localStorage.setItem('crm_leads_mock_db', JSON.stringify(leadsDB));
     }
@@ -41,8 +62,22 @@ mock.onGet('/leads').reply(() => [200, leadsDB]);
 
 mock.onPost('/leads').reply(config => {
     const data = JSON.parse(config.data);
-    const newId = `AF-${String(leadsDB.length + 1).padStart(3, '0')}`;
-    const newLead = { id: newId, leadId: newId, ...data, submissionDate: new Date().toISOString() };
+    
+    // Find the max existing AF-XXX numeric suffix to generate the next unique ID
+    const nums = leadsDB.map(l => {
+        const match = (l.id || '').match(/AF-(\d+)/);
+        return match ? parseInt(match[1], 10) : 0;
+    });
+    const max = nums.length ? Math.max(...nums) : 24; // Default to 24 if no matches found
+    const nextNum = max + 1;
+    const newId = `AF-${String(nextNum).padStart(3, '0')}`;
+    
+    const newLead = { 
+        ...data,
+        id: newId, 
+        leadId: newId, 
+        submissionDate: new Date().toISOString().split('T')[0] 
+    };
     leadsDB.unshift(newLead);
     saveLeads();
     return [201, newLead];

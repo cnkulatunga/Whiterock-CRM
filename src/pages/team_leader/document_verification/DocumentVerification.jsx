@@ -135,7 +135,7 @@ const DocumentVerification = () => {
     return (
         <div className={`flex flex-col gap-6 animate-fadeIn font-['Sora',sans-serif] p-2 ${isDark ? '' : ''}`}>
             {/* ── KPI Cards (Dashboard Style Tiles) ── */}
-            <div className="grid grid-cols-3 gap-4 md:grid-cols-1">
+            <div className="grid grid-cols-3 gap-4 md:grid-cols-2 sm:grid-cols-1">
                 {[
                     { 
                         label: 'Leads in Queue', 

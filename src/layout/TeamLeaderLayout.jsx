@@ -247,7 +247,7 @@ const TeamLeaderLayout = ({ onLogout }) => {
                     </div>
                 </div>
 
-                <div className={`flex-1 mt-[68px] lg:p-6 lg:px-4 ${location.pathname.includes('calendar') ? 'p-0' : 'p-[36px_40px]'}`}>
+                <div className={`flex-1 mt-[68px] lg:p-6 lg:px-4 sm:p-4 sm:px-3 ${location.pathname.includes('calendar') ? 'p-0' : 'p-[36px_40px]'}`}>
                     <Routes>
                         <Route path="dashboard" element={<TeamLeaderDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} onViewLeadDetails={(lead) => handleNavigate('lead-details', lead)} />} />
                         <Route path="lead-monitoring" element={<LeadMonitoring onViewDetails={(lead) => handleNavigate('lead-details', lead)} />} />

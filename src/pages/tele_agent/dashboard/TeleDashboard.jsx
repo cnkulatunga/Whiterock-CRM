@@ -407,7 +407,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             <div className="text-[20px] font-black dark:text-white uppercase tracking-tight">Active Follow-ups</div>
                         </div>
                         {localTasks.length > 0 ? (
-                            <div className="overflow-hidden rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
+                            <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
                                 <table className="w-full text-left border-collapse min-w-[1200px]">
                                     <thead>
                                         <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">

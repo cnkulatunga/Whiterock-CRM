@@ -24,23 +24,25 @@ const IconTrash  = ({ size = 14 }) => <svg viewBox="0 0 24 24" fill="none" strok
 
 /* ── reusable table row ── */
 const Row = ({ label, value, span, highlight }) => (
-    <tr className={`border-b border-[#f1f5f9] dark:border-white/5 last:border-0 ${highlight ? 'bg-[#f8faff] dark:bg-white/[0.02]' : ''}`}>
-        <td className="py-2 pr-3 pl-4 text-[10px] font-bold text-[#94a3b8] uppercase tracking-wider whitespace-nowrap w-[38%] align-top">{label}</td>
-        <td className={`py-2 pr-4 text-[13px] font-semibold text-[#1a202c] dark:text-white break-words max-w-0 ${span ? 'col-span-2' : ''}`}>{value || <span className="text-[#cbd5e1]">—</span>}</td>
+    <tr className={`border-b border-[#f1f5f9] dark:border-white/5 last:border-0 group transition-colors ${highlight ? 'bg-[#f8faff] dark:bg-white/[0.02]' : 'hover:bg-[#fafbff] dark:hover:bg-white/[0.01]'}`}>
+        <td className="py-2.5 pr-3 pl-4 text-[10px] sm:text-[9px] font-bold text-[#94a3b8] uppercase tracking-wider whitespace-normal w-[40%] align-top leading-tight group-hover:text-[#2447d7] transition-colors">{label}</td>
+        <td className={`py-2.5 pr-4 text-[12px] font-semibold text-[#1a202c] dark:text-white break-words max-w-0 ${span ? 'col-span-2' : ''}`}>{value || <span className="text-[#cbd5e1]">—</span>}</td>
     </tr>
 );
 
 /* ── section card ── */
 const Card = ({ icon, iconBg, iconColor, title, children, action }) => (
-    <div className="bg-white dark:bg-[#1e2347] rounded-xl border border-[#edf2f7] dark:border-white/5 shadow-sm overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#f1f5f9] dark:border-white/5">
-            <div className="flex items-center gap-2.5">
-                <span className={`w-7 h-7 ${iconBg} ${iconColor} rounded-lg flex items-center justify-center flex-shrink-0`}>{icon}</span>
-                <span className="text-[13px] font-bold text-[#1a202c] dark:text-white">{title}</span>
+    <div className="bg-white dark:bg-[#1e2347] rounded-2xl border border-[#edf2f7] dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#f1f5f9] dark:border-white/5 bg-gradient-to-r from-white to-[#fbfcfe] dark:from-[#1e2347] dark:to-[#1e2347]/50">
+            <div className="flex items-center gap-3">
+                <span className={`w-8 h-8 ${iconBg} ${iconColor} rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white/50 dark:border-white/10`}>{icon}</span>
+                <span className="text-[13px] font-black text-[#1a202c] dark:text-white uppercase tracking-wide">{title}</span>
             </div>
             {action}
         </div>
-        {children}
+        <div>
+            {children}
+        </div>
     </div>
 );
 
@@ -200,43 +202,55 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
         <div className="flex flex-col gap-4 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* ── HEADER ── */}
-            <div className="flex items-center justify-between flex-wrap gap-3">
-                <div className="flex items-center gap-3">
-                    <button onClick={onBack} className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors text-slate-400">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><polyline points="15 18 9 12 15 6" /></svg>
+            <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                    <button 
+                        onClick={onBack} 
+                        className="p-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-50 dark:hover:bg-white/10 transition-all text-slate-500 shrink-0 active:scale-95"
+                    >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="16" height="16"><polyline points="15 18 9 12 15 6" /></svg>
                     </button>
-                    <div>
-                        <div className="flex items-center gap-2.5">
-                            <h1 className="text-xl font-bold text-[#1a202c] dark:text-white">{leadId}</h1>
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${statusCls}`}>{currentStatus}</span>
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2.5 flex-wrap">
+                            <h1 className="text-3xl sm:text-lg font-black text-[#1a202c] dark:text-white tracking-tighter bg-gradient-to-br from-[#1a202c] to-[#4a5568] dark:from-white dark:to-slate-400 bg-clip-text text-transparent">{leadId}</h1>
+                            <span className={`px-4 py-1.5 rounded-full text-[10px] sm:text-[9px] font-black uppercase tracking-widest border shadow-lg shadow-current/10 transition-all backdrop-blur-md animate-popIn ${statusCls}`}>
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-2 animate-pulse" />
+                                {currentStatus}
+                            </span>
                         </div>
-                        <p className="text-xs text-[#94a3b8] mt-0.5">
-                            Created {lead.submissionDate || lead.date || '—'} · Agent: <strong className="text-[#4a5568] dark:text-slate-300">{lead.agentName || lead.agent || '—'}</strong>
-                        </p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                            <p className="text-[11px] text-[#94a3b8] font-medium">
+                                Created <span className="text-[#4a5568] dark:text-slate-300 font-bold">{lead.submissionDate || lead.date || '—'}</span>
+                            </p>
+                            <span className="w-1 h-1 rounded-full bg-slate-300 sm:hidden" />
+                            <p className="text-[11px] text-[#94a3b8] font-medium">
+                                Agent: <span className="text-[#2447d7] dark:text-blue-400 font-bold">{lead.agentName || lead.agent || '—'}</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                     {onNavigate && currentStatus === 'Document Verification Done' && 
                      (isManagerOrAbove || isTeamLeader) && 
                      !(lead.documents || []).some(d => d.status === 'Rejected') && (
                         <button
                             onClick={() => onNavigate('lender_selection', lead)}
-                            className="flex items-center gap-2 bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 active:scale-95"
+                            className="flex items-center gap-1.5 bg-[#10b981] hover:bg-[#059669] text-white px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 active:scale-95"
                         >
-                            <IconBank size={14} /> Lender Selection
+                            <IconBank size={13} /> <span className="sm:hidden">Lender Selection</span><span className="hidden sm:inline">Lender</span>
                         </button>
                     )}
                     {isManagerOrAbove && (
                         <button onClick={() => setShowEditModal(true)} className="flex items-center gap-1.5 bg-[#f0f4ff] dark:bg-white/5 text-[#2447d7] dark:text-blue-400 px-3 py-2 rounded-xl text-xs font-bold hover:bg-[#2447d7] hover:text-white dark:hover:bg-blue-500 transition-all border border-transparent dark:border-white/10">
-                            <IconPencil size={13} /> Edit Lead
+                            <IconPencil size={13} /> Edit
                         </button>
                     )}
                 </div>
             </div>
 
             {/* ── PROGRESS BAR ── */}
-            <div className="bg-white dark:bg-[#1e2347] rounded-xl border border-[#edf2f7] dark:border-white/5 px-6 py-4 shadow-sm overflow-x-auto">
-                <div className="flex items-center min-w-[520px]">
+            <div className="bg-white dark:bg-[#1e2347] rounded-xl border border-[#edf2f7] dark:border-white/5 px-4 py-4 shadow-sm">
+                <div className="flex items-start justify-between w-full">
                     {stages.map((s, i) => {
                         const done = i < currentIdx;
                         const active = i === currentIdx;
@@ -247,13 +261,16 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                         return (
                             <React.Fragment key={s.id}>
                                 <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-                                    <div className={`w-7 h-7 ${dot} rounded-full flex items-center justify-center ${active ? 'ring-4 ring-offset-1 ring-current/20' : ''}`}>
-                                        {done && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="12" height="12"><polyline points="20 6 9 17 4 12" /></svg>}
-                                        {active && rejected && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="12" height="12"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                                    <div className={`w-6 h-6 sm:w-5 sm:h-5 ${dot} rounded-full flex items-center justify-center ${active ? 'ring-4 ring-offset-1 ring-current/20' : ''}`}>
+                                        {done && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="11" height="11"><polyline points="20 6 9 17 4 12" /></svg>}
+                                        {active && rejected && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
                                     </div>
-                                    <span className={`text-[9px] font-bold uppercase tracking-tight ${txt} text-center max-w-[64px] leading-tight`}>{s.label}</span>
+                                    <span className={`text-[10px] sm:text-[7px] font-bold uppercase tracking-tight text-center leading-tight ${txt} sm:max-w-[48px]`}>
+                                        <span className="sm:hidden">{s.label}</span>
+                                        <span className="hidden sm:inline">{s.label.replace('Doc ', '').replace('Loan ', '')}</span>
+                                    </span>
                                 </div>
-                                {i < stages.length - 1 && <div className={`flex-1 h-0.5 ${line} mx-1 mt-[-14px]`} />}
+                                {i < stages.length - 1 && <div className={`flex-1 min-w-[12px] h-0.5 ${line} mx-0.5 mt-3 sm:mt-2.5`} />}
                             </React.Fragment>
                         );
                     })}
@@ -261,7 +278,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
             </div>
 
             {/* ── MAIN GRID: 3 columns on large, 2 on md, 1 on sm ── */}
-            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1">
+            <div className="grid grid-cols-3 xl:grid-cols-2 lg:grid-cols-1 gap-4">
 
                 {/* ── COL 1: Contact & Personal ── */}
                 <div className="flex flex-col gap-4">
@@ -270,6 +287,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                     <Card icon={<IconUser />} iconBg="bg-[#ebf0ff]" iconColor="text-[#2447d7]" title="Contact Info">
                         <table className="w-full text-left table-fixed">
                             <tbody>
+                                <Row label="Title"       value={lead.title} />
                                 <Row label="Full Name"   value={<span className="font-bold text-[#1a202c]">{leadName}</span>} />
                                 {lead.businessName && <Row label="Business"  value={lead.businessName} highlight />}
                                 <Row label="Email"       value={<a href={`mailto:${lead.email}`} className="text-[#2447d7] hover:underline">{lead.email || lead.emailAddress}</a>} />
@@ -294,7 +312,57 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                             </tbody>
                         </table>
                     </Card>
+                    
+                    {/* Documents */}
+                    <Card
+                        icon={<IconDocs />} iconBg="bg-[#f3e8ff]" iconColor="text-[#7c3aed]" title="Documents"
+                        action={!(lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
+                            <button onClick={() => setShowModal(true)} className="bg-[#2447d7] text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-[#1a36b1] transition-all">Manage</button>
+                        )}
+                    >
+                        <div className="p-3 flex flex-col gap-2">
+                            {/* Status badge */}
+                            {(() => {
+                                const hasRejected = lead.documents?.some(d => d.status === 'Rejected');
+                                const allApproved = lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0;
+                                const docCount = lead.documents?.length || 0;
+                                const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
+                                if (hasRejected || ['Rejected','Loan Rejected'].includes(currentStatus))
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20"><IconAlert size={11} /> Rejected</span>;
+                                if (['Loan Confirmed','Completed'].includes(currentStatus) || allApproved)
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-green-50 dark:bg-green-500/15 text-green-600 dark:text-green-400 border-green-100 dark:border-green-500/20"><IconCheck size={11} strokeWidth={3} /> All Verified</span>;
+                                if (currentStatus === 'Lender Selection')
+                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20"><IconCheck size={11} strokeWidth={3} /> Lender Selection</span>;
+                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Checking ({approvedCount}/{docCount})
+                                </span>;
+                            })()}
 
+                            {/* Doc list */}
+                            {lead.documents?.length > 0 ? (
+                                <div className="divide-y divide-[#f1f5f9] border border-[#edf2f7] rounded-lg overflow-hidden mt-1">
+                                    {lead.documents.map(doc => (
+                                        <div key={doc.id} className="flex items-center justify-between px-3 py-2 hover:bg-[#f8fafc] transition-colors">
+                                            <div className="flex items-center gap-2">
+                                                <div className={`w-6 h-6 rounded-md flex items-center justify-center ${doc.status === 'Approved' ? 'bg-green-50 text-green-600' : doc.status === 'Rejected' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-[#2447d7]'}`}>
+                                                    <IconFile size={12} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-[11px] font-bold text-[#1a202c]">{doc.type}</p>
+                                                    <p className={`text-[9px] font-bold uppercase ${doc.status === 'Approved' ? 'text-green-600' : doc.status === 'Rejected' ? 'text-red-500' : 'text-[#94a3b8]'}`}>{doc.status}</p>
+                                                </div>
+                                            </div>
+                                            <button onClick={() => setPreviewDoc(doc)} className="p-1 text-[#2447d7] hover:bg-[#ebf0ff] rounded-md transition-colors">
+                                                <IconEye size={13} />
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-[11px] text-[#94a3b8] italic text-center py-3">No documents uploaded yet.</p>
+                            )}
+                        </div>
+                    </Card>
                 </div>
 
                 {/* ── COL 2: Business & Loan ── */}
@@ -320,17 +388,53 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                                 <Row label="Amount Needed"     value={<span className="text-[#2447d7] font-bold">{lead.loanAmount || lead.amount}</span>} highlight />
                                 <Row label="Loan Purpose"      value={lead.loanPurpose} />
                                 <Row label="Funding Timeline"  value={lead.fundingTimeline} />
-                                <Row label="Existing Loan"     value={lead.existingLoan === 'Yes'
-                                    ? `Yes — ${lead.existingLoanLenderName || ''}${lead.existingLoanAmount ? ` £${lead.existingLoanAmount}` : ''}`
-                                    : lead.existingLoan} />
-                                {lead.existingLoan === 'Yes' && <>
-                                    <Row label="Existing Rate"     value={lead.existingLoanInterestRate ? `${lead.existingLoanInterestRate}%` : null} />
-                                    <Row label="Monthly Repayment" value={lead.existingLoanMonthlyRepayment ? `£${lead.existingLoanMonthlyRepayment}` : null} />
-                                    <Row label="Loan Term"         value={lead.existingLoanTerm} />
-                                </>}
+                                <Row label="Business Overview" value={lead.businessOverview || lead.notes} />
+                                <Row label="Overdraft"         value={lead.overdraftFacility} />
                             </tbody>
                         </table>
+
+                        {/* Confirmed Lender Details (Status: Loan Confirmed or Completed) */}
+                        {(lead.selectedLender || lead.lender || (lead.lenderDetails && lead.lenderDetails.partner)) && (
+                            <div className="mt-4 pt-4 border-t border-[#f1f5f9] dark:border-white/5">
+                                <p className="text-[10px] font-black uppercase text-[#16a34a] mb-2 tracking-wider flex items-center gap-1">
+                                    <IconCheck size={12} strokeWidth={3} /> Confirmed Funding
+                                </p>
+                                <div className="bg-[#f0fdf4] dark:bg-green-500/5 rounded-xl border border-green-100 dark:border-green-500/10 p-3">
+                                    <table className="w-full text-left table-fixed">
+                                        <tbody>
+                                            <Row label="Selected Lender" value={lead.selectedLender || lead.lender || lead.lenderDetails?.partner} highlight />
+                                            {(lead.approvedDate || lead.lenderDetails?.status === 'Funded') && (
+                                                <Row label="Status" value={<span className="text-green-600 font-bold uppercase text-[9px]">Funded & Disbursed</span>} />
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
                     </Card>
+
+                    {/* Existing Loans (Conditional) */}
+                    {lead.existingLoan === 'Yes' && (
+                        <Card icon={<IconBank />} iconBg="bg-[#f1f5f9]" iconColor="text-[#64748b]" title="Existing Loans">
+                            <table className="w-full text-left table-fixed">
+                                <tbody>
+                                    <Row label="Lender Name"       value={lead.existingLoanLenderName} />
+                                    <Row label="Current Balance"   value={lead.existingLoanAmount ? `£${lead.existingLoanAmount}` : null} highlight />
+                                    <Row label="Interest Rate"     value={lead.existingLoanInterestRate ? `${lead.existingLoanInterestRate}%` : null} />
+                                    <Row label="Monthly Repayment" value={lead.existingLoanMonthlyRepayment ? `£${lead.existingLoanMonthlyRepayment}` : null} />
+                                    <Row label="Remaining Term"    value={lead.existingLoanTerm} />
+                                </tbody>
+                            </table>
+                        </Card>
+                    )}
+
+
+
+                </div>
+
+
+                {/* ── COL 3: Documents ── */}
+                <div className="flex flex-col gap-4">
 
                     {/* Notes */}
                     <Card 
@@ -411,10 +515,6 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                             </div>
                         </div>
                     </Card>
-                </div>
-
-                {/* ── COL 3: Tasks, Team, Documents ── */}
-                <div className="flex flex-col gap-4">
 
                     {/* Tasks & Follow-ups */}
                     <Card
@@ -481,14 +581,23 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                                     const isTL = role.includes('team_leader') || role.includes('team leader') || ['Marcus Smith', 'Diana Fernandez', 'Ryan Patel', 'Aisha Nkosi', 'Tom Brennan'].includes(creatorName);
 
                                     if (isSuperAdmin) {
-                                        return <Row label="Super Admin" value={creatorName} />;
+                                        return (
+                                            <>
+                                                <Row label="Super Admin" value={creatorName} />
+                                                <Row label="Account Manager" value={lead.manager || '—'} />
+                                            </>
+                                        );
                                     } else if (isManager) {
-                                        return <Row label="Manager" value={creatorName} />;
+                                        return (
+                                            <>
+                                                <Row label="Account Manager" value={creatorName} />
+                                            </>
+                                        );
                                     } else if (isTL) {
                                         return (
                                             <>
                                                 <Row label="Team Leader" value={creatorName} />
-                                                {lead.manager && <Row label="Manager" value={lead.manager} />}
+                                                <Row label="Account Manager" value={lead.manager || '—'} />
                                             </>
                                         );
                                     } else {
@@ -497,63 +606,13 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                                             <>
                                                 <Row label="Tele Agent" value={creatorName} />
                                                 <Row label="Team Leader" value={teamLeaderName} />
+                                                <Row label="Account Manager" value={lead.manager || '—'} />
                                             </>
                                         );
                                     }
                                 })()}
                             </tbody>
                         </table>
-                    </Card>
-
-                    {/* Documents */}
-                    <Card
-                        icon={<IconDocs />} iconBg="bg-[#f3e8ff]" iconColor="text-[#7c3aed]" title="Documents"
-                        action={!(lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0) && (
-                            <button onClick={() => setShowModal(true)} className="bg-[#2447d7] text-white px-3 py-1 rounded-lg text-[10px] font-bold hover:bg-[#1a36b1] transition-all">Manage</button>
-                        )}
-                    >
-                        <div className="p-3 flex flex-col gap-2">
-                            {/* Status badge */}
-                            {(() => {
-                                const hasRejected = lead.documents?.some(d => d.status === 'Rejected');
-                                const allApproved = lead.documents?.every(d => d.status === 'Approved') && lead.documents?.length > 0;
-                                const docCount = lead.documents?.length || 0;
-                                const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
-                                if (hasRejected || ['Rejected','Loan Rejected'].includes(currentStatus))
-                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20"><IconAlert size={11} /> Rejected</span>;
-                                if (['Loan Confirmed','Completed'].includes(currentStatus) || allApproved)
-                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-green-50 dark:bg-green-500/15 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20"><IconCheck size={11} strokeWidth={3} /> All Verified</span>;
-                                if (currentStatus === 'Lender Selection')
-                                    return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20"><IconCheck size={11} strokeWidth={3} /> Lender Selection</span>;
-                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500" /> Checking ({approvedCount}/{docCount})
-                                </span>;
-                            })()}
-
-                            {/* Doc list */}
-                            {lead.documents?.length > 0 ? (
-                                <div className="divide-y divide-[#f1f5f9] border border-[#edf2f7] rounded-lg overflow-hidden mt-1">
-                                    {lead.documents.map(doc => (
-                                        <div key={doc.id} className="flex items-center justify-between px-3 py-2 hover:bg-[#f8fafc] transition-colors">
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-6 h-6 rounded-md flex items-center justify-center ${doc.status === 'Approved' ? 'bg-green-50 text-green-600' : doc.status === 'Rejected' ? 'bg-red-50 text-red-500' : 'bg-blue-50 text-[#2447d7]'}`}>
-                                                    <IconFile size={12} />
-                                                </div>
-                                                <div>
-                                                    <p className="text-[11px] font-bold text-[#1a202c]">{doc.type}</p>
-                                                    <p className={`text-[9px] font-bold uppercase ${doc.status === 'Approved' ? 'text-green-600' : doc.status === 'Rejected' ? 'text-red-500' : 'text-[#94a3b8]'}`}>{doc.status}</p>
-                                                </div>
-                                            </div>
-                                            <button onClick={() => setPreviewDoc(doc)} className="p-1 text-[#2447d7] hover:bg-[#ebf0ff] rounded-md transition-colors">
-                                                <IconEye size={13} />
-                                            </button>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (
-                                <p className="text-[11px] text-[#94a3b8] italic text-center py-3">No documents uploaded yet.</p>
-                            )}
-                        </div>
                     </Card>
 
                 </div>

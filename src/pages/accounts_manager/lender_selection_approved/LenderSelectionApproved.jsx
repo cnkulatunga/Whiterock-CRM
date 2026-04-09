@@ -149,7 +149,7 @@ const LenderSelectionApproved = () => {
                             <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0aec0]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                             <input
                                 type="text"
-                                className="bg-[#f8fafc] dark:bg-white/5 border border-[#edf2f7] dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-[13px] font-medium text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] dark:focus:border-blue-500 transition-all w-[280px] placeholder:text-[#cbd5e0] dark:placeholder:text-slate-600"
+                                className="bg-[#f8fafc] dark:bg-white/5 border border-[#edf2f7] dark:border-white/10 rounded-xl pl-9 pr-4 py-2 text-[13px] font-medium text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] dark:focus:border-blue-500 transition-all w-[280px] sm:w-full placeholder:text-[#cbd5e0] dark:placeholder:text-slate-600"
                                 placeholder="Search by client, ID or lender..."
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}

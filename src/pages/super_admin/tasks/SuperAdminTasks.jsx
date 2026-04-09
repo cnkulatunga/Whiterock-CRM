@@ -440,24 +440,27 @@ const SuperAdminTasks = ({ tasks: initialTasks, setTasks, initialDate, notifyRem
                                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${isDark ? 'bg-[#2a3258] text-[#818cf8]' : `${style.iconBg} ${style.iconText}`}`}>
                                             {task.type === 'Call' ? <IconPhone size={13} /> : task.type === 'Document' ? <IconDoc size={13} /> : <IconMeeting size={13} />}
                                         </div>
-                                        <div className="flex-1 min-w-0 overflow-hidden">
-                                            <div className="flex items-start justify-between gap-2">
-                                                <span className={`text-[13px] font-black leading-tight break-words min-w-0 flex-1 ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`}>{task.title}</span>
-                                                <div className="flex items-center gap-1.5 shrink-0">
-                                                    {!task.isPromotion && !task.isOutlook && (
-                                                        <select value={task.leadStatus || 'Warm'} onChange={e => { e.stopPropagation(); updateLeadStatus(task.id, e.target.value); }} onClick={e => e.stopPropagation()} className={`text-[9px] font-black px-2 py-1 rounded-full border outline-none cursor-pointer transition-colors ${(task.leadStatus || 'Warm') === 'Hot' ? (isDark ? 'bg-red-500/15 text-red-400 border-red-500/20' : 'bg-red-50 text-red-600 border-red-100') : (task.leadStatus || 'Warm') === 'Cool' ? (isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/20' : 'bg-blue-50 text-blue-600 border-blue-100') : (isDark ? 'bg-amber-500/15 text-amber-400 border-amber-500/20' : 'bg-amber-50 text-amber-600 border-amber-100')}`}><option value="Hot">🔥 Hot</option><option value="Warm">☀️ Warm</option><option value="Cool">❄️ Cool</option></select>
-                                                    )}
-                                                    {!task.isOutlook && <StatusSelector status={task.status} onStatusChange={ns => updateTaskStatus(task.id, ns)} isDark={isDark} />}
-                                                    {task.isOutlook && <span className={`text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-tighter border ${isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/20' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>Outlook Event</span>}
-                                                    {canManageTask(task, user) && !task.isOutlook && (
-                                                        <>
-                                                            <button onClick={() => handleEditClick(task)} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'text-[#546298] hover:text-[#94abda] hover:bg-white/5' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'}`}><IconEdit size={11} /></button>
-                                                            <button onClick={() => handleDeleteTask(task.id)} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'text-[#546298] hover:text-red-400 hover:bg-red-500/10' : 'text-slate-300 hover:text-red-500 hover:bg-red-50'}`}><IconTrash size={11} /></button>
-                                                        </>
-                                                    )}
-                                                </div>
+                                        <div className="flex-1 min-w-0">
+                                            {/* Title row */}
+                                            <div className="flex items-start justify-between gap-2 min-w-0">
+                                                <span className={`text-[13px] font-black leading-tight truncate min-w-0 flex-1 ${isDark ? 'text-[#e4ecff]' : 'text-[#1e293b]'}`}>{task.title}</span>
+                                                {canManageTask(task, user) && !task.isOutlook && (
+                                                    <div className="flex items-center gap-1 shrink-0">
+                                                        <button onClick={() => handleEditClick(task)} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'text-[#546298] hover:text-[#94abda] hover:bg-white/5' : 'text-slate-300 hover:text-slate-500 hover:bg-slate-50'}`}><IconEdit size={11} /></button>
+                                                        <button onClick={() => handleDeleteTask(task.id)} className={`w-6 h-6 rounded-lg flex items-center justify-center transition-colors ${isDark ? 'text-[#546298] hover:text-red-400 hover:bg-red-500/10' : 'text-slate-300 hover:text-red-500 hover:bg-red-50'}`}><IconTrash size={11} /></button>
+                                                    </div>
+                                                )}
                                             </div>
-                                            <div className="flex items-center gap-2 mt-1 flex-wrap">
+                                            {/* Status selectors row */}
+                                            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                                {!task.isPromotion && !task.isOutlook && (
+                                                    <select value={task.leadStatus || 'Warm'} onChange={e => { e.stopPropagation(); updateLeadStatus(task.id, e.target.value); }} onClick={e => e.stopPropagation()} className={`text-[9px] font-black px-2 py-1 rounded-full border outline-none cursor-pointer transition-colors ${(task.leadStatus || 'Warm') === 'Hot' ? (isDark ? 'bg-red-500/15 text-red-400 border-red-500/20' : 'bg-red-50 text-red-600 border-red-100') : (task.leadStatus || 'Warm') === 'Cool' ? (isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/20' : 'bg-blue-50 text-blue-600 border-blue-100') : (isDark ? 'bg-amber-500/15 text-amber-400 border-amber-500/20' : 'bg-amber-50 text-amber-600 border-amber-100')}`}><option value="Hot">🔥 Hot</option><option value="Warm">☀️ Warm</option><option value="Cool">❄️ Cool</option></select>
+                                                )}
+                                                {!task.isOutlook && <StatusSelector status={task.status} onStatusChange={ns => updateTaskStatus(task.id, ns)} isDark={isDark} />}
+                                                {task.isOutlook && <span className={`text-[9px] font-black px-2.5 py-1 rounded-full uppercase tracking-tighter border ${isDark ? 'bg-blue-500/15 text-blue-400 border-blue-500/20' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>Outlook Event</span>}
+                                            </div>
+                                            {/* Meta row */}
+                                            <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                                                 <span className={`text-[9px] font-bold ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{task.date} · {task.time}</span>
                                                 <span className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${isDark ? 'bg-white/5 text-white/40' : 'bg-slate-100 text-slate-400'}`}>{task.type || 'Task'}</span>
                                                 {task.reminder && task.reminder !== 'none' && <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-50 text-amber-600'}`}>⏰ {task.reminder}</span>}

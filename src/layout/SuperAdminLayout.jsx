@@ -96,7 +96,7 @@ const AppLayout = ({ onLogout }) => {
         if (data) setSelectedLead(data);
         switch (page) {
             case 'dashboard': navigate('/super-admin/dashboard'); break;
-            case 'user-management': navigate('/super-admin/user-management'); break;
+            case 'user-management': navigate('/super-admin/user-management', { state: data || undefined }); break;
             case 'leads': navigate('/super-admin/leads'); break;
             case 'deals': navigate('/super-admin/deals'); break;
             case 'finance': navigate('/super-admin/finance'); break;
@@ -264,7 +264,7 @@ const AppLayout = ({ onLogout }) => {
                     </div>
                 </div>
 
-                <div className={`flex-1 mt-[68px] lg:p-6 lg:px-4 ${location.pathname.includes('tasks') ? 'p-0' : 'p-[36px_40px]'}`}>
+                <div className={`flex-1 mt-[68px] lg:p-6 lg:px-4 sm:p-4 sm:px-3 ${location.pathname.includes('tasks') ? 'p-0' : 'p-[36px_40px]'}`}>
                     <Routes>
                         <Route path="dashboard" element={<SuperAdminDashboard onNavigate={handleNavigate} />} />
                         <Route path="user-management" element={<UserManagement />} />

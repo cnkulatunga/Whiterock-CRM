@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useUsers } from '../../../context/UsersContext';
 import UserProfileModal from '../../../components/modals/UserProfileModal';
-
+import { useLocation } from 'react-router-dom';
 import { ALL_ROLES, ALL_STATUSES } from '../../../data/dummyData';
 
 /* ─── AVATAR COLORS ───────────────────────────── */
@@ -278,12 +278,12 @@ const DeleteConfirmModal = ({ user, onClose, onConfirm }) => (
 /* ─── MAIN COMPONENT ──────────────────────────── */
 const UserManagement = () => {
     const { users, setUsers } = useUsers();
+    const location = useLocation();
     const [search, setSearch] = useState('');
     const [roleFilter, setRoleFilter] = useState('All Roles');
     const [statusFilter, setStatusFilter] = useState('All');
-    const [viewMode, setViewMode] = useState('list');
     const [currentPage, setCurrentPage] = useState(1);
-    const [showModal, setShowModal] = useState(false);
+    const [showModal, setShowModal] = useState(() => location.state?.openCreate === true);
     const [editingUser, setEditingUser] = useState(null);
     const [deletingUser, setDeletingUser] = useState(null);
     const [selectedProfileUser, setSelectedProfileUser] = useState(null);
@@ -378,14 +378,17 @@ const UserManagement = () => {
         <div className="flex flex-col gap-5 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* ── FILTERS ── */}
-            <div className="bg-white rounded-2xl border border-[#edf2f7] px-5 py-4 shadow-sm flex items-center justify-between gap-4 flex-wrap animate-slideDown [animation-delay:100ms] [animation-fill-mode:both]">
-                <div className="flex items-center gap-3 flex-wrap min-w-0">
-                    <div className="relative min-w-[240px]">
+            <div className="bg-white rounded-2xl border border-[#edf2f7] px-5 py-3.5 shadow-sm animate-slideDown [animation-delay:100ms] [animation-fill-mode:both]">
+                {/* Single row on desktop, two rows on mobile */}
+                <div className="flex items-center gap-3 sm:flex-col sm:items-stretch sm:gap-2.5">
+
+                    {/* Search */}
+                    <div className="relative flex-1 min-w-0">
                         <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a0aec0]">
                             <IconSearch />
                         </div>
-                        <input 
-                            type="text" 
+                        <input
+                            type="text"
                             className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2.5 pl-10 pr-4 rounded-xl text-[13px] font-medium text-[#4a5568] placeholder-[#a0aec0] outline-none focus:bg-white focus:border-[#2447d7]/30 focus:shadow-[0_0_15px_-5px_rgba(36,71,215,0.1)] transition-all"
                             placeholder="Search by name or email..."
                             value={search}
@@ -393,182 +396,198 @@ const UserManagement = () => {
                         />
                     </div>
 
-                    <div className="w-px h-6 bg-[#edf2f7] mx-1" />
+                    {/* Divider */}
+                    <div className="w-px h-6 bg-[#edf2f7] shrink-0 sm:hidden" />
 
-                    <span className="text-[11px] font-semibold text-[#a0aec0] uppercase tracking-widest whitespace-nowrap">Filter By:</span>
-                    <div className="relative">
-                        <select className="bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-7 rounded-xl text-[13px] font-medium text-[#4a5568] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
-                            {ALL_ROLES.map(r => <option key={r}>{r}</option>)}
-                        </select>
-                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
-                    </div>
-                    <div className="relative">
-                        <select className="bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-7 rounded-xl text-[13px] font-medium text-[#4a5568] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                            {['All', 'Active', 'Inactive'].map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
-                    </div>
-                    {(roleFilter !== 'All Roles' || statusFilter !== 'All' || search) && (
-                        <button className="text-[12px] font-medium text-[#dc2626] hover:underline transition-all" onClick={() => { setRoleFilter('All Roles'); setStatusFilter('All'); setSearch(''); }}>
-                            ✕ Clear
-                        </button>
-                    )}
-                </div>
-
-                <div className="flex items-center gap-3">
-                    {/* View Toggle */}
-                    <div className="flex items-center bg-[#f8fafc] p-1 rounded-[14px] border border-[#f1f5f9]">
-                        <button 
-                            onClick={() => setViewMode('list')}
-                            className={`flex items-center gap-2 px-4 py-1.5 rounded-[10px] text-[12px] font-semibold transition-all duration-200 ${viewMode === 'list' ? 'bg-white text-[#2447d7] shadow-[0_2px_10px_-3px_rgba(36,71,215,0.15)] border border-[#2447d7]/5' : 'text-[#94a3b8] hover:text-[#64748b]'}`}
-                        >
-                            <IconList /> List View
-                        </button>
-                        <button 
-                            onClick={() => setViewMode('grid')}
-                            className={`flex items-center gap-2 px-4 py-1.5 rounded-[10px] text-[12px] font-semibold transition-all duration-200 ${viewMode === 'grid' ? 'bg-white text-[#2447d7] shadow-[0_2px_10px_-3px_rgba(36,71,215,0.15)] border border-[#2447d7]/5' : 'text-[#94a3b8] hover:text-[#64748b]'}`}
-                        >
-                            <IconGrid /> Grid View
-                        </button>
+                    {/* Filters */}
+                    <div className="flex items-center gap-2 shrink-0 sm:w-full">
+                        <span className="text-[10px] font-bold text-[#a0aec0] uppercase tracking-widest whitespace-nowrap shrink-0">Filter:</span>
+                        <div className="relative sm:flex-1">
+                            <select className="bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-7 rounded-xl text-[12px] font-medium text-[#4a5568] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+                                {ALL_ROLES.map(r => <option key={r}>{r}</option>)}
+                            </select>
+                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
+                        </div>
+                        <div className="relative w-[90px] shrink-0">
+                            <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-7 rounded-xl text-[12px] font-medium text-[#4a5568] outline-none appearance-none cursor-pointer hover:border-[#2447d7]/30 transition-colors" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                                {['All', 'Active', 'Inactive'].map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                            <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IconChevronDown /></div>
+                        </div>
+                        {(roleFilter !== 'All Roles' || statusFilter !== 'All' || search) && (
+                            <button className="text-[11px] font-bold text-[#dc2626] shrink-0 hover:underline transition-all" onClick={() => { setRoleFilter('All Roles'); setStatusFilter('All'); setSearch(''); }}>
+                                ✕ Clear
+                            </button>
+                        )}
                     </div>
 
-                    <div className="w-px h-8 bg-[#edf2f7] mx-1" />
+                    {/* Divider */}
+                    <div className="w-px h-6 bg-[#edf2f7] shrink-0 sm:hidden" />
 
-                    <button className="flex items-center gap-2 bg-[#2447d7] text-white px-5 py-2.5 rounded-xl text-[13px] font-semibold hover:bg-[#1732a3] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] transition-all" onClick={() => setShowModal(true)}>
+                    {/* Create button */}
+                    <button className="flex items-center gap-2 bg-[#2447d7] text-white px-4 py-2.5 rounded-xl text-[13px] font-semibold hover:bg-[#1732a3] hover:shadow-lg hover:shadow-blue-500/20 active:scale-[0.98] transition-all shrink-0 sm:w-full sm:justify-center" onClick={() => setShowModal(true)}>
                         <div className="bg-white/20 p-1 rounded-lg">
                             <IconPlus />
                         </div>
-                        Create New User
+                        <span className="sm:hidden">Create New User</span>
+                        <span className="hidden sm:inline">Create New User</span>
                     </button>
                 </div>
             </div>
 
-            {/* ── TABLE (List View) ── */}
-            {viewMode === 'list' && (
-                <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:200ms] [animation-fill-mode:both]">
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="bg-[#f8fafc]">
-                                    <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">USER DETAILS</th>
-                                    <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ROLE</th>
-                                    <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">STATUS</th>
-                                    <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ACTIONS</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[#f7fafc]">
-                                {filtered.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={4} className="py-16 text-center text-[13px] text-[#a0aec0] font-medium">No users match the current filters.</td>
-                                    </tr>
-                                ) : (
-                                    filtered.map((user, i) => (
-                                        <tr key={user.id} className={`hover:bg-[#f8faff] transition-colors animate-rowIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`} style={{ animationDelay: `${250 + i * 50}ms`, animationFillMode: 'both' }}>
-                                            <td className="px-5 py-3">
-                                                <div 
-                                                    className="flex items-center gap-2.5 cursor-pointer group"
-                                                    onClick={() => setSelectedProfileUser(user)}
-                                                >
-                                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 transition-transform group-hover:scale-105 shadow-sm" style={{ background: user.color, color: user.textColor }}>{user.initials}</div>
-                                                    <div className="flex flex-col min-w-0">
-                                                        <span className="text-[12px] font-bold text-[#1a202c] truncate group-hover:text-[#2447d7] transition-colors">{user.name}</span>
-                                                        <span className="text-[11px] text-[#a0aec0] font-medium truncate">{user.email}</span>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border uppercase tracking-wider ${user.roleColor}`}>{user.role}</span>
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <div className={`flex items-center gap-1.5 text-[11px] font-bold ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#64748b]'}`}>
-                                                    <div className={`w-1 h-1 rounded-full ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
-                                                    {user.status}
-                                                </div>
-                                            </td>
-                                            <td className="px-5 py-3">
-                                                <div className="flex items-center gap-1.5">
-                                                    <button className="w-7 h-7 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#2447d7] hover:text-white hover:border-[#2447d7] transition-all" title="Edit user" onClick={() => setEditingUser(user)}><IconEdit /></button>
-                                                    <button className="w-7 h-7 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#dc2626] hover:text-white hover:border-[#dc2626] transition-all" title="Delete user" onClick={() => handleDelete(user)}><IconTrash /></button>
-                                                    <button
-                                                        className={`w-7 h-7 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
-                                                        title={user.status === 'Active' ? 'Deactivate' : 'Activate'}
-                                                        onClick={() => toggleStatus(user.id)}
-                                                    >
-                                                        {user.status === 'Active' ? <IconBan /> : <IconActivate />}
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
 
-                    {/* Pagination */}
-                    <div className="px-6 py-4 border-t border-[#f7fafc] flex justify-between items-center">
-                        <span className="text-[12px] text-[#a0aec0]">
-                            Showing <span className="font-semibold text-[#2447d7]">{filtered.length}</span> of <span className="font-semibold text-[#1a202c]">{TOTAL_USERS} users</span>
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                            <button className="w-8 h-8 bg-white border border-[#edf2f7] rounded-xl flex items-center justify-center text-[#a0aec0] hover:text-[#2447d7] hover:border-[#2447d7] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6" /></svg>
-                            </button>
-                            {[1, 2, 3].map(p => (
-                                <button key={p}
-                                    className={`w-8 h-8 rounded-xl text-[13px] font-medium transition-all ${currentPage === p ? 'bg-[#2447d7] text-white shadow-sm' : 'text-[#718096] bg-white border border-[#edf2f7] hover:bg-[#f1f5f9]'}`}
-                                    onClick={() => setCurrentPage(p)}>{p}
+            {/* ── LIST VIEW: table on desktop, cards on mobile ── */}
+            {true && (
+                <section className="animate-slideUp [animation-delay:200ms] [animation-fill-mode:both]">
+
+                    {/* ── DESKTOP TABLE (hidden on mobile) ── */}
+                    <div className="lg:hidden bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full border-collapse">
+                                <thead>
+                                    <tr className="bg-[#f8fafc]">
+                                        <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">USER DETAILS</th>
+                                        <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ROLE</th>
+                                        <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">STATUS</th>
+                                        <th className="px-5 py-2.5 text-left text-[10px] font-bold text-[#a0aec0] uppercase tracking-wider">ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-[#f7fafc]">
+                                    {filtered.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={4} className="py-16 text-center text-[13px] text-[#a0aec0] font-medium">No users match the current filters.</td>
+                                        </tr>
+                                    ) : (
+                                        filtered.map((user, i) => (
+                                            <tr key={user.id} className={`hover:bg-[#f8faff] transition-colors animate-rowIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`} style={{ animationDelay: `${250 + i * 50}ms`, animationFillMode: 'both' }}>
+                                                <td className="px-5 py-3">
+                                                    <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => setSelectedProfileUser(user)}>
+                                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0 transition-transform group-hover:scale-105 shadow-sm" style={{ background: user.color, color: user.textColor }}>{user.initials}</div>
+                                                        <div className="flex flex-col min-w-0">
+                                                            <span className="text-[12px] font-bold text-[#1a202c] truncate group-hover:text-[#2447d7] transition-colors">{user.name}</span>
+                                                            <span className="text-[11px] text-[#a0aec0] font-medium truncate">{user.email}</span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-3">
+                                                    <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border uppercase tracking-wider whitespace-nowrap ${user.roleColor}`}>{user.role}</span>
+                                                </td>
+                                                <td className="px-5 py-3">
+                                                    <div className={`flex items-center gap-1.5 text-[11px] font-bold ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#64748b]'}`}>
+                                                        <div className={`w-1 h-1 rounded-full ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
+                                                        {user.status}
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-3">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <button className="w-7 h-7 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#2447d7] hover:text-white hover:border-[#2447d7] transition-all" title="Edit" onClick={() => setEditingUser(user)}><IconEdit /></button>
+                                                        <button className="w-7 h-7 rounded-lg bg-white border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#dc2626] hover:text-white hover:border-[#dc2626] transition-all" title="Delete" onClick={() => handleDelete(user)}><IconTrash /></button>
+                                                        <button
+                                                            className={`w-7 h-7 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
+                                                            title={user.status === 'Active' ? 'Deactivate' : 'Activate'}
+                                                            onClick={() => toggleStatus(user.id)}
+                                                        >
+                                                            {user.status === 'Active' ? <IconBan /> : <IconActivate />}
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="px-6 py-4 border-t border-[#f7fafc] flex justify-between items-center">
+                            <span className="text-[12px] text-[#a0aec0]">
+                                Showing <span className="font-semibold text-[#2447d7]">{filtered.length}</span> of <span className="font-semibold text-[#1a202c]">{TOTAL_USERS} users</span>
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                                <button className="w-8 h-8 bg-white border border-[#edf2f7] rounded-xl flex items-center justify-center text-[#a0aec0] hover:text-[#2447d7] hover:border-[#2447d7] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6" /></svg>
                                 </button>
-                            ))}
-                            <button className="w-8 h-8 bg-white border border-[#edf2f7] rounded-xl flex items-center justify-center text-[#a0aec0] hover:text-[#2447d7] hover:border-[#2447d7] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6" /></svg>
-                            </button>
+                                {[1, 2, 3].map(p => (
+                                    <button key={p} className={`w-8 h-8 rounded-xl text-[13px] font-medium transition-all ${currentPage === p ? 'bg-[#2447d7] text-white shadow-sm' : 'text-[#718096] bg-white border border-[#edf2f7] hover:bg-[#f1f5f9]'}`} onClick={() => setCurrentPage(p)}>{p}</button>
+                                ))}
+                                <button className="w-8 h-8 bg-white border border-[#edf2f7] rounded-xl flex items-center justify-center text-[#a0aec0] hover:text-[#2447d7] hover:border-[#2447d7] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6" /></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </section>
-            )}
 
-            {/* ── GRID VIEW ── */}
-            {viewMode === 'grid' && (
-                <div className="grid grid-cols-5 gap-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-1">
-                    {filtered.length === 0 ? (
-                        <div className="col-span-full py-12 text-center bg-white rounded-2xl border border-[#edf2f7] text-[#a0aec0] text-[12px] font-bold">No users match the current filters.</div>
-                    ) : (
-                        filtered.map((user, i) => (
-                            <div key={user.id} className={`bg-white rounded-2xl border border-[#edf2f7] p-4 flex flex-col items-center gap-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all animate-popIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`} style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'both' }}>
-                                <div 
-                                    className="w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg transition-transform duration-300 hover:scale-105 cursor-pointer animate-avatarPop shadow-sm" 
-                                    style={{ background: user.color, color: user.textColor, animationDelay: `${i * 60 + 80}ms`, animationFillMode: 'both' }}
-                                    onClick={() => setSelectedProfileUser(user)}
+                    {/* ── MOBILE CARDS (hidden on desktop) ── */}
+                    <div className="hidden lg:flex flex-col gap-2">
+                        {filtered.length === 0 ? (
+                            <div className="py-16 text-center bg-white rounded-2xl border border-[#edf2f7] text-[#a0aec0] text-[13px] font-medium">
+                                No users match the current filters.
+                            </div>
+                        ) : (
+                            filtered.map((user, i) => (
+                                <div
+                                    key={user.id}
+                                    className={`bg-white rounded-2xl border border-[#edf2f7] shadow-sm px-4 py-3.5 flex flex-col gap-2.5 hover:shadow-md hover:border-[#e0e7ff] transition-all animate-rowIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`}
+                                    style={{ animationDelay: `${i * 45}ms`, animationFillMode: 'both' }}
                                 >
-                                    {user.initials}
-                                </div>
-                                <div className="flex flex-col items-center gap-0.5 text-center cursor-pointer group" onClick={() => setSelectedProfileUser(user)}>
-                                    <div className="text-[13px] font-bold text-[#1a202c] group-hover:text-[#2447d7] transition-colors truncate w-full max-w-[140px]">{user.name}</div>
-                                    <div className="text-[11px] text-[#a0aec0] font-medium truncate w-full max-w-[140px]">{user.email}</div>
-                                </div>
-                                <div className="flex flex-col items-center gap-1.5 w-full">
-                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-md border uppercase tracking-widest ${user.roleColor}`}>{user.role}</span>
-                                    <div className={`flex items-center gap-1.5 text-[10px] font-bold ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#64748b]'}`}>
-                                        <div className={`w-1 h-1 rounded-full ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#64748b]'}`} />
-                                        {user.status}
+                                    {/* Top: avatar + name/email */}
+                                    <div className="flex items-center gap-3">
+                                        <div
+                                            className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black shrink-0 shadow-sm cursor-pointer hover:scale-105 transition-transform"
+                                            style={{ background: user.color, color: user.textColor }}
+                                            onClick={() => setSelectedProfileUser(user)}
+                                        >
+                                            {user.initials}
+                                        </div>
+                                        <div className="flex flex-col min-w-0 flex-1 cursor-pointer group" onClick={() => setSelectedProfileUser(user)}>
+                                            <span className="text-[13px] font-bold text-[#1a202c] truncate group-hover:text-[#2447d7] transition-colors leading-tight">{user.name}</span>
+                                            <span className="text-[11px] text-[#a0aec0] font-medium truncate leading-tight mt-0.5">{user.email}</span>
+                                        </div>
+                                    </div>
+                                    {/* Bottom: role + status + actions */}
+                                    <div className="flex items-center gap-2 pl-[52px]">
+                                        <span className={`text-[9px] font-black px-2.5 py-1 rounded-lg border uppercase tracking-wider whitespace-nowrap ${user.roleColor}`}>{user.role}</span>
+                                        <div className={`flex items-center gap-1.5 text-[11px] font-bold ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#94a3b8]'}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#94a3b8]'}`} />
+                                            {user.status}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 ml-auto">
+                                            <button className="w-8 h-8 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#2447d7] hover:text-white hover:border-[#2447d7] transition-all" title="Edit" onClick={() => setEditingUser(user)}><IconEdit /></button>
+                                            <button className="w-8 h-8 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#dc2626] hover:text-white hover:border-[#dc2626] transition-all" title="Delete" onClick={() => handleDelete(user)}><IconTrash /></button>
+                                            <button
+                                                className={`w-8 h-8 rounded-xl border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
+                                                title={user.status === 'Active' ? 'Deactivate' : 'Activate'}
+                                                onClick={() => toggleStatus(user.id)}
+                                            >
+                                                {user.status === 'Active' ? <IconBan /> : <IconActivate />}
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="w-full h-px bg-[#f1f5f9]" />
+                            ))
+                        )}
+                        {filtered.length > 0 && (
+                            <div className="bg-white rounded-2xl border border-[#edf2f7] px-5 py-3 flex justify-between items-center shadow-sm mt-1">
+                                <span className="text-[12px] text-[#a0aec0]">
+                                    Showing <span className="font-semibold text-[#2447d7]">{filtered.length}</span> of <span className="font-semibold text-[#1a202c]">{TOTAL_USERS} users</span>
+                                </span>
                                 <div className="flex items-center gap-1.5">
-                                    <button className="w-7 h-7 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#2447d7] hover:text-white transition-all border border-[#edf2f7]/50" title="Edit" onClick={() => setEditingUser(user)}><IconEdit /></button>
-                                    <button className="w-7 h-7 rounded-lg bg-[#f8fafc] text-[#718096] flex items-center justify-center hover:bg-[#dc2626] hover:text-white transition-all border border-[#edf2f7]/50" title="Delete" onClick={() => handleDelete(user)}><IconTrash /></button>
-                                    <button className={`w-7 h-7 rounded-lg border transition-all flex items-center justify-center ${user.status === 'Active' ? 'bg-[#fff5f5] text-[#dc2626] border-[#fee2e2] hover:bg-[#dc2626] hover:text-white' : 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5] hover:bg-[#059669] hover:text-white'}`}
-                                        title={user.status === 'Active' ? 'Deactivate' : 'Activate'} onClick={() => toggleStatus(user.id)}>
-                                        {user.status === 'Active' ? <IconBan /> : <IconActivate />}
+                                    <button className="w-8 h-8 bg-white border border-[#edf2f7] rounded-xl flex items-center justify-center text-[#a0aec0] hover:text-[#2447d7] hover:border-[#2447d7] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                        onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="15 18 9 12 15 6" /></svg>
+                                    </button>
+                                    {[1, 2, 3].map(p => (
+                                        <button key={p} className={`w-8 h-8 rounded-xl text-[13px] font-medium transition-all ${currentPage === p ? 'bg-[#2447d7] text-white shadow-sm' : 'text-[#718096] bg-white border border-[#edf2f7] hover:bg-[#f1f5f9]'}`} onClick={() => setCurrentPage(p)}>{p}</button>
+                                    ))}
+                                    <button className="w-8 h-8 bg-white border border-[#edf2f7] rounded-xl flex items-center justify-center text-[#a0aec0] hover:text-[#2447d7] hover:border-[#2447d7] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                                        onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14"><polyline points="9 18 15 12 9 6" /></svg>
                                     </button>
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
+                        )}
+                    </div>
+                </section>
             )}
 
             {showModal && <CreateUserModal onClose={() => setShowModal(false)} onCreate={handleCreate} />}

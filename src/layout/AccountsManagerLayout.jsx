@@ -241,7 +241,7 @@ const AccountsManagerLayout = ({ onLogout }) => {
                     </div>
                 </div>
 
-                <div className={`flex-1 mt-[68px] lg:p-6 lg:px-4 ${location.pathname.includes('tasks-followups') ? 'p-0' : 'p-[36px_40px]'}`}>
+                <div className={`flex-1 mt-[68px] lg:p-6 lg:px-4 sm:p-4 sm:px-3 ${location.pathname.includes('tasks-followups') ? 'p-0' : 'p-[36px_40px]'}`}>
                     <Routes>
                         <Route path="dashboard" element={<AMDashboard onNavigate={handleNavigate} tasks={tasks} setTasks={setTasks} notifyReminderSet={notifyReminderSet} />} />
                         <Route path="lender-selection" element={<LenderSelection lead={selectedLead} onNavigate={handleNavigate} />} />

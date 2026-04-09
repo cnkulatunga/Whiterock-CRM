@@ -45,8 +45,9 @@ const RESPONSIVE = `
 }
 @media (max-width:640px) {
   .tl-page-header { flex-direction:column; }
-  .tl-kpi-grid { grid-template-columns:1fr !important; }
-  .tl-tabs { overflow-x:auto; padding-bottom:0; -webkit-overflow-scrolling:touch; }
+  .tl-kpi-grid { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; }
+  .tl-tabs { overflow-x:auto; padding-bottom:0; -webkit-overflow-scrolling:touch; justify-content:flex-start !important; }
+  .tl-tabs-search { display:none !important; }
   .tl-card-body { padding:12px !important; gap:10px !important; }
   .tl-card-stats { order:3; width:100%; border-top:1px solid #f1f5f9; padding-top:10px; }
   .tl-card-actions { order:4; width:100% !important; flex-wrap:wrap; }
@@ -928,36 +929,6 @@ const TeamLeaders = ({ onNavigate }) => {
 
             <div className="tl-page-header" style={{ justifyContent: 'flex-end', animation: 'headerDrop 0.4s cubic-bezier(0.22,1,0.36,1) both' }}>
                 <div />
-
-                {!selectedLeader && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {/* Search bar */}
-                        <div className="lg:hidden" style={{ position: 'relative' }}>
-                            <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', display: 'flex' }}><IconSearch /></span>
-                            <input
-                                style={{
-                                    background: isDark ? '#242b50' : '#fff',
-                                    border: `1px solid ${isDark ? '#36407a' : '#f1f5f9'}`,
-                                    padding: '8px 12px 8px 34px',
-                                    borderRadius: '10px',
-                                    fontSize: '12px',
-                                    fontWeight: 700,
-                                    color: isDark ? '#e4ecff' : '#1e293b',
-                                    outline: 'none',
-                                    width: '200px',
-                                    transition: 'all 0.2s',
-                                    boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-                                }}
-                                type="text"
-                                placeholder="Search leaders..."
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                                onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 2px rgba(99,102,241,0.1)'; }}
-                                onBlur={e => { e.target.style.borderColor = isDark ? '#36407a' : '#f1f5f9'; e.target.style.boxShadow = 'none'; }}
-                            />
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* ── CONDITIONAL CONTENT ── */}
@@ -974,121 +945,95 @@ const TeamLeaders = ({ onNavigate }) => {
             ) : (
                 <>
                     {/* ── KPI CARDS ── */}
-                    <div className="tl-kpi-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-                                {[
-                                    { icon: <IconUsers />, value: totalLeaders, label: 'Total Leaders', primary: '#6366f1', light: isDark ? 'rgba(99,102,241,0.08)' : '#f5f7ff', soft: isDark ? 'rgba(99,102,241,0.15)' : '#eef2ff' },
-                                    { icon: <IconUserSingle />, value: totalAgents, label: 'Total Tele Agents', primary: '#10b981', light: isDark ? 'rgba(16,185,129,0.08)' : '#f0fdf4', soft: isDark ? 'rgba(16,185,129,0.15)' : '#ecfdf5' },
-                                    { icon: <IconTeams />, value: activeTeams, label: 'Active Teams', primary: '#8b5cf6', light: isDark ? 'rgba(139,92,246,0.08)' : '#f8f7ff', soft: isDark ? 'rgba(139,92,246,0.15)' : '#f5f3ff' },
-                                ].map((kpi, i) => (
-                                    <div key={i} style={{
-                                        background: isDark ? '#1e2347' : '#fff', borderRadius: '16px', border: `1px solid ${isDark ? '#2c3568' : '#f1f5f9'}`,
-                                        padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '14px',
-                                        boxShadow: isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 2px 6px rgba(15,23,42,0.03)', transition: 'all 0.3s ease',
-                                        cursor: 'default',
-                                        animation: `kpiPop 0.5s cubic-bezier(0.22,1,0.36,1) ${0.1 + i * 0.1}s both`,
-                                    }}
-                                    onMouseEnter={e => {
-                                        e.currentTarget.style.boxShadow = isDark ? '0 8px 32px rgba(99,102,241,0.2)' : '0 6px 18px rgba(99,102,241,0.08)';
-                                        e.currentTarget.style.transform = 'translateY(-3px)';
-                                        e.currentTarget.style.borderColor = isDark ? '#4f46e5' : '#6366f170';
-                                        e.currentTarget.querySelector('.kpi-icon-wrap').style.transform = 'scale(1.1) rotate(-5deg)';
-                                    }}
-                                    onMouseLeave={e => {
-                                        e.currentTarget.style.boxShadow = isDark ? '0 4px 20px rgba(0,0,0,0.3)' : '0 2px 6px rgba(15,23,42,0.03)';
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.borderColor = isDark ? '#2c3568' : '#f1f5f9';
-                                        e.currentTarget.querySelector('.kpi-icon-wrap').style.transform = 'scale(1) rotate(0deg)';
-                                    }}
-                                    >
-                                        <div className="kpi-icon-wrap" style={{ width: '40px', height: '40px', borderRadius: '12px', background: kpi.soft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: `1px solid ${kpi.light}`, color: kpi.primary, transition: 'transform 0.3s cubic-bezier(0.34,1.56,0.64,1)' }}>
-                                            {React.cloneElement(kpi.icon, { width: 18, height: 18 })}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontSize: '20px', fontWeight: 900, color: isDark ? '#e4ecff' : '#1e293b', letterSpacing: '-0.5px', lineHeight: 1, animation: 'countUp 0.4s ease both', animationDelay: `${0.2 + i * 0.1}s` }}>
-                                                <AnimatedNumber value={kpi.value} />
-                                            </div>
-                                            <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', marginTop: '2px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>{kpi.label}</div>
-                                        </div>
-                                    </div>
-                                ))}
-
-                                {/* Add Team Leader Action Card */}
-                                <div 
-                                    onClick={() => onNavigate('user-management')}
-                                    style={{
-                                        background: isDark ? 'rgba(99,102,241,0.04)' : '#f8faff', 
-                                        borderRadius: '16px', 
-                                        border: `1.5px dashed ${isDark ? '#36407a' : '#cbd5e1'}`,
-                                        padding: '14px 18px', 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        gap: '14px',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                                        animation: `kpiPop 0.5s cubic-bezier(0.22,1,0.36,1) 0.4s both`,
-                                    }}
-                                    onMouseEnter={e => {
-                                        e.currentTarget.style.borderColor = '#6366f1';
-                                        e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.08)' : '#f0f4ff';
-                                        e.currentTarget.style.transform = 'translateY(-3px)';
-                                        e.currentTarget.querySelector('.add-icon-wrap').style.transform = 'scale(1.1) rotate(90deg)';
-                                        e.currentTarget.querySelector('.add-icon-wrap').style.background = '#6366f1';
-                                        e.currentTarget.querySelector('.add-icon-wrap').style.color = '#fff';
-                                    }}
-                                    onMouseLeave={e => {
-                                        e.currentTarget.style.borderColor = isDark ? '#36407a' : '#cbd5e1';
-                                        e.currentTarget.style.background = isDark ? 'rgba(99,102,241,0.04)' : '#f8faff';
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.querySelector('.add-icon-wrap').style.transform = 'scale(1) rotate(0deg)';
-                                        e.currentTarget.querySelector('.add-icon-wrap').style.background = isDark ? '#2a3258' : '#fff';
-                                        e.currentTarget.querySelector('.add-icon-wrap').style.color = '#6366f1';
-                                    }}
-                                >
-                                    <div className="add-icon-wrap" style={{ 
-                                        width: '40px', height: '40px', borderRadius: '12px', background: isDark ? '#2a3258' : '#fff', 
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, 
-                                        border: `1px solid ${isDark ? '#36407a' : '#f1f5f9'}`, color: '#6366f1', 
-                                        transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)',
-                                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                                    }}>
-                                        <IconPlus width={20} height={20} />
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '14px', fontWeight: 900, color: isDark ? '#e4ecff' : '#1e293b', letterSpacing: '-0.2px', lineHeight: 1 }}>Add New</div>
-                                        <div style={{ fontSize: '9px', fontWeight: 800, color: '#94a3b8', marginTop: '2px', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Team Leader</div>
-                                    </div>
+                    <div className="tl-kpi-grid">
+                        {[
+                            { icon: <IconUsers width={18} height={18} />, value: totalLeaders, label: 'Total Leaders', color: 'text-indigo-700 dark:text-indigo-400', bg: 'bg-indigo-100/40 dark:bg-indigo-500/10', border: 'border-indigo-200 dark:border-indigo-500/20', iconBg: 'bg-indigo-600' },
+                            { icon: <IconUserSingle width={18} height={18} />, value: totalAgents, label: 'Total Tele Agents', color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-100/40 dark:bg-emerald-500/10', border: 'border-emerald-200 dark:border-emerald-500/20', iconBg: 'bg-emerald-500' },
+                            { icon: <IconTeams width={18} height={18} />, value: activeTeams, label: 'Active Teams', color: 'text-violet-700 dark:text-violet-400', bg: 'bg-violet-100/40 dark:bg-violet-500/10', border: 'border-violet-200 dark:border-violet-500/20', iconBg: 'bg-violet-600' },
+                        ].map((kpi, i) => (
+                            <div key={i} className={`${kpi.bg} ${kpi.border} border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop`}
+                                style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
+                                <div className={`w-11 h-11 rounded-full ${kpi.iconBg} text-white flex-shrink-0 flex items-center justify-center shadow-md`}>
+                                    {kpi.icon}
                                 </div>
+                                <div className="flex flex-col min-w-0">
+                                    <span className={`text-[10px] font-black ${kpi.color} uppercase tracking-widest leading-none mb-1 opacity-70`}>{kpi.label}</span>
+                                    <h2 className={`text-[26px] font-black leading-none tracking-tight ${kpi.color}`}>
+                                        <AnimatedNumber value={kpi.value} />
+                                    </h2>
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Add Team Leader Action Card */}
+                        <button
+                            onClick={() => onNavigate('user-management', { openCreate: true })}
+                            className="bg-rose-100/40 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop group"
+                            style={{ animationDelay: '340ms', animationFillMode: 'both' }}
+                        >
+                            <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex-shrink-0 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                                <IconPlus width={20} height={20} />
+                            </div>
+                            <div className="flex flex-col text-left">
+                                <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest leading-none mb-1 opacity-70">Quick Action</span>
+                                <h2 className="text-[16px] font-black leading-none text-rose-700 dark:text-rose-400 uppercase tracking-tighter">Add Leader</h2>
+                            </div>
+                        </button>
                     </div>
 
-                    {/* ── FILTER TABS ── */}
-                    <div className="tl-tabs" style={{ animation: 'tabSlide 0.4s 0.3s both', gap: '4px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '4px', color: '#94a3b8' }}><IconFilter /></div>
-                        {tlTABS.map(tab => (
-                            <button
-                                key={tab}
-                                onClick={() => setFilterTab(tab)}
-                                style={{
-                                    padding: '6px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 800,
-                                    color: filterTab === tab ? '#6366f1' : '#64748b',
-                                    borderBottom: `2px solid ${filterTab === tab ? '#6366f1' : 'transparent'}`,
-                                    transition: 'all 0.2s', marginBottom: '-1px', display: 'flex', alignItems: 'center', gap: '5px',
-                                    textTransform: 'uppercase', letterSpacing: '0.04em'
-                                }}
-                            >
-                                {tab}
-                                <span style={{ 
-                                    fontSize: '9px', 
-                                    fontWeight: 900, 
-                                    padding: '1px 6px', 
-                                    borderRadius: '999px', 
-                                    background: filterTab === tab ? (isDark ? 'rgba(99,102,241,0.12)' : '#f0f4ff') : (isDark ? '#2a3258' : '#f8fafc'), 
-                                    color: filterTab === tab ? '#818cf8' : '#94a3b8',
-                                    border: `1px solid ${filterTab === tab ? (isDark ? 'rgba(99,102,241,0.2)' : '#e0e7ff') : 'transparent'}`
-                                }}>
-                                    {tabCounts[tab]}
-                                </span>
-                            </button>
-                        ))}
+                    {/* ── FILTER TABS + SEARCH ── */}
+                    <div className="tl-tabs" style={{ animation: 'tabSlide 0.4s 0.3s both', gap: '4px', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginRight: '4px', color: '#94a3b8' }}><IconFilter /></div>
+                            {tlTABS.map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setFilterTab(tab)}
+                                    style={{
+                                        padding: '6px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 800,
+                                        color: filterTab === tab ? '#6366f1' : '#64748b',
+                                        borderBottom: `2px solid ${filterTab === tab ? '#6366f1' : 'transparent'}`,
+                                        transition: 'all 0.2s', marginBottom: '-1px', display: 'flex', alignItems: 'center', gap: '5px',
+                                        textTransform: 'uppercase', letterSpacing: '0.04em'
+                                    }}
+                                >
+                                    {tab}
+                                    <span style={{ 
+                                        fontSize: '9px', 
+                                        fontWeight: 900, 
+                                        padding: '1px 6px', 
+                                        borderRadius: '999px', 
+                                        background: filterTab === tab ? (isDark ? 'rgba(99,102,241,0.12)' : '#f0f4ff') : (isDark ? '#2a3258' : '#f8fafc'), 
+                                        color: filterTab === tab ? '#818cf8' : '#94a3b8',
+                                        border: `1px solid ${filterTab === tab ? (isDark ? 'rgba(99,102,241,0.2)' : '#e0e7ff') : 'transparent'}`
+                                    }}>
+                                        {tabCounts[tab]}
+                                    </span>
+                                </button>
+                            ))}
+                        </div>
+                        {/* Search — desktop only, inline with tabs */}
+                        <div className="tl-tabs-search" style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingBottom: '4px' }}>
+                            <div style={{ position: 'relative' }}>
+                                <svg style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                                <input
+                                    type="text"
+                                    style={{
+                                        paddingLeft: '30px', paddingRight: '12px', paddingTop: '5px', paddingBottom: '5px',
+                                        borderRadius: '10px', border: `1px solid ${isDark ? '#2c3568' : '#e2e8f0'}`,
+                                        background: isDark ? '#151932' : '#f8fafc',
+                                        fontSize: '12px', fontWeight: 600, outline: 'none', width: '180px',
+                                        color: isDark ? '#e4ecff' : '#0f172a',
+                                        transition: 'border-color 0.2s, width 0.2s',
+                                    }}
+                                    onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.width = '220px'; }}
+                                    onBlur={e => { e.target.style.borderColor = isDark ? '#2c3568' : '#e2e8f0'; e.target.style.width = '180px'; }}
+                                    placeholder="Search leaders..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* ── LEADERS LIST ── */}

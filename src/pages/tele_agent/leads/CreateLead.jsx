@@ -366,7 +366,7 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                     </div>
                 </div>
 
-                <div className="p-8 md:p-6">
+                <div className="p-8 md:p-5 sm:p-4">
 
                     {/* ── CONTACT INFORMATION ── */}
                     <div className={sectionCls}>

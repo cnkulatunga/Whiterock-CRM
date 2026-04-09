@@ -87,7 +87,7 @@ const OnlineUsersPopup = ({ onClose, onUserClick, onNavigate }) => {
 
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={onClose}>
-            <div className={`w-[560px] rounded-2xl border shadow-2xl animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-200 shadow-slate-900/15'}`} onClick={e => e.stopPropagation()}>
+            <div className={`w-full max-w-[560px] rounded-2xl border shadow-2xl animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-slate-200 shadow-slate-900/15'}`} onClick={e => e.stopPropagation()}>
                 {/* header */}
                 <div className={`flex items-center justify-between px-5 py-3.5 border-b ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50'}`}>
                     <div className="flex items-center gap-2">

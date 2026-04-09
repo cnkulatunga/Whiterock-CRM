@@ -279,48 +279,35 @@ const LenderSelection = ({ lead, onNavigate }) => {
                         </div>
                     </section>
 
-                    {/* Existing Loans */}
+                    {/* Existing Loans (Read-only) */}
                     <section className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden xl:order-4">
                         <div className="px-5 py-3 flex justify-between items-center border-b border-[#f7fafc]">
                             <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-lg bg-[#8b5cf6] text-white flex items-center justify-center">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                                 </div>
                                 <span className="text-[13px] font-semibold text-[#1a202c]">Existing Loans</span>
                             </div>
+                            <span className="text-[10px] font-semibold text-[#8b5cf6] bg-[#f5f3ff] px-2.5 py-1 rounded-lg uppercase tracking-widest border border-[#ede9fe]">FROM LEAD</span>
                         </div>
                         <div className="p-5">
-                            <div className="mb-3 p-2.5 bg-[#fef3c7] border border-[#fde68a] rounded-xl flex items-start gap-2">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="13" height="13" className="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                <p className="text-[10px] text-[#92400e] leading-relaxed">If no existing loans, state "NA"</p>
-                            </div>
-                            <div className="flex flex-col gap-3">
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-semibold text-[#718096] uppercase tracking-wider">Lender Name</label>
-                                    <input type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] font-medium text-[#1a202c] outline-none focus:border-[#2447d7] transition-all" value={existingLenderName} onChange={e => setExistingLenderName(e.target.value)} placeholder="Enter lender name or NA" />
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-semibold text-[#718096] uppercase tracking-wider">Amount Taken (K)</label>
-                                    <div className="relative">
-                                        <input type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] rounded-xl pl-3 pr-8 py-2 text-[13px] font-medium text-[#1a202c] outline-none focus:border-[#2447d7] transition-all" value={existingAmountTaken} onChange={e => setExistingAmountTaken(e.target.value)} placeholder="Enter amount" />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#2447d7]">K</span>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-semibold text-[#718096] uppercase tracking-wider">Interest Rate (%)</label>
-                                    <div className="relative">
-                                        <input type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] rounded-xl pl-3 pr-8 py-2 text-[13px] font-medium text-[#1a202c] outline-none focus:border-[#2447d7] transition-all" value={existingInterestRate} onChange={e => setExistingInterestRate(e.target.value)} placeholder="Enter rate" />
-                                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[13px] font-medium text-[#2447d7]">%</span>
-                                    </div>
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-semibold text-[#718096] uppercase tracking-wider">Monthly Repayment</label>
-                                    <input type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] font-medium text-[#1a202c] outline-none focus:border-[#2447d7] transition-all" value={existingMonthlyRepayment} onChange={e => setExistingMonthlyRepayment(e.target.value)} placeholder="Optional" />
-                                </div>
-                                <div className="flex flex-col gap-1.5">
-                                    <label className="text-[10px] font-semibold text-[#718096] uppercase tracking-wider">Term</label>
-                                    <input type="text" className="w-full bg-[#f8fafc] border border-[#edf2f7] rounded-xl px-3 py-2 text-[13px] font-medium text-[#1a202c] outline-none focus:border-[#2447d7] transition-all" value={existingTerm} onChange={e => setExistingTerm(e.target.value)} placeholder="Enter term" />
-                                </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full">
+                                    <tbody className="divide-y divide-[#f7fafc]">
+                                        {[
+                                            { label: 'Lender Name', value: existingLenderName || '—' },
+                                            { label: 'Amount Taken', value: existingAmountTaken ? `£${existingAmountTaken}` : '—' },
+                                            { label: 'Interest Rate', value: existingInterestRate ? `${existingInterestRate}%` : '—' },
+                                            { label: 'Monthly Repayment', value: existingMonthlyRepayment ? `£${existingMonthlyRepayment}` : '—' },
+                                            { label: 'Term', value: existingTerm || '—' },
+                                        ].map((row, i) => (
+                                            <tr key={i} className="hover:bg-[#f8fafc] transition-colors">
+                                                <td className="py-2.5 pr-4 text-[11px] font-semibold text-[#718096] whitespace-nowrap">{row.label}</td>
+                                                <td className="py-2.5 text-[12px] font-medium text-[#1a202c] text-right">{row.value}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </section>

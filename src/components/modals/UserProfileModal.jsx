@@ -72,7 +72,34 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
         }
     };
 
-    // Dark mode adaptive colors (falling back to Tailwind classes for existing light mode style)
+    const getStatusStyle = (status) => {
+        switch (status) {
+            case 'Document Collection':
+                return 'bg-blue-50 text-blue-600 border-blue-100';
+            case 'Document Verification Done':
+                return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+            case 'Lender Selection':
+                return 'bg-purple-50 text-purple-600 border-purple-100';
+            case 'Completed':
+            case 'Loan Confirmed':
+                return 'bg-green-50 text-green-600 border-green-100';
+            case 'Rejected':
+            case 'Loan Rejected':
+                return 'bg-red-50 text-red-600 border-red-100';
+            default:
+                return 'bg-slate-50 text-slate-500 border-slate-200';
+        }
+    };
+
+    const getProgressColor = (status) => {
+        switch (status) {
+            case 'Document Verification Done': return 'bg-emerald-500';
+            case 'Lender Selection': return 'bg-purple-500';
+            case 'Completed': case 'Loan Confirmed': return 'bg-green-500';
+            case 'Rejected': case 'Loan Rejected': return 'bg-red-400';
+            default: return 'bg-blue-500';
+        }
+    };
     const overlayBg = isDark ? 'bg-[#000000]/60' : 'bg-[#090b14]/60';
     const modalBg = isDark ? 'bg-[#1e2347] border-[#2c3568]' : 'bg-white border-white/20';
     const headerBg = isDark ? 'bg-[#151932] border-[#2c3568]' : 'bg-gradient-to-r from-gray-50/50 to-white border-gray-100';
@@ -88,34 +115,46 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
     const activeBadge = isDark ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-[#dcfce7] text-[#16a34a]';
 
     return createPortal(
-        <div className={`fixed inset-0 z-[9999] flex items-center justify-center p-4 ${overlayBg} backdrop-blur-xl animate-fadeIn transition-all duration-500`}>
+        <div className={`fixed inset-0 z-[9999] flex items-center justify-center sm:items-end p-4 sm:p-0 ${overlayBg} backdrop-blur-xl animate-fadeIn transition-all duration-500`}>
             {/* Click outside to close */}
             <div className="absolute inset-0" onClick={onClose}></div>
             
             {/* Modal Content */}
-            <div className={`relative ${modalBg} rounded-[24px] w-full max-w-[580px] max-h-[90vh] overflow-hidden shadow-2xl flex flex-col animate-slideUp border`} onClick={e => e.stopPropagation()}>
+            <div className={`relative ${modalBg} rounded-[24px] sm:rounded-b-none sm:rounded-t-[24px] w-full max-w-[720px] max-h-[90vh] sm:max-h-[92vh] overflow-hidden shadow-2xl flex flex-col animate-slideUp sm:animate-slideUp border`} onClick={e => e.stopPropagation()}>
                 {/* Header */}
-                <div className={`p-5 border-b flex justify-between items-start ${headerBg}`}>
-                    <div className="flex gap-4 items-center">
-                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-black text-white shadow-xl transform transition-transform duration-500 hover:rotate-2 flex-shrink-0"
-                             style={{ background: user.color || '#2563eb', boxShadow: `0 10px 20px ${user.color || '#2563eb'}30` }}>
-                            {user.initials || user.name?.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
-                        </div>
-                        <div className="space-y-0.5">
-                            <h2 className={`text-lg font-black tracking-tight ${textPrimary}`}>{user.name}</h2>
-                            <div className="flex items-center gap-2">
-                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${user.status === 'Active' ? activeBadge : 'bg-[#2563eb]/10 text-[#2563eb]'}`}>
-                                    {user.role} {user.status === 'Active' ? '• Active' : ''}
-                                </span>
-                                <span className={`text-[11px] font-bold ${textSecondary}`}>{user.email}</span>
+                <div className={`p-5 border-b ${headerBg}`}>
+                    {/* Mobile: drag handle */}
+                    <div className="hidden sm:flex justify-center mb-3">
+                        <div className="w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-600" />
+                    </div>
+                    <div className="flex gap-4 items-start justify-between">
+                        <div className="flex gap-3 items-center min-w-0">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-black text-white shadow-xl shrink-0"
+                                 style={{ background: user.color || '#2563eb', boxShadow: `0 10px 20px ${user.color || '#2563eb'}30` }}>
+                                {user.initials || user.name?.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase()}
+                            </div>
+                            <div className="flex flex-col gap-1 min-w-0">
+                                <h2 className={`text-lg font-black tracking-tight leading-tight ${textPrimary}`}>{user.name}</h2>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest whitespace-nowrap ${user.status === 'Active' ? activeBadge : 'bg-[#2563eb]/10 text-[#2563eb]'}`}>
+                                        {user.role}
+                                    </span>
+                                    {user.status === 'Active' && (
+                                        <span className="flex items-center gap-1 text-[10px] font-bold text-[#16a34a]">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]" />
+                                            Active
+                                        </span>
+                                    )}
+                                </div>
+                                <span className={`text-[11px] font-medium truncate ${textSecondary}`}>{user.email}</span>
                             </div>
                         </div>
+                        <button onClick={onClose} className={`p-2 rounded-xl transition-all shrink-0 ${closeBtnHover}`}>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
-                    <button onClick={onClose} className={`p-2 rounded-xl transition-all ${closeBtnHover}`}>
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
                 </div>
 
                 {/* Content */}
@@ -149,98 +188,114 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
                                         </div>
                                     )}
                             
-                            <div className="bg-white rounded-2xl border border-[#edf2f7] overflow-hidden shadow-sm">
-                                <div className="overflow-x-auto overflow-y-auto max-h-[380px] custom-scrollbar">
-                                    <table className="w-full border-collapse text-left">
-                                        <thead>
-                                            <tr className={`${headerBg} border-b`}>
-                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400">CLIENT</th>
-                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400">STATUS</th>
-                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-center">LOAN AMT</th>
-                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">PROGRESS</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-[#f7fafc]">
-                                            {userLeads.length > 0 ? (
-                                                userLeads.map((lead) => {
-                                                    const progress = calculateProgress(lead.stage || lead.status);
-                                                    return (
-                                                        <tr 
-                                                            key={lead.id} 
-                                                            onClick={() => handleLeadClick(lead)}
-                                                            className="hover:bg-[#f8faff] transition-colors cursor-pointer group"
-                                                        >
-                                                            <td className="px-4 py-2.5 min-w-[200px]">
-                                                                <div className="flex flex-col">
-                                                                    <span className={`text-[12px] font-bold group-hover:text-[#2563eb] transition-colors truncate ${textPrimary}`}>{lead.clientName || lead.name}</span>
-                                                                    <span className="text-[9px] font-bold text-slate-400 tracking-tight uppercase leading-none mt-0.5">#{lead.id}</span>
+                            <div className={`rounded-2xl border overflow-hidden shadow-sm ${isDark ? 'bg-[#1e2347] border-white/5' : 'bg-white border-[#edf2f7]'}`}>
+                                {/* Column headers — desktop only */}
+                                <div className={`grid px-4 py-2 border-b text-[9px] font-black uppercase tracking-widest text-slate-400 sm:hidden ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-[#f1f5f9] bg-[#f8fafc]'}`}
+                                    style={{ gridTemplateColumns: '1fr 180px 110px 110px' }}>
+                                    <span>Client</span>
+                                    <span>Status</span>
+                                    <span className="text-right">Loan Amt</span>
+                                    <span className="text-right">Progress</span>
+                                </div>
+                                <div className="overflow-y-auto max-h-[360px] custom-scrollbar">
+                                    {userLeads.length > 0 ? (
+                                        <div className="divide-y divide-[#f7fafc] dark:divide-white/5">
+                                            {userLeads.map((lead) => {
+                                                const progress = calculateProgress(lead.stage || lead.status);
+                                                const statusStyle = getStatusStyle(lead.status || lead.stage);
+                                                const progressColor = getProgressColor(lead.status || lead.stage);
+                                                return (
+                                                    <div
+                                                        key={lead.id}
+                                                        onClick={() => handleLeadClick(lead)}
+                                                        className={`transition-colors cursor-pointer group ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-[#f8faff]'}`}
+                                                    >
+                                                        {/* Desktop grid row */}
+                                                        <div className="sm:hidden grid items-center px-4 py-3"
+                                                            style={{ gridTemplateColumns: '1fr 180px 110px 110px' }}>
+                                                            {/* Client */}
+                                                            <div className="flex items-center gap-2.5 min-w-0">
+                                                                <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#2563eb] flex items-center justify-center text-[9px] font-black shrink-0">
+                                                                    {(lead.clientName || lead.name || '?').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
                                                                 </div>
-                                                            </td>
-                                                            <td className="px-4 py-2.5">
-                                                                <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md border uppercase tracking-wider whitespace-nowrap bg-blue-50/50 text-[#2563eb] border-blue-100/50`}>
+                                                                <div className="flex flex-col min-w-0">
+                                                                    <span className={`text-[12px] font-bold group-hover:text-[#2563eb] transition-colors truncate ${textPrimary}`}>{lead.clientName || lead.name}</span>
+                                                                    {lead.businessName && <span className="text-[10px] text-slate-500 truncate">{lead.businessName}</span>}
+                                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">#{lead.id}</span>
+                                                                </div>
+                                                            </div>
+                                                            {/* Status */}
+                                                            <div>
+                                                                <span className={`text-[9px] font-black px-2 py-0.5 rounded-md border uppercase tracking-wider inline-block max-w-full truncate ${statusStyle}`}>
                                                                     {lead.status || lead.stage}
                                                                 </span>
-                                                            </td>
-                                                            <td className="px-4 py-2.5 text-center whitespace-nowrap">
-                                                                <span className={`text-[11px] font-black ${textPrimary}`}>{lead.loanAmount || lead.amount || '—'}</span>
-                                                            </td>
-                                                            <td className="px-4 py-2.5">
-                                                                <div className="flex items-center justify-end gap-2.5">
-                                                                    <div className={`w-16 h-1.5 rounded-full overflow-hidden ${progressBg}`}>
-                                                                        <div className="h-full bg-[#2563eb] rounded-full" style={{ width: `${progress}%` }} />
-                                                                    </div>
-                                                                    <span className="text-[10px] font-black text-[#2563eb] w-7 text-right">{progress}%</span>
+                                                            </div>
+                                                            {/* Loan amount */}
+                                                            <span className={`text-[11px] font-black text-right ${textPrimary}`}>{lead.loanAmount || lead.amount || '—'}</span>
+                                                            {/* Progress */}
+                                                            <div className="flex items-center justify-end gap-1.5">
+                                                                <div className={`w-10 h-1 rounded-full overflow-hidden ${progressBg}`}>
+                                                                    <div className={`h-full rounded-full ${progressColor}`} style={{ width: `${progress}%` }} />
                                                                 </div>
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })
-                                            ) : (
-                                                <tr><td colSpan={4} className="py-16 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400 italic">No Leads Managed</td></tr>
-                                            )}
-                                        </tbody>
-                                    </table>
+                                                                <span className={`text-[10px] font-black w-6 text-right ${progressColor.replace('bg-', 'text-')}`}>{progress}%</span>
+                                                            </div>
+                                                        </div>
+                                                        {/* Mobile card */}
+                                                        <div className="hidden sm:flex flex-col gap-1.5 px-3 py-2.5">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-7 h-7 rounded-lg bg-[#eff6ff] text-[#2563eb] flex items-center justify-center text-[9px] font-black shrink-0">
+                                                                    {(lead.clientName || lead.name || '?').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
+                                                                </div>
+                                                                <div className="flex flex-col min-w-0 flex-1">
+                                                                    <span className={`text-[11px] font-bold group-hover:text-[#2563eb] transition-colors truncate ${textPrimary}`}>{lead.clientName || lead.name}</span>
+                                                                    {lead.businessName && <span className="text-[9px] text-slate-500 truncate">{lead.businessName}</span>}
+                                                                </div>
+                                                                <span className={`text-[10px] font-black shrink-0 ${textPrimary}`}>{lead.loanAmount || lead.amount || '—'}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2 pl-[36px]">
+                                                                <span className={`text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-wider whitespace-nowrap ${statusStyle}`}>
+                                                                    {lead.status || lead.stage}
+                                                                </span>
+                                                                <div className="flex items-center gap-1 ml-auto">
+                                                                    <div className={`w-10 h-1 rounded-full overflow-hidden ${progressBg}`}>
+                                                                        <div className={`h-full rounded-full ${progressColor}`} style={{ width: `${progress}%` }} />
+                                                                    </div>
+                                                                    <span className={`text-[9px] font-black ${progressColor.replace('bg-', 'text-')}`}>{progress}%</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    ) : (
+                                        <div className="py-16 text-center text-[10px] font-bold uppercase tracking-widest text-slate-400 italic">No Leads Managed</div>
+                                    )}
                                 </div>
                             </div>
                                 </>
                             ) : (
                                 <div className="bg-white rounded-2xl border border-[#edf2f7] overflow-hidden shadow-sm">
-                                    <div className="overflow-x-auto overflow-y-auto max-h-[380px] custom-scrollbar">
-                                        <table className="w-full border-collapse text-left">
-                                            <thead>
-                                                <tr className={`${headerBg} border-b`}>
-                                                    <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400">TEAM MEMBER</th>
-                                                    <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400 text-right">ACTION</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-[#f7fafc]">
-                                                {hierarchy?.members?.map((m) => {
-                                                    const fullMember = SHARED_INITIAL_USERS.find(u => u.id?.toString() === m.id?.toString()) || m;
-                                                    return (
-                                                    <tr 
-                                                        key={m.id} 
-                                                        onClick={() => onUserClick && onUserClick(fullMember)}
-                                                        className="hover:bg-[#f8faff] transition-colors cursor-pointer group"
-                                                    >
-                                                        <td className="px-4 py-3">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-sm" style={{ background: fullMember.color }}>
-                                                                    {fullMember.initials}
-                                                                </div>
-                                                                <div className="flex flex-col">
-                                                                    <span className={`text-[13px] font-black group-hover:text-[#2563eb] transition-colors ${textPrimary}`}>{fullMember.name}</span>
-                                                                    <span className="text-[10px] font-bold text-slate-400">{fullMember.email}</span>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td className="px-4 py-3 text-right">
-                                                            <span className="text-[10px] font-black text-[#2563eb] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest">View Profile →</span>
-                                                        </td>
-                                                    </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
+                                    <div className="overflow-y-auto max-h-[380px] custom-scrollbar divide-y divide-[#f7fafc]">
+                                        {hierarchy?.members?.map((m) => {
+                                            const fullMember = SHARED_INITIAL_USERS.find(u => u.id?.toString() === m.id?.toString()) || m;
+                                            return (
+                                                <div
+                                                    key={m.id}
+                                                    onClick={() => onUserClick && onUserClick(fullMember)}
+                                                    className="flex items-center gap-3 px-4 py-3 hover:bg-[#f8faff] transition-colors cursor-pointer group"
+                                                >
+                                                    <div className="w-8 h-8 rounded-xl flex items-center justify-center text-[10px] font-black text-white shrink-0 shadow-sm" style={{ background: fullMember.color }}>
+                                                        {fullMember.initials}
+                                                    </div>
+                                                    <div className="flex flex-col min-w-0 flex-1">
+                                                        <span className={`text-[13px] font-black group-hover:text-[#2563eb] transition-colors truncate ${textPrimary}`}>{fullMember.name}</span>
+                                                        <span className="text-[10px] font-bold text-slate-400 truncate">{fullMember.email}</span>
+                                                    </div>
+                                                    <span className="text-[10px] font-black text-[#2563eb] opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-widest shrink-0">View →</span>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             )}
@@ -249,7 +304,7 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
                 </div>
 
                 {/* Footer: Compact Team Context + Action */}
-                <div className={`p-4 px-6 border-t flex justify-between items-center ${footerBg}`}>
+                <div className={`p-4 px-6 border-t flex justify-between items-center gap-3 flex-wrap ${footerBg}`}>
                     <div className="flex items-center gap-6">
                         {hierarchy?.reportsTo && (
                             <div 
@@ -293,7 +348,7 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
                         )}
                     </div>
 
-                    <button onClick={onClose} className="px-6 py-2.5 bg-[#2563eb] text-white rounded-xl text-[12px] font-black hover:bg-[#1d4ed8] transition-all shadow-lg active:scale-95 uppercase tracking-wider">
+                    <button onClick={onClose} className="px-6 py-2.5 bg-[#2563eb] text-white rounded-xl text-[12px] font-black hover:bg-[#1d4ed8] transition-all shadow-lg active:scale-95 uppercase tracking-wider sm:w-full sm:text-center">
                         Close Profile
                     </button>
                 </div>
