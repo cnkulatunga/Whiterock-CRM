@@ -283,61 +283,108 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 return (
                     <div className="flex flex-col gap-3">
                         {myLeads.length > 0 ? (
-                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto custom-scrollbar shadow-sm">
-                                <table className="w-full text-left border-collapse min-w-[800px] sm:min-w-[1000px]">
-                                    <thead>
-                                        <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Contact Name</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Business Name</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Loan Amount</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                                        {myLeads.map((lead, idx) => (
-                                            <tr
-                                                key={lead.id}
-                                                onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
-                                                className="group cursor-pointer bg-white dark:bg-transparent hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-all"
-                                            >
-                                                <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
-                                                            {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                                                        </div>
-                                                        <span className="text-[12px] font-bold text-[#0061ff] dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">{lead.name}</span>
+                            <>
+                                {/* Mobile Card View */}
+                                <div className="hidden sm:flex flex-col gap-3">
+                                    {myLeads.map((lead) => (
+                                        <div 
+                                            key={lead.id} 
+                                            onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
+                                            className={`p-4 rounded-2xl border flex flex-col gap-3 active:scale-[0.98] transition-all ${isDark ? 'bg-white/5 border-white/5 shadow-xl' : 'bg-white border-slate-100 shadow-sm'}`}
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[11px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
+                                                        {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                                     </div>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                                        <IconMail width="13" height="13" className="text-slate-300 dark:text-slate-600" />
-                                                        <span className="truncate max-w-[160px]">{lead.email || '—'}</span>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[14px] font-black text-[#0061ff] dark:text-blue-400 leading-tight">{lead.name}</span>
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">#{lead.id}</span>
                                                     </div>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                                        <IconPhone width="13" height="13" className="text-slate-300 dark:text-slate-600" />
-                                                        <span>{lead.phone || '—'}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <span className="text-[12px] font-semibold text-slate-700 dark:text-slate-300">{lead.businessName || '—'}</span>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <span className="text-[12px] font-black text-emerald-600 dark:text-emerald-400">{lead.loanAmount || '—'}</span>
-                                                </td>
-                                                <td className="px-4 py-3 text-center">
-                                                    {getStatusBadge(lead.status)}
-                                                </td>
+                                                </div>
+                                                {getStatusBadge(lead.status)}
+                                            </div>
+                                            
+                                            <div className="grid grid-cols-2 gap-2 py-2 border-y border-slate-50 dark:border-white/5">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Business</span>
+                                                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate">{lead.businessName || '—'}</span>
+                                                </div>
+                                                <div className="flex flex-col gap-0.5 items-end text-right">
+                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Amount</span>
+                                                    <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400">{lead.loanAmount || '—'}</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                                                <div className="flex items-center gap-1.5 truncate">
+                                                    <IconMail width="12" height="12" /> {lead.email || '—'}
+                                                </div>
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    <IconPhone width="12" height="12" /> {lead.phone || '—'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Desktop Table View */}
+                                <div className="sm:hidden rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto custom-scrollbar shadow-sm">
+                                    <table className="w-full text-left border-collapse min-w-[800px] sm:min-w-[1000px]">
+                                        <thead>
+                                            <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Contact Name</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Business Name</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Loan Amount</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Status</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                            {myLeads.map((lead, idx) => (
+                                                <tr
+                                                    key={lead.id}
+                                                    onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
+                                                    className="group cursor-pointer bg-white dark:bg-transparent hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-all"
+                                                >
+                                                    <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2.5">
+                                                            <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
+                                                                {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                            </div>
+                                                            <span className="text-[12px] font-bold text-[#0061ff] dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">{lead.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                            <IconMail width="13" height="13" className="text-slate-300 dark:text-slate-600" />
+                                                            <span className="truncate max-w-[160px]">{lead.email || '—'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                            <IconPhone width="13" height="13" className="text-slate-300 dark:text-slate-600" />
+                                                            <span>{lead.phone || '—'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className="text-[12px] font-semibold text-slate-700 dark:text-slate-300">{lead.businessName || '—'}</span>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className="text-[12px] font-black text-emerald-600 dark:text-emerald-400">{lead.loanAmount || '—'}</span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        {getStatusBadge(lead.status)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
                         ) : (
                             <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
                                 No leads assigned yet
