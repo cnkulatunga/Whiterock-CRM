@@ -530,7 +530,7 @@ const UserManagement = () => {
                                     className={`bg-white rounded-2xl border border-[#edf2f7] shadow-sm px-4 py-3.5 flex flex-col gap-2.5 hover:shadow-md hover:border-[#e0e7ff] transition-all animate-rowIn ${user.status === 'Inactive' ? 'opacity-60' : ''}`}
                                     style={{ animationDelay: `${i * 45}ms`, animationFillMode: 'both' }}
                                 >
-                                    {/* Top: avatar + name/email */}
+                                    {/* Top: avatar + name/email + actions */}
                                     <div className="flex items-center gap-3">
                                         <div
                                             className="w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black shrink-0 shadow-sm cursor-pointer hover:scale-105 transition-transform"
@@ -543,15 +543,8 @@ const UserManagement = () => {
                                             <span className="text-[13px] font-bold text-[#1a202c] truncate group-hover:text-[#2447d7] transition-colors leading-tight">{user.name}</span>
                                             <span className="text-[11px] text-[#a0aec0] font-medium truncate leading-tight mt-0.5">{user.email}</span>
                                         </div>
-                                    </div>
-                                    {/* Bottom: role + status + actions */}
-                                    <div className="flex items-center gap-2 pl-[52px]">
-                                        <span className={`text-[9px] font-black px-2.5 py-1 rounded-lg border uppercase tracking-wider whitespace-nowrap ${user.roleColor}`}>{user.role}</span>
-                                        <div className={`flex items-center gap-1.5 text-[11px] font-bold ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#94a3b8]'}`}>
-                                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#94a3b8]'}`} />
-                                            {user.status}
-                                        </div>
-                                        <div className="flex items-center gap-1.5 ml-auto">
+                                        {/* Actions — always visible, right-aligned */}
+                                        <div className="flex items-center gap-1 shrink-0">
                                             <button className="w-8 h-8 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#2447d7] hover:text-white hover:border-[#2447d7] transition-all" title="Edit" onClick={() => setEditingUser(user)}><IconEdit /></button>
                                             <button className="w-8 h-8 rounded-xl bg-[#f8fafc] border border-[#edf2f7] text-[#4a5568] flex items-center justify-center hover:bg-[#dc2626] hover:text-white hover:border-[#dc2626] transition-all" title="Delete" onClick={() => handleDelete(user)}><IconTrash /></button>
                                             <button
@@ -561,6 +554,14 @@ const UserManagement = () => {
                                             >
                                                 {user.status === 'Active' ? <IconBan /> : <IconActivate />}
                                             </button>
+                                        </div>
+                                    </div>
+                                    {/* Bottom: role + status */}
+                                    <div className="flex items-center gap-2 pl-[52px]">
+                                        <span className={`text-[9px] font-black px-2.5 py-1 rounded-lg border uppercase tracking-wider whitespace-nowrap ${user.roleColor}`}>{user.role}</span>
+                                        <div className={`flex items-center gap-1.5 text-[11px] font-bold ${user.status === 'Active' ? 'text-[#059669]' : 'text-[#94a3b8]'}`}>
+                                            <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${user.status === 'Active' ? 'bg-[#059669]' : 'bg-[#94a3b8]'}`} />
+                                            {user.status}
                                         </div>
                                     </div>
                                 </div>

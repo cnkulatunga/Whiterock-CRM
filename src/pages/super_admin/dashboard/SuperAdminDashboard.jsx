@@ -761,10 +761,12 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_B
     };
 
     return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={e => e.target === e.currentTarget && onClose()}>
-            <div className={`rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-fadeIn ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center sm:items-end bg-black/50 backdrop-blur-sm p-4 sm:p-0" onClick={e => e.target === e.currentTarget && onClose()}>
+            <div className={`rounded-2xl sm:rounded-b-none sm:rounded-t-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] sm:max-h-[92vh] flex flex-col overflow-hidden animate-fadeIn ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}>
                 {/* header */}
                 <div className={`flex items-center justify-between px-5 py-3.5 border-b shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
+                    {/* drag handle on mobile */}
+                    <div className="hidden sm:flex absolute top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-slate-300" />
                     <div className="flex items-center gap-2">
                         <div className="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center">
                             <IconBook width="14" height="14" className="text-teal-600" />
@@ -791,9 +793,10 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_B
                         ))}
                     </div>
                 </div>
-                {/* body */}
-                <div className="flex flex-1 min-h-0">
-                    <div className={`w-56 shrink-0 border-r overflow-y-auto p-2 flex flex-col gap-1 ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                {/* body — side by side on desktop, stacked on mobile */}
+                <div className="flex sm:flex-col flex-1 min-h-0">
+                    {/* Document list */}
+                    <div className={`w-56 sm:w-full shrink-0 border-r sm:border-r-0 sm:border-b overflow-y-auto p-2 flex flex-col gap-1 sm:max-h-[180px] ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
                         {filtered.map(doc => {
                             const c = TAG_COLORS[doc.tag];
                             return (
@@ -809,7 +812,8 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_B
                         })}
                         {filtered.length === 0 && <p className={`text-[10px] text-center py-6 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>No results</p>}
                     </div>
-                    <div className="flex-1 overflow-y-auto p-4">
+                    {/* Preview panel */}
+                    <div className="flex-1 overflow-y-auto p-4 min-h-0">
                         {selected ? (
                             <div className="flex flex-col gap-3">
                                 <div>
@@ -818,7 +822,11 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_B
                                 </div>
                                 {renderPreview(selected)}
                             </div>
-                        ) : null}
+                        ) : (
+                            <div className={`h-full flex items-center justify-center text-[10px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>
+                                Select a document to preview
+                            </div>
+                        )}
                     </div>
                 </div>
                 {/* footer */}
@@ -1048,15 +1056,15 @@ const SidebarBtn = ({ icon, label, sub, iconBg, textColor, borderColor, onClick,
         <button
             onClick={onClick}
             disabled={disabled}
-            className={`w-full xl:flex-1 flex flex-col items-center justify-center gap-1.5 px-1 py-2 rounded-xl border transition-all hover:scale-[1.02] active:scale-[0.98] ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'} ${isDark ? 'bg-[#1e2347] border-white/5 hover:bg-[#242b58]' : `bg-white ${borderColor} hover:bg-slate-50`}`}
+            className={`w-full flex flex-col items-center justify-center gap-1.5 px-1 py-2.5 rounded-xl border transition-all hover:scale-[1.02] active:scale-[0.98] ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:shadow-md'} ${isDark ? 'bg-[#1e2347] border-white/5 hover:bg-[#242b58]' : `bg-white ${borderColor} hover:bg-slate-50`}`}
             style={{ minHeight: '72px' }}
         >
-            <div className={`w-9 h-9 xl:w-8 xl:h-8 rounded-xl ${iconBg} flex items-center justify-center shadow-sm shrink-0`}>
+            <div className={`w-9 h-9 rounded-xl ${iconBg} flex items-center justify-center shadow-sm shrink-0`}>
                 {React.cloneElement(icon, { width: 18, height: 18 })}
             </div>
             <div className="text-center px-1">
-                <p className={`text-[10px] xl:text-[9px] font-black ${textColor} leading-tight`}>{label}</p>
-                <p className={`text-[7.5px] xl:text-[7px] uppercase tracking-wider mt-0.5 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{sub}</p>
+                <p className={`text-[10px] font-black ${textColor} leading-tight`}>{label}</p>
+                <p className={`text-[7.5px] uppercase tracking-wider mt-0.5 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{sub}</p>
             </div>
         </button>
     );
@@ -1116,7 +1124,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                 </div>
 
                 {/* ── RIGHT SIDEBAR — quick-launch buttons ── */}
-                <div className="w-[85px] xl:w-full shrink-0 flex flex-col xl:flex-row xl:flex-wrap gap-1.5 xl:gap-2 self-start min-h-0">
+                <div className="w-[85px] xl:w-full shrink-0 flex flex-col xl:grid xl:grid-cols-4 lg:grid-cols-4 md:grid-cols-4 sm:grid-cols-4 gap-1.5 xl:gap-2 self-start min-h-0">
                     <SidebarBtn
                         icon={<IconMSTeams width="22" height="22" className="text-white" />}
                         label="MS Teams"
