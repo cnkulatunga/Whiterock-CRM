@@ -167,17 +167,6 @@ const AppLayout = ({ onLogout }) => {
                         </p>
                     </div>
 
-                    {location.pathname.includes('dashboard') && (
-                        <div className="flex items-center gap-2 ml-4 lg:hidden animate-fadeIn">
-                             <div className="flex flex-col items-start translate-y-0.5">
-                                <span className="text-[9px] font-black text-[#2447d7] uppercase tracking-[0.15em] bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1.5 shadow-sm">
-                                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(36,71,215,0.4)]" />
-                                    Live Processing
-                                </span>
-                            </div>
-                        </div>
-                    )}
-
                     <div className="flex-1" />
                     <div className="flex items-center gap-4 lg:gap-2">
                         {/* Notification Bell */}

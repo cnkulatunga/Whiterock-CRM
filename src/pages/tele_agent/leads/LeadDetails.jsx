@@ -25,22 +25,24 @@ const IconTrash  = ({ size = 14 }) => <svg viewBox="0 0 24 24" fill="none" strok
 /* ── reusable table row ── */
 const Row = ({ label, value, span, highlight }) => (
     <tr className={`border-b border-[#f1f5f9] dark:border-white/5 last:border-0 group transition-colors ${highlight ? 'bg-[#f8faff] dark:bg-white/[0.02]' : 'hover:bg-[#fafbff] dark:hover:bg-white/[0.01]'}`}>
-        <td className="py-2.5 pr-3 pl-4 text-[10px] sm:text-[9px] font-bold text-[#94a3b8] uppercase tracking-wider whitespace-normal w-[40%] align-top leading-tight group-hover:text-[#2447d7] transition-colors">{label}</td>
-        <td className={`py-2.5 pr-4 text-[12px] font-semibold text-[#1a202c] dark:text-white break-words max-w-0 ${span ? 'col-span-2' : ''}`}>{value || <span className="text-[#cbd5e1]">—</span>}</td>
+        <td className="py-2.5 sm:py-2 pr-3 pl-4 sm:pl-3 text-[10px] sm:text-[8px] font-bold text-[#94a3b8] uppercase tracking-wider whitespace-normal w-[40%] align-top leading-tight group-hover:text-[#2447d7] transition-colors">{label}</td>
+        <td className={`py-2.5 sm:py-2 pr-4 sm:pr-3 text-[12px] sm:text-[11px] font-semibold text-[#1a202c] dark:text-white break-words max-w-0 ${span ? 'col-span-2' : ''}`}>{value || <span className="text-[#cbd5e1]">—</span>}</td>
     </tr>
 );
 
 /* ── section card ── */
 const Card = ({ icon, iconBg, iconColor, title, children, action }) => (
-    <div className="bg-white dark:bg-[#1e2347] rounded-2xl border border-[#edf2f7] dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-[#f1f5f9] dark:border-white/5 bg-gradient-to-r from-white to-[#fbfcfe] dark:from-[#1e2347] dark:to-[#1e2347]/50">
-            <div className="flex items-center gap-3">
-                <span className={`w-8 h-8 ${iconBg} ${iconColor} rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-white/50 dark:border-white/10`}>{icon}</span>
-                <span className="text-[13px] font-black text-[#1a202c] dark:text-white uppercase tracking-wide">{title}</span>
+    <div className="bg-white dark:bg-[#1e2347] rounded-2xl border border-[#edf2f7] dark:border-white/5 shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col h-full">
+        <div className="flex items-center justify-between px-5 py-3.5 sm:px-4 sm:py-3 border-b border-[#f1f5f9] dark:border-white/5 bg-gradient-to-r from-white to-[#fbfcfe] dark:from-[#1e2347] dark:to-[#1e2347]/50">
+            <div className="flex items-center gap-3 sm:gap-2">
+                <span className={`w-8 h-8 sm:w-7 sm:h-7 ${iconBg} ${iconColor} rounded-xl sm:rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm border border-white/50 dark:border-white/10`}>
+                    {React.cloneElement(icon, { size: 14 })}
+                </span>
+                <span className="text-[13px] sm:text-[11px] font-black text-[#1a202c] dark:text-white uppercase tracking-wide truncate">{title}</span>
             </div>
-            {action}
+            {action && <div className="shrink-0">{action}</div>}
         </div>
-        <div>
+        <div className="flex-1">
             {children}
         </div>
     </div>
@@ -202,51 +204,52 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
         <div className="flex flex-col gap-4 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* ── HEADER ── */}
-            <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3 min-w-0 w-full">
                     <button 
                         onClick={onBack} 
-                        className="p-2 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-50 dark:hover:bg-white/10 transition-all text-slate-500 shrink-0 active:scale-95"
+                        className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-50 dark:hover:bg-white/10 transition-all text-slate-500 shrink-0 active:scale-95"
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="16" height="16"><polyline points="15 18 9 12 15 6" /></svg>
                     </button>
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2.5 flex-wrap">
-                            <h1 className="text-3xl sm:text-lg font-black text-[#1a202c] dark:text-white tracking-tighter bg-gradient-to-br from-[#1a202c] to-[#4a5568] dark:from-white dark:to-slate-400 bg-clip-text text-transparent">{leadId}</h1>
-                            <span className={`px-4 py-1.5 rounded-full text-[10px] sm:text-[9px] font-black uppercase tracking-widest border shadow-lg shadow-current/10 transition-all backdrop-blur-md animate-popIn ${statusCls}`}>
-                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-2 animate-pulse" />
+                    <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h1 className="text-2xl sm:text-xl font-black text-[#1a202c] dark:text-white tracking-tighter bg-gradient-to-br from-[#1a202c] to-[#4a5568] dark:from-white dark:to-slate-400 bg-clip-text text-transparent truncate">{leadId}</h1>
+                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm transition-all backdrop-blur-md ${statusCls}`}>
+                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
                                 {currentStatus}
                             </span>
                         </div>
-                        <div className="flex items-center gap-2 mt-1 flex-wrap">
-                            <p className="text-[11px] text-[#94a3b8] font-medium">
-                                Created <span className="text-[#4a5568] dark:text-slate-300 font-bold">{lead.submissionDate || lead.date || '—'}</span>
-                            </p>
-                            <span className="w-1 h-1 rounded-full bg-slate-300 sm:hidden" />
-                            <p className="text-[11px] text-[#94a3b8] font-medium">
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-[10px] text-[#94a3b8] font-medium uppercase tracking-tight">
                                 Agent: <span className="text-[#2447d7] dark:text-blue-400 font-bold">{lead.agentName || lead.agent || '—'}</span>
+                            </p>
+                            <span className="w-0.5 h-3 bg-slate-200 dark:bg-white/10 hidden sm:block" />
+                            <p className="text-[10px] text-[#94a3b8] font-medium uppercase tracking-tight">
+                                ID: <span className="text-[#4a5568] dark:text-slate-300 font-bold">{lead.id}</span>
                             </p>
                         </div>
                     </div>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
                     {onNavigate && currentStatus === 'Document Verification Done' && 
                      (isManagerOrAbove || isTeamLeader) && 
                      !(lead.documents || []).some(d => d.status === 'Rejected') && (
                         <button
                             onClick={() => onNavigate('lender_selection', lead)}
-                            className="flex items-center gap-1.5 bg-[#10b981] hover:bg-[#059669] text-white px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all hover:-translate-y-0.5 active:scale-95"
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
                         >
-                            <IconBank size={13} /> <span className="sm:hidden">Lender Selection</span><span className="hidden sm:inline">Lender</span>
+                            <IconBank size={14} /> Lender Selection
                         </button>
                     )}
                     {isManagerOrAbove && (
-                        <button onClick={() => setShowEditModal(true)} className="flex items-center gap-1.5 bg-[#f0f4ff] dark:bg-white/5 text-[#2447d7] dark:text-blue-400 px-3 py-2 rounded-xl text-xs font-bold hover:bg-[#2447d7] hover:text-white dark:hover:bg-blue-500 transition-all border border-transparent dark:border-white/10">
-                            <IconPencil size={13} /> Edit
+                        <button onClick={() => setShowEditModal(true)} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-[#f0f4ff] dark:bg-white/5 text-[#2447d7] dark:text-blue-400 px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#2447d7] hover:text-white dark:hover:bg-blue-500 transition-all border border-transparent dark:border-white/10">
+                            <IconPencil size={14} /> Edit
                         </button>
                     )}
                 </div>
             </div>
+
 
             {/* ── PROGRESS BAR ── */}
             <div className="bg-white dark:bg-[#1e2347] rounded-xl border border-[#edf2f7] dark:border-white/5 px-4 py-4 shadow-sm">

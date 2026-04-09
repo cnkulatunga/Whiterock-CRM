@@ -369,7 +369,11 @@ const Notes = () => {
                 </div>
                 {/* list */}
                 <div className="flex-1 overflow-y-auto min-h-0 p-3 flex flex-col gap-2 custom-scrollbar"
-                    style={{ scrollbarWidth: 'thin', scrollbarColor: isDark ? '#92400e transparent' : '#fde68a transparent' }}>
+                    style={{ 
+                        maxHeight: '280px',
+                        scrollbarWidth: 'thin', 
+                        scrollbarColor: isDark ? '#92400e transparent' : '#fde68a transparent' 
+                    }}>
                     {notesList.length === 0 ? (
                         <div className={`text-[10px] italic text-center mt-4 border border-dashed p-4 rounded-xl ${isDark ? 'text-yellow-500/40 border-yellow-700/30' : 'text-yellow-700/40 border-yellow-200'}`}>No notes yet. Type below to start!</div>
                     ) : [...notesList].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)).map(note => (
