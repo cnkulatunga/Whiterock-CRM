@@ -27,24 +27,29 @@ const IconFile = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="current
 const IconPin = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="12" height="12" {...props}><path d="M21 4.5a2.5 2.5 0 0 0-2.5-2.5h-13a2.5 2.5 0 0 0-2.5 2.5V8c0 1.25.9 2.3 2.1 2.5l2.4.4V14l-1.5 1.5 1.5 1.5 1.5-1.5L10 14V10.9l2.4-.4c1.2-.2 2.1-1.25 2.1-2.5V4.5z" /></svg>;
 const IconBook = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20" {...props}><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>;
 const IconSearch = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16" {...props}><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>;
+const IconPlus = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" {...props}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>;
+const IconActivity = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" {...props}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /></svg>;
 
 
 /* ─── MODAL COMPONENT ─── */
 const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false, isWide = false }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-xl rounded-2xl'}`}>
-                <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors shrink-0">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center sm:items-end p-4 sm:p-0">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn sm:animate-slideUp ${isFullScreen ? 'h-[98vh] sm:h-[95vh] max-w-[98vw] sm:max-w-full rounded-3xl sm:rounded-t-3xl sm:rounded-b-none' : isWide ? 'max-w-[90vw] sm:max-w-full rounded-2xl sm:rounded-t-2xl sm:rounded-b-none' : 'max-w-xl sm:max-w-full rounded-2xl sm:rounded-t-2xl sm:rounded-b-none'}`}>
+                {/* Mobile Drag Handle */}
+                <div className="hidden sm:block w-12 h-1.5 bg-slate-300 dark:bg-slate-700 rounded-full mx-auto mt-3 mb-1 shrink-0" />
+                
+                <div className="flex justify-between items-center p-5 sm:p-4 border-b border-gray-100 dark:border-white/5 shrink-0">
+                    <h3 className="text-xl sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight">{title}</h3>
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
                             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                     </button>
                 </div>
-                <div className={`p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : 'max-h-[80vh] custom-scrollbar'}`}>
+                <div className={`p-5 sm:p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : 'max-h-[80vh] sm:max-h-[90vh] custom-scrollbar'}`}>
                     {children}
                 </div>
             </div>
@@ -278,8 +283,8 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 return (
                     <div className="flex flex-col gap-3">
                         {myLeads.length > 0 ? (
-                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-hidden shadow-sm">
-                                <table className="w-full text-left border-collapse">
+                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto custom-scrollbar shadow-sm">
+                                <table className="w-full text-left border-collapse min-w-[800px] sm:min-w-[1000px]">
                                     <thead>
                                         <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
                                             <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
@@ -431,8 +436,8 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             <div className="text-[20px] font-black dark:text-white uppercase tracking-tight">Active Follow-ups</div>
                         </div>
                         {localTasks.length > 0 ? (
-                            <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
-                                <table className="w-full text-left border-collapse min-w-[1200px]">
+                            <div className="overflow-x-auto custom-scrollbar rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
+                                <table className="w-full text-left border-collapse min-w-[1000px] lg:min-w-[1200px]">
                                     <thead>
                                         <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
                                             <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
@@ -804,15 +809,15 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         </div>
 
                         {/* Split Body */}
-                        <div className="flex flex-1 min-h-0 gap-4">
+                        <div className="flex sm:flex-col flex-1 min-h-0 gap-4 sm:gap-6 overflow-hidden">
                             {/* List */}
-                            <div className="w-1/3 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar">
+                            <div className="w-1/3 sm:w-full flex-shrink-0 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar sm:max-h-[220px] sm:pr-0">
                                 {filtered.map(doc => {
                                     const c = TAG_COLORS[doc.tag] || TAG_COLORS.blue;
                                     return (
                                         <button 
                                             key={doc.id} onClick={() => setKbSelectedDoc(doc)}
-                                            className={`p-3 rounded-xl border text-left transition-all group ${kbSelectedDoc?.id === doc.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500/50 ring-2 ring-blue-500/10' : 'bg-white dark:bg-transparent border-slate-100 dark:border-white/5 hover:border-blue-300 dark:hover:border-blue-500/30'}`}
+                                            className={`p-3 rounded-xl border text-left transition-all group shrink-0 ${kbSelectedDoc?.id === doc.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500/50 ring-2 ring-blue-500/10' : 'bg-white dark:bg-transparent border-slate-100 dark:border-white/5 hover:border-blue-300 dark:hover:border-blue-500/30'}`}
                                         >
                                             <div className="flex items-center gap-2 mb-1.5">
                                                 <div className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
@@ -826,7 +831,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             </div>
 
                             {/* Preview */}
-                            <div className="flex-1 bg-slate-50 dark:bg-[#151932] rounded-2xl border border-slate-100 dark:border-white/5 overflow-y-auto custom-scrollbar relative">
+                            <div className="flex-1 min-h-0 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-white/5 overflow-y-auto custom-scrollbar relative">
                                 {kbSelectedDoc ? (
                                     <div className="p-6">
                                         <div className="flex justify-between items-start mb-6">
@@ -859,58 +864,62 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     };
 
     return (
-        <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-auto lg:min-h-[calc(100vh-116px)] sm:min-h-[calc(100vh-108px)]">
+        <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-auto lg:min-h-0">
 
             {/* STRICT SINGLE SCREEN GRID (Row 1: Tiles, Row 2: Main Stacks) */}
-            <div className="grid grid-cols-7 grid-rows-[min-content_1fr] flex-1 gap-4 min-h-0 w-full mb-1 lg:grid-cols-2 lg:grid-rows-none sm:grid-cols-1">
+            <div className="grid grid-cols-7 xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 sm:grid-cols-2 gap-3 min-h-0 w-full mb-1">
 
-                {/* === ROW 1: 7 SMALL SQUARES === (Cols 1 to 7) */}
-                <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">
+                {/* === ROW 1: SMALL TILES === */}
+                <div onClick={() => setActiveModal('LEAD_COUNT')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 lg:p-4 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUserGroup width="24" height="24" /></div>
+                    <h2 className="text-2xl lg:text-3xl font-black leading-none text-blue-700 dark:text-blue-300">
                         {(leads || []).filter(l => l.assignedStaffId === user.id && l.status !== 'Completed').length.toLocaleString()}
                     </h2>
-                    <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MY LEAD COUNT</span>
+                    <span className="text-[10px] lg:text-[11px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">LEADS</span>
                 </div>
 
-                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-orange-100/40 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200 dark:border-orange-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-orange-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-orange-500/20"><IconClock width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{tasks.length}</h2>
-                    <span className="text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest">MY FOLLOWUPS</span>
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-orange-100/40 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200 dark:border-orange-500/30 p-3 lg:p-4 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-orange-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-orange-500/20"><IconClock width="24" height="24" /></div>
+                    <h2 className="text-2xl lg:text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{tasks.length}</h2>
+                    <span className="text-[10px] lg:text-[11px] font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest">TASKS</span>
                 </div>
 
-                <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconFolder width="24" height="24" /></div>
-                    <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">
+                <div onClick={() => setActiveModal('PENDING_DOCS')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 lg:p-4 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconFolder width="24" height="24" /></div>
+                    <h2 className="text-2xl lg:text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">
                         {(leads || []).filter(l => l.assignedStaffId === user.id && (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))).length}
                     </h2>
-                    <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">PENDING DOCUMENTS</span>
+                    <span className="text-[10px] lg:text-[11px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">DOCS</span>
                 </div>
 
-                <div onClick={() => onNavigate('create-lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20"><IconUserGroup width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">CREATE<br />LEAD</h2>
+                <div onClick={() => onNavigate('create-lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 lg:p-4 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20"><IconPlus /></div>
+                    <h2 className="text-[12px] lg:text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">CREATE<br />LEAD</h2>
                 </div>
 
-                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center mb-1 shadow-md shadow-amber-500/20"><IconBulb width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-amber-700 dark:text-amber-400">KNOWLEDGE<br />BASE</h2>
+                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 lg:p-4 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-amber-500 text-white flex items-center justify-center mb-1 shadow-md shadow-amber-500/20"><IconBulb width="24" height="24" /></div>
+                    <h2 className="text-[12px] lg:text-[14px] font-black leading-tight text-amber-700 dark:text-amber-400">KNOWLEDGE<br />BASE</h2>
                 </div>
 
-                <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer aspect-square lg:aspect-auto lg:min-h-[112px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-md shadow-[#5b5fc7]/30"><IconTeams width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">CONNECT<br />TEAMS</h2>
+                <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 lg:p-4 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer text-center hover:-translate-y-0.5 transition-transform">
+                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-md shadow-[#5b5fc7]/30"><IconTeams width="24" height="24" /></div>
+                    <h2 className="text-[12px] lg:text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">MICROSOFT<br />TEAMS</h2>
                 </div>
 
-                <div className="bg-slate-100/30 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm aspect-square lg:aspect-auto lg:min-h-[112px] text-center relative overflow-hidden grayscale opacity-70">
-                    <div className="w-11 h-11 rounded-full bg-slate-400 text-white flex items-center justify-center mb-1 shadow-md relative z-10"><IconBulb width="24" height="24" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-slate-500 dark:text-slate-400 relative z-10">AI<br />ANALYTICS</h2>
+                <div className="bg-slate-100/30 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10 p-3 lg:p-4 flex flex-col justify-center items-center gap-1.5 shadow-sm text-center relative overflow-hidden grayscale opacity-70 col-span-1 sm:col-span-2">
+                    <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-slate-400 text-white flex items-center justify-center mb-1 shadow-md relative z-10"><IconActivity /></div>
+                    <h2 className="text-[12px] lg:text-[14px] font-black leading-tight text-slate-500 dark:text-slate-400 relative z-10">AI<br />ANALYTICS</h2>
                     <div className="absolute top-2 -right-6 w-24 bg-[#ff4d4d] text-white text-[8px] font-black py-0.5 rotate-45 transform flex items-center justify-center shadow-lg border-y border-white/20 z-20">
                         SOON
                     </div>
                 </div>
 
-                {/* === ROW 2: COLUMN STACKS === */}
+            </div>
+
+            {/* === MAIN CONTENT GRIDS === */}
+            <div className="grid grid-cols-7 lg:grid-cols-2 sm:grid-cols-1 gap-4 flex-1 min-h-0">
+
 
                 {/* STACK 1: TIMELINE (Cols 1-2) */}
                 <div className="col-span-2 lg:col-span-2 sm:col-span-1 flex flex-col min-h-0 shadow-sm overflow-hidden bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5">

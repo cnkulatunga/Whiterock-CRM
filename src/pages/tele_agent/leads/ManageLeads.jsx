@@ -215,16 +215,16 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
     return (
         <>
             {/* Pipeline KPI Cards */}
-            <div className={`grid ${pipelineStats.length === 4 ? 'grid-cols-4' : 'grid-cols-3'} gap-4 lg:grid-cols-2 sm:grid-cols-1 animate-fadeIn font-['Sora',sans-serif] mb-4`}>
+            <div className={`grid ${pipelineStats.length === 4 ? 'grid-cols-4 md:grid-cols-2' : 'grid-cols-3 md:grid-cols-2'} sm:grid-cols-1 gap-3 lg:gap-4 animate-fadeIn font-['Sora',sans-serif] mb-4`}>
                 {pipelineStats.map((stat, i) => (
-                    <div key={i} className={`rounded-xl border p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ${stat.bg}`}>
-                        <div className="flex items-center gap-3">
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform shrink-0 ${stat.iconBg}`}>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="16" height="16">{stat.icon}</svg>
+                    <div key={i} className={`rounded-xl border p-2.5 sm:p-3 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all group ${stat.bg}`}>
+                        <div className="flex items-center gap-2.5 sm:gap-3">
+                            <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform shrink-0 ${stat.iconBg}`}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="14" height="14" className="sm:w-4 sm:h-4">{stat.icon}</svg>
                             </div>
                             <div className="min-w-0">
-                                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{stat.label}</div>
-                                <div className="text-base font-black text-slate-900 dark:text-white leading-none">{stat.value}</div>
+                                <div className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mb-1">{stat.label}</div>
+                                <div className="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-none">{stat.value}</div>
                             </div>
                         </div>
                     </div>
@@ -232,13 +232,13 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
             </div>
 
             <div className={`rounded-2xl border overflow-hidden animate-slideUp [animation-delay:150ms] [animation-fill-mode:both] ${isDark ? 'bg-[#1e2347] border-white/5 shadow-2xl' : 'bg-white border-[#edf2f7] shadow-sm'}`}>
-                <div className={`p-6 flex justify-between items-center border-b flex-wrap gap-4 md:p-4 ${isDark ? 'border-white/5' : 'border-[#f7fafc]'}`}>
-                    <h2 className={`text-[15px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-[#1a202c]'}`}>Lead Directory</h2>
-                    <div className="flex items-center gap-3 flex-wrap">
+                <div className={`p-4 sm:p-6 flex flex-col lg:flex-row justify-between lg:items-center border-b gap-4 ${isDark ? 'border-white/5' : 'border-[#f7fafc]'}`}>
+                    <h2 className={`text-sm sm:text-[15px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-[#1a202c]'}`}>Lead Directory</h2>
+                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
                         {/* Status Filter */}
-                        <div className="relative">
+                        <div className="relative grow sm:grow-0">
                             <select
-                                className={`appearance-none rounded-[12px] px-4 py-2 text-[12px] font-bold outline-none cursor-pointer border transition-all pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
+                                className={`w-full appearance-none rounded-xl px-3 sm:px-4 py-2 text-[11px] sm:text-[12px] font-bold outline-none cursor-pointer border transition-all pr-8 sm:pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
                                 value={statusFilter}
                                 onChange={(e) => {
                                     setStatusFilter(e.target.value);
@@ -246,21 +246,20 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                 }}
                             >
                                 <option value="All">All Status</option>
-                                <option value="Document Collection">Document Collection</option>
-                                <option value="Document Verification Done">Docs Verified</option>
-                                <option value="Document Rejected">Docs Rejected</option>
+                                <option value="Document Collection">Collection</option>
+                                <option value="Document Verification Done">Verified</option>
+                                <option value="Document Rejected">Rejected</option>
                                 <option value="Lender Selection">Lender Select</option>
                                 <option value="Completed">Completed</option>
-                                <option value="Rejected">Rejected</option>
                             </select>
-                            <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                            <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
                         </div>
                         
                         {/* Ownership Filter */}
                         {isLeader && (
-                            <div className="relative">
+                            <div className="relative grow sm:grow-0">
                                 <select
-                                    className={`appearance-none rounded-[12px] px-4 py-2 text-[12px] font-bold outline-none cursor-pointer border transition-all pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
+                                    className={`w-full appearance-none rounded-xl px-3 sm:px-4 py-2 text-[11px] sm:text-[12px] font-bold outline-none cursor-pointer border transition-all pr-8 sm:pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
                                     value={ownershipFilter}
                                     onChange={(e) => {
                                         setOwnershipFilter(e.target.value);
@@ -271,20 +270,20 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                     <option value="My Leads">My Leads</option>
                                     <option value="Team Leads">Team Leads</option>
                                 </select>
-                                <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
                             </div>
                         )}
                         
                         {/* Search Bar */}
-                        <div className={`flex items-center gap-2.5 px-4 py-2 border rounded-[12px] w-[300px] md:w-full transition-all ${isDark ? 'bg-[#1e2347] border-[#36407a] focus-within:border-[#5b6aaa]' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
+                        <div className={`flex items-center gap-2.5 px-3 sm:px-4 py-2 border rounded-xl w-full lg:w-[250px] transition-all ${isDark ? 'bg-[#1e2347] border-[#36407a] focus-within:border-[#5b6aaa]' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
                             <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#4a5a8a' : '#a0aec0'} strokeWidth="2.5" width="14" height="14">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
                             <input
                                 type="text"
-                                className={`bg-transparent border-none outline-none text-[12px] font-medium w-full ${isDark ? 'text-slate-200 placeholder-slate-500' : 'text-[#4a5568] placeholder-[#a0aec0]'}`}
-                                placeholder="Search by name or email..."
+                                className={`bg-transparent border-none outline-none text-[11px] sm:text-[12px] font-medium w-full ${isDark ? 'text-slate-200 placeholder-slate-500' : 'text-[#4a5568] placeholder-[#a0aec0]'}`}
+                                placeholder="Search leads..."
                                 value={searchTerm}
                                 onChange={(e) => {
                                     setSearchTerm(e.target.value);
@@ -294,9 +293,149 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                         </div>
                     </div>
                 </div>
+                {/* Mobile Card View */}
+                <div className="hidden sm:flex flex-col gap-3 p-3">
+                    {displayedLeads.map((lead, idx) => {
+                        const isDecisionMade = ['Loan Confirmed', 'Loan Rejected', 'Lender Selection'].includes(lead.status);
+                        const hasRejected = lead.documents?.some(d => d.status === 'Rejected');
+                        const isAllVerified = lead.documents?.every(d => d.status === 'Approved') && (lead.documents?.length || 0) > 0;
+                        const docCount = lead.documents?.length || 0;
+                        const approvedCount = lead.documents?.filter(d => d.status === 'Approved').length || 0;
 
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[760px] md:min-w-[640px] sm:min-w-[560px] border-collapse">
+                        return (
+                            <div 
+                                key={lead.id} 
+                                onClick={() => onViewDetails(lead)}
+                                className={`p-4 rounded-2xl border transition-all active:scale-[0.98] animate-rowIn flex flex-col gap-3 ${isDark ? 'bg-white/[0.03] border-white/5 shadow-xl' : 'bg-white border-[#edf2f7] shadow-sm'}`}
+                                style={{ animationDelay: `${550 + idx * 50}ms`, animationFillMode: 'both' }}
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-[11px] font-black shadow-inner shrink-0 ${isDark ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-[#f0f4ff] text-[#2447d7]'}`}>
+                                            {lead.name.split(' ').map(n => n[0]).join('')}
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className={`text-[14px] font-black leading-tight ${isDark ? 'text-white' : 'text-[#1a202c]'}`}>{lead.name}</span>
+                                            <span className="text-[10px] font-bold text-slate-400 tracking-widest mt-0.5 uppercase">ID: #{lead.id}</span>
+                                        </div>
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                        <span className={`text-[14px] font-black ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>${(lead.loanAmount || 0).toLocaleString()}</span>
+                                        <span className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Loan Amount</span>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-3 py-3 border-y border-slate-100 dark:border-white/5">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Business</span>
+                                        <span className="text-[11px] font-bold text-blue-500 dark:text-blue-400 line-clamp-1">{lead.businessName || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-1">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contact Info</span>
+                                        <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 truncate">{lead.email}</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center justify-between mt-1">
+                                    <div className="flex flex-col gap-1.5">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Lead Visibility</span>
+                                        {(() => {
+                                            const ls = lead.leadStatus || 'Warm';
+                                            const cfg = {
+                                                Hot:  { cls: `bg-red-50 text-red-600 border-red-100 ${isDark ? 'dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20' : ''}`, dot: 'bg-red-500' },
+                                                Warm: { cls: `bg-orange-50 text-orange-600 border-orange-100 ${isDark ? 'dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20' : ''}`, dot: 'bg-orange-500' },
+                                                Cool: { cls: `bg-blue-50 text-blue-600 border-blue-100 ${isDark ? 'dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20' : ''}`, dot: 'bg-blue-500' },
+                                            }[ls];
+                                            return (
+                                                <div className="relative inline-block" onClick={e => e.stopPropagation()}>
+                                                    <select
+                                                        value={ls}
+                                                        onChange={(e) => {
+                                                            e.stopPropagation();
+                                                            updateLead(lead.id, { leadStatus: e.target.value });
+                                                        }}
+                                                        className={`appearance-none pl-5 pr-7 py-1 rounded-full text-[9px] font-black uppercase tracking-wide border cursor-pointer outline-none transition-all ${cfg.cls}`}
+                                                    >
+                                                        <option value="Hot">Hot</option>
+                                                        <option value="Warm">Warm</option>
+                                                        <option value="Cool">Cool</option>
+                                                    </select>
+                                                    <span className={`absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none ${cfg.dot}`} />
+                                                    <svg className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="9" height="9">
+                                                        <polyline points="6 9 12 15 18 9"/>
+                                                    </svg>
+                                                </div>
+                                            );
+                                        })()}
+                                    </div>
+
+                                    <div className="flex flex-col items-end gap-1.5">
+                                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Process Stage</span>
+                                        {(() => {
+                                            if (hasRejected || lead.status === 'Loan Rejected' || lead.status === 'Rejected') {
+                                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wide bg-red-50 dark:bg-red-500/15 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20"><IconAlert size={10} /> {hasRejected ? 'Docs Rejected' : lead.status}</span>;
+                                            }
+                                            if (lead.status === 'Loan Confirmed' || isAllVerified) {
+                                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wide bg-green-50 dark:bg-green-500/15 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-500/20"><IconCheck size={10} strokeWidth={3} /> {isAllVerified && (lead.status === 'Document Verification Done' || lead.status === 'Document Verifications') ? 'Verified' : lead.status}</span>;
+                                            }
+                                            if (lead.status === 'Lender Selection') {
+                                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wide bg-purple-50 dark:bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-100 dark:border-purple-500/20"><IconCheck size={10} strokeWidth={3} /> {lead.status}</span>;
+                                            }
+                                            if (docCount > 0) {
+                                                return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wide bg-blue-50 dark:bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-500/20"><div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(36,71,215,0.4)]" /> {lead.status === 'Document Collected' ? 'Docs' : lead.status} ({approvedCount}/{docCount})</span>;
+                                            }
+                                            return <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-wide bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-slate-400 border border-gray-200 dark:border-white/10">{lead.status}</span>;
+                                        })()}
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-2 mt-2" onClick={e => e.stopPropagation()}>
+                                    {!(lead.status === 'Document Verifications' && isAllVerified) && !isAccountsManager && (
+                                        <button 
+                                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${isDark ? 'border-blue-500/30 bg-blue-500/10 text-blue-400 active:bg-blue-500/20' : 'border-[#ebf0ff] bg-[#f0f4ff] text-[#2447d7] active:bg-[#2447d7] active:text-white'}`}
+                                            onClick={(e) => { e.stopPropagation(); handleOpenModal(lead); }}
+                                        >
+                                            <IconUpload size={14} /> Upload Documents
+                                        </button>
+                                    )}
+                                    {isAccountsManager && (
+                                        <div className="flex gap-2 w-full">
+                                            {['Document Verification Done', 'Lender Selection'].includes(lead.stage) && onSelectLender && (
+                                                <button
+                                                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${isDark ? 'border-purple-500/30 bg-purple-500/10 text-purple-400' : 'border-[#e9d5ff] bg-[#f5f3ff] text-[#7c3aed]'}`}
+                                                    onClick={(e) => { e.stopPropagation(); onSelectLender(lead); }}
+                                                >
+                                                    Select Lender
+                                                </button>
+                                            )}
+                                            <button
+                                                className={`p-2.5 rounded-xl border ${isDark ? 'border-blue-500/30 bg-blue-500/10 text-blue-400' : 'border-[#ebf0ff] bg-[#f0f4ff] text-[#2447d7]'}`}
+                                                onClick={(e) => { e.stopPropagation(); setLeadToReassign(lead); setShowReassignModal(true); }}
+                                            >
+                                                <IconUsers size={16} />
+                                            </button>
+                                            <button
+                                                className={`p-2.5 rounded-xl border ${isDark ? 'border-red-500/30 bg-red-500/10 text-red-400' : 'border-[#fee2e2] bg-[#fef2f2] text-[#ef4444]'}`}
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteLead(lead); }}
+                                            >
+                                                <IconTrash size={16} />
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        );
+                    })}
+                    {displayedLeads.length === 0 && (
+                        <div className="py-12 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border-2 border-dashed border-slate-100 dark:border-white/5 rounded-3xl">
+                            No leads matching criteria
+                        </div>
+                    )}
+                </div>
+
+                {/* Desktop Table View */}
+                <div className="sm:hidden overflow-x-auto scrollbar-thin">
+                    <table className="w-full min-w-[700px] border-collapse">
                         <thead>
                             <tr className={`${isDark ? 'bg-[#141829]/50' : 'bg-[#fbfeff]'}`}>
                                 <th className={`text-left px-3 py-2.5 text-[9px] font-black uppercase tracking-[0.15em] border-b w-[180px] ${isDark ? 'border-white/5 text-slate-500' : 'border-[#f7fafc] text-[#a0aec0]'}`}>ID / Client</th>
@@ -506,7 +645,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                             )}
                                             {isAccountsManager && (
                                                 <>
-                                                    {['Document Verification Done', 'Lender Selection'].includes(lead.stage) && onSelectLender && (
+                                                     {['Document Verification Done', 'Lender Selection'].includes(lead.stage) && onSelectLender && (
                                                         <button
                                                             className={`p-1.5 rounded-lg transition-all border ${isDark ? 'border-purple-500/30 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20' : 'border-[#e9d5ff] bg-[#f5f3ff] text-[#7c3aed] hover:bg-[#7c3aed] hover:text-white'}`}
                                                             title="Select Lender"
@@ -538,6 +677,7 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                         </tbody>
                     </table>
                 </div>
+
 
                 <div className={`p-4 flex justify-between items-center border-t sm:flex-col sm:gap-4 ${isDark ? 'bg-[#141829]/30 border-white/5' : 'bg-[#fdfdfd] border-[#f7fafc]'}`}>
                     <span className={`text-[12px] font-bold ${isDark ? 'text-slate-500' : 'text-[#718096]'}`}>
