@@ -115,7 +115,7 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
     const activeBadge = isDark ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-[#dcfce7] text-[#16a34a]';
 
     return createPortal(
-        <div className={`fixed inset-0 z-[9999] flex items-center justify-center sm:items-end p-4 sm:p-0 ${overlayBg} backdrop-blur-xl animate-fadeIn transition-all duration-500`}>
+        <div className={`fixed inset-0 z-[9999] flex items-center justify-center sm:items-end p-4 sm:p-0 ${overlayBg} backdrop-blur-xl animate-fadeIn transition-all duration-500`} style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {/* Click outside to close */}
             <div className="absolute inset-0" onClick={onClose}></div>
             
@@ -197,7 +197,7 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
                                     <span className="text-right">Loan Amt</span>
                                     <span className="text-right">Progress</span>
                                 </div>
-                                <div className="overflow-y-auto max-h-[360px] custom-scrollbar">
+                                <div className="overflow-y-auto max-h-[360px]" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                                     {userLeads.length > 0 ? (
                                         <div className="divide-y divide-[#f7fafc] dark:divide-white/5">
                                             {userLeads.map((lead) => {
@@ -276,7 +276,7 @@ const UserProfileModal = ({ user, onClose, onUserClick, onLeadClick }) => {
                                 </>
                             ) : (
                                 <div className="bg-white rounded-2xl border border-[#edf2f7] overflow-hidden shadow-sm">
-                                    <div className="overflow-y-auto max-h-[380px] custom-scrollbar divide-y divide-[#f7fafc]">
+                                    <div className="overflow-y-auto max-h-[380px] divide-y divide-[#f7fafc]" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                                         {hierarchy?.members?.map((m) => {
                                             const fullMember = SHARED_INITIAL_USERS.find(u => u.id?.toString() === m.id?.toString()) || m;
                                             return (

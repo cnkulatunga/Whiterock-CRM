@@ -28,16 +28,20 @@ const IconPhone = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentCol
 const DashboardModal = ({ isOpen, onClose, title, children, isSmall, isWide }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center sm:items-end p-4 sm:p-0">
             <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full ${isSmall ? 'max-w-md' : isWide ? 'max-w-7xl' : 'max-w-6xl'} rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn`}>
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full ${isSmall ? 'max-w-md' : isWide ? 'max-w-7xl' : 'max-w-6xl'} rounded-2xl sm:rounded-b-none sm:rounded-t-2xl shadow-2xl overflow-hidden flex flex-col animate-zoomIn sm:animate-slideUp max-h-[90vh] sm:max-h-[92vh]`}>
+                {/* drag handle on mobile */}
+                <div className="hidden sm:flex justify-center pt-3 pb-1 shrink-0">
+                    <div className="w-8 h-1 rounded-full bg-slate-200 dark:bg-slate-600" />
+                </div>
                 <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
                     <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
                     </button>
                 </div>
-                <div className="p-4 overflow-y-auto max-h-[80vh] custom-scrollbar">{children}</div>
+                <div className="p-4 overflow-y-auto max-h-[80vh] sm:max-h-[75vh] custom-scrollbar">{children}</div>
             </div>
         </div>
     );
@@ -187,56 +191,74 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 return (
                     <div className="flex flex-col gap-3">
                         {list.length > 0 ? (
-                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto custom-scrollbar shadow-sm">
-                                <table className="w-full text-left border-collapse min-w-[900px]">
-                                    <thead><tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-100 dark:border-white/5">
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-center w-12">#</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest min-w-[160px]">Client Name</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest min-w-[160px]">Business</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest min-w-[200px]">Contact Info</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Loan Amount</th>
-                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status</th>
-                                        {activeModal === 'VERIFIED' && <th className="px-6 py-4 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">Action</th>}
-                                    </tr></thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                                        {list.map((lead, idx) => (
-                                            <tr key={lead.id} className="hover:bg-blue-50/40 dark:hover:bg-white/[0.03] transition-all cursor-pointer group" onClick={() => { onNavigate && onNavigate('lead_details', lead); setActiveModal(null); }}>
-                                                <td className="px-6 py-4 text-[11px] font-bold text-slate-400 text-center">{idx + 1}</td>
-                                                <td className="px-6 py-4">
-                                                    <div className="text-[13px] font-bold text-[#2447d7] dark:text-blue-400 whitespace-nowrap">{lead.name}</div>
-                                                </td>
-                                                <td className="px-6 py-4 text-[13px] text-slate-600 dark:text-slate-300 font-medium whitespace-nowrap">{lead.businessName || <span className="text-slate-300 dark:text-slate-600 italic font-normal">Personal</span>}</td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex flex-col gap-0.5">
-                                                        <div className="text-[12px] font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">{lead.email || lead.emailAddress || '—'}</div>
-                                                        <div className="text-[11px] font-bold text-slate-400">{lead.phone || lead.phoneNumber || '—'}</div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <div className="text-[13px] font-black text-slate-900 dark:text-white whitespace-nowrap">£{parseFloat(lead.loanAmount || 0).toLocaleString()}</div>
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    <span className="text-[9px] font-black px-2.5 py-1.5 bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 rounded-lg uppercase border border-blue-100/50 dark:border-blue-500/20 whitespace-nowrap">
-                                                        {lead.status}
-                                                    </span>
-                                                </td>
-                                                {activeModal === 'VERIFIED' && (
-                                                    <td className="px-6 py-4 text-right">
-                                                        {!(lead.documents || []).some(d => d.status === 'Rejected') && (
-                                                            <button
-                                                                onClick={(e) => { e.stopPropagation(); onNavigate && onNavigate('lender_selection', lead); setActiveModal(null); }}
-                                                                className="bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-500/20 hover:-translate-y-0.5"
-                                                            >
-                                                                Select Lender
-                                                            </button>
-                                                        )}
+                            <>
+                                {/* Desktop table */}
+                                <div className="sm:hidden rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto custom-scrollbar shadow-sm">
+                                    <table className="w-full text-left border-collapse min-w-[700px]">
+                                        <thead><tr className="bg-slate-50 dark:bg-white/[0.03] border-b border-slate-100 dark:border-white/5">
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest min-w-[160px]">Client</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Business</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Loan</th>
+                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Status</th>
+                                            {activeModal === 'VERIFIED' && <th className="px-4 py-3 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest text-right">Action</th>}
+                                        </tr></thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                            {list.map((lead) => (
+                                                <tr key={lead.id} className="hover:bg-blue-50/40 dark:hover:bg-white/[0.03] transition-all cursor-pointer group" onClick={() => { onNavigate && onNavigate('lead_details', lead); setActiveModal(null); }}>
+                                                    <td className="px-4 py-3">
+                                                        <div className="text-[12px] font-bold text-[#2447d7] dark:text-blue-400">{lead.name}</div>
+                                                        <div className="text-[10px] text-slate-400">{lead.email || '—'}</div>
                                                     </td>
+                                                    <td className="px-4 py-3 text-[12px] text-slate-600 dark:text-slate-300">{lead.businessName || '—'}</td>
+                                                    <td className="px-4 py-3 text-[12px] font-black text-slate-900 dark:text-white">£{parseFloat(lead.loanAmount || 0).toLocaleString()}</td>
+                                                    <td className="px-4 py-3">
+                                                        <span className="text-[9px] font-black px-2 py-1 bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 rounded-lg uppercase border border-blue-100/50 dark:border-blue-500/20 whitespace-nowrap">{lead.status}</span>
+                                                    </td>
+                                                    {activeModal === 'VERIFIED' && (
+                                                        <td className="px-4 py-3 text-right">
+                                                            {!(lead.documents || []).some(d => d.status === 'Rejected') && (
+                                                                <button onClick={(e) => { e.stopPropagation(); onNavigate && onNavigate('lender_selection', lead); setActiveModal(null); }}
+                                                                    className="bg-[#10b981] hover:bg-[#059669] text-white px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">
+                                                                    Select Lender
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                {/* Mobile cards */}
+                                <div className="hidden sm:flex flex-col gap-2">
+                                    {list.map((lead) => (
+                                        <div key={lead.id}
+                                            onClick={() => { onNavigate && onNavigate('lead_details', lead); setActiveModal(null); }}
+                                            className="bg-white dark:bg-white/[0.03] rounded-xl border border-slate-100 dark:border-white/5 px-4 py-3 flex flex-col gap-2 cursor-pointer hover:border-blue-200 transition-all shadow-sm"
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-500/10 text-[#2447d7] flex items-center justify-center text-[10px] font-black shrink-0">
+                                                    {(lead.name || '').split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
+                                                </div>
+                                                <div className="flex flex-col min-w-0 flex-1">
+                                                    <span className="text-[13px] font-bold text-[#2447d7] dark:text-blue-400 truncate">{lead.name}</span>
+                                                    {lead.businessName && <span className="text-[10px] text-slate-500 truncate">{lead.businessName}</span>}
+                                                </div>
+                                                <span className="text-[12px] font-black text-slate-900 dark:text-white shrink-0">£{parseFloat(lead.loanAmount || 0).toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 pl-[44px] flex-wrap">
+                                                <span className="text-[9px] font-black px-2 py-0.5 bg-blue-50 dark:bg-blue-500/15 text-blue-700 dark:text-blue-400 rounded-lg uppercase border border-blue-100/50 dark:border-blue-500/20">{lead.status}</span>
+                                                {activeModal === 'VERIFIED' && !(lead.documents || []).some(d => d.status === 'Rejected') && (
+                                                    <button onClick={(e) => { e.stopPropagation(); onNavigate && onNavigate('lender_selection', lead); setActiveModal(null); }}
+                                                        className="ml-auto bg-[#10b981] text-white px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                                                        Select Lender
+                                                    </button>
                                                 )}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </>
                         ) : <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-white/10 rounded-2xl">No leads found</div>}
                     </div>
                 );
@@ -353,68 +375,87 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                             </div>
                         </div>
                         {sortedTasks.length > 0 ? (
-                            <div className="overflow-x-auto rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
-                                <table className="w-full text-left border-collapse min-w-[1100px]">
-                                    <thead>
-                                        <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Lead Name</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Lead Status</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Note / Message</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Schedule</th>
-                                            <th className="px-4 py-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Progress</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                                        {sortedTasks.slice(0, 8).map((task, idx) => {
-                                            const relatedLead = (leads || []).find(l => l.name === task.lead || l.email === task.email);
-                                            const displayEmail = task.email || relatedLead?.email || '—';
-                                            const displayPhone = task.phone || relatedLead?.phone || '—';
-                                            const combinedNotes = [task.title, task.description, task.message].filter(Boolean).join(' - ');
-                                            return (
-                                                <tr key={task.id} className={`group bg-white dark:bg-transparent hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-all border-b border-slate-50 dark:border-white/5 last:border-0 ${task.status === 'Complete' ? 'opacity-60 grayscale-[0.3]' : ''}`}>
-                                                    <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex items-center gap-2.5">
-                                                            <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#2447d7] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
-                                                                {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            <>
+                                {/* Desktop table */}
+                                <div className="sm:hidden overflow-x-auto rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
+                                    <table className="w-full text-left border-collapse min-w-[900px]">
+                                        <thead>
+                                            <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Lead</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Lead Status</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Contact</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Note</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Schedule</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Progress</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                            {sortedTasks.slice(0, 8).map((task, idx) => {
+                                                const relatedLead = (leads || []).find(l => l.name === task.lead || l.email === task.email);
+                                                const displayEmail = task.email || relatedLead?.email || '—';
+                                                const displayPhone = task.phone || relatedLead?.phone || '—';
+                                                const combinedNotes = [task.title, task.description, task.message].filter(Boolean).join(' - ');
+                                                return (
+                                                    <tr key={task.id} className={`group bg-white dark:bg-transparent hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-all ${task.status === 'Complete' ? 'opacity-60 grayscale-[0.3]' : ''}`}>
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex items-center gap-2.5">
+                                                                <div className="w-7 h-7 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#2447d7] flex items-center justify-center text-[9px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20">
+                                                                    {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                                </div>
+                                                                <span className="text-[11px] font-bold text-[#2447d7] dark:text-blue-400 uppercase tracking-tight">{task.lead || 'Unknown'}</span>
                                                             </div>
-                                                            <span className="text-[12px] font-bold text-[#2447d7] dark:text-blue-400 uppercase tracking-tight">{task.lead || 'Unknown Lead'}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-center">{getLeadStatusBadge(task)}</td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                                            <IconMail className="text-slate-300 dark:text-slate-600 shrink-0" />
-                                                            <span className="truncate max-w-[150px]">{displayEmail}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                                            <IconPhone className="text-slate-300 dark:text-slate-600 shrink-0" />
-                                                            <span>{displayPhone}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1 max-w-[180px] leading-relaxed" title={combinedNotes}>{combinedNotes}</p>
-                                                    </td>
-                                                    <td className="px-4 py-3">
-                                                        <div className="flex flex-col leading-tight text-right">
-                                                            <span className="text-[12px] font-bold text-slate-700 dark:text-slate-200">{task.date}</span>
-                                                            <div className="flex items-center justify-end gap-1 text-[10px] font-black text-[#2447d7] dark:text-blue-400 uppercase tracking-tighter">
-                                                                <IconClock width="10" height="10" /> {task.time}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-4 py-3 text-center">{getProgressBadge(task)}</td>
-                                                </tr>
-                                            );
-                                        })}
-                                    </tbody>
-                                </table>
-                            </div>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">{getLeadStatusBadge(task)}</td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="text-[10px] text-slate-500 truncate max-w-[130px]">{displayEmail}</div>
+                                                            <div className="text-[10px] text-slate-400">{displayPhone}</div>
+                                                        </td>
+                                                        <td className="px-4 py-3"><p className="text-[10px] text-slate-500 line-clamp-1 max-w-[150px]">{combinedNotes}</p></td>
+                                                        <td className="px-4 py-3">
+                                                            <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 block">{task.date}</span>
+                                                            <span className="text-[10px] font-black text-[#2447d7] dark:text-blue-400">{task.time}</span>
+                                                        </td>
+                                                        <td className="px-4 py-3 text-center">{getProgressBadge(task)}</td>
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile cards */}
+                                <div className="hidden sm:flex flex-col gap-2">
+                                    {sortedTasks.slice(0, 8).map((task) => {
+                                        const relatedLead = (leads || []).find(l => l.name === task.lead || l.email === task.email);
+                                        const displayPhone = task.phone || relatedLead?.phone || '—';
+                                        const combinedNotes = [task.title, task.description, task.message].filter(Boolean).join(' - ');
+                                        return (
+                                            <div key={task.id} className={`bg-white dark:bg-white/[0.03] rounded-xl border border-slate-100 dark:border-white/5 px-4 py-3 flex flex-col gap-2 shadow-sm ${task.status === 'Complete' ? 'opacity-60' : ''}`}>
+                                                {/* Top: avatar + lead name + schedule */}
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#2447d7] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20">
+                                                        {(task.lead || '??').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                    </div>
+                                                    <div className="flex flex-col min-w-0 flex-1">
+                                                        <span className="text-[12px] font-bold text-[#2447d7] dark:text-blue-400 truncate">{task.lead || 'Unknown Lead'}</span>
+                                                        {displayPhone !== '—' && <span className="text-[10px] text-slate-400">{displayPhone}</span>}
+                                                    </div>
+                                                    <div className="flex flex-col items-end shrink-0">
+                                                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200">{task.date}</span>
+                                                        <span className="text-[10px] font-black text-[#2447d7] dark:text-blue-400">{task.time}</span>
+                                                    </div>
+                                                </div>
+                                                {/* Bottom: lead status + progress + note */}
+                                                <div className="flex items-center gap-2 pl-[44px] flex-wrap">
+                                                    {getLeadStatusBadge(task)}
+                                                    {getProgressBadge(task)}
+                                                    {combinedNotes && <span className="text-[9px] text-slate-400 italic truncate max-w-[160px]">{combinedNotes}</span>}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </>
                         ) : (
                             <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-white/10 rounded-2xl">
                                 No upcoming follow-ups
