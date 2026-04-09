@@ -8,6 +8,7 @@ import { TasksProvider } from './context/TasksContext.jsx'
 import { LeadsProvider } from './context/LeadsContext.jsx'
 import { PromotionsProvider } from './context/PromotionsContext.jsx'
 import { LendersProvider } from './context/LendersContext.jsx'
+import { KnowledgeBaseProvider } from './context/KnowledgeBaseContext.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -17,9 +18,11 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <LeadsProvider>
           <PromotionsProvider>
             <LendersProvider>
-              <BrowserRouter basename="/AlphaFunding">
-                <App />
-              </BrowserRouter>
+              <KnowledgeBaseProvider>
+                <BrowserRouter basename="/AlphaFunding">
+                  <App />
+                </BrowserRouter>
+              </KnowledgeBaseProvider>
             </LendersProvider>
           </PromotionsProvider>
         </LeadsProvider>
