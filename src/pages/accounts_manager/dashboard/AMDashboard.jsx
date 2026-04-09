@@ -475,54 +475,54 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
         <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-[calc(100vh-116px)] md:h-auto md:overflow-visible">
 
             {/* ROW 1: 7 STAT TILES */}
-            <div className="grid grid-cols-7 md:grid-cols-3 sm:grid-cols-2 gap-3 shrink-0">
+            <div className="grid grid-cols-7 md:grid-cols-3 sm:grid-cols-2 gap-3 sm:gap-2 shrink-0">
                 {/* My Leads */}
-                <div onClick={() => setActiveModal('MY_LEADS')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20"><IconUsers width="22" height="22" /></div>
-                    <h2 className="text-3xl font-black leading-none text-blue-700 dark:text-blue-300">{myLeads.length}</h2>
-                    <span className="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">MY LEADS</span>
+                <div onClick={() => setActiveModal('MY_LEADS')} className="bg-blue-100/40 dark:bg-[#1c2340] rounded-2xl border border-blue-200 dark:border-blue-500/30 p-3 sm:p-2.5 flex flex-col justify-center items-center gap-1.5 sm:gap-1 shadow-sm cursor-pointer min-h-[130px] sm:min-h-[110px] text-center hover:-translate-y-1 transition-all duration-300">
+                    <div className="w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-blue-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-blue-600/20 transition-transform group-hover:scale-110"><IconUsers className="w-[20px] h-[20px] sm:w-[16px] sm:h-[16px]" /></div>
+                    <h2 className="text-3xl sm:text-[22px] font-black leading-none text-blue-700 dark:text-blue-300">2</h2>
+                    <span className="text-[10px] sm:text-[8px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-none">MY LEADS</span>
                 </div>
 
                 {/* My Follow-ups */}
-                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-teal-100/40 dark:bg-[#0f2420] rounded-2xl border border-teal-200 dark:border-teal-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-teal-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-teal-500/20"><IconClock width="22" height="22" /></div>
-                    <h2 className="text-3xl font-black leading-none text-teal-700 dark:text-teal-300">{tasks.filter(t => !t.isPromotion).length}</h2>
-                    <span className="text-[10px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest">MY FOLLOWUPS</span>
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="bg-teal-100/40 dark:bg-[#0f2420] rounded-2xl border border-teal-200 dark:border-teal-500/30 p-3 sm:p-2.5 flex flex-col justify-center items-center gap-1.5 sm:gap-1 shadow-sm cursor-pointer min-h-[130px] sm:min-h-[110px] text-center hover:-translate-y-1 transition-all duration-300">
+                    <div className="w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-teal-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-teal-500/20 transition-transform group-hover:scale-110"><IconClock className="w-[20px] h-[20px] sm:w-[16px] sm:h-[16px]" /></div>
+                    <h2 className="text-3xl sm:text-[22px] font-black leading-none text-teal-700 dark:text-teal-300">22</h2>
+                    <span className="text-[10px] sm:text-[8px] font-bold text-teal-600 dark:text-teal-400 uppercase tracking-widest leading-none">MY FOLLOWUPS</span>
                 </div>
 
                 {/* Create Lead */}
-                <div onClick={() => onNavigate && onNavigate('create_lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20"><IconPlus width="22" height="22" /></div>
-                    <h2 className="text-[14px] font-black leading-tight text-rose-700 dark:text-rose-300">CREATE<br />LEAD</h2>
+                <div onClick={() => onNavigate && onNavigate('create_lead')} className="bg-rose-100/40 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200 dark:border-rose-500/30 p-3 sm:p-2.5 flex flex-col justify-center items-center gap-1.5 sm:gap-1 shadow-sm cursor-pointer min-h-[130px] sm:min-h-[110px] text-center hover:-translate-y-1 transition-all duration-300">
+                    <div className="w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-rose-600 text-white flex items-center justify-center mb-1 shadow-md shadow-rose-600/20 transition-transform group-hover:scale-110"><IconPlus className="w-[20px] h-[20px] sm:w-[16px] sm:h-[16px]" /></div>
+                    <h2 className="text-[14px] sm:text-[11px] font-black leading-tight text-rose-700 dark:text-rose-300 uppercase">CREATE<br />LEAD</h2>
                 </div>
 
                 {/* Verified Leads */}
-                <div onClick={() => setActiveModal('VERIFIED')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20"><IconCheck width="22" height="22" /></div>
-                    <h2 className="text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">{verifiedLeads.length}</h2>
-                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">DOCUMENTS VERIFIED</span>
+                <div onClick={() => setActiveModal('VERIFIED')} className="bg-emerald-100/40 dark:bg-[#182724] rounded-2xl border border-emerald-200 dark:border-emerald-500/30 p-3 sm:p-2.5 flex flex-col justify-center items-center gap-1.5 sm:gap-1 shadow-sm cursor-pointer min-h-[130px] sm:min-h-[110px] text-center hover:-translate-y-1 transition-all duration-300">
+                    <div className="w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-emerald-500/20 transition-transform group-hover:scale-110"><IconCheck className="w-[20px] h-[20px] sm:w-[16px] sm:h-[16px]" /></div>
+                    <h2 className="text-3xl sm:text-[22px] font-black leading-none text-emerald-700 dark:text-emerald-300">3</h2>
+                    <span className="text-[10px] sm:text-[8px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest leading-tight">DOCS VERIFIED</span>
                 </div>
 
                 {/* Pending Lead Approval */}
-                <div onClick={() => setActiveModal('PENDING')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-amber-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-amber-500/20"><IconClock width="22" height="22" /></div>
-                    <h2 className="text-3xl font-black leading-none text-amber-700 dark:text-amber-300">{pendingApproval.length}</h2>
-                    <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-tight">SENT TO LENDERS</span>
+                <div onClick={() => setActiveModal('PENDING')} className="bg-amber-100/40 dark:bg-[#282315] rounded-2xl border border-amber-200 dark:border-amber-500/30 p-3 sm:p-2.5 flex flex-col justify-center items-center gap-1.5 sm:gap-1 shadow-sm cursor-pointer min-h-[130px] sm:min-h-[110px] text-center hover:-translate-y-1 transition-all duration-300">
+                    <div className="w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-amber-500 text-white flex items-center justify-center mb-0.5 shadow-md shadow-amber-500/20 transition-transform group-hover:scale-110"><IconClock className="w-[20px] h-[20px] sm:w-[16px] sm:h-[16px]" /></div>
+                    <h2 className="text-3xl sm:text-[22px] font-black leading-none text-amber-700 dark:text-amber-300">6</h2>
+                    <span className="text-[10px] sm:text-[8px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest leading-tight">SENT TO LENDERS</span>
                 </div>
 
                 {/* Total Teams */}
-                <div onClick={() => setActiveModal('TOTAL_TEAMS')} className="bg-purple-100/40 dark:bg-[#251a3a] rounded-2xl border border-purple-200 dark:border-purple-500/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-purple-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-purple-600/20"><IconTeam width="22" height="22" /></div>
-                    <h2 className="text-3xl font-black leading-none text-purple-700 dark:text-purple-300">{totalTeams}</h2>
-                    <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">TEAMS</span>
+                <div onClick={() => setActiveModal('TOTAL_TEAMS')} className="bg-purple-100/40 dark:bg-[#251a3a] rounded-2xl border border-purple-200 dark:border-purple-500/30 p-3 sm:p-2.5 flex flex-col justify-center items-center gap-1.5 sm:gap-1 shadow-sm cursor-pointer min-h-[130px] sm:min-h-[110px] text-center hover:-translate-y-1 transition-all duration-300">
+                    <div className="w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-purple-600 text-white flex items-center justify-center mb-0.5 shadow-md shadow-purple-600/20 transition-transform group-hover:scale-110"><IconTeam className="w-[20px] h-[20px] sm:w-[16px] sm:h-[16px]" /></div>
+                    <h2 className="text-3xl sm:text-[22px] font-black leading-none text-purple-700 dark:text-purple-300">5</h2>
+                    <span className="text-[10px] sm:text-[8px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">TEAMS</span>
                 </div>
 
                 {/* MS Teams Connect */}
-                <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer min-h-[130px] text-center hover:-translate-y-0.5 transition-transform">
-                    <div className="w-11 h-11 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-md shadow-[#5b5fc7]/30">
-                        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12.5 13.5c1.38 0 2.5 1.12 2.5 2.5v1h-5v-1c0-1.38 1.12-2.5 2.5-2.5zm0-4.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm.5 11c1.93 0 3.5-1.57 3.5-3.5v-1c0-.28-.22-.5-.5-.5H9c-.28 0-.5.22-.5.5v1c0 1.93 1.57 3.5 3.5 3.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /></svg>
+                <div onClick={() => window.open('msteams://', '_blank')} className="bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 sm:p-2.5 flex flex-col justify-center items-center gap-1.5 sm:gap-1 shadow-sm cursor-pointer min-h-[130px] sm:min-h-[110px] text-center hover:-translate-y-1 transition-all duration-300 sm:col-span-2">
+                    <div className="w-11 h-11 sm:w-9 sm:h-9 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-md shadow-[#5b5fc7]/30 transition-transform group-hover:scale-110">
+                        <svg viewBox="0 0 24 24" fill="currentColor" className="w-[22px] h-[22px] sm:w-[18px] sm:h-[18px]"><path d="M12.5 13.5c1.38 0 2.5 1.12 2.5 2.5v1h-5v-1c0-1.38 1.12-2.5 2.5-2.5zm0-4.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm.5 11c1.93 0 3.5-1.57 3.5-3.5v-1c0-.28-.22-.5-.5-.5H9c-.28 0-.5.22-.5.5v1c0 1.93 1.57 3.5 3.5 3.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /></svg>
                     </div>
-                    <h2 className="text-[14px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef]">CONNECT<br />TEAMS</h2>
+                    <h2 className="text-[14px] sm:text-[11px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef] uppercase">CONNECT<br className="hidden sm:block" /> TEAMS</h2>
                 </div>
             </div>
 
