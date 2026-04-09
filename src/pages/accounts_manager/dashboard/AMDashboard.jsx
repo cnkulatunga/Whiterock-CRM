@@ -351,12 +351,8 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 return (
                     <div className="flex flex-col gap-3">
                         <div className="flex items-end justify-between mb-2 px-1 gap-3 flex-wrap">
-                            <div className="flex flex-col gap-0.5">
-                                <h3 className="text-[11px] font-black text-slate-400 uppercase tracking-widest leading-none">Management</h3>
-                                <div className="text-[20px] font-black dark:text-white uppercase tracking-tight">Active Follow-ups</div>
-                            </div>
                             {/* Member filter dropdown */}
-                            <div className="relative">
+                            <div className="relative ml-auto">
                                 <select
                                     value={followUpMember}
                                     onChange={(e) => setFollowUpMember(e.target.value)}
