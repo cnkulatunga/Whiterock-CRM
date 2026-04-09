@@ -70,6 +70,16 @@ const OperationalFlow = () => {
     const [selectedClient, setSelectedClient] = useState(null);
     const [selectedUser, setSelectedUser]     = useState(null);
 
+    // Auto-switch to grid on mobile
+    useEffect(() => {
+        const handler = () => {
+            if (window.innerWidth <= 1024 && viewMode === 'table') setViewMode('grid');
+        };
+        handler();
+        window.addEventListener('resize', handler);
+        return () => window.removeEventListener('resize', handler);
+    }, [viewMode]);
+
     const openProfile = (name) => {
         if (!name) return;
         const user = SHARED_INITIAL_USERS.find(u => u.name.toLowerCase() === name.toLowerCase());
@@ -115,17 +125,17 @@ const OperationalFlow = () => {
         <div className="flex flex-col gap-5 font-['Inter',sans-serif] animate-fadeIn">
 
             {/* ── Pipeline Steps ── */}
-            <div className={`rounded-2xl border p-5 overflow-x-auto ${card}`}>
-                <div className="relative flex justify-between items-start min-w-[640px]">
+            <div className={`rounded-2xl border p-4 sm:p-3 overflow-x-hidden ${card}`}>
+                <div className="relative flex justify-between items-start">
                     {/* connector line */}
-                    <div className={`absolute top-5 left-10 right-10 h-px ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
+                    <div className={`absolute top-4 sm:top-3 left-8 sm:left-6 right-8 sm:right-6 h-px ${isDark ? 'bg-white/5' : 'bg-slate-100'}`} />
                     {WORKFLOW_STAGES.map((stage, idx) => {
                         const isActive = filterStage === stage.id;
                         return (
                             <button key={stage.id}
                                 onClick={() => setFilterStage(isActive ? 'All' : stage.id)}
-                                className="relative flex flex-col items-center gap-2 z-10 group w-24 focus:outline-none">
-                                <div className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-200 shadow-sm"
+                                className="relative flex flex-col items-center gap-1 z-10 group flex-1 focus:outline-none">
+                                <div className="w-8 h-8 sm:w-6 sm:h-6 rounded-xl sm:rounded-lg flex items-center justify-center font-bold text-xs sm:text-[10px] transition-all duration-200 shadow-sm"
                                     style={{
                                         background: isActive ? stage.color : (isDark ? '#ffffff08' : '#f8fafc'),
                                         color: isActive ? '#fff' : (isDark ? '#64748b' : '#94a3b8'),
@@ -135,12 +145,11 @@ const OperationalFlow = () => {
                                     }}>
                                     {idx + 1}
                                 </div>
-                                <div className="text-center">
-                                    <p className="text-[10px] font-bold uppercase tracking-wide leading-tight"
+                                <div className="text-center px-0.5">
+                                    <p className="text-[9px] sm:text-[8px] font-bold uppercase tracking-wide leading-tight"
                                         style={{ color: isActive ? stage.color : (isDark ? '#94a3b8' : '#64748b') }}>
                                         {stage.label}
                                     </p>
-                                    <p className="text-[9px] text-slate-400 mt-0.5 leading-tight hidden sm:block">{stage.description}</p>
                                 </div>
                             </button>
                         );
@@ -152,20 +161,20 @@ const OperationalFlow = () => {
             {viewMode === 'grid' ? (
                 <>
                 {/* Grid header with search + toggle */}
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-3 flex-wrap">
                     <p className="text-xs text-slate-400">{filteredClients.length} records</p>
-                    <div className="flex items-center gap-2">
-                        <div className="relative">
+                    <div className="flex items-center gap-2 flex-1 justify-end">
+                        <div className="relative flex-1 max-w-[260px] sm:max-w-full">
                             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><SearchIcon /></div>
                             <input
                                 type="text"
                                 placeholder="Search lead, agent or TL..."
                                 value={search}
                                 onChange={e => setSearch(e.target.value)}
-                                className={`pl-9 pr-4 py-2 rounded-xl text-xs font-medium outline-none border w-56 transition-all focus:ring-2 focus:ring-indigo-500/30 ${isDark ? 'bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500' : 'bg-white border-slate-200 text-slate-800 placeholder:text-slate-400'}`}
+                                className={`pl-9 pr-4 py-2 rounded-xl text-xs font-medium outline-none border w-full transition-all focus:ring-2 focus:ring-indigo-500/30 ${isDark ? 'bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500' : 'bg-white border-slate-200 text-slate-800 placeholder:text-slate-400'}`}
                             />
                         </div>
-                        <div className={`flex items-center rounded-xl border p-1 gap-1 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'}`}>
+                        <div className={`flex items-center rounded-xl border p-1 gap-1 shrink-0 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'}`}>
                             {[
                                 { mode: 'grid',  icon: <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></> },
                                 { mode: 'table', icon: <><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></> },
@@ -217,14 +226,47 @@ const OperationalFlow = () => {
                                         }
                                         if (chain.length === 0 && agent) chain.push({ name: agent, label: 'Agent' });
                                         return (
-                                            <div className={`grid gap-3`} style={{ gridTemplateColumns: `repeat(${chain.length}, 1fr)` }}>
-                                                {chain.map(({ label, name }) => (
-                                                    <div key={label}>
-                                                        <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5">{label}</p>
-                                                        <p className={`text-xs font-semibold cursor-pointer hover:text-indigo-500 transition-colors ${isDark ? 'text-slate-200' : 'text-slate-700'}`}
-                                                            onClick={() => openProfile(name)}>{name}</p>
-                                                    </div>
+                                            <div className="flex flex-wrap gap-x-4 gap-y-2">
+                                                {chain.map(({ label, name }, i) => (
+                                                    <React.Fragment key={label}>
+                                                        {i > 0 && <span className="text-slate-300 self-center text-xs">›</span>}
+                                                        <div>
+                                                            <p className="text-[9px] font-semibold text-slate-400 uppercase tracking-wider mb-0.5 whitespace-nowrap">{label}</p>
+                                                            <p className={`text-xs font-semibold cursor-pointer hover:text-indigo-500 transition-colors whitespace-nowrap ${isDark ? 'text-slate-200' : 'text-slate-700'}`}
+                                                                onClick={() => openProfile(name)}>{name}</p>
+                                                        </div>
+                                                    </React.Fragment>
                                                 ))}
+                                            </div>
+                                        );
+                                    })()}
+                                </div>
+
+                                {/* Amount + Lead Status row */}
+                                <div className="flex items-center justify-between gap-2">
+                                    <span className={`text-[13px] font-black ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>
+                                        {client.loanAmount || '—'}
+                                    </span>
+                                    {(() => {
+                                        const ls = client.leadStatus || 'Warm';
+                                        const cfg = {
+                                            Hot:  { cls: 'bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20', dot: 'bg-red-500' },
+                                            Warm: { cls: 'bg-orange-50 text-orange-600 border-orange-100 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20', dot: 'bg-orange-500' },
+                                            Cool: { cls: 'bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20', dot: 'bg-blue-500' },
+                                        }[ls] || { cls: 'bg-slate-50 text-slate-500 border-slate-100', dot: 'bg-slate-400' };
+                                        return (
+                                            <div className="relative inline-block" onClick={e => e.stopPropagation()}>
+                                                <select
+                                                    value={ls}
+                                                    onChange={e => setLeads(prev => prev.map(l => l.id === client.id ? { ...l, leadStatus: e.target.value } : l))}
+                                                    className={`appearance-none pl-5 pr-6 py-1 rounded-full text-[10px] font-semibold border cursor-pointer outline-none ${cfg.cls}`}
+                                                >
+                                                    <option value="Hot">Hot</option>
+                                                    <option value="Warm">Warm</option>
+                                                    <option value="Cool">Cool</option>
+                                                </select>
+                                                <span className={`absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full pointer-events-none ${cfg.dot}`} />
+                                                <svg className="absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="8" height="8"><polyline points="6 9 12 15 18 9"/></svg>
                                             </div>
                                         );
                                     })()}
@@ -255,20 +297,20 @@ const OperationalFlow = () => {
             ) : (
                 <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
                     {/* Table header with search + toggle */}
-                    <div className={`px-5 py-3.5 flex items-center justify-between gap-3 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
+                    <div className={`px-5 py-3.5 flex items-center justify-between gap-3 flex-wrap border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
                         <p className="text-xs text-slate-400">{filteredClients.length} records</p>
-                        <div className="flex items-center gap-2">
-                            <div className="relative">
+                        <div className="flex items-center gap-2 flex-1 justify-end">
+                            <div className="relative flex-1 max-w-[260px] sm:max-w-full">
                                 <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><SearchIcon /></div>
                                 <input
                                     type="text"
                                     placeholder="Search lead, agent or TL..."
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
-                                    className={`pl-9 pr-4 py-2 rounded-xl text-xs font-medium outline-none border w-56 transition-all focus:ring-2 focus:ring-indigo-500/30 ${isDark ? 'bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500' : 'bg-white border-slate-200 text-slate-800 placeholder:text-slate-400'}`}
+                                    className={`pl-9 pr-4 py-2 rounded-xl text-xs font-medium outline-none border w-full transition-all focus:ring-2 focus:ring-indigo-500/30 ${isDark ? 'bg-white/5 border-white/10 text-slate-200 placeholder:text-slate-500' : 'bg-white border-slate-200 text-slate-800 placeholder:text-slate-400'}`}
                                 />
                             </div>
-                            <div className={`flex items-center rounded-xl border p-1 gap-1 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'}`}>
+                            <div className={`flex items-center rounded-xl border p-1 gap-1 shrink-0 ${isDark ? 'bg-white/5 border-white/10' : 'bg-white border-slate-200'}`}>
                                 {[
                                     { mode: 'grid',  icon: <><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></> },
                                     { mode: 'table', icon: <><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></> },

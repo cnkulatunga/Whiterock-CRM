@@ -57,77 +57,70 @@ const AuditLogs = () => {
 
             {/* ── LOG TABLE ── */}
             <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-sm overflow-hidden animate-slideUp [animation-delay:100ms] [animation-fill-mode:both]">
-                {/* Consolidated Header & Filters */}
-                <div className="px-6 py-5 border-b border-[#edf2f7]">
-                    <div className="flex items-end justify-between gap-6 flex-wrap">
-                        {/* Summary */}
-                        <div>
-                            <h2 className="text-sm font-black text-[#1a202c] uppercase tracking-wider mb-0.5">Compliance & Audit</h2>
-                            <p className="text-[11px] font-bold text-[#a0aec0] uppercase tracking-tighter">{filtered.length} Records Found</p>
+                {/* Consolidated Filters */}
+                <div className="px-6 py-4 sm:px-4 sm:py-3 border-b border-[#edf2f7]">
+                    {/* Desktop: single row | Mobile: stacked */}
+                    <div className="flex items-end gap-3 lg:flex-col lg:items-stretch">
+
+                        {/* Log type toggle */}
+                        <div className="flex flex-col gap-1 shrink-0">
+                            <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">Log Type</span>
+                            <div className="flex bg-[#f8fafc] border border-[#edf2f7] p-1 rounded-lg">
+                                {['All Logs', 'Audit Logs', 'Operational Logs'].map(t => (
+                                    <button
+                                        key={t}
+                                        onClick={() => setLogType(t)}
+                                        className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-tighter transition-all whitespace-nowrap ${logType === t ? 'bg-[#2447d7] text-white' : 'text-[#718096] hover:text-[#2447d7]'}`}
+                                    >
+                                        {t === 'Operational Logs' ? 'Operational' : t === 'Audit Logs' ? 'Audit' : 'All'}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
 
-                        {/* Action Group */}
-                        <div className="flex items-center gap-3 flex-wrap">
-                            {/* Log Type Filter - Now next to search */}
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">Log Type</span>
-                                <div className="flex bg-[#f8fafc] border border-[#edf2f7] p-1 rounded-lg">
-                                    {['All Logs', 'Audit Logs', 'Operational Logs'].map(t => (
-                                        <button
-                                            key={t}
-                                            onClick={() => setLogType(t)}
-                                            className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-tighter transition-all ${logType === t ? 'bg-[#2447d7] text-white' : 'text-[#718096] hover:text-[#2447d7]'}`}
-                                        >
-                                            {t === 'Operational Logs' ? 'Operational' : t === 'Audit Logs' ? 'Audit' : 'All'}
-                                        </button>
-                                    ))}
+                        {/* Search — takes remaining space */}
+                        <div className="flex flex-col gap-1 flex-1 min-w-0">
+                            <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">Search Logs</span>
+                            <div className="relative">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0aec0] pointer-events-none">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                                 </div>
+                                <input
+                                    type="text"
+                                    className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pl-9 rounded-lg text-[12px] font-medium text-[#1a202c] outline-none placeholder:text-[#a0aec0] focus:border-[#2447d7]/30 transition-colors"
+                                    placeholder="Lead #, user name, or action keyword..."
+                                    value={search}
+                                    onChange={e => setSearch(e.target.value)}
+                                />
                             </div>
-
-                            {/* Search bar */}
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">Search Logs</span>
-                                <div className="relative w-64">
-                                    <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0aec0] pointer-events-none">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                                    </div>
-                                    <input
-                                        type="text"
-                                        className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pl-9 rounded-lg text-[12px] font-medium text-[#1a202c] outline-none placeholder:text-[#a0aec0] focus:border-[#2447d7]/30 transition-colors"
-                                        placeholder="Lead #, user name, or action keyword..."
-                                        value={search}
-                                        onChange={e => setSearch(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Date Range */}
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">Date Range</span>
-                                <div className="relative w-40">
-                                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-8 rounded-lg text-[12px] font-bold text-[#4a5568] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={dateRange} onChange={e => setDateRange(e.target.value)}>
-                                        {DATE_RANGE_OPTIONS.map(o => <option key={o}>{o}</option>)}
-                                    </select>
-                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
-                                </div>
-                            </div>
-
-                            {/* User Role */}
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">User Role</span>
-                                <div className="relative w-40">
-                                    <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-8 rounded-lg text-[12px] font-bold text-[#4a5568] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={userRole} onChange={e => setUserRole(e.target.value)}>
-                                        {AUDIT_LOG_USER_ROLES.map(o => <option key={o}>{o}</option>)}
-                                    </select>
-                                    <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
-                                </div>
-                            </div>
-
-                            {/* Filter Icon */}
-                            <button className="self-end p-2.5 rounded-lg bg-[#f8fafc] border border-[#edf2f7] text-[#718096] hover:bg-white hover:text-[#2447d7] hover:border-[#2447d7]/20 transition-all shadow-sm">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-                            </button>
                         </div>
+
+                        {/* Date Range */}
+                        <div className="flex flex-col gap-1 shrink-0 w-44 lg:w-full">
+                            <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">Date Range</span>
+                            <div className="relative">
+                                <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-8 rounded-lg text-[12px] font-bold text-[#4a5568] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={dateRange} onChange={e => setDateRange(e.target.value)}>
+                                    {DATE_RANGE_OPTIONS.map(o => <option key={o}>{o}</option>)}
+                                </select>
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
+                            </div>
+                        </div>
+
+                        {/* User Role */}
+                        <div className="flex flex-col gap-1 shrink-0 w-40 lg:w-full">
+                            <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-wider">User Role</span>
+                            <div className="relative">
+                                <select className="w-full bg-[#f8fafc] border border-[#edf2f7] py-2 px-3 pr-8 rounded-lg text-[12px] font-bold text-[#4a5568] outline-none appearance-none cursor-pointer focus:border-[#2447d7]/30 transition-colors" value={userRole} onChange={e => setUserRole(e.target.value)}>
+                                    {AUDIT_LOG_USER_ROLES.map(o => <option key={o}>{o}</option>)}
+                                </select>
+                                <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#a0aec0]"><IcoChevron /></div>
+                            </div>
+                        </div>
+
+                        {/* Filter icon */}
+                        <button className="self-end p-2.5 rounded-lg bg-[#f8fafc] border border-[#edf2f7] text-[#718096] hover:bg-white hover:text-[#2447d7] hover:border-[#2447d7]/20 transition-all shadow-sm shrink-0 lg:self-auto">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="14" height="14"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+                        </button>
                     </div>
                 </div>
                 {/* Headers */}
@@ -162,11 +155,11 @@ const AuditLogs = () => {
                             </div>
 
                             {/* Action - Forced to stretch */}
-                            <div className="w-full flex flex-col gap-2 bg-[#f8fafc] rounded-xl px-4 py-3 border border-transparent hover:bg-white hover:border-[#edf2f7] transition-all relative group/action">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-3">
+                            <div className="w-full flex flex-col gap-2 bg-[#f8fafc] rounded-xl px-4 py-3 sm:px-3 sm:py-2 border border-transparent hover:bg-white hover:border-[#edf2f7] transition-all relative group/action">
+                                <div className="flex items-start justify-between gap-2 flex-wrap">
+                                    <div className="flex items-start gap-3 min-w-0 flex-1">
                                         <ActionIcon type={entry.actionIcon} />
-                                        <span className="text-[13px] font-medium text-[#4a5568]">
+                                        <span className="text-[13px] sm:text-[12px] font-medium text-[#4a5568] leading-snug">
                                             {entry.actionText}{' '}
                                             {entry.autoApproved
                                                 ? <><em className="text-[#059669] font-black not-italic bg-[#ecfdf5] px-1.5 py-0.5 rounded text-[10px]">Auto-Approved</em>{' '}for <strong className="text-[#2447d7] font-black">{entry.refId}</strong></>
@@ -174,13 +167,13 @@ const AuditLogs = () => {
                                             }
                                         </span>
                                     </div>
-                                    <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-2 shrink-0">
                                         {entry.status && <span className={`text-[9px] font-black px-2 py-0.5 rounded uppercase tracking-tighter ${entry.status === 'Success' ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'}`}>{entry.status}</span>}
-                                        {entry.ip && <span className="text-[9px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{entry.ip}</span>}
+                                        {entry.ip && <span className="text-[9px] font-mono text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded sm:hidden">{entry.ip}</span>}
                                     </div>
                                 </div>
                                 {(entry.turnover || entry.purpose || entry.bank || entry.category) && (
-                                    <div className="flex items-center gap-2 mt-0.5 ml-11 flex-wrap">
+                                    <div className="flex items-center gap-2 mt-0.5 ml-11 sm:ml-0 flex-wrap">
                                         {entry.category && <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-600 uppercase tracking-tighter shadow-sm border border-indigo-100">{entry.category}</span>}
                                         {entry.turnover && <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-[#ecfdf5] text-[#059669] uppercase tracking-tighter">Turnover: {entry.turnover}</span>}
                                         {entry.purpose && <span className="text-[10px] font-black px-2.5 py-1 rounded-lg bg-[#eff6ff] text-[#2447d7] uppercase tracking-tighter">Purpose: {entry.purpose}</span>}

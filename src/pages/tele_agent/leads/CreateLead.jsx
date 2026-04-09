@@ -286,16 +286,16 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
     };
 
     /* ── shared input class ── */
-    const inputCls = "bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full";
+    const inputCls = "bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 sm:p-2 sm:px-3 rounded-xl text-sm sm:text-[12px] outline-none focus:border-[#2447d7] focus:bg-white focus:ring-4 focus:ring-[#2447d7]/5 transition-all w-full";
     const selectCls = `${inputCls} appearance-none cursor-pointer`;
-    const labelCls = "text-[13px] font-semibold text-[#4a5568]";
-    const errorCls = "text-[11px] font-medium text-[#e11d48] mt-1 flex items-center gap-1";
-    const fieldCls = "flex flex-col gap-1";
-    const sectionCls = "mb-8";
-    const sectionHeadCls = "text-[11px] font-bold text-[#a0aec0] uppercase tracking-wider mb-5";
-    const radioGroupCls = "flex flex-wrap gap-3 mt-1";
+    const labelCls = "text-[13px] sm:text-[11px] font-semibold text-[#4a5568]";
+    const errorCls = "text-[10px] font-medium text-[#e11d48] mt-0.5 flex items-center gap-1";
+    const fieldCls = "flex flex-col gap-0.5 sm:gap-0";
+    const sectionCls = "mb-6 sm:mb-3";
+    const sectionHeadCls = "text-[11px] sm:text-[9px] font-bold text-[#a0aec0] uppercase tracking-wider mb-4 sm:mb-2";
+    const radioGroupCls = "flex flex-wrap gap-2 sm:gap-1.5 mt-1";
     const radioCls = (selected) =>
-        `flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-semibold cursor-pointer transition-all select-none ${selected
+        `flex items-center gap-2 px-4 py-2.5 sm:px-3 sm:py-2 rounded-xl border text-sm sm:text-[12px] font-semibold cursor-pointer transition-all select-none ${selected
             ? 'border-[#2447d7] bg-[#ebf0ff] text-[#2447d7]'
             : 'border-[#e2e8f0] bg-[#fdfdfd] text-[#4a5568] hover:border-[#2447d7]/40 hover:bg-[#f0f4ff]'
         }`;
@@ -324,12 +324,12 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
 
             {/* FORM CARD */}
             <div className="bg-white rounded-2xl border border-[#edf2f7] shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)] overflow-hidden">
-                <div className="p-6 px-8 border-b border-[#f7fafc] flex justify-between items-center md:px-6">
+                <div className="p-6 px-8 border-b border-[#f7fafc] flex justify-between items-center flex-wrap gap-3 md:px-6 sm:px-4 sm:py-4">
                     <div className="flex items-center gap-3">
                         <span className="w-8 h-8 bg-[#ebf0ff] text-[#2447d7] rounded-lg flex items-center justify-center shrink-0"><IconDocs /></span>
                         <h3 className="text-base font-bold text-[#1a202c]">Lead Specification</h3>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 flex-wrap">
                         {/* Lead Status Dropdown */}
                         <div className="relative flex items-center gap-2">
                             <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider whitespace-nowrap">Lead Status:</span>
@@ -358,20 +358,20 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                 </svg>
                             </div>
                         </div>
-                        {/* System ID */}
-                        <div className="flex items-center gap-2 bg-[#f0f4ff] px-3 py-1.5 rounded-lg">
+                        {/* System ID — hidden on mobile to save space */}
+                        <div className="sm:hidden flex items-center gap-2 bg-[#f0f4ff] px-3 py-1.5 rounded-lg">
                             <span className="text-[10px] font-bold text-[#718096] uppercase tracking-wider">SYSTEM ID:</span>
                             <span className="text-[12px] font-bold text-[#2447d7]">AF-2026-0001</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="p-8 md:p-5 sm:p-4">
+                <div className="p-8 md:p-5 sm:p-3">
 
                     {/* ── CONTACT INFORMATION ── */}
                     <div className={sectionCls}>
                         <h4 className={sectionHeadCls}>CONTACT INFORMATION</h4>
-                        <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
+                        <div className="grid grid-cols-2 gap-6 md:grid-cols-1 sm:gap-3">
 
 
                             {/* Title */}
@@ -413,8 +413,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                             <div className={fieldCls}>
                                 <label className={labelCls}>Business Annual Turnover <span className="text-[#e11d48]">*</span></label>
                                 <div className="relative flex items-center">
-                                    <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                    <input type="text" name="businessAnnualTurnover" className={`${inputCls} pl-8 ${errors.businessAnnualTurnover ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.businessAnnualTurnover} onChange={handleInputChange} />
+                                    <span className="absolute left-4 sm:left-3 text-sm font-bold text-[#a0aec0]">£</span>
+                                    <input type="text" name="businessAnnualTurnover" className={`${inputCls} pl-8 sm:pl-7 ${errors.businessAnnualTurnover ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.businessAnnualTurnover} onChange={handleInputChange} />
                                 </div>
                                 {errors.businessAnnualTurnover && <span className={errorCls}><IconAlert size={12} /> {errors.businessAnnualTurnover}</span>}
                             </div>
@@ -429,8 +429,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                             <div className={fieldCls}>
                                 <label className={labelCls}>Email Address <span className="text-[#e11d48]">*</span></label>
                                 <div className="relative flex items-center">
-                                    <div className="absolute left-4 text-[#cbd5e0]"><IconMail /></div>
-                                    <input type="email" name="emailAddress" className={`${inputCls} pl-11 ${errors.emailAddress ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="client@example.com" value={formData.emailAddress} onChange={handleInputChange} />
+                                    <div className="absolute left-4 sm:left-3 text-[#cbd5e0]"><IconMail /></div>
+                                    <input type="email" name="emailAddress" className={`${inputCls} pl-11 sm:pl-9 ${errors.emailAddress ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="client@example.com" value={formData.emailAddress} onChange={handleInputChange} />
                                 </div>
                                 {errors.emailAddress && <span className={errorCls}><IconAlert size={12} /> {errors.emailAddress}</span>}
                             </div>
@@ -439,8 +439,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                             <div className={fieldCls}>
                                 <label className={labelCls}>Phone Number <span className="text-[#e11d48]">*</span></label>
                                 <div className="relative flex items-center">
-                                    <div className="absolute left-4 text-[#cbd5e0]"><IconPhone /></div>
-                                    <input type="text" name="phoneNumber" className={`${inputCls} pl-11 ${errors.phoneNumber ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="+44 7700 900000" value={formData.phoneNumber} onChange={handleInputChange} />
+                                    <div className="absolute left-4 sm:left-3 text-[#cbd5e0]"><IconPhone /></div>
+                                    <input type="text" name="phoneNumber" className={`${inputCls} pl-11 sm:pl-9 ${errors.phoneNumber ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="+44 7700 900000" value={formData.phoneNumber} onChange={handleInputChange} />
                                 </div>
                                 {errors.phoneNumber && <span className={errorCls}><IconAlert size={12} /> {errors.phoneNumber}</span>}
                             </div>
@@ -499,14 +499,14 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                     {/* ── LOAN DETAILS ── */}
                     <div className={sectionCls}>
                         <h4 className={sectionHeadCls}>LOAN DETAILS</h4>
-                        <div className="grid grid-cols-2 gap-6 md:grid-cols-1">
+                        <div className="grid grid-cols-2 gap-6 md:grid-cols-1 sm:gap-3">
 
                             {/* Amount Needed */}
                             <div className={fieldCls}>
                                 <label className={labelCls}>Amount Needed <span className="text-[#e11d48]">*</span></label>
                                 <div className="relative flex items-center">
-                                    <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                    <input type="text" name="loanAmount" className={`${inputCls} pl-8 ${errors.loanAmount ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.loanAmount} onChange={handleInputChange} />
+                                    <span className="absolute left-4 sm:left-3 text-sm font-bold text-[#a0aec0]">£</span>
+                                    <input type="text" name="loanAmount" className={`${inputCls} pl-8 sm:pl-7 ${errors.loanAmount ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.loanAmount} onChange={handleInputChange} />
                                 </div>
                                 {errors.loanAmount && <span className={errorCls}><IconAlert size={12} /> {errors.loanAmount}</span>}
                             </div>
@@ -536,8 +536,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                             <div className={fieldCls}>
                                                 <label className={labelCls}>Amount Taken</label>
                                                 <div className="relative flex items-center">
-                                                    <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                                    <input type="text" name="existingLoanAmount" className={`${inputCls} pl-8 ${errors.existingLoanAmount ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.existingLoanAmount} onChange={handleInputChange} />
+                                                    <span className="absolute left-4 sm:left-3 text-sm font-bold text-[#a0aec0]">£</span>
+                                                    <input type="text" name="existingLoanAmount" className={`${inputCls} pl-8 sm:pl-7 ${errors.existingLoanAmount ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.existingLoanAmount} onChange={handleInputChange} />
                                                 </div>
                                                 {errors.existingLoanAmount && <span className={errorCls}><IconAlert size={12} /> {errors.existingLoanAmount}</span>}
                                             </div>
@@ -551,8 +551,8 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                                             <div className={fieldCls}>
                                                 <label className={labelCls}>Monthly Repayment</label>
                                                 <div className="relative flex items-center">
-                                                    <span className="absolute left-4 text-sm font-bold text-[#a0aec0]">£</span>
-                                                    <input type="text" name="existingLoanMonthlyRepayment" className={`${inputCls} pl-8 ${errors.existingLoanMonthlyRepayment ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.existingLoanMonthlyRepayment} onChange={handleInputChange} />
+                                                    <span className="absolute left-4 sm:left-3 text-sm font-bold text-[#a0aec0]">£</span>
+                                                    <input type="text" name="existingLoanMonthlyRepayment" className={`${inputCls} pl-8 sm:pl-7 ${errors.existingLoanMonthlyRepayment ? 'border-[#e11d48] ring-4 ring-[#e11d48]/5' : ''}`} placeholder="0.00" value={formData.existingLoanMonthlyRepayment} onChange={handleInputChange} />
                                                 </div>
                                                 {errors.existingLoanMonthlyRepayment && <span className={errorCls}><IconAlert size={12} /> {errors.existingLoanMonthlyRepayment}</span>}
                                             </div>
@@ -628,22 +628,20 @@ const CreateLead = ({ onBack, tasks, setTasks, notifyReminderSet }) => {
                         <p className="text-[12px] text-[#718096] mb-5">Upload 1 or more supported files: PDF or document. Max 10 MB each.</p>
                         <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileChange} accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png" />
 
-                        <div className="flex gap-4 mb-6 md:flex-col">
-                            <div className="flex-1 flex gap-3">
-                                <input
-                                    type="text"
-                                    className="flex-1 bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] transition-all"
-                                    placeholder="Enter document name (e.g. Bank Statement Jan 2026)"
-                                    value={customDocName}
-                                    onChange={(e) => setCustomDocName(e.target.value)}
-                                />
-                                <button
-                                    className="bg-[#ebf0ff] text-[#2447d7] p-3 px-6 rounded-xl text-sm font-bold hover:bg-[#2447d7] hover:text-white transition-all flex items-center gap-2"
-                                    onClick={handleUploadClick}
-                                >
-                                    <IconUpload size={16} /> Upload
-                                </button>
-                            </div>
+                        <div className="flex gap-3 mb-6">
+                            <input
+                                type="text"
+                                className="flex-1 min-w-0 bg-[#fdfdfd] border border-[#e2e8f0] p-3 px-4 rounded-xl text-sm outline-none focus:border-[#2447d7] transition-all"
+                                placeholder="Enter document name (e.g. Bank Statement Jan 2026)"
+                                value={customDocName}
+                                onChange={(e) => setCustomDocName(e.target.value)}
+                            />
+                            <button
+                                className="bg-[#ebf0ff] text-[#2447d7] px-4 py-3 rounded-xl text-sm font-bold hover:bg-[#2447d7] hover:text-white transition-all flex items-center gap-2 shrink-0 whitespace-nowrap"
+                                onClick={handleUploadClick}
+                            >
+                                <IconUpload size={16} /> <span className="sm:hidden">Upload</span>
+                            </button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4 md:grid-cols-1">

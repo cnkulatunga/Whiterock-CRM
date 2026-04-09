@@ -80,7 +80,7 @@ const AppLayout = ({ onLogout }) => {
         if (path.includes('dashboard')) return { title: 'Super Admin Dashboard', subtitle: `Operational Overview • ${user.first_name || 'Jane'}` };
         if (path.includes('user-management')) return { title: 'User Management', subtitle: 'System Access Control' };
         if (path.includes('leads')) return { title: 'Lead Performance', subtitle: 'Global Analytics' };
-        if (path.includes('audit-logs')) return { title: 'Audit Logs', subtitle: 'System Activity' };
+        if (path.includes('audit-logs') || path.includes('reports')) return { title: 'Compliance & Audit', subtitle: 'System Activity Logs' };
         if (path.includes('team-leaders')) return { title: 'Team Leaders', subtitle: 'Performance Monitoring' };
         if (path.includes('lenders')) return { title: 'Lender Management', subtitle: 'Provider Directory' };
         if (path.includes('operational-flow')) return { title: 'Operational Flow', subtitle: 'Cycle Management' };

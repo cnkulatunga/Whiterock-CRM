@@ -183,16 +183,16 @@ const Lenders = ({ readOnly = false }) => {
                     </div>
                 </div>
 
-                {/* Table Header */}
-                <div className="grid gap-4 px-8 py-2.5 bg-[#f8fafc] dark:bg-white/[0.02] border-b border-[#f1f5f9] dark:border-white/5"
+                {/* Table Header — desktop only */}
+                <div className="lg:hidden grid gap-4 px-8 py-2.5 bg-[#f8fafc] dark:bg-white/[0.02] border-b border-[#f1f5f9] dark:border-white/5"
                     style={{ gridTemplateColumns: readOnly ? '1.1fr 1.4fr 1.3fr 1.2fr 1.2fr 1fr' : '1.1fr 1.4fr 1.3fr 1.2fr 1.2fr 0.8fr 90px' }}>
                     {['Lender Name', 'Categories', 'Mail', 'Account Manager', 'Manager Email', 'Status', ...(readOnly ? [] : ['Actions'])].map((h, i) => (
                         <div key={i} className={`text-[10px] font-black text-[#a0aec0] dark:text-slate-500 uppercase tracking-widest ${!readOnly && i === 6 ? 'text-right' : ''}`}>{h}</div>
                     ))}
                 </div>
 
-                {/* Table Body */}
-                <div className="flex flex-col divide-y divide-[#f7fafc] dark:divide-white/5">
+                {/* Table Body — desktop only */}
+                <div className="lg:hidden flex flex-col divide-y divide-[#f7fafc] dark:divide-white/5">
                     {filtered.length === 0 ? (
                         <div className="py-20 flex flex-col items-center gap-4 text-center">
                             <div className="w-14 h-14 bg-[#f1f5f9] dark:bg-white/5 rounded-2xl flex items-center justify-center">
@@ -209,71 +209,31 @@ const Lenders = ({ readOnly = false }) => {
                         filtered.map((lender, idx) => (
                                 <div
                                     key={lender.id}
-                                    className={`group grid gap-4 px-8 py-2.5 items-center transition-all duration-200 animate-rowIn ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-[#f8faff]'}`}
+                                    onClick={() => openDetails(lender)}
+                                    className={`group grid gap-4 px-8 py-2.5 items-center transition-all duration-200 animate-rowIn cursor-pointer ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-[#f8faff]'}`}
                                     style={{
                                         gridTemplateColumns: readOnly ? '1.1fr 1.4fr 1.3fr 1.2fr 1.2fr 1fr' : '1.1fr 1.4fr 1.3fr 1.2fr 1.2fr 0.8fr 90px',
                                         animationDelay: `${400 + idx * 50}ms`,
                                         animationFillMode: 'both',
                                     }}
                                 >
-                                    {/* Name */}
                                     <div className="flex flex-col gap-0.5 min-w-0">
-                                        <button
-                                            onClick={() => openDetails(lender)}
-                                            className="text-[12px] font-bold text-[#2447d7] hover:underline text-left truncate group-hover:text-[#1732a3] transition-colors uppercase tracking-tight"
-                                        >
-                                            {lender.name}
-                                        </button>
+                                        <span className="text-[12px] font-bold text-[#2447d7] group-hover:underline group-hover:text-[#1732a3] transition-colors truncate uppercase tracking-tight">{lender.name}</span>
                                     </div>
-
-                                    {/* Categories */}
                                     <div className="flex flex-wrap gap-1.5 min-w-0">
-                                        {[
-                                            { id: 'unsecured', label: 'Unsecured', color: '#6366f1', bg: '#eef2ff' },
-                                            { id: 'secured', label: 'Secured', color: '#10b981', bg: '#ecfdf5' },
-                                            { id: 'commercial', label: 'Commercial', color: '#f59e0b', bg: '#fffbeb' },
-                                            { id: 'refinance', label: 'Refinance', color: '#f43f5e', bg: '#fff1f2' }
-                                        ].filter(cat => lender[cat.id]).map(cat => (
-                                            <span key={cat.id} className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter shrink-0 border"
-                                                style={{ color: cat.color, backgroundColor: cat.bg, borderColor: `${cat.color}20` }}>
-                                                {cat.label}
-                                            </span>
+                                        {[{id:'unsecured',label:'Unsecured',color:'#6366f1',bg:'#eef2ff'},{id:'secured',label:'Secured',color:'#10b981',bg:'#ecfdf5'},{id:'commercial',label:'Commercial',color:'#f59e0b',bg:'#fffbeb'},{id:'refinance',label:'Refinance',color:'#f43f5e',bg:'#fff1f2'}].filter(cat=>lender[cat.id]).map(cat=>(
+                                            <span key={cat.id} className="px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tighter shrink-0 border" style={{color:cat.color,backgroundColor:cat.bg,borderColor:`${cat.color}20`}}>{cat.label}</span>
                                         ))}
-                                        {![lender.unsecured, lender.secured, lender.commercial, lender.refinance].some(Boolean) && (
-                                            <span className="text-[10px] font-bold text-slate-300 italic">No categories</span>
-                                        )}
+                                        {![lender.unsecured,lender.secured,lender.commercial,lender.refinance].some(Boolean)&&<span className="text-[10px] font-bold text-slate-300 italic">No categories</span>}
                                     </div>
-
-                                    {/* Mail */}
-                                    <div className="min-w-0">
-                                        <span className="text-[11px] text-[#4a5568] dark:text-slate-400 truncate font-bold" title={lender.contact}>{lender.contact || '—'}</span>
-                                    </div>
-
-                                    {/* Manager Name */}
-                                    <div className="min-w-0">
-                                        <span className="text-[11px] text-indigo-700 dark:text-indigo-400 font-black uppercase tracking-tight truncate border-l-2 border-indigo-100 dark:border-indigo-500/30 pl-3">{lender.managerName || '—'}</span>
-                                    </div>
-
-                                    {/* Manager Email */}
-                                    <div className="min-w-0">
-                                        <span className="text-[11px] text-indigo-500 dark:text-indigo-400 font-bold truncate opacity-80" title={lender.managerEmail}>{lender.managerEmail || '—'}</span>
-                                    </div>
-
-                                    {/* Status */}
+                                    <div className="min-w-0"><span className="text-[11px] text-[#4a5568] dark:text-slate-400 truncate font-bold">{lender.contact||'—'}</span></div>
+                                    <div className="min-w-0"><span className="text-[11px] text-indigo-700 dark:text-indigo-400 font-black uppercase tracking-tight truncate border-l-2 border-indigo-100 dark:border-indigo-500/30 pl-3">{lender.managerName||'—'}</span></div>
+                                    <div className="min-w-0"><span className="text-[11px] text-indigo-500 dark:text-indigo-400 font-bold truncate opacity-80">{lender.managerEmail||'—'}</span></div>
                                     <div className="flex justify-center"><StatusBadge status={lender.status} /></div>
-
-                                    {/* Actions (super admin only) */}
                                     {!readOnly && (
-                                        <div className="flex items-center justify-end gap-2">
-                                            <button
-                                                onClick={() => setDeleteConfirmId(lender.id)}
-                                                className="w-8 h-8 rounded-lg bg-[#fef2f2] dark:bg-red-500/10 text-[#ef4444] dark:text-red-400 flex items-center justify-center hover:bg-[#ef4444] hover:text-white transition-all shadow-sm"
-                                                title="Delete"
-                                            >
-                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13">
-                                                    <polyline points="3 6 5 6 21 6" /><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                                                    <path d="M10 11v6" /><path d="M14 11v6" /><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                                                </svg>
+                                        <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
+                                            <button onClick={() => setDeleteConfirmId(lender.id)} className="w-8 h-8 rounded-lg bg-[#fef2f2] dark:bg-red-500/10 text-[#ef4444] dark:text-red-400 flex items-center justify-center hover:bg-[#ef4444] hover:text-white transition-all shadow-sm" title="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                                             </button>
                                         </div>
                                     )}
@@ -281,9 +241,209 @@ const Lenders = ({ readOnly = false }) => {
                         ))
                     )}
                 </div>
+
+                {/* Mobile card list — hidden on desktop */}
+                <div className="hidden lg:flex flex-col divide-y divide-[#f7fafc] dark:divide-white/5">
+                    {filtered.length === 0 ? (
+                        <div className="py-16 flex flex-col items-center gap-3 text-center">
+                            <p className="text-[13px] font-bold text-[#4a5568] dark:text-slate-400">No lenders found</p>
+                            <p className="text-[11px] text-[#a0aec0] dark:text-slate-600">Try adjusting your search or filters</p>
+                        </div>
+                    ) : (
+                        filtered.map((lender, idx) => (
+                            <div key={lender.id}
+                                onClick={() => openDetails(lender)}
+                                className={`px-4 py-3.5 flex flex-col gap-2 animate-rowIn cursor-pointer ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-[#f8faff]'} transition-colors`}
+                                style={{ animationDelay: `${400 + idx * 50}ms`, animationFillMode: 'both' }}>
+                                {/* Top: avatar + name + status + delete */}
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-xl bg-[#eef2ff] dark:bg-indigo-500/10 flex items-center justify-center text-[10px] font-black text-[#2447d7] shrink-0">
+                                        {lender.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
+                                    </div>
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                        <span className="text-[13px] font-bold text-[#2447d7] truncate">{lender.name}</span>
+                                        {lender.contact && <span className="text-[11px] text-[#94a3b8] truncate">{lender.contact}</span>}
+                                    </div>
+                                    <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
+                                        <StatusBadge status={lender.status} />
+                                        {!readOnly && (
+                                            <button onClick={() => setDeleteConfirmId(lender.id)} className="w-8 h-8 rounded-lg bg-[#fef2f2] dark:bg-red-500/10 text-[#ef4444] dark:text-red-400 flex items-center justify-center hover:bg-[#ef4444] hover:text-white transition-all" title="Delete">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                                {/* Bottom: categories + manager name */}
+                                <div className="flex items-center gap-2 pl-[48px] flex-wrap">
+                                    {[{id:'unsecured',label:'Unsecured',color:'#6366f1',bg:'#eef2ff'},{id:'secured',label:'Secured',color:'#10b981',bg:'#ecfdf5'},{id:'commercial',label:'Commercial',color:'#f59e0b',bg:'#fffbeb'},{id:'refinance',label:'Refinance',color:'#f43f5e',bg:'#fff1f2'}].filter(cat=>lender[cat.id]).map(cat=>(
+                                        <span key={cat.id} className="px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter border" style={{color:cat.color,backgroundColor:cat.bg,borderColor:`${cat.color}20`}}>{cat.label}</span>
+                                    ))}
+                                    {lender.managerName && <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 ml-auto">{lender.managerName}</span>}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
 
+            {/* ── UNIFIED DETAILS + EDIT MODAL ── */}
             {showDetails && viewingLender && (
+                <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-md flex items-center justify-center z-[9999] animate-fadeIn p-4">
+                    <div className="bg-white dark:bg-[#1e2347] w-full max-w-[520px] rounded-[2rem] shadow-[0_25px_70px_rgba(0,0,0,0.15)] overflow-hidden animate-slideUp border border-white/20 dark:border-white/10" style={{ maxHeight: 'calc(100vh - 2rem)' }}>
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-6 py-4 border-b border-[#f1f5f9] dark:border-white/10">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-[#eef2ff] dark:bg-blue-500/10 flex items-center justify-center text-[#2447d7] dark:text-blue-400">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                                </div>
+                                <div>
+                                    <h2 className="text-[15px] font-bold text-[#1a202c] dark:text-white leading-tight">{viewingLender.name}</h2>
+                                    <div className="mt-0.5"><StatusBadge status={viewingLender.status} /></div>
+                                </div>
+                            </div>
+                            <button onClick={() => { setShowDetails(false); setEditingLender(null); }} className="w-8 h-8 rounded-xl flex items-center justify-center text-[#94a3b8] hover:bg-[#f1f5f9] dark:hover:bg-white/10 transition-all">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="15" height="15"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            </button>
+                        </div>
+
+                        {/* Tabs — super admin only */}
+                        {!readOnly && (
+                            <div className="flex border-b border-[#f1f5f9] dark:border-white/10 px-6">
+                                {['Details', 'Edit'].map(tab => {
+                                    const active = tab === 'Edit' ? !!editingLender : !editingLender;
+                                    return (
+                                        <button key={tab} onClick={() => {
+                                            if (tab === 'Edit') { setEditingLender(viewingLender); setForm({ ...viewingLender }); }
+                                            else setEditingLender(null);
+                                        }} className={`px-4 py-2.5 text-[11px] font-black uppercase tracking-widest border-b-2 -mb-px transition-all ${active ? 'border-[#2447d7] text-[#2447d7]' : 'border-transparent text-[#94a3b8] hover:text-[#4a5568]'}`}>
+                                            {tab}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* Body */}
+                        <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 16rem)' }}>
+                            {!editingLender ? (
+                                <div className="p-6 flex flex-col gap-4">
+                                    <div className="grid grid-cols-2 sm:grid-cols-1 gap-3">
+                                        <div className="bg-[#f8fafc] dark:bg-white/5 rounded-2xl p-4 border border-[#f1f5f9] dark:border-white/10 flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-white dark:bg-white/10 flex items-center justify-center text-[#2447d7] border border-[#f1f5f9] dark:border-white/10 shrink-0">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-[9px] font-black text-[#a0aec0] uppercase tracking-widest leading-none mb-0.5">Company Email</span>
+                                                <span className="text-[11px] font-bold text-[#1a202c] dark:text-white break-all">{viewingLender.contact || '—'}</span>
+                                            </div>
+                                        </div>
+                                        <div className="bg-[#f8fafc] dark:bg-white/5 rounded-2xl p-4 border border-[#f1f5f9] dark:border-white/10 flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-white dark:bg-white/10 flex items-center justify-center text-indigo-600 border border-[#f1f5f9] dark:border-white/10 shrink-0">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="13" height="13"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-0.5">Account Manager</span>
+                                                <span className="text-[11px] font-bold text-[#1a202c] dark:text-white">{viewingLender.managerName || '—'}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {viewingLender.managerEmail && (
+                                        <div className="bg-indigo-50/30 dark:bg-indigo-500/10 rounded-xl p-3.5 border border-indigo-100 dark:border-indigo-500/20 flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="13" height="13"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                                            </div>
+                                            <div>
+                                                <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest block">Manager Email</span>
+                                                <span className="text-[12px] font-bold text-indigo-900 dark:text-indigo-300">{viewingLender.managerEmail}</span>
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="flex flex-col gap-2">
+                                        <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Lending Categories</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {[{id:'unsecured',label:'Unsecured'},{id:'secured',label:'Secured'},{id:'commercial',label:'Commercial'},{id:'refinance',label:'Refinance'}].map(item => (
+                                                <div key={item.id} className={`flex items-center gap-2.5 p-3 rounded-xl border-2 ${viewingLender[item.id] ? 'bg-[#eef2ff] dark:bg-blue-500/10 border-[#2447d7] dark:border-blue-500/40 text-[#2447d7]' : 'bg-[#fcfdff] dark:bg-white/[0.02] border-[#f1f5f9] dark:border-white/5 text-[#cbd5e0] opacity-60'}`}>
+                                                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 ${viewingLender[item.id] ? 'bg-[#2447d7] text-white' : 'bg-[#f1f5f9] dark:bg-white/5 text-[#cbd5e0]'}`}>
+                                                        {viewingLender[item.id] ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="11" height="11"><polyline points="20 6 9 17 4 12"/></svg> : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="11" height="11"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                                                    </div>
+                                                    <span className="text-[12px] font-bold">{item.label}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="p-5 flex flex-col gap-3">
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div className="col-span-2 flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Lender Name *</label>
+                                            <input type="text" className="bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0]"
+                                                value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Status</label>
+                                            <div className="relative">
+                                                <select className="w-full bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all appearance-none cursor-pointer pr-8"
+                                                    value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
+                                                    <option>Active</option><option>Inactive</option>
+                                                </select>
+                                                <svg className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" width="12" height="12"><polyline points="6 9 12 15 18 9"/></svg>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Contact Email</label>
+                                            <input type="email" className="bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0]"
+                                                value={form.contact} onChange={e => setForm(f => ({ ...f, contact: e.target.value }))} />
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Manager Name</label>
+                                            <input type="text" className="bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0]"
+                                                value={form.managerName} onChange={e => setForm(f => ({ ...f, managerName: e.target.value }))} />
+                                        </div>
+                                        <div className="flex flex-col gap-1.5">
+                                            <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Manager Email</label>
+                                            <input type="email" className="bg-[#f8fafc] dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-[#1a202c] dark:text-white outline-none focus:border-[#2447d7] transition-all placeholder:text-[#cbd5e0]"
+                                                value={form.managerEmail} onChange={e => setForm(f => ({ ...f, managerEmail: e.target.value }))} />
+                                        </div>
+                                        <div className="col-span-2 flex flex-col gap-2">
+                                            <label className="text-[10px] font-black text-[#a0aec0] uppercase tracking-widest">Lending Categories</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {[{id:'unsecured',label:'Unsecured'},{id:'secured',label:'Secured'},{id:'commercial',label:'Commercial'},{id:'refinance',label:'Refinance'}].map(item => (
+                                                    <label key={item.id} className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border cursor-pointer transition-all ${form[item.id] ? 'bg-[#eef2ff] dark:bg-blue-500/10 border-[#2447d7] text-[#2447d7]' : 'bg-white dark:bg-white/[0.02] border-[#e2e8f0] dark:border-white/10 text-[#718096]'}`}>
+                                                        <input type="checkbox" className="hidden" checked={form[item.id] || false} onChange={e => setForm(f => ({ ...f, [item.id]: e.target.checked }))} />
+                                                        <div className={`w-4 h-4 rounded flex items-center justify-center border shrink-0 ${form[item.id] ? 'bg-[#2447d7] border-[#2447d7]' : 'border-[#cbd5e0] dark:border-white/20'}`}>
+                                                            {form[item.id] && <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" width="10" height="10"><polyline points="20 6 9 17 4 12"/></svg>}
+                                                        </div>
+                                                        <span className="text-[12px] font-bold">{item.label}</span>
+                                                    </label>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="px-6 py-4 border-t border-[#f1f5f9] dark:border-white/10 bg-[#f8fafc]/50 dark:bg-white/[0.02] flex items-center gap-3">
+                            {editingLender ? (
+                                <>
+                                    <button onClick={() => setEditingLender(null)} className="px-4 py-2 rounded-xl bg-white dark:bg-white/5 border border-[#e2e8f0] dark:border-white/10 text-[#64748b] text-[12px] font-bold hover:bg-[#f1f5f9] transition-all">Cancel</button>
+                                    <button onClick={() => { handleSave(); setShowDetails(false); setEditingLender(null); }} disabled={!form.name.trim()} className="flex-1 py-2 rounded-xl bg-[#2447d7] text-white text-[12px] font-bold shadow-[0_4px_12px_rgba(36,71,215,0.25)] hover:bg-[#1732a3] transition-all disabled:opacity-40">
+                                        Update Partner
+                                    </button>
+                                </>
+                            ) : (
+                                <button onClick={() => { setShowDetails(false); setEditingLender(null); }} className="w-full py-2.5 rounded-xl bg-[#1a202c] dark:bg-white/10 text-white text-[13px] font-bold hover:opacity-90 transition-all">
+                                    Close
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showDetails && viewingLender && false && (
                 <div className="fixed inset-0 bg-[#0f172a]/40 backdrop-blur-md flex items-center justify-center z-[9999] animate-fadeIn p-4">
                     <div className="bg-white dark:bg-[#1e2347] w-full max-w-[500px] rounded-[2rem] shadow-[0_25px_70px_rgba(0,0,0,0.15)] overflow-hidden animate-slideUp border border-white/20 dark:border-white/10">
                         <div className="flex items-center justify-between px-8 py-6 sm:px-5 sm:py-4 border-b border-[#f1f5f9] dark:border-white/10">

@@ -1221,75 +1221,117 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                 };
 
                 return (
-                    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={() => setStatModal(null)}>
-                        <div className={`rounded-2xl shadow-2xl w-full max-w-5xl max-h-[85vh] flex flex-col animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
+                    <div className="fixed inset-0 z-[9999] flex items-center justify-center sm:items-end bg-black/50 backdrop-blur-sm p-4 sm:p-0" onClick={() => setStatModal(null)}>
+                        <div className={`rounded-2xl sm:rounded-b-none sm:rounded-t-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] sm:max-h-[92vh] flex flex-col animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
                             {/* header */}
                             <div className={`flex items-center justify-between px-5 py-3.5 border-b shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
+                                {/* drag handle on mobile */}
+                                <div className="hidden sm:flex absolute top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-slate-300" />
                                 <div className="flex items-center gap-2">
                                     <div className={`w-2 h-2 rounded-full bg-${ac}-500`} />
                                     <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{titles[statModal]}</p>
-                                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full bg-${ac}-100 text-${ac}-700`}>{data.length} records</span>
+                                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap bg-${ac}-100 text-${ac}-700`}>{data.length} records</span>
                                 </div>
                                 <button onClick={() => setStatModal(null)} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
                                     <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
                                 </button>
                             </div>
-                            {/* table */}
+
+                            {/* Desktop: table | Mobile: cards */}
                             <div className="overflow-auto flex-1">
                                 {data.length > 0 ? (
-                                    <table className="w-full text-left border-collapse">
-                                        <thead className={`sticky top-0 z-10 ${isDark ? 'bg-[#151932]' : 'bg-slate-50'}`}>
-                                            <tr>
-                                                {['#', 'Lead', 'Business', 'Agent', 'Loan Amount', 'Stage'].map(h => (
-                                                    <th key={h} className={`px-3 py-2.5 text-[9px] font-black uppercase tracking-widest border-b ${isDark ? 'text-[#546298] border-white/5' : 'text-slate-400 border-slate-100'}`}>{h}</th>
-                                                ))}
-                                                {statModal === 'pending-docs' && <th className="px-3 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Pending Docs</th>}
-                                            </tr>
-                                        </thead>
-                                        <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-50'}`}>
-                                            {data.map((lead, idx) => {
+                                    <>
+                                        {/* Desktop table */}
+                                        <table className="w-full text-left border-collapse sm:hidden">
+                                            <thead className={`sticky top-0 z-10 ${isDark ? 'bg-[#151932]' : 'bg-slate-50'}`}>
+                                                <tr>
+                                                    {['#', 'Lead', 'Business', 'Agent', 'Loan Amount', 'Stage'].map(h => (
+                                                        <th key={h} className={`px-3 py-2.5 text-[9px] font-black uppercase tracking-widest border-b ${isDark ? 'text-[#546298] border-white/5' : 'text-slate-400 border-slate-100'}`}>{h}</th>
+                                                    ))}
+                                                    {statModal === 'pending-docs' && <th className="px-3 py-2.5 text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">Pending Docs</th>}
+                                                </tr>
+                                            </thead>
+                                            <tbody className={`divide-y ${isDark ? 'divide-white/5' : 'divide-slate-50'}`}>
+                                                {data.map((lead, idx) => {
+                                                    const pendingDocCount = (lead.documents || []).filter(d => d.status === 'Pending').length;
+                                                    return (
+                                                        <tr key={lead.id}
+                                                            className={`transition-colors cursor-pointer group ${isDark ? 'hover:bg-white/5' : 'hover:bg-blue-50/40'}`}
+                                                            onClick={() => { setStatModal(null); onNavigate?.('lead-details', lead); }}
+                                                        >
+                                                            <td className={`px-3 py-2 text-[10px] font-bold ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{idx + 1}</td>
+                                                            <td className="px-3 py-2">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-[9px] font-black shrink-0">
+                                                                        {(lead.name || '').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className={`text-[11px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{lead.name}</p>
+                                                                        <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{lead.email}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td className={`px-3 py-2 text-[11px] ${isDark ? 'text-[#94abda]' : 'text-slate-600'}`}>{lead.businessName || '—'}</td>
+                                                            <td className={`px-3 py-2 text-[11px] ${isDark ? 'text-[#94abda]' : 'text-slate-600'}`}>{lead.agentName || '—'}</td>
+                                                            <td className="px-3 py-2 text-[11px] font-bold text-blue-500">{lead.loanAmount || '—'}</td>
+                                                            <td className="px-3 py-2">
+                                                                <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${STAGE_COLORS[lead.stage || lead.status] || 'bg-slate-100 text-slate-600'}`}>
+                                                                    {lead.stage || lead.status}
+                                                                </span>
+                                                            </td>
+                                                            {statModal === 'pending-docs' && (
+                                                                <td className="px-3 py-2">
+                                                                    <span className="text-[9px] font-black text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full">{pendingDocCount} pending</span>
+                                                                </td>
+                                                            )}
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+
+                                        {/* Mobile cards */}
+                                        <div className="hidden sm:flex flex-col divide-y divide-slate-50 dark:divide-white/5">
+                                            {data.map((lead) => {
                                                 const pendingDocCount = (lead.documents || []).filter(d => d.status === 'Pending').length;
                                                 return (
-                                                    <tr key={lead.id}
-                                                        className={`transition-colors cursor-pointer group ${isDark ? 'hover:bg-white/5' : 'hover:bg-blue-50/40'}`}
+                                                    <div key={lead.id}
                                                         onClick={() => { setStatModal(null); onNavigate?.('lead-details', lead); }}
+                                                        className={`px-4 py-3.5 flex flex-col gap-2 cursor-pointer transition-colors ${isDark ? 'hover:bg-white/[0.03]' : 'hover:bg-blue-50/30'}`}
                                                     >
-                                                        <td className={`px-3 py-2 text-[10px] font-bold ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{idx + 1}</td>
-                                                        <td className="px-3 py-2">
-                                                            <div className="flex items-center gap-2">
-                                                                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-[9px] font-black shrink-0">
-                                                                    {(lead.name || '').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                                                                </div>
-                                                                <div>
-                                                                    <p className={`text-[11px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{lead.name}</p>
-                                                                    <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{lead.email}</p>
-                                                                </div>
+                                                        {/* Top: avatar + name + amount */}
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                                                                {(lead.name || '').split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                                             </div>
-                                                        </td>
-                                                        <td className={`px-3 py-2 text-[11px] ${isDark ? 'text-[#94abda]' : 'text-slate-600'}`}>{lead.businessName || '—'}</td>
-                                                        <td className={`px-3 py-2 text-[11px] ${isDark ? 'text-[#94abda]' : 'text-slate-600'}`}>{lead.agentName || '—'}</td>
-                                                        <td className="px-3 py-2 text-[11px] font-bold text-blue-500">{lead.loanAmount || '—'}</td>
-                                                        <td className="px-3 py-2">
+                                                            <div className="flex flex-col min-w-0 flex-1">
+                                                                <span className={`text-[13px] font-bold truncate ${isDark ? 'text-[#e4ecff]' : 'text-slate-800'}`}>{lead.name}</span>
+                                                                {lead.businessName && <span className={`text-[10px] truncate ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{lead.businessName}</span>}
+                                                            </div>
+                                                            <span className="text-[12px] font-black text-blue-500 shrink-0">{lead.loanAmount || '—'}</span>
+                                                        </div>
+                                                        {/* Bottom: stage + agent + pending docs */}
+                                                        <div className="flex items-center gap-2 pl-[48px] flex-wrap">
                                                             <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full ${STAGE_COLORS[lead.stage || lead.status] || 'bg-slate-100 text-slate-600'}`}>
                                                                 {lead.stage || lead.status}
                                                             </span>
-                                                        </td>
-                                                        {statModal === 'pending-docs' && (
-                                                            <td className="px-3 py-2">
-                                                                <span className="text-[9px] font-black text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full">{pendingDocCount} pending</span>
-                                                            </td>
-                                                        )}
-                                                    </tr>
+                                                            {lead.agentName && <span className={`text-[10px] font-medium ${isDark ? 'text-[#94abda]' : 'text-slate-500'}`}>{lead.agentName}</span>}
+                                                            {statModal === 'pending-docs' && pendingDocCount > 0 && (
+                                                                <span className="text-[9px] font-black text-rose-600 bg-rose-100 px-2 py-0.5 rounded-full ml-auto">{pendingDocCount} pending</span>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 );
                                             })}
-                                        </tbody>
-                                    </table>
+                                        </div>
+                                    </>
                                 ) : (
                                     <div className={`py-16 text-center text-[11px] font-bold uppercase tracking-widest ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>No records found</div>
                                 )}
                             </div>
+
                             {/* footer */}
-                            <div className="px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center shrink-0">
+                            <div className={`px-5 py-3 border-t flex justify-between items-center shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`}>
                                 <span className="text-[9px] text-slate-400">{data.length} total records</span>
                                 <button onClick={() => { setStatModal(null); onNavigate?.('operational-flow'); }}
                                     className="text-[9px] font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1 transition-colors">
