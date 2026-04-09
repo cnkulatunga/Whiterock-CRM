@@ -9,6 +9,7 @@ import { useLeads } from '../../../context/LeadsContext';
 import { usePromotions } from '../../../context/PromotionsContext';
 import { useKnowledgeBase } from '../../../context/KnowledgeBaseContext';
 import { canManageTask } from '../../../utils/permissionUtils';
+import KBModal from '../../../components/modals/KBModal';
 
 /* ─── SVG ICONS ─── */
 const IconUserGroup = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18" {...props}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
@@ -851,119 +852,6 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     )}
                 </div>
             );
-            case 'KNOWLEDGE_BASE': {
-                const categories = ['All', ...new Set(kbResources.map(d => d.category))];
-                const filtered = kbResources.filter(d => 
-                    (kbActiveCat === 'All' || d.category === kbActiveCat) &&
-                    (d.name.toLowerCase().includes(kbSearch.toLowerCase()) || (d.content || '').toLowerCase().includes(kbSearch.toLowerCase()))
-                );
-
-                const renderKbPreview = (doc) => {
-                    return (
-                        <div className="flex flex-col gap-4">
-                            {doc.content && (
-                                <div className="p-5 bg-white dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm">
-                                    <pre className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-300 whitespace-pre-wrap font-['Sora',sans-serif]">
-                                        {doc.content}
-                                    </pre>
-                                </div>
-                            )}
-                            {doc.fileData && doc.fileType?.startsWith('image/') && (
-                                <div className="rounded-2xl border border-dashed border-slate-200 dark:border-white/10 overflow-hidden bg-white dark:bg-slate-900/50">
-                                    <img src={doc.fileData} alt={doc.name} className="w-full h-auto object-contain max-h-[500px]" />
-                                </div>
-                            )}
-                            {doc.fileData && doc.fileType === 'application/pdf' && (
-                                <div className="h-[600px] border rounded-2xl overflow-hidden shadow-lg border-slate-200 dark:border-white/10">
-                                    <iframe src={doc.fileData} className="w-full h-full" title={doc.name} />
-                                </div>
-                            )}
-                        </div>
-                    );
-                };
-
-                const TAG_COLORS = {
-                    blue: { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-100 dark:border-blue-500/20', dot: 'bg-blue-500' },
-                    violet: { bg: 'bg-violet-50 dark:bg-violet-900/20', text: 'text-violet-600 dark:text-violet-400', border: 'border-violet-100 dark:border-violet-500/20', dot: 'bg-violet-500' },
-                    orange: { bg: 'bg-orange-50 dark:bg-orange-900/20', text: 'text-orange-600 dark:text-orange-400', border: 'border-orange-100 dark:border-orange-500/20', dot: 'bg-orange-500' },
-                    teal: { bg: 'bg-teal-50 dark:bg-teal-900/20', text: 'text-teal-600 dark:text-teal-400', border: 'border-teal-100 dark:border-teal-500/20', dot: 'bg-teal-500' },
-                };
-
-                return (
-                    <div className="flex flex-col gap-4 h-[70vh]">
-                        {/* Search & Categories */}
-                        <div className="flex flex-col gap-3 shrink-0">
-                            <div className="relative">
-                                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                                <input 
-                                    value={kbSearch} onChange={e => setKbSearch(e.target.value)}
-                                    placeholder="Search resources, scripts, or FAQs..."
-                                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-white/5 pl-9 pr-4 py-2.5 rounded-xl text-sm font-bold dark:text-white outline-none focus:ring-2 ring-blue-500/20 transition-all"
-                                />
-                            </div>
-                            <div className="flex gap-1.5 flex-wrap">
-                                {categories.map(cat => (
-                                    <button 
-                                        key={cat} onClick={() => setKbActiveCat(cat)}
-                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${kbActiveCat === cat ? 'bg-[#0061ff] text-white shadow-md shadow-blue-500/30' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-white/5 hover:bg-slate-100'}`}
-                                    >
-                                        {cat}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Split Body */}
-                        <div className="flex sm:flex-col flex-1 min-h-0 gap-4 sm:gap-6 overflow-hidden">
-                            {/* List */}
-                            <div className="w-1/3 sm:w-full flex-shrink-0 flex flex-col gap-2 overflow-y-auto pr-2 custom-scrollbar sm:max-h-[220px] sm:pr-0">
-                                {filtered.map(doc => {
-                                    const c = TAG_COLORS[doc.tag] || TAG_COLORS.blue;
-                                    return (
-                                        <button 
-                                            key={doc.id} onClick={() => setKbSelectedDoc(doc)}
-                                            className={`p-3 rounded-xl border text-left transition-all group shrink-0 ${kbSelectedDoc?.id === doc.id ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-500/50 ring-2 ring-blue-500/10' : 'bg-white dark:bg-transparent border-slate-100 dark:border-white/5 hover:border-blue-300 dark:hover:border-blue-500/30'}`}
-                                        >
-                                            <div className="flex items-center gap-2 mb-1.5">
-                                                <div className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-                                                <span className={`text-[8px] font-black uppercase tracking-[0.2em] ${c.text}`}>{doc.category}</span>
-                                            </div>
-                                            <p className={`text-[12px] font-bold leading-tight ${kbSelectedDoc?.id === doc.id ? 'text-blue-700 dark:text-blue-300' : 'text-slate-700 dark:text-slate-200'}`}>{doc.name}</p>
-                                        </button>
-                                    );
-                                })}
-                                {filtered.length === 0 && <div className="py-10 text-center text-slate-400 font-bold uppercase text-[10px]">No results matching "{kbSearch}"</div>}
-                            </div>
-
-                            {/* Preview */}
-                            <div className="flex-1 min-h-0 bg-slate-50 dark:bg-slate-900/30 rounded-2xl border border-slate-100 dark:border-white/5 overflow-y-auto custom-scrollbar relative">
-                                {kbSelectedDoc ? (
-                                    <div className="p-6">
-                                        <div className="flex justify-between items-start mb-6">
-                                            <div>
-                                                <span className={`inline-block text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full mb-2 ${TAG_COLORS[kbSelectedDoc.tag]?.bg} ${TAG_COLORS[kbSelectedDoc.tag]?.text}`}>
-                                                    {kbSelectedDoc.category}
-                                                </span>
-                                                <h3 className="text-xl font-black text-slate-800 dark:text-white leading-tight">{kbSelectedDoc.name}</h3>
-                                            </div>
-                                            <div className="p-2.5 bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-white/5">
-                                                <IconBook className="text-blue-600 dark:text-blue-400" />
-                                            </div>
-                                        </div>
-                                        
-                                        {renderKbPreview(kbSelectedDoc)}
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col items-center justify-center p-12 text-center h-full">
-                                        <div className="w-16 h-16 bg-slate-200 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4 text-2xl">📖</div>
-                                        <h4 className="text-slate-400 font-black uppercase text-xs tracking-widest">Select a document to preview</h4>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                );
-            }
             default: return null;
         }
     };
@@ -1267,15 +1155,22 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
             </div>
 
-            <DashboardModal isOpen={activeModal !== null} onClose={closeModal} title={
+            <DashboardModal isOpen={activeModal !== null && activeModal !== 'KNOWLEDGE_BASE'} onClose={closeModal} title={
                 activeModal === 'LEAD_COUNT' ? 'My Assigned Leads' :
                     activeModal === 'FOLLOW_UPS' ? 'My Follow-ups' :
                         activeModal === 'PENDING_DOCS' ? 'Pending Documents' :
-                            activeModal === 'KNOWLEDGE_BASE' ? 'Knowledge Base' :
                                 (activeModal ? activeModal.replace(/_/g, ' ') : '')
             } isWide={activeModal === 'LEAD_COUNT' || activeModal === 'FOLLOW_UPS'}>
                 {renderModalContent()}
             </DashboardModal>
+
+            {activeModal === 'KNOWLEDGE_BASE' && (
+                <KBModal
+                    onClose={closeModal}
+                    allDocs={kbResources}
+                    hideAddButton={true}
+                />
+            )}
 
             {/* Alert Dialog */}
             {alertDialog.open && (

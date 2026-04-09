@@ -15,7 +15,8 @@ import {
 import { useTasks } from '../../../context/TasksContext';
 import { useKnowledgeBase } from '../../../context/KnowledgeBaseContext';
 import TaskModal from '../../../components/modals/TaskModal';
-
+import KBModal from '../../../components/modals/KBModal';
+import AddResourcePopup from '../../../components/modals/AddResourcePopup';
 /* ─── ICONS ─────────────────────────────────── */
 const IconUsers = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
 const IconMoney = (p) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /></svg>;
@@ -534,9 +535,9 @@ const PendingPayouts = ({ onNavigate, leads = [] }) => {
 
 /* ─── LICENSES & INSURANCE ───────────────── */
 /* ─── ADD LICENSE POPUP ──────────────────── */
-const getAutoStatus = (expiryYearMonth) => {
-    if (!expiryYearMonth) return 'Active';
-    const expiry = new Date(expiryYearMonth + '-01');
+const getAutoStatus = (expiryDateString) => {
+    if (!expiryDateString) return 'Active';
+    const expiry = new Date(expiryDateString);
     const now = new Date();
     const diffDays = (expiry - now) / (1000 * 60 * 60 * 24);
     if (diffDays < 0) return 'Expired';
@@ -544,16 +545,28 @@ const getAutoStatus = (expiryYearMonth) => {
     return 'Active';
 };
 
-const formatExpiry = (yearMonth) => {
-    if (!yearMonth) return '';
-    const [y, m] = yearMonth.split('-');
-    return new Date(y, m - 1).toLocaleString('default', { month: 'short', year: 'numeric' });
+const formatExpiry = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date)) return '';
+    return date.toLocaleString('default', { day: 'numeric', month: 'short', year: 'numeric' });
 };
 
-const AddLicensePopup = ({ onClose, onAdd }) => {
+const parseExpiry = (formatted) => {
+    if (!formatted) return '';
+    const date = new Date(formatted);
+    if (isNaN(date)) return '';
+    return date.toISOString().split('T')[0];
+};
+
+const AddLicensePopup = ({ onClose, onAdd, initialData = null }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const [form, setForm] = useState({ label: '', expiry: '', reminder: '1 month' });
+    const [form, setForm] = useState(initialData ? {
+        label: initialData.label,
+        expiry: parseExpiry(initialData.expiry),
+        reminder: initialData.reminder || '1 month'
+    } : { label: '', expiry: '', reminder: '1 month' });
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
     const autoStatus = getAutoStatus(form.expiry);
 
@@ -566,7 +579,7 @@ const AddLicensePopup = ({ onClose, onAdd }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.label.trim() || !form.expiry) return;
-        onAdd({ label: form.label, expiry: formatExpiry(form.expiry), status: autoStatus, reminder: form.reminder });
+        onAdd({ ...initialData, id: initialData ? initialData.id : Date.now(), label: form.label, expiry: formatExpiry(form.expiry), status: autoStatus, reminder: form.reminder });
         onClose();
     };
 
@@ -581,7 +594,7 @@ const AddLicensePopup = ({ onClose, onAdd }) => {
                         <div className="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center">
                             <IconShield width="13" height="13" className="text-emerald-600" />
                         </div>
-                        <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Add License / Insurance</p>
+                        <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{initialData ? 'Edit License / Insurance' : 'Add License / Insurance'}</p>
                     </div>
                     <button onClick={onClose} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
                         <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
@@ -595,7 +608,7 @@ const AddLicensePopup = ({ onClose, onAdd }) => {
                     <div className="flex flex-col gap-1">
                         <label className={labelCls}>Expiry Date</label>
                         <div className="flex items-center gap-2">
-                            <input type="month" value={form.expiry} onChange={e => set('expiry', e.target.value)} required className={`flex-1 ${inputCls}`} />
+                            <input type="date" value={form.expiry} onChange={e => set('expiry', e.target.value)} required className={`flex-1 ${inputCls}`} />
                             {form.expiry && <span className={`text-[8px] font-bold px-2 py-1 rounded-full shrink-0 ${statusStyle[autoStatus]}`}>{autoStatus}</span>}
                         </div>
                         {form.expiry && <p className={`text-[9px] pl-1 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Status auto-calculated from expiry date</p>}
@@ -613,7 +626,7 @@ const AddLicensePopup = ({ onClose, onAdd }) => {
                     </div>
                     <div className="flex justify-end gap-2 pt-1">
                         <button type="button" onClick={onClose} className={`text-[10px] font-bold px-4 py-2 rounded-xl transition-colors ${isDark ? 'text-[#94abda] bg-white/5 hover:bg-white/10' : 'text-slate-500 bg-slate-100 hover:bg-slate-200'}`}>Cancel</button>
-                        <button type="submit" className="text-[10px] font-bold text-white bg-emerald-600 px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">Add</button>
+                        <button type="submit" className="text-[10px] font-bold text-white bg-emerald-600 px-4 py-2 rounded-xl hover:bg-emerald-700 transition-colors">{initialData ? 'Save Changes' : 'Add'}</button>
                     </div>
                 </form>
             </div>
@@ -626,10 +639,12 @@ const LicensesInsurance = () => {
     const [showAdd, setShowAdd] = useState(false);
     const [showAll, setShowAll] = useState(false);
     const [items, setItems] = useState([
-        { label: 'Business License', expiry: 'Dec 2026', status: 'Active' },
-        { label: 'Insurance Policy', expiry: 'Jun 2026', status: 'Active' },
-        { label: 'Compliance Cert', expiry: 'Mar 2026', status: 'Expiring' },
+        { id: 1, label: 'Business License', expiry: 'Dec 2026', status: 'Active' },
+        { id: 2, label: 'Insurance Policy', expiry: 'Jun 2026', status: 'Active' },
+        { id: 3, label: 'Compliance Cert', expiry: 'Mar 2026', status: 'Expiring' },
     ]);
+    const [editingItem, setEditingItem] = useState(null);
+    const [itemToDelete, setItemToDelete] = useState(null);
 
     const { theme } = useTheme();
     const isDark = theme === 'dark';
@@ -702,7 +717,17 @@ const LicensesInsurance = () => {
                                             <p className={`text-[10px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Expires: {item.expiry}{item.reminder ? ` · Reminder: ${item.reminder} before` : ''}</p>
                                         </div>
                                     </div>
-                                    <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${item.status === 'Expiring' ? (isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-100 text-amber-700') : item.status === 'Expired' ? (isDark ? 'bg-rose-500/15 text-rose-400' : 'bg-rose-100 text-rose-700') : (isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-700')}`}>{item.status}</span>
+                                    <div className="flex items-center gap-2">
+                                        <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${item.status === 'Expiring' ? (isDark ? 'bg-amber-500/15 text-amber-400' : 'bg-amber-100 text-amber-700') : item.status === 'Expired' ? (isDark ? 'bg-rose-500/15 text-rose-400' : 'bg-rose-100 text-rose-700') : (isDark ? 'bg-emerald-500/15 text-emerald-400' : 'bg-emerald-100 text-emerald-700')}`}>{item.status}</span>
+                                        <div className="flex items-center gap-1.5 shrink-0 ml-1">
+                                            <button onClick={(e) => { e.stopPropagation(); setEditingItem(item); }} className={`p-1.5 rounded-lg transition-colors ${isDark ? 'bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20' : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'}`} title="Edit">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                                            </button>
+                                            <button onClick={(e) => { e.stopPropagation(); setItemToDelete(item); }} className={`p-1.5 rounded-lg transition-colors ${isDark ? 'bg-rose-500/10 text-rose-400 hover:bg-rose-500/20' : 'bg-rose-50 text-rose-600 hover:bg-rose-100'}`} title="Delete">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -718,6 +743,27 @@ const LicensesInsurance = () => {
                     onAdd={item => setItems(p => [...p, item])}
                 />
             )}
+            {editingItem && (
+                <AddLicensePopup
+                    initialData={editingItem}
+                    onClose={() => setEditingItem(null)}
+                    onAdd={item => setItems(p => p.map(i => i.id === item.id ? item : i))}
+                />
+            )}
+            {itemToDelete && (
+                <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className={`p-6 rounded-2xl w-full max-w-sm shadow-2xl animate-fadeIn ${isDark ? 'bg-[#1e2347] border border-white/10' : 'bg-white'}`} onClick={e => e.stopPropagation()}>
+                        <h3 className={`text-lg font-black mb-2 leading-tight ${isDark ? 'text-white' : 'text-slate-800'}`}>Delete License?</h3>
+                        <p className={`text-[13px] mb-6 font-medium ${isDark ? 'text-[#94abda]' : 'text-slate-500'}`}>
+                            Are you sure you want to delete <strong className={isDark ? 'text-white' : 'text-slate-700'}>"{itemToDelete.label}"</strong>?
+                        </p>
+                        <div className="flex justify-end gap-3 shrink-0">
+                            <button onClick={() => setItemToDelete(null)} className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-colors ${isDark ? 'text-[#94abda] hover:bg-white/5 border border-white/10' : 'text-slate-500 hover:bg-slate-50 border border-slate-200'}`}>Cancel</button>
+                            <button onClick={() => { setItems(p => p.filter(i => i.id !== itemToDelete.id)); setItemToDelete(null); }} className="px-4 py-2 rounded-xl text-xs font-bold text-white uppercase tracking-wider bg-rose-500 hover:bg-rose-600 transition-colors shadow-sm shadow-rose-500/20">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
@@ -730,247 +776,12 @@ const TAG_COLORS = {
     orange: { bg: 'bg-orange-50', text: 'text-orange-600', border: 'border-orange-100', dot: 'bg-orange-500' },
 };
 
-const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_BASE_RESOURCES.filter(d => d.category !== 'Audit') }) => {
-    const { theme } = useTheme();
-    const isDark = theme === 'dark';
-    const [selected, setSelected] = useState(initialDoc);
-    const [search, setSearch] = useState('');
-    const [activeCategory, setActiveCategory] = useState('All');
-    const categories = ['All', ...new Set(allDocs.map(d => d.category))];
-    const filtered = allDocs.filter(d =>
-        (activeCategory === 'All' || d.category === activeCategory) &&
-        d.name.toLowerCase().includes(search.toLowerCase())
-    );
-
-    const renderPreview = (doc) => {
-        return (
-            <div className="flex flex-col gap-3">
-                {doc.content && (
-                    <div className={`p-3.5 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : `${TAG_COLORS[selected.tag].bg} ${TAG_COLORS[selected.tag].border}`}`}>
-                        <pre className={`text-[10px] leading-relaxed whitespace-pre-wrap font-['Sora',sans-serif] ${isDark ? 'text-[#94abda]' : 'text-slate-700'}`}>{doc.content}</pre>
-                    </div>
-                )}
-                {doc.fileData && doc.fileType?.startsWith('image/') && (
-                    <div className="rounded-xl border border-dashed border-slate-200 overflow-hidden">
-                        <img src={doc.fileData} alt={doc.name} className="w-full h-auto object-contain max-h-[400px]" />
-                    </div>
-                )}
-                {doc.fileData && doc.fileType === 'application/pdf' && (
-                    <div className="h-[500px] border rounded-xl overflow-hidden">
-                        <iframe src={doc.fileData} className="w-full h-full" title={doc.name} />
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center sm:items-end bg-black/50 backdrop-blur-sm p-4 sm:p-0" onClick={e => e.target === e.currentTarget && onClose()}>
-            <div className={`rounded-2xl sm:rounded-b-none sm:rounded-t-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] sm:max-h-[92vh] flex flex-col overflow-hidden animate-fadeIn ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}>
-                {/* header */}
-                <div className={`flex items-center justify-between px-5 py-3.5 border-b shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
-                    {/* drag handle on mobile */}
-                    <div className="hidden sm:flex absolute top-2 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-slate-300" />
-                    <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center">
-                            <IconBook width="14" height="14" className="text-teal-600" />
-                        </div>
-                        <div>
-                            <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Knowledge Base Repository</p>
-                            <p className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{allDocs.length} resources available</p>
-                        </div>
-                    </div>
-                    <button onClick={onClose} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
-                        <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
-                    </button>
-                </div>
-                {/* search + category filter */}
-                <div className={`px-4 pt-3 pb-2 shrink-0 flex flex-col gap-2 border-b ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search documents..."
-                        className={`w-full text-[11px] px-3 py-2 rounded-xl border focus:outline-none transition-colors ${isDark ? 'bg-[#151932] border-white/10 text-[#e4ecff] placeholder-white/20 focus:border-teal-500' : 'bg-slate-50 border-slate-200 focus:border-teal-400 placeholder-slate-300'}`} />
-                    <div className="flex gap-1.5 flex-wrap">
-                        {categories.map(cat => (
-                            <button key={cat} onClick={() => setActiveCategory(cat)}
-                                className={`text-[9px] font-bold px-2.5 py-1 rounded-full transition-colors ${activeCategory === cat ? 'bg-teal-600 text-white' : (isDark ? 'bg-white/5 text-[#94abda] hover:bg-white/10' : 'bg-slate-100 text-slate-500 hover:bg-slate-200')}`}>
-                                {cat}
-                            </button>
-                        ))}
-                    </div>
-                </div>
-                {/* body — side by side on desktop, stacked on mobile */}
-                <div className="flex sm:flex-col flex-1 min-h-0">
-                    {/* Document list */}
-                    <div className={`w-56 sm:w-full shrink-0 border-r sm:border-r-0 sm:border-b overflow-y-auto p-2 flex flex-col gap-1 sm:max-h-[180px] ${isDark ? 'border-white/5' : 'border-slate-100'}`}>
-                        {filtered.map(doc => {
-                            const c = TAG_COLORS[doc.tag];
-                            return (
-                                <button key={doc.id} onClick={() => setSelected(doc)}
-                                    className={`w-full text-left p-2.5 rounded-xl border transition-all ${selected?.id === doc.id ? (isDark ? `bg-white/10 border-white/10` : `${c.bg} ${c.border} border`) : (isDark ? 'border-transparent hover:bg-white/5' : 'border-transparent hover:bg-slate-50')}`}>
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${c.dot}`} />
-                                        <span className={`text-[8px] font-bold uppercase tracking-wider ${c.text}`}>{doc.category}</span>
-                                    </div>
-                                    <p className={`text-[10px] font-semibold leading-tight ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{doc.name}</p>
-                                </button>
-                            );
-                        })}
-                        {filtered.length === 0 && <p className={`text-[10px] text-center py-6 ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>No results</p>}
-                    </div>
-                    {/* Preview panel */}
-                    <div className="flex-1 overflow-y-auto p-4 min-h-0">
-                        {selected ? (
-                            <div className="flex flex-col gap-3">
-                                <div>
-                                    <span className={`text-[8px] font-bold uppercase tracking-wider ${TAG_COLORS[selected.tag].text}`}>{selected.category}</span>
-                                    <h3 className={`text-[13px] font-black mt-0.5 ${isDark ? 'text-[#e4ecff]' : 'text-slate-800'}`}>{selected.name}</h3>
-                                </div>
-                                {renderPreview(selected)}
-                            </div>
-                        ) : (
-                            <div className={`h-full flex items-center justify-center text-[10px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>
-                                Select a document to preview
-                            </div>
-                        )}
-                    </div>
-                </div>
-                {/* footer */}
-                <div className={`px-4 py-2.5 border-t flex justify-between items-center shrink-0 ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/50'}`}>
-                    <span className={`text-[9px] ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>Tele Agent resources · Super Admin view</span>
-                    <button onClick={onAddClick} className={`text-[9px] font-bold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${isDark ? 'text-teal-400 bg-teal-500/15 hover:bg-teal-500/25' : 'text-teal-600 bg-teal-50 hover:bg-teal-100'}`}>
-                        <IconPlus width="10" height="10" /> Add Resource
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-/* ─── ADD RESOURCE POPUP ─────────────────── */
-const AddResourcePopup = ({ onClose, onAdd }) => {
-    const { theme } = useTheme();
-    const isDark = theme === 'dark';
-    const [form, setForm] = useState({ name: '', category: 'Guides', type: 'PDF', content: '', productCategory: 'Unsecured' });
-    const [file, setFile] = useState(null);
-    const [isUploading, setIsUploading] = useState(false);
-
-    const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-    const handleFileChange = (e) => {
-        const selectedFile = e.target.files[0];
-        if (selectedFile) {
-            if (selectedFile.size > 10 * 1024 * 1024) {
-                alert("File is too large! Maximum file size is 10MB to maintain performance.");
-                e.target.value = '';
-                return;
-            }
-            setFile(selectedFile);
-            set('type', selectedFile.type === 'application/pdf' ? 'PDF' : selectedFile.type.startsWith('image/') ? 'IMG' : 'DOC');
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!form.name.trim()) return;
-        
-        setIsUploading(true);
-        let fileData = null;
-        let fileType = null;
-        let size = '—';
-
-        if (file) {
-            fileType = file.type;
-            size = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
-            fileData = await new Promise((resolve) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.readAsDataURL(file);
-            });
-        }
-
-        onAdd({ 
-            ...form, 
-            id: Date.now(), 
-            tag: { Guides: 'blue', FAQs: 'violet', Products: 'orange' }[form.category] || 'blue', 
-            size,
-            fileData,
-            fileType,
-            content: form.content || (file ? `Attached file: ${file.name}` : '')
-        });
-        setIsUploading(false);
-        onClose();
-    };
-    const inputCls = `text-[11px] px-3 py-2 rounded-xl border focus:outline-none transition-colors ${isDark ? 'bg-[#151932] border-white/10 text-[#e4ecff] placeholder-white/20 focus:border-teal-500' : 'bg-slate-50 border-slate-200 focus:border-teal-400 placeholder-slate-300'}`;
-    const labelCls = `text-[9px] font-bold uppercase tracking-wider ${isDark ? 'text-[#546298]' : 'text-slate-500'}`;
-    return (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={e => e.target === e.currentTarget && onClose()}>
-            <div className={`rounded-2xl shadow-2xl w-full max-w-md animate-fadeIn overflow-hidden ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}>
-                <div className={`flex items-center justify-between px-5 py-3.5 border-b ${isDark ? 'border-white/5 bg-white/[0.02]' : 'border-slate-100 bg-slate-50/60'}`}>
-                    <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-lg bg-teal-100 flex items-center justify-center">
-                            <IconPlus width="13" height="13" className="text-teal-600" />
-                        </div>
-                        <p className={`text-[12px] font-black uppercase tracking-wider ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>Add Resource</p>
-                    </div>
-                    <button onClick={onClose} className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-slate-200'}`}>
-                        <IconX width="13" height="13" className={isDark ? 'text-[#94abda]' : 'text-slate-500'} />
-                    </button>
-                </div>
-                <form onSubmit={handleSubmit} className="p-5 flex flex-col gap-3">
-                    <div className="flex flex-col gap-1">
-                        <label className={labelCls}>Resource Name</label>
-                        <input value={form.name} onChange={e => set('name', e.target.value)} required placeholder="e.g. New Call Script Q2 2026" className={inputCls} />
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <label className={labelCls}>Category</label>
-                        <select value={form.category} onChange={e => set('category', e.target.value)} className={inputCls}>
-                            {['Guides', 'FAQs', 'Products'].map(c => <option key={c}>{c}</option>)}
-                        </select>
-                    </div>
-                    {form.category === 'Products' && (
-                        <div className="flex flex-col gap-1">
-                            <label className={labelCls}>Product Category (Asset Class)</label>
-                            <input 
-                                value={form.productCategory || ''} 
-                                onChange={e => set('productCategory', e.target.value)} 
-                                placeholder="e.g. Equipment Finance, SMSF Loan..." 
-                                className={inputCls} 
-                            />
-                        </div>
-                    )}
-                    <div className="flex flex-col gap-1">
-                        <label className={labelCls}>Upload Document (Optional)</label>
-                        <div className={`relative border rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all ${isDark ? 'bg-[#151932] border-white/10 hover:border-teal-500/50' : 'bg-slate-50 border-slate-200 hover:border-teal-400'}`}>
-                            <input type="file" onChange={handleFileChange} accept="application/pdf,image/*" className="absolute inset-0 opacity-0 cursor-pointer" />
-                            <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-600">
-                                <IconDoc width="16" height="16" />
-                            </div>
-                            <p className={`text-[10px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{file ? file.name : 'Drop file or click to browse'}</p>
-                            <p className={`text-[8px] uppercase tracking-widest ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'PDF, JPG, PNG (Max 10MB)'}</p>
-                        </div>
-                    </div>
-                    <div className="flex flex-col gap-1">
-                        <label className={labelCls}>Content / Notes</label>
-                        <textarea value={form.content} onChange={e => set('content', e.target.value)} rows={3}
-                            placeholder="Paste the resource content or notes here..."
-                            className={`${inputCls} resize-none leading-relaxed`} />
-                    </div>
-                    <div className="flex justify-end gap-2 pt-1">
-                        <button type="button" onClick={onClose} className={`text-[10px] font-bold px-4 py-2 rounded-xl transition-colors ${isDark ? 'text-[#94abda] bg-white/5 hover:bg-white/10' : 'text-slate-500 bg-slate-100 hover:bg-slate-200'}`}>Cancel</button>
-                        <button type="submit" disabled={isUploading} className={`text-[10px] font-bold text-white bg-teal-600 px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                            {isUploading ? 'Uploading...' : 'Add Resource'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
 /* ─── KNOWLEDGE BASE CARD ────────────────── */
 const KnowledgeBase = () => {
-    const { resources, addResource } = useKnowledgeBase();
+    const { resources, addResource, updateResource, deleteResource } = useKnowledgeBase();
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [showAdd, setShowAdd] = useState(false);
+    const [editingDoc, setEditingDoc] = useState(null);
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const allDocs = resources;
@@ -979,7 +790,7 @@ const KnowledgeBase = () => {
     return (
         <>
             <Card className="h-full">
-                <CardHeader dotColor="#14b8a6" title="Knowledge Base" badge="Tele Agent" badgeClass="bg-teal-100 text-teal-600"
+                <CardHeader dotColor="#14b8a6" title="Knowledge Base" badge="Super Admin" badgeClass="bg-teal-100 text-teal-600"
                     action={
                         <button onClick={() => setShowAdd(true)}
                             className="w-6 h-6 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center hover:bg-teal-200 transition-colors">
@@ -1004,7 +815,7 @@ const KnowledgeBase = () => {
                             </div>
                         );
                     })}
-                    <button onClick={() => setSelectedDoc(allDocs[0])}
+                    <button onClick={() => { if(allDocs.length > 0) setSelectedDoc(allDocs[0]); }}
                         className={`text-[10px] font-black px-2.5 py-1.5 rounded-lg transition-colors self-start flex items-center gap-1 mt-1 ${isDark ? 'text-teal-400 bg-teal-500/15 hover:bg-teal-500/25' : 'text-teal-600 bg-teal-50 hover:bg-teal-100'}`}>
                         View All ({allDocs.length})
                     </button>
@@ -1016,9 +827,12 @@ const KnowledgeBase = () => {
                     allDocs={allDocs}
                     onClose={() => setSelectedDoc(null)}
                     onAddClick={() => { setSelectedDoc(null); setShowAdd(true); }}
+                    onEditClick={(doc) => { setSelectedDoc(null); setEditingDoc(doc); }}
+                    onDeleteClick={(id) => { deleteResource(id); }}
                 />
             )}
             {showAdd && <AddResourcePopup onClose={() => setShowAdd(false)} onAdd={doc => addResource(doc)} />}
+            {editingDoc && <AddResourcePopup initialData={editingDoc} onClose={() => setEditingDoc(null)} onAdd={doc => updateResource(doc.id, doc)} />}
         </>
     );
 };

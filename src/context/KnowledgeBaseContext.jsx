@@ -41,12 +41,16 @@ export const KnowledgeBaseProvider = ({ children }) => {
         setResources(prev => [resource, ...prev]);
     };
 
+    const updateResource = (id, updatedResource) => {
+        setResources(prev => prev.map(r => r.id === id ? updatedResource : r));
+    };
+
     const deleteResource = (id) => {
         setResources(prev => prev.filter(r => r.id !== id));
     };
 
     return (
-        <KnowledgeBaseContext.Provider value={{ resources, addResource, deleteResource }}>
+        <KnowledgeBaseContext.Provider value={{ resources, addResource, updateResource, deleteResource }}>
             {children}
         </KnowledgeBaseContext.Provider>
     );
