@@ -10,10 +10,10 @@ import {
     INITIAL_TASKS,
     TL_AGENT_PERFORMANCE,
     DATE_RANGE_OPTIONS,
-    AUDIT_STATS,
-    KNOWLEDGE_BASE_RESOURCES
+    AUDIT_STATS
 } from '../../../data/dummyData';
 import { useTasks } from '../../../context/TasksContext';
+import { useKnowledgeBase } from '../../../context/KnowledgeBaseContext';
 import TaskModal from '../../../components/modals/TaskModal';
 
 /* ─── ICONS ─────────────────────────────────── */
@@ -738,6 +738,28 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_B
         d.name.toLowerCase().includes(search.toLowerCase())
     );
 
+    const renderPreview = (doc) => {
+        return (
+            <div className="flex flex-col gap-3">
+                {doc.content && (
+                    <div className={`p-3.5 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : `${TAG_COLORS[selected.tag].bg} ${TAG_COLORS[selected.tag].border}`}`}>
+                        <pre className={`text-[10px] leading-relaxed whitespace-pre-wrap font-['Sora',sans-serif] ${isDark ? 'text-[#94abda]' : 'text-slate-700'}`}>{doc.content}</pre>
+                    </div>
+                )}
+                {doc.fileData && doc.fileType?.startsWith('image/') && (
+                    <div className="rounded-xl border border-dashed border-slate-200 overflow-hidden">
+                        <img src={doc.fileData} alt={doc.name} className="w-full h-auto object-contain max-h-[400px]" />
+                    </div>
+                )}
+                {doc.fileData && doc.fileType === 'application/pdf' && (
+                    <div className="h-[500px] border rounded-xl overflow-hidden">
+                        <iframe src={doc.fileData} className="w-full h-full" title={doc.name} />
+                    </div>
+                )}
+            </div>
+        );
+    };
+
     return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" onClick={e => e.target === e.currentTarget && onClose()}>
             <div className={`rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden animate-fadeIn ${isDark ? 'bg-[#1e2347]' : 'bg-white'}`}>
@@ -794,9 +816,7 @@ const KBModal = ({ onClose, onAddClick, initialDoc = null, allDocs = KNOWLEDGE_B
                                     <span className={`text-[8px] font-bold uppercase tracking-wider ${TAG_COLORS[selected.tag].text}`}>{selected.category}</span>
                                     <h3 className={`text-[13px] font-black mt-0.5 ${isDark ? 'text-[#e4ecff]' : 'text-slate-800'}`}>{selected.name}</h3>
                                 </div>
-                                <div className={`p-3.5 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : `${TAG_COLORS[selected.tag].bg} ${TAG_COLORS[selected.tag].border}`}`}>
-                                    <pre className={`text-[10px] leading-relaxed whitespace-pre-wrap font-['Sora',sans-serif] ${isDark ? 'text-[#94abda]' : 'text-slate-700'}`}>{selected.content}</pre>
-                                </div>
+                                {renderPreview(selected)}
                             </div>
                         ) : null}
                     </div>
@@ -818,11 +838,48 @@ const AddResourcePopup = ({ onClose, onAdd }) => {
     const { theme } = useTheme();
     const isDark = theme === 'dark';
     const [form, setForm] = useState({ name: '', category: 'Guides', type: 'PDF', content: '' });
+    const [file, setFile] = useState(null);
+    const [isUploading, setIsUploading] = useState(false);
+
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-    const handleSubmit = (e) => {
+
+    const handleFileChange = (e) => {
+        const selectedFile = e.target.files[0];
+        if (selectedFile) {
+            setFile(selectedFile);
+            set('type', selectedFile.type === 'application/pdf' ? 'PDF' : selectedFile.type.startsWith('image/') ? 'IMG' : 'DOC');
+        }
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!form.name.trim() || !form.content.trim()) return;
-        onAdd({ ...form, id: Date.now(), tag: { Guides: 'blue', FAQs: 'violet', Products: 'orange' }[form.category] || 'blue', size: '—' });
+        if (!form.name.trim()) return;
+        
+        setIsUploading(true);
+        let fileData = null;
+        let fileType = null;
+        let size = '—';
+
+        if (file) {
+            fileType = file.type;
+            size = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+            fileData = await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        onAdd({ 
+            ...form, 
+            id: Date.now(), 
+            tag: { Guides: 'blue', FAQs: 'violet', Products: 'orange' }[form.category] || 'blue', 
+            size,
+            fileData,
+            fileType,
+            content: form.content || (file ? `Attached file: ${file.name}` : '')
+        });
+        setIsUploading(false);
         onClose();
     };
     const inputCls = `text-[11px] px-3 py-2 rounded-xl border focus:outline-none transition-colors ${isDark ? 'bg-[#151932] border-white/10 text-[#e4ecff] placeholder-white/20 focus:border-teal-500' : 'bg-slate-50 border-slate-200 focus:border-teal-400 placeholder-slate-300'}`;
@@ -853,14 +910,27 @@ const AddResourcePopup = ({ onClose, onAdd }) => {
                         </select>
                     </div>
                     <div className="flex flex-col gap-1">
+                        <label className={labelCls}>Upload Document (Optional)</label>
+                        <div className={`relative border rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all ${isDark ? 'bg-[#151932] border-white/10 hover:border-teal-500/50' : 'bg-slate-50 border-slate-200 hover:border-teal-400'}`}>
+                            <input type="file" onChange={handleFileChange} accept="application/pdf,image/*" className="absolute inset-0 opacity-0 cursor-pointer" />
+                            <div className="w-8 h-8 rounded-full bg-teal-100 flex items-center justify-center text-teal-600">
+                                <IconDoc width="16" height="16" />
+                            </div>
+                            <p className={`text-[10px] font-bold ${isDark ? 'text-[#e4ecff]' : 'text-slate-700'}`}>{file ? file.name : 'Drop file or click to browse'}</p>
+                            <p className={`text-[8px] uppercase tracking-widest ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{file ? (file.size / 1024 / 1024).toFixed(2) + ' MB' : 'PDF, JPG, PNG (Max 10MB)'}</p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
                         <label className={labelCls}>Content / Notes</label>
-                        <textarea value={form.content} onChange={e => set('content', e.target.value)} required rows={5}
+                        <textarea value={form.content} onChange={e => set('content', e.target.value)} rows={3}
                             placeholder="Paste the resource content or notes here..."
                             className={`${inputCls} resize-none leading-relaxed`} />
                     </div>
                     <div className="flex justify-end gap-2 pt-1">
                         <button type="button" onClick={onClose} className={`text-[10px] font-bold px-4 py-2 rounded-xl transition-colors ${isDark ? 'text-[#94abda] bg-white/5 hover:bg-white/10' : 'text-slate-500 bg-slate-100 hover:bg-slate-200'}`}>Cancel</button>
-                        <button type="submit" className="text-[10px] font-bold text-white bg-teal-600 px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors">Add Resource</button>
+                        <button type="submit" disabled={isUploading} className={`text-[10px] font-bold text-white bg-teal-600 px-4 py-2 rounded-xl hover:bg-teal-700 transition-colors ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                            {isUploading ? 'Uploading...' : 'Add Resource'}
+                        </button>
                     </div>
                 </form>
             </div>
@@ -870,12 +940,12 @@ const AddResourcePopup = ({ onClose, onAdd }) => {
 
 /* ─── KNOWLEDGE BASE CARD ────────────────── */
 const KnowledgeBase = () => {
+    const { resources, addResource } = useKnowledgeBase();
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [showAdd, setShowAdd] = useState(false);
-    const [extraDocs, setExtraDocs] = useState([]);
     const { theme } = useTheme();
     const isDark = theme === 'dark';
-    const allDocs = [...KNOWLEDGE_BASE_RESOURCES, ...extraDocs];
+    const allDocs = resources;
     const previewDocs = allDocs.slice(0, 3);
 
     return (
@@ -920,7 +990,7 @@ const KnowledgeBase = () => {
                     onAddClick={() => { setSelectedDoc(null); setShowAdd(true); }}
                 />
             )}
-            {showAdd && <AddResourcePopup onClose={() => setShowAdd(false)} onAdd={doc => setExtraDocs(p => [...p, doc])} />}
+            {showAdd && <AddResourcePopup onClose={() => setShowAdd(false)} onAdd={doc => addResource(doc)} />}
         </>
     );
 };

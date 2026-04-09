@@ -7,6 +7,7 @@ import { signIn, getCalendarEvents, getAccount } from '../../../services/outlook
 import { useTheme } from '../../../context/ThemeContext';
 import { useLeads } from '../../../context/LeadsContext';
 import { usePromotions } from '../../../context/PromotionsContext';
+import { useKnowledgeBase } from '../../../context/KnowledgeBaseContext';
 import { canManageTask } from '../../../utils/permissionUtils';
 
 /* ─── SVG ICONS ─── */
@@ -87,8 +88,9 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     const [loanAmount, setLoanAmount] = useState(100000);
     const [interestRate, setInterestRate] = useState(8.5);
     const [loanTerm, setLoanTerm] = useState(24);
+    const { resources: kbResources } = useKnowledgeBase();
     const [localTasks, setLocalTasks] = useState(tasks);
-    const [kbSelectedDoc, setKbSelectedDoc] = useState(KNOWLEDGE_BASE_RESOURCES[0]);
+    const [kbSelectedDoc, setKbSelectedDoc] = useState(null);
     const [kbSearch, setKbSearch] = useState('');
     const [kbActiveCat, setKbActiveCat] = useState('All');
 
@@ -102,6 +104,12 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
     useEffect(() => {
         setLocalTasks(tasks);
     }, [tasks]);
+
+    useEffect(() => {
+        if (!kbSelectedDoc && kbResources.length > 0) {
+            setKbSelectedDoc(kbResources[0]);
+        }
+    }, [kbResources, kbSelectedDoc]);
 
     const handleUpdateTaskStatus = (taskId, newStatus) => {
         setLocalTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: newStatus } : t));
@@ -702,12 +710,35 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 </div>
             );
             case 'KNOWLEDGE_BASE': {
-                const categories = ['All', ...new Set(KNOWLEDGE_BASE_RESOURCES.filter(d => d.category !== 'Audit').map(d => d.category))];
-                const filtered = KNOWLEDGE_BASE_RESOURCES.filter(d => 
-                    d.category !== 'Audit' &&
+                const categories = ['All', ...new Set(kbResources.map(d => d.category))];
+                const filtered = kbResources.filter(d => 
                     (kbActiveCat === 'All' || d.category === kbActiveCat) &&
-                    (d.name.toLowerCase().includes(kbSearch.toLowerCase()) || d.content.toLowerCase().includes(kbSearch.toLowerCase()))
+                    (d.name.toLowerCase().includes(kbSearch.toLowerCase()) || (d.content || '').toLowerCase().includes(kbSearch.toLowerCase()))
                 );
+
+                const renderKbPreview = (doc) => {
+                    return (
+                        <div className="flex flex-col gap-4">
+                            {doc.content && (
+                                <div className="p-5 bg-white dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm">
+                                    <pre className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-300 whitespace-pre-wrap font-['Sora',sans-serif]">
+                                        {doc.content}
+                                    </pre>
+                                </div>
+                            )}
+                            {doc.fileData && doc.fileType?.startsWith('image/') && (
+                                <div className="rounded-2xl border border-dashed border-slate-200 dark:border-white/10 overflow-hidden bg-white dark:bg-slate-900/50">
+                                    <img src={doc.fileData} alt={doc.name} className="w-full h-auto object-contain max-h-[500px]" />
+                                </div>
+                            )}
+                            {doc.fileData && doc.fileType === 'application/pdf' && (
+                                <div className="h-[600px] border rounded-2xl overflow-hidden shadow-lg border-slate-200 dark:border-white/10">
+                                    <iframe src={doc.fileData} className="w-full h-full" title={doc.name} />
+                                </div>
+                            )}
+                        </div>
+                    );
+                };
 
                 const TAG_COLORS = {
                     blue: { bg: 'bg-blue-50 dark:bg-blue-900/20', text: 'text-blue-600 dark:text-blue-400', border: 'border-blue-100 dark:border-blue-500/20', dot: 'bg-blue-500' },
@@ -778,16 +809,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                                             </div>
                                         </div>
                                         
-                                        <div className="p-5 bg-white dark:bg-slate-800/40 rounded-2xl border border-slate-100 dark:border-white/5 shadow-sm">
-                                            <pre className="text-[13px] leading-relaxed text-slate-600 dark:text-slate-300 whitespace-pre-wrap font-['Sora',sans-serif]">
-                                                {kbSelectedDoc.content}
-                                            </pre>
-                                        </div>
-
-                                        <div className="mt-6 flex gap-2">
-                                            <button className="flex-1 bg-blue-50 dark:bg-blue-500/10 hover:bg-blue-100 text-blue-700 dark:text-blue-400 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all">Copy to Clipboard</button>
-                                            <button className="px-6 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-500 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all">Print</button>
-                                        </div>
+                                        {renderKbPreview(kbSelectedDoc)}
                                     </div>
                                 ) : (
                                     <div className="flex flex-col items-center justify-center p-12 text-center h-full">
