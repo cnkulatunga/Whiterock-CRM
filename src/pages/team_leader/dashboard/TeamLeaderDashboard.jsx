@@ -31,18 +31,21 @@ const IconDoc = (props) => <svg viewBox="0 0 24 24" fill="none" stroke="currentC
 const DashboardModal = ({ isOpen, onClose, title, children, isFullScreen = false, isWide = false, isSmall = false }) => {
     if (!isOpen) return null;
     return (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
-            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn ${isFullScreen ? 'h-[98vh] max-w-[98vw] rounded-3xl' : isSmall ? 'max-w-[700px] rounded-2xl' : isWide ? 'max-w-[90vw] rounded-2xl' : 'max-w-xl rounded-2xl'}`}>
-                <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-[#2c3568] shrink-0">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-[#2c3568] rounded-full transition-colors shrink-0">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center sm:items-end p-4 sm:p-0">
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+            <div className={`relative bg-white dark:bg-[#1e2347] w-full shadow-2xl overflow-hidden flex flex-col animate-zoomIn sm:animate-slideUp ${isFullScreen ? 'h-[98vh] sm:h-[95vh] max-w-[98vw] sm:max-w-full rounded-3xl sm:rounded-t-3xl sm:rounded-b-none' : isSmall ? 'max-w-[700px] sm:max-w-full rounded-2xl sm:rounded-t-2xl sm:rounded-b-none' : isWide ? 'max-w-[90vw] sm:max-w-full rounded-2xl sm:rounded-t-2xl sm:rounded-b-none' : 'max-w-xl sm:max-w-full rounded-2xl sm:rounded-t-2xl sm:rounded-b-none'}`}>
+                {/* Mobile Drag Handle */}
+                <div className="hidden sm:block w-12 h-1.5 bg-slate-200 dark:bg-white/10 rounded-full mx-auto mt-3 mb-1 shrink-0" />
+                
+                <div className="flex justify-between items-center p-5 sm:p-4 border-b border-gray-100 dark:border-white/5 shrink-0">
+                    <h3 className="text-xl sm:text-lg font-black text-gray-900 dark:text-white uppercase tracking-tight leading-none">{title}</h3>
+                    <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18">
                             <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                         </svg>
                     </button>
                 </div>
-                <div className={`p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : isSmall ? 'max-h-[70vh] custom-scrollbar' : 'max-h-[80vh] custom-scrollbar'}`}>
+                <div className={`p-5 sm:p-4 overflow-y-auto ${isFullScreen ? 'flex-1 custom-scrollbar' : isSmall ? 'max-h-[70vh] sm:max-h-[85vh] custom-scrollbar' : 'max-h-[80vh] sm:max-h-[90vh] custom-scrollbar'}`}>
                     {children}
                 </div>
             </div>
@@ -301,61 +304,105 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                             </button>
                         </div>
                         {activeLeadsList.length > 0 ? (
-                            <div className="rounded-xl border border-slate-100 dark:border-white/5 overflow-hidden shadow-sm">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Contact Name</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Business Name</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Loan Amount</th>
-                                            <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-100 dark:divide-white/5">
-                                        {activeLeadsList.map((lead, idx) => (
-                                            <tr
-                                                key={lead.id}
-                                                onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
-                                                className="group cursor-pointer bg-white dark:bg-transparent hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-all"
-                                            >
-                                                <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2.5">
-                                                        <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
-                                                            {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                                                        </div>
-                                                        <span className="text-[12px] font-bold text-[#0061ff] dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">{lead.name}</span>
+                            <>
+                                {/* Mobile Card List */}
+                                <div className="hidden sm:flex flex-col gap-3">
+                                    {activeLeadsList.map((lead, idx) => (
+                                        <div 
+                                            key={lead.id} 
+                                            onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
+                                            className={`p-4 rounded-2xl border flex flex-col gap-3 active:scale-[0.98] transition-all ${isDark ? 'bg-white/5 border-white/5 shadow-xl' : 'bg-white border-slate-100 shadow-sm'}`}
+                                        >
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-xl bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[11px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
+                                                        {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                                                     </div>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                                        <IconMail width="13" height="13" className="text-slate-300 dark:text-slate-600" />
-                                                        <span className="truncate max-w-[160px]">{lead.email || '—'}</span>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[14px] font-black text-[#0061ff] dark:text-blue-400 leading-tight">{lead.name}</span>
+                                                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">#{lead.id}</span>
                                                     </div>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                                        <IconPhone width="13" height="13" className="text-slate-300 dark:text-slate-600" />
-                                                        <span>{lead.phone || '—'}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <span className="text-[12px] font-semibold text-slate-700 dark:text-slate-300">{lead.businessName || '—'}</span>
-                                                </td>
-                                                <td className="px-4 py-3">
-                                                    <span className="text-[12px] font-black text-emerald-600 dark:text-emerald-400">{lead.loanAmount || '—'}</span>
-                                                </td>
-                                                <td className="px-4 py-3 text-center">
-                                                    {getStatusBadge(lead.status)}
-                                                </td>
+                                                </div>
+                                                {getStatusBadge(lead.status)}
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-2 py-2 border-y border-slate-50 dark:border-white/5">
+                                                <div className="flex flex-col gap-0.5">
+                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Business</span>
+                                                    <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 truncate">{lead.businessName || '—'}</span>
+                                                </div>
+                                                <div className="flex flex-col gap-0.5 items-end text-right">
+                                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Amount</span>
+                                                    <span className="text-[11px] font-black text-emerald-600 dark:text-emerald-400">{lead.loanAmount || '—'}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-4 text-[10px] text-slate-500 font-bold uppercase tracking-tight">
+                                                <div className="flex items-center gap-1.5 truncate">
+                                                    <IconMail width="12" height="12" /> {lead.email || '—'}
+                                                </div>
+                                                <div className="flex items-center gap-1.5 shrink-0">
+                                                    <IconPhone width="12" height="12" /> {lead.phone || '—'}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                {/* Desktop Table View */}
+                                <div className="sm:hidden rounded-xl border border-slate-100 dark:border-white/5 overflow-x-auto custom-scrollbar shadow-sm">
+                                    <table className="w-full text-left border-collapse min-w-[800px]">
+                                        <thead>
+                                            <tr className="bg-[#f8f9fa] dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5">
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] w-8">#</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Contact Name</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Email</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Phone</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Business Name</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em]">Loan Amount</th>
+                                                <th className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] text-center">Status</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody className="divide-y divide-slate-100 dark:divide-white/5">
+                                            {activeLeadsList.map((lead, idx) => (
+                                                <tr
+                                                    key={lead.id}
+                                                    onClick={() => { onViewLeadDetails && onViewLeadDetails(lead); closeModal(); }}
+                                                    className="group cursor-pointer bg-white dark:bg-transparent hover:bg-blue-50/40 dark:hover:bg-blue-900/10 transition-all"
+                                                >
+                                                    <td className="px-4 py-3 text-[11px] font-bold text-slate-400">{idx + 1}</td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2.5">
+                                                            <div className="w-8 h-8 rounded-full bg-[#f0f7ff] dark:bg-[#253160] text-[#0061ff] flex items-center justify-center text-[10px] font-black shrink-0 border border-blue-100 dark:border-blue-500/20 shadow-sm">
+                                                                {lead.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                                                            </div>
+                                                            <span className="text-[12px] font-bold text-[#0061ff] dark:text-blue-400 group-hover:text-blue-700 dark:group-hover:text-blue-300 transition-colors">{lead.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                            <IconMail width="13" height="13" className="text-slate-300 dark:text-slate-600" />
+                                                            <span className="truncate max-w-[160px]">{lead.email || '—'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                                            <IconPhone width="13" height="13" className="text-slate-300 dark:text-slate-600" />
+                                                            <span>{lead.phone || '—'}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className="text-[12px] font-semibold text-slate-700 dark:text-slate-300">{lead.businessName || '—'}</span>
+                                                    </td>
+                                                    <td className="px-4 py-3">
+                                                        <span className="text-[12px] font-black text-emerald-600 dark:text-emerald-400">{lead.loanAmount || '—'}</span>
+                                                    </td>
+                                                    <td className="px-4 py-3 text-center">
+                                                        {getStatusBadge(lead.status)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </>
                         ) : (
                             <div className="p-10 text-center text-slate-400 font-bold uppercase text-[10px] tracking-widest border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">
                                 {leadsTab === 'my_leads' ? 'No leads created by you yet' : 'No team leads found'}
