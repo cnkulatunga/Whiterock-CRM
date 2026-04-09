@@ -571,21 +571,25 @@ const LeaderCard = ({ leader, onAddAgent, onToggleLeader, onToggleAgent, onRemov
                                             <div style={{ width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '11px', background: member.color, color: member.textColor || '#ffffff', flexShrink: 0 }}>
                                                 {getInitials(member.name)}
                                             </div>
-                                            {/* Info */}
-                                            <div style={{ flex: 1, minWidth: 0 }}>
-                                                <div style={{ fontSize: '13px', fontWeight: 700, color: isDark ? '#e4ecff' : '#334155' }}>{member.name}</div>
-                                                <div style={{ fontSize: '11px', color: isDark ? '#546298' : '#94a3b8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}><IconMail />{member.email}</div>
+                                            {/* Info: name + email + status badge stacked */}
+                                            <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                                    <span style={{ fontSize: '13px', fontWeight: 700, color: isDark ? '#e4ecff' : '#334155' }}>{member.name}</span>
+                                                    <span style={{
+                                                        fontSize: '9px', fontWeight: 800, padding: '2px 8px', borderRadius: '999px',
+                                                        background: mActive ? (isDark ? 'rgba(16,185,129,0.1)' : '#ecfdf5') : (isDark ? 'rgba(148,163,184,0.1)' : '#f1f5f9'),
+                                                        color: mActive ? '#10b981' : '#64748b',
+                                                        border: `1px solid ${mActive ? (isDark ? 'rgba(16,185,129,0.2)' : '#bbf7d0') : '#e2e8f0'}`,
+                                                        textTransform: 'uppercase', flexShrink: 0
+                                                    }}>{member.status}</span>
+                                                </div>
+                                                <div style={{ fontSize: '11px', color: isDark ? '#546298' : '#94a3b8', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px', overflow: 'hidden' }}>
+                                                    <IconMail />
+                                                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{member.email}</span>
+                                                </div>
                                             </div>
-                                            {/* Status badge */}
-                                            <span style={{
-                                                fontSize: '9px', fontWeight: 800, padding: '2px 8px', borderRadius: '999px',
-                                                background: mActive ? (isDark ? 'rgba(16,185,129,0.1)' : '#ecfdf5') : (isDark ? 'rgba(148,163,184,0.1)' : '#f1f5f9'),
-                                                color: mActive ? '#10b981' : '#64748b',
-                                                border: `1px solid ${mActive ? (isDark ? 'rgba(16,185,129,0.2)' : '#bbf7d0') : '#e2e8f0'}`,
-                                                textTransform: 'uppercase'
-                                            }}>{member.status}</span>
-                                            {/* Action buttons — stop propagation to avoid opening modal */}
-                                            <div style={{ display: 'flex', gap: '6px' }}
+                                            {/* Action buttons */}
+                                            <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}
                                                 onClick={e => e.stopPropagation()}
                                             >
                                                 <button
