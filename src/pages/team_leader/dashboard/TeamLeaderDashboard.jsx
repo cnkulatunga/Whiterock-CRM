@@ -1092,7 +1092,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 </div>
 
                 {/* Create Lead Card */}
-                <div onClick={() => onNavigate('create-lead')} className="group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div onClick={() => onNavigate('create-lead')} className="sm:hidden group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
                     <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-rose-600/20 group-hover:scale-110 transition-transform"><IconPlus /></div>
                     <h2 className="text-[12px] font-black leading-tight text-rose-700 dark:text-rose-300 uppercase tracking-[0.1em]">CREATE<br />LEAD</h2>
                 </div>
