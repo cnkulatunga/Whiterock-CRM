@@ -536,183 +536,149 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
                 </div>
             </div>
 
-            {/* ROW 2: Schedule(2) | Notes+Cal+Calc(4) | Lenders(2) */}
+            {/* ROW 2: Schedule(2) | Notes+Calendar(4) | Calculator+Lenders(2) */}
             <div className="grid grid-cols-8 md:grid-cols-1 gap-3 flex-1 md:flex-none min-h-0">
 
-                {/* SCHEDULE */}
-                <div className="col-span-2 md:col-span-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 md:h-[350px] shadow-sm overflow-hidden">
-                    <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
+                {/* 1. SCHEDULE (col-span-2) */}
+                <div className="col-span-2 md:col-span-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 md:h-[350px] shadow-sm overflow-hidden text-center">
+                    <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 flex items-center justify-between">
                         <div className="flex items-center gap-1.5"><IconCalendar className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Schedule</span></div>
                         <div className="flex items-center gap-2">
                             <span className="text-[8px] bg-slate-200 dark:bg-slate-700 font-bold px-1.5 py-0.5 rounded text-slate-500 dark:text-slate-300">{tasks.filter(t => t.date === selectedDate).length}</span>
-                            <button onClick={() => setIsAddingTask(true)} className="w-5 h-5 bg-[#2447d7] text-white rounded flex items-center justify-center hover:bg-[#1a32a3] transition-colors" title="Add task">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                            </button>
-                            <button onClick={() => onNavigate && onNavigate('tasks_followups')} className="text-[9px] font-bold text-[#2447d7] hover:underline">All</button>
+                            <button onClick={() => setIsAddingTask(true)} className="w-5 h-5 bg-[#2447d7] text-white rounded flex items-center justify-center hover:bg-[#1a32a3] transition-colors"><IconPlus width="10" height="10" /></button>
                         </div>
                     </div>
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-2 flex flex-col gap-2">
+                    <div className="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2 text-left">
                         {tasks.filter(t => t.date === selectedDate).length > 0 ? tasks.filter(t => t.date === selectedDate).map(t => (
-                            <div 
-                                key={t.id} 
-                                onClick={() => t.isPromotion ? setSelectedPromoDetails({ ...t, lenderName: t.title.replace('PROMO: ', ''), description: t.lead }) : (onNavigate && onNavigate('tasks_followups', t))}
-                                className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7] transition-all cursor-pointer group shrink-0"
-                            >
+                            <div key={t.id} onClick={() => t.isPromotion ? setSelectedPromoDetails({...t, lenderName: t.title.replace('PROMO: ', ''), description: t.lead}) : setSelectedTask(t)} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-blue-500/30 transition-all cursor-pointer group">
                                 <div className="flex justify-between items-start mb-1 gap-2">
-                                    <span className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-[#2447d7] transition-colors min-w-0 break-words">{t.title}</span>
-                                    <span className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 rounded uppercase shrink-0">{t.type || 'TASK'}</span>
+                                    <span className="text-[11px] font-bold dark:text-white leading-tight group-hover:text-blue-500 transition-colors truncate">{t.title}</span>
+                                    <span className="text-[8px] font-black px-1.5 py-0.5 bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400 rounded uppercase">{t.type}</span>
                                 </div>
-                                <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-1">
-                                    <IconClock width="10" height="10" className="text-slate-300" />
+                                <div className="flex items-center gap-2 text-[9px] text-slate-400">
+                                    <IconClock width="10" height="10" />
                                     <span>{t.time}</span>
-                                    {t.lead && <><span className="text-slate-300">•</span><span className="truncate font-medium">{t.lead}</span></>}
+                                    {t.lead && <><span className="text-slate-300">•</span><span className="truncate">{t.lead}</span></>}
                                 </div>
-                                {!t.isPromotion && (
-                                    <select className={`mt-2 w-full py-1 px-2 text-[10px] font-black uppercase tracking-widest border outline-none transition-all cursor-pointer rounded-lg ${t.status === 'Completed' ? 'bg-[#ecfdf5] text-[#059669] border-[#d1fae5]' : t.status === 'In Progress' ? 'bg-[#ebf5ff] text-[#2447d7] border-[#d9ebff]' : 'bg-[#fff7ed] text-[#ea580c] border-[#ffedd5]'}`} value={t.status} onChange={e => updateTaskStatus(t.id, e.target.value)}>
-                                        <option>Pending</option><option>In Progress</option><option>Completed</option>
-                                    </select>
-                                )}
                             </div>
-                        )) : <div className="text-[9px] text-slate-400 italic p-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl mt-1">No tasks for this day</div>}
+                        )) : <div className="text-[9px] text-slate-400 italic p-6 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl">No tasks scheduled</div>}
                     </div>
                 </div>
 
-                {/* MIDDLE � col 3-5: Notes+Calendar top, Calculator bottom */}
-                <div className="col-span-4 md:col-span-1 flex flex-col gap-3 min-h-0 md:min-h-0">
-                    <div className="flex gap-3 md:flex-col flex-1 md:flex-none min-h-0">
-
-                        {/* NOTES — col 1-2 */}
-                        <div className="flex-1 bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col min-h-0 md:h-[300px] shadow-sm overflow-hidden xl:self-start xl:max-h-[320px]">
-                            <div className="bg-[#fff9c4] dark:bg-[#4d4826] border-b border-yellow-200/50 dark:border-yellow-700/30 p-2.5 px-4 shrink-0 flex items-center justify-between">
+                {/* 2. MIDDLE (col-span-4): Notes + Calendar */}
+                <div className="col-span-4 md:col-span-1 flex flex-col gap-3 min-h-0">
+                    <div className="flex gap-3 md:flex-col flex-1 min-h-0">
+                        {/* NOTES */}
+                        <div className="flex-1 bg-[#fffdf0] dark:bg-[#343224] rounded-[20px] border border-yellow-200/50 dark:border-yellow-700/30 flex flex-col shadow-sm overflow-hidden">
+                            <div className="bg-[#fff9c4] dark:bg-[#4d4826] border-b border-yellow-200/50 dark:border-yellow-700/30 p-2.5 px-4 flex items-center justify-between">
                                 <div className="flex items-center gap-1.5 text-yellow-700 dark:text-yellow-500"><IconNote /><span className="text-[10px] font-black uppercase tracking-widest">Notes</span></div>
-                                <button onClick={() => showConfirm('Clear all notes?', () => { setNotesList([]); localStorage.setItem('am_notes_list', '[]'); })} className="text-[9px] font-bold text-yellow-700/60 hover:text-red-600 transition-colors uppercase tracking-widest">Clear All</button>
+                                <button onClick={() => showConfirm('Clear all notes?', () => { setNotesList([]); localStorage.setItem('am_notes_list', '[]'); })} className="text-[9px] font-bold text-yellow-700/60 hover:text-red-500 transition-colors uppercase tracking-widest">Clear All</button>
                             </div>
-                            <div className="flex-1 p-3 pb-2 flex flex-col min-h-0 overflow-hidden">
-                                <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2.5 mb-2 pr-1">
+                            <div className="flex-1 p-3 flex flex-col min-h-0 overflow-hidden">
+                                <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-2 mb-2 pr-1">
                                     {notesList.length === 0 ? (
-                                        <div className="text-xs text-yellow-700/50 italic text-center mt-4 border border-dashed border-yellow-200 dark:border-yellow-800 p-4 rounded-xl">No notes yet. Type below to start!</div>
-                                    ) : [...notesList].sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0)).map(note => (
-                                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group transition-all border shrink-0 ${note.isPinned ? 'bg-yellow-100 dark:bg-yellow-600/30 border-yellow-300 dark:border-yellow-500/50 text-yellow-900 dark:text-yellow-50 shadow-sm' : 'bg-white/60 dark:bg-black/20 border-yellow-100 dark:border-yellow-700/20 text-yellow-900 dark:text-yellow-100'}`}>
-                                            <div className="flex justify-between items-center mb-1.5">
-                                                <div className="flex items-center gap-1.5">
-                                                    {note.isPinned && <IconPin className="text-yellow-600 dark:text-yellow-400" />}
-                                                    <span className="text-[9px] font-black text-yellow-600 dark:text-yellow-500/80 uppercase tracking-widest">{note.date} {note.time && `� ${note.time}`}</span>
-                                                </div>
-                                                <div className="flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <button onClick={() => togglePin(note.id)} className={`text-[9px] px-1.5 py-0.5 rounded font-bold transition-colors ${note.isPinned ? 'bg-yellow-400 text-yellow-950 hover:bg-yellow-500' : 'bg-yellow-100 dark:bg-yellow-800 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-300'}`}>{note.isPinned ? 'UNPIN' : 'PIN'}</button>
-                                                    <button onClick={() => deleteNote(note.id)} className="text-[9px] px-1.5 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-bold hover:bg-red-200 transition-colors">CLEAR</button>
-                                                </div>
+                                        <div className="text-[9px] text-yellow-700/40 italic text-center mt-6 border border-dashed border-yellow-200 dark:border-yellow-700/30 p-4 rounded-xl">Add a note...</div>
+                                    ) : [...notesList].sort((a,b)=>(b.isPinned?1:0)-(a.isPinned?1:0)).map(note => (
+                                        <div key={note.id} className={`p-2.5 rounded-xl text-[11px] relative group border shrink-0 ${note.isPinned ? 'bg-yellow-100 dark:bg-yellow-500/20 border-yellow-300 dark:border-yellow-500/40' : 'bg-white/60 dark:bg-black/20 border-yellow-100/50 dark:border-yellow-900/10'}`}>
+                                            <div className="flex justify-between items-center mb-1">
+                                                <span className="text-[8px] font-black text-yellow-600 uppercase tracking-widest">{note.date}</span>
+                                                <button onClick={() => deleteNote(note.id)} className="opacity-0 group-hover:opacity-100 text-[8px] font-black text-red-500 hover:text-red-700">CLEAR</button>
                                             </div>
-                                            <p className="whitespace-pre-wrap leading-relaxed">{note.text}</p>
+                                            <p className="text-yellow-900 dark:text-yellow-100 leading-snug line-clamp-2">{note.text}</p>
                                         </div>
                                     ))}
                                 </div>
-                                <div className="shrink-0 flex gap-2 pt-2 border-t border-yellow-200/50 dark:border-yellow-700/30">
-                                    <input type="text" value={newNote} onChange={e => setNewNote(e.target.value)} onKeyDown={e => e.key === 'Enter' && addNewNote()} placeholder="Type a note & press Enter..." className="flex-1 bg-white/60 dark:bg-black/20 border border-yellow-200/60 dark:border-yellow-700/50 rounded-lg px-3 py-1.5 text-[11px] text-yellow-900 dark:text-yellow-100 outline-none focus:border-yellow-400 transition-colors" />
-                                    <button onClick={addNewNote} className="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-black text-[10px] px-3 py-1.5 rounded-lg transition-colors shrink-0">ADD</button>
+                                <div className="flex gap-2 pt-2 border-t border-yellow-200/50">
+                                    <input type="text" value={newNote} onChange={e => setNewNote(e.target.value)} onKeyDown={e => e.key==='Enter' && addNewNote()} placeholder="New note..." className="flex-1 bg-white/60 dark:bg-black/20 border border-yellow-200/60 rounded-lg px-2.5 py-1.5 text-[10px] text-yellow-900 dark:text-yellow-100 outline-none focus:border-yellow-400" />
                                 </div>
                             </div>
                         </div>
 
-                        {/* CALENDAR */}
-                        <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shadow-sm overflow-hidden shrink-0 w-[210px] xl:self-start md:w-full">
-                            <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-3 shrink-0">
-                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Calendar</span>
-                            </div>
-                            <div className="p-2 flex flex-col gap-1.5">
-                                <div className="flex justify-between items-center">
-                                    <button onClick={() => setViewDate(new Date(currentYear, currentMonth - 1, 1))} className="w-5 h-5 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded text-slate-500 hover:bg-[#ebf0ff] hover:text-[#2447d7] transition-all">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><polyline points="15 18 9 12 15 6" /></svg>
-                                    </button>
-                                    <span className="text-[9px] font-black text-slate-600 dark:text-slate-300">{monthName}</span>
-                                    <button onClick={() => setViewDate(new Date(currentYear, currentMonth + 1, 1))} className="w-5 h-5 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded text-slate-500 hover:bg-[#ebf0ff] hover:text-[#2447d7] transition-all">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><polyline points="9 18 15 12 9 6" /></svg>
-                                    </button>
+                        {/* CALENDAR + CALCULATOR COLUMN */}
+                        <div className="flex-1 flex flex-col gap-3 min-h-0">
+                            {/* CALENDAR */}
+                            <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shadow-sm">
+                                <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 flex items-center justify-between shrink-0">
+                                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Calendar</span>
+                                    <div className="flex items-center gap-2">
+                                        <button onClick={() => setViewDate(new Date(currentYear, currentMonth - 1, 1))} className="w-5 h-5 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded text-slate-500 hover:text-blue-500 transition-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><polyline points="15 18 9 12 15 6" /></svg></button>
+                                        <span className="text-[9px] font-black text-slate-600 dark:text-slate-300 min-w-[70px] text-center">{monthName}</span>
+                                        <button onClick={() => setViewDate(new Date(currentYear, currentMonth + 1, 1))} className="w-5 h-5 flex items-center justify-center bg-slate-100 dark:bg-slate-700 rounded text-slate-500 hover:text-blue-500 transition-all"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="10" height="10"><polyline points="9 18 15 12 9 6" /></svg></button>
+                                    </div>
                                 </div>
-                                <div className="grid grid-cols-7 gap-0.5">
-                                    {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <div key={i} className="text-center text-[7px] font-black text-slate-400 uppercase">{d}</div>)}
-                                    {[...Array(emptySlots)].map((_, i) => <div key={`e-${i}`} className="aspect-square" />)}
-                                    {calendarDays.map(day => {
-                                        const dateStr = `${currentYear}-${getPadded(currentMonth + 1)}-${getPadded(day)}`;
-                                        const hasTasks = tasks.some(t => t.date === dateStr);
-                                        const isSel = selectedDate === dateStr;
-                                        const isTod = isToday(day);
-                                        return (
-                                            <div key={day} onClick={() => setSelectedDate(dateStr)} className={`aspect-square flex items-center justify-center rounded cursor-pointer relative transition-all border border-transparent ${isTod && !isSel ? 'bg-[#eef2ff] border-[#2447d7]/20' : isSel ? 'bg-[#2447d7] shadow-sm' : 'hover:bg-slate-50'}`}>
-                                                <span className={`text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full ${isTod ? 'bg-[#2447d7] text-white' : isSel ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>{day}</span>
-                                                {hasTasks && !isSel && <span className="absolute bottom-0 w-0.5 h-0.5 bg-[#2447d7] rounded-full" />}
-                                            </div>
-                                        );
-                                    })}
+                                <div className="p-3">
+                                    <div className="grid grid-cols-7 gap-1">
+                                        {['M', 'T', 'W', 'T', 'F', 'S', 'S'].map((d, i) => <div key={i} className="text-center text-[8px] font-black text-slate-400 uppercase">{d}</div>)}
+                                        {[...Array(emptySlots)].map((_, i) => <div key={`e-${i}`} />)}
+                                        {calendarDays.map(day => {
+                                            const dateStr = `${currentYear}-${getPadded(currentMonth + 1)}-${getPadded(day)}`;
+                                            const hasTasks = tasks.some(t => t.date === dateStr);
+                                            const isSel = selectedDate === dateStr;
+                                            const isTod = isToday(day);
+                                            return (
+                                                <div key={day} onClick={() => setSelectedDate(dateStr)} className={`aspect-square flex items-center justify-center rounded-lg cursor-pointer relative transition-all border border-transparent ${isTod && !isSel ? 'bg-blue-50 dark:bg-blue-500/10 border-blue-500/20' : isSel ? 'bg-blue-600 shadow-sm text-white' : 'hover:bg-slate-50 dark:hover:bg-white/5'}`}>
+                                                    <span className={`text-[10px] font-black ${isTod && !isSel ? 'text-blue-600' : isSel ? 'text-white' : 'text-slate-600 dark:text-slate-300'}`}>{day}</span>
+                                                    {hasTasks && !isSel && <span className="absolute bottom-1 w-1 h-1 bg-blue-500 rounded-full" />}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    {/* CALCULATOR */}
-                    <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 shadow-sm overflow-hidden">
-                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center gap-1.5">
-                            <IconCalc className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Loan Calculator</span>
-                        </div>
-                        <div className="p-3 flex flex-col gap-2">
-                            <div className="grid grid-cols-3 gap-2">
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Amount ($)</label>
-                                    <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full" />
+                            {/* CALCULATOR (Shifted here) */}
+                            <div className="bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shrink-0 shadow-sm overflow-hidden">
+                                <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 flex items-center gap-1.5">
+                                    <IconCalc className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Calculator</span>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Rate (%)</label>
-                                    <input type="number" step="0.1" value={interestRate} onChange={e => setInterestRate(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full" />
+                                <div className="p-3 flex flex-col gap-2">
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div className="flex flex-col gap-0.5">
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Amount</label>
+                                            <input type="number" value={loanAmount} onChange={e => setLoanAmount(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-white/10 rounded-lg px-2 py-1 text-[10px] font-bold dark:text-white outline-none focus:border-blue-500 w-full" />
+                                        </div>
+                                        <div className="flex flex-col gap-0.5">
+                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Rate %</label>
+                                            <input type="number" step="0.1" value={interestRate} onChange={e => setInterestRate(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-white/10 rounded-lg px-2 py-1 text-[10px] font-bold dark:text-white outline-none focus:border-blue-500 w-full" />
+                                        </div>
+                                    </div>
+                                    <div className="bg-[#ebf0ff] dark:bg-blue-500/10 rounded-xl p-2.5 flex items-center justify-between">
+                                        <span className="text-[9px] font-black text-blue-600 uppercase tracking-widest leading-none">Monthly</span>
+                                        <span className="text-sm font-black text-blue-600">${calculateRepayment()}</span>
+                                    </div>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Term (mo)</label>
-                                    <input type="number" value={loanTerm} onChange={e => setLoanTerm(e.target.value)} className="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-white/10 rounded-lg px-2 py-1.5 text-[11px] font-bold dark:text-white outline-none focus:border-[#2447d7] transition-colors w-full" />
-                                </div>
-                            </div>
-                            <div className="bg-[#ebf0ff] dark:bg-[#2447d7]/20 rounded-xl p-3 flex items-center justify-between">
-                                <span className="text-[10px] font-black text-[#2447d7] uppercase tracking-widest">Monthly Repayment</span>
-                                <span className="text-[18px] font-black text-[#2447d7]">${calculateRepayment()}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* LENDERS � col 6-7 */}
-                {/* LENDERS */}
-                <div className="col-span-2 md:col-span-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col min-h-0 md:h-[420px] shadow-sm overflow-hidden">
-                    <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 shrink-0 flex items-center justify-between">
-                        <div className="flex items-center gap-1.5"><IconBank className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Recent Lenders</span></div>
-                        <button onClick={() => onNavigate && onNavigate('lenders')} className="text-[9px] font-bold text-[#2447d7] hover:underline">All &#x2192;</button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto custom-scrollbar p-3 flex flex-col gap-2">
-                        {/* Recent Lenders */}
-                        {RECENT_LENDERS.slice(0, 4).map((lender) => {
-                            const tc = LENDER_TYPE_COLORS[lender.type] || LENDER_TYPE_COLORS['Major Bank'];
-                            return (
-                                <div key={lender.id} onClick={() => onNavigate && onNavigate('lenders', lender)} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-[#2447d7]/30 hover:bg-white transition-all cursor-pointer shrink-0">
-                                    <div className="flex items-center justify-between gap-2">
-                                        <div className="flex items-center gap-2.5 min-w-0">
-                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: tc.bg, color: tc.color }}>
-                                                <IconBank width="14" height="14" />
-                                            </div>
-                                            <div className="min-w-0">
-                                                <div className="text-[12px] font-bold text-slate-800 dark:text-white truncate">{lender.name}</div>
-                                                <div className="text-[10px] text-slate-400">Rate: {lender.interestRate} · Max: {lender.maxLoan}</div>
-                                            </div>
+                {/* 3. RIGHT COLUMN (col-span-2): Recent Lenders */}
+                <div className="col-span-2 md:col-span-1 flex flex-col gap-3 min-h-0">
+                    {/* RECENT LENDERS */}
+                    <div className="flex-1 bg-white dark:bg-[#1e2347] rounded-[20px] border border-slate-100 dark:border-white/5 flex flex-col shadow-sm overflow-hidden min-h-0">
+                        <div className="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-100 dark:border-white/5 p-2.5 px-4 flex items-center justify-between shrink-0">
+                            <div className="flex items-center gap-1.5"><IconBank className="text-slate-400" /><span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Recent Lenders</span></div>
+                            <button onClick={() => onNavigate && onNavigate('lenders')} className="text-[9px] font-bold text-[#2447d7] hover:underline">All →</button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-2 custom-scrollbar">
+                            {RECENT_LENDERS.slice(0, 4).map((lender) => {
+                                const tc = LENDER_TYPE_COLORS[lender.type] || LENDER_TYPE_COLORS['Major Bank'];
+                                return (
+                                    <div key={lender.id} onClick={() => onNavigate && onNavigate('lenders', lender)} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-white/5 hover:border-blue-500/30 hover:bg-white transition-all cursor-pointer shadow-sm flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: tc.bg, color: tc.color }}>
+                                            <IconBank width="14" height="14" />
                                         </div>
-                                        <span className="inline-flex text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shrink-0" style={{ backgroundColor: tc.bg, color: tc.color, border: `1px solid ${tc.border}` }}>{lender.type}</span>
+                                        <span className="text-[12px] font-bold text-slate-800 dark:text-white truncate">{lender.name}</span>
                                     </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-                    <div className="p-3 shrink-0 border-t border-slate-100 dark:border-white/5">
-                        <button onClick={() => onNavigate && onNavigate('lenders')} className="w-full py-2 bg-[#2447d7] text-white rounded-xl text-[11px] font-bold hover:bg-[#1732a3] transition-colors flex items-center justify-center gap-1.5">
-                            View All Lenders <IconArrow />
-                        </button>
+                                );
+                            })}
+                        </div>
                     </div>
                 </div>
             </div>
+
+            {/* Dashboard Stat Modals */}
+
             
             {/* Dashboard Stat Modals */}
             <DashboardModal
