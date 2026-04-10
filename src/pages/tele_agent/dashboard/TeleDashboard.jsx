@@ -852,6 +852,38 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                     )}
                 </div>
             );
+            case 'ASSET_PRODUCTS_POPUP': return (
+                <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between px-1 mb-1">
+                        <h3 className={`text-[11px] font-black uppercase tracking-widest ${isDark ? 'text-[#94abda]' : 'text-slate-400'}`}>Asset Products</h3>
+                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${isDark ? 'bg-indigo-500/15 text-indigo-400' : 'bg-indigo-50 text-indigo-600'}`}>{ASSET_PRODUCTS.length} types</span>
+                    </div>
+                    {ASSET_PRODUCTS.length > 0 ? (
+                        <div className="flex flex-col gap-2">
+                            {ASSET_PRODUCTS.map(p => (
+                                <button key={p.name}
+                                    onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }}
+                                    className={`w-full text-left p-3.5 rounded-xl border transition-all hover:shadow-sm group ${isDark ? 'bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-indigo-500/30' : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-indigo-200 hover:shadow-indigo-50'}`}
+                                >
+                                    <div className="flex items-center gap-3">
+                                        <div className={`w-2 h-2 rounded-full shrink-0 ${p.dotColor || 'bg-indigo-400'}`} />
+                                        <div className="flex flex-col min-w-0 flex-1">
+                                            <span className={`text-[13px] font-bold group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ${isDark ? 'text-[#e4ecff]' : 'text-slate-800'}`}>{p.name}</span>
+                                            {p.productCategory && <span className={`text-[10px] font-medium ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{p.productCategory}</span>}
+                                            {p.brief && <p className={`text-[10px] mt-0.5 line-clamp-2 leading-relaxed ${isDark ? 'text-[#546298]' : 'text-slate-500'}`}>{p.brief}</p>}
+                                        </div>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" className={`shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`}><polyline points="9 18 15 12 9 6"/></svg>
+                                    </div>
+                                </button>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className={`p-10 text-center text-[10px] font-bold uppercase tracking-widest border border-dashed rounded-2xl ${isDark ? 'border-white/10 text-[#546298]' : 'border-slate-200 text-slate-400'}`}>
+                            No asset products available
+                        </div>
+                    )}
+                </div>
+            );
             default: return null;
         }
     };
@@ -894,20 +926,28 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 </div>
 
                 {/* Create Lead Card */}
-                <div onClick={() => onNavigate('create-lead')} className="group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-rose-600/20 group-hover:scale-110 transition-transform"><IconPlus /></div>
+                <div onClick={() => onNavigate('create-lead')} className="group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-rose-600 text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-rose-600/20 group-hover:scale-110 transition-transform shrink-0"><IconPlus /></div>
                     <h2 className="text-[12px] font-black leading-tight text-rose-700 dark:text-rose-300 uppercase tracking-[0.1em]">CREATE<br />LEAD</h2>
                 </div>
 
+                {/* Asset Products Card */}
+                <div onClick={() => setActiveModal('ASSET_PRODUCTS_POPUP')} className="group bg-indigo-50/50 dark:bg-[#1c1e3a] rounded-2xl border border-indigo-200/50 dark:border-indigo-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-indigo-600 text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                    </div>
+                    <h2 className="text-[12px] font-black leading-tight text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.1em]">ASSET<br />PRODUCTS</h2>
+                </div>
+
                 {/* Knowledge Base Card */}
-                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="group bg-amber-50/50 dark:bg-[#282315] rounded-2xl border border-amber-200/50 dark:border-amber-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform"><IconBulb width="24" height="24" /></div>
+                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="group bg-amber-50/50 dark:bg-[#282315] rounded-2xl border border-amber-200/50 dark:border-amber-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-amber-500 text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform shrink-0"><IconBulb width="24" height="24" /></div>
                     <h2 className="text-[12px] font-black leading-tight text-amber-700 dark:text-amber-400 uppercase tracking-[0.1em]">KNOWLEDGE<br />BASE</h2>
                 </div>
 
                 {/* MS Teams Card */}
-                <div onClick={() => window.open('msteams://', '_blank')} className="group bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-lg shadow-[#5b5fc7]/30 group-hover:scale-110 transition-transform"><IconTeams width="24" height="24" /></div>
+                <div onClick={() => window.open('msteams://', '_blank')} className="group bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-[#5b5fc7] text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-[#5b5fc7]/30 group-hover:scale-110 transition-transform shrink-0"><IconTeams width="24" height="24" /></div>
                     <h2 className="text-[12px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef] uppercase tracking-[0.1em]">MICROSOFT<br />TEAMS</h2>
                 </div>
 
@@ -1023,26 +1063,6 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 {/* STACK 2: MIDDLE (Cols 3-5) */}
                 <div className="col-span-3 lg:col-span-2 sm:col-span-1 flex flex-col gap-4 min-h-0">
 
-                    {/* ASSET CLASSES */}
-                    <div className="bg-white dark:bg-[#1e2347] rounded-[24px] border border-slate-200/60 dark:border-white/5 flex flex-col shrink-0 min-h-0 shadow-sm overflow-hidden group/assets transition-all duration-300 hover:shadow-md">
-                        <div className="bg-slate-50/80 dark:bg-slate-800/40 backdrop-blur-sm border-b border-slate-100 dark:border-white/5 p-3 px-4 shrink-0 flex items-center justify-between">
-                            <h2 className="text-[11px] font-black text-slate-600 dark:text-slate-400 uppercase tracking-[0.15em]">Asset Products</h2>
-                            <span className="text-[9px] bg-indigo-100 dark:bg-indigo-600/30 font-black px-2 py-0.5 rounded-full text-indigo-600 dark:text-indigo-300 shrink-0 border border-indigo-200/50 dark:border-indigo-500/20">{ASSET_PRODUCTS.length} TYPES</span>
-                        </div>
-                        <div className="h-[105px] overflow-y-auto custom-scrollbar p-3">
-                            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-1">
-                                {ASSET_PRODUCTS.map(p => (
-                                    <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-3 px-3 py-2 bg-gradient-to-br from-slate-50 to-white dark:from-slate-800/40 dark:to-slate-800/80 rounded-xl hover:translate-x-1 hover:shadow-sm dark:hover:bg-slate-700 transition-all w-full h-full min-h-[42px] group/item border border-slate-100/80 dark:border-white/5">
-                                        <div className={`w-2 h-2 rounded-full shrink-0 shadow-sm ${p.dotColor} group-hover/item:scale-125 transition-transform`} />
-                                        <div className="flex flex-col items-start min-w-0 flex-1 text-left">
-                                            <span className="text-[10px] font-black uppercase tracking-tight text-slate-700 dark:text-slate-200 truncate w-full leading-tight">{p.productCategory}</span>
-                                        </div>
-                                        <IconChevronRight className="w-3 h-3 text-slate-300 group-hover/item:text-blue-500 group-hover/item:translate-x-1 transition-all" />
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
 
                     {/* NOTES */}
                     <div className="bg-[#fffef5] dark:bg-[#2a281a] rounded-[24px] border border-yellow-200/60 dark:border-yellow-700/30 flex flex-col flex-1 min-h-0 shadow-sm overflow-hidden group/notes transition-all duration-300 hover:shadow-md">
