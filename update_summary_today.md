@@ -1,6 +1,20 @@
-# Whiterock-CRM Update Summary (April 9, 2026)
+# Whiterock-CRM Update Summary (April 9–10, 2026)
 
-This document summarizes the comprehensive UI/UX refactoring and system optimizations completed today to enhance the Lead Management and Lender Selection workflows.
+This document summarizes the comprehensive UI/UX refactoring, mobile responsiveness efforts, and system optimizations completed today to enhance the CRM platform.
+
+## 0. Mobile-First Responsive UI Enhancements
+We have systematically transformed the CRM's key management modules from desktop-centric table layouts to premium, mobile-first card-based interfaces.
+
+### ── Key Features Implemented
+*   **Responsive Card Views**:
+    *   **Tele Agent Dashboard**: Mobile cards for "My Assigned Leads" and "Active Follow-ups."
+    *   **Team Leader Dashboard**: Mobile cards for "Lead Directory," "Active Follow-ups," and the "My Team" (Team Performance) popup.
+    *   **Lead Monitoring**: Interactive status updates and document management access via mobile cards.
+    *   **Lender Selection Approved**: Comprehensive financial cards for Accounts Managers.
+*   **Design Pattern**: Utilized a `hidden sm:flex` container for mobile cards and a `sm:hidden` container for desktop tables, ensuring touch-friendly transitions.
+*   **Modal UX Improvements**: Refactored `DashboardModal` into a **bottom-sheet design** for mobile, featuring drag handles and optimized height constraints.
+
+---
 
 ## 1. Lead Details Dashboard Optimization (`LeadDetails.jsx`)
 The dashboard was reorganized to improve data density and operational focus for agents and managers.
@@ -43,3 +57,22 @@ Resolved critical backend-simulation bugs affecting lead identification.
 - [x] No more "duplicate key" warnings in the console.
 - [x] Title (Mr, Mrs, etc.) visible in Contact Info.
 - [x] "Team & Assignment" moved to right-most column.
+
+---
+
+## 4. Super Admin Dashboard Refinement (April 10, 2026)
+Optimized the header and interactive components for a cleaner, more focused user experience.
+
+### ── Navigation & Header
+*   **Header Cleanup**: Removed the "Live Processing" status badge from the Super Admin dashboard header to reduce visual clutter and focus on core navigation.
+
+### ── Interaction & Layout
+*   **Notes Scroll Management**: Implemented vertical scroll handling for the "My Notes" card in the dashboard. The list now automatically provides a scrollbar after approximately 4 notes, preventing the card from overflowing or distorting the dashboard grid.
+
+---
+
+## Final Verification
+- [x] "Live Processing" badge removed from Super Admin header.
+- [x] Notes section in Super Admin dashboard scrolls correctly after 4+ entries.
+- [x] Dashboard grid layout remains stable with multiple notes.
+
