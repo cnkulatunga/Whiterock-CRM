@@ -210,9 +210,7 @@ const LenderSelection = ({ lead, onNavigate }) => {
                                             </div>
                                             <div className="flex flex-col flex-1 min-w-0">
                                                 <span className="text-[13px] font-semibold text-[#1a202c] truncate">{lender.name}</span>
-                                                <span className="text-[10px] text-[#a0aec0]">{lender.tier}</span>
                                             </div>
-                                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-lg shrink-0" style={{ color: lender.color, background: lender.bg }}>{lender.match}%<br/><span className="text-[9px] font-medium">Match</span></span>
                                         </div>
                                     );
                                 })}

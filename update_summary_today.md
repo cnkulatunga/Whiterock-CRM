@@ -86,5 +86,23 @@ Systematically replaced desktop-centric table layouts with premium, touch-friend
 - [x] Tele Agent stats cards and leads are responsive.
 - [x] Team Leader "My Team" popup displays as cards on mobile.
 - [x] Lead Monitoring actions (Approve/Reject/Verify) are touch-friendly.
-- [x] Dashboard modals transition to bottom-sheets correctly on small screens.
+- [x] Match Performance Cleanup: Removed redundant "Match %" badges and Tier labels (e.g., "Tier 2 • Private Equity") from lender selection cards.
 
+---
+
+## 6. Account Manager Dashboard Refinement (April 10, 2026)
+Optimized the dashboard visuals and structural integrity for professional operational focus.
+
+### ── Layout & Workflow Optimization
+*   **Workflow-Oriented Grid**: Regrouped Row 2 widgets to align with task-specific behaviors.
+*   **Component Sizing**: Refactored the **Calendar** to "fit to size," removing vertical scrolling and ensuring all dates are visible at once.
+*   **Positioning**: Grouped **Calendar** and **Calculator** vertically in the center column, paired with the **Notes** section for a consolidated planning area.
+*   **UI Streamlining**: Removed interest rates, maximum loan amounts, and institution type labels from the "Recent Lenders" card.
+
+---
+
+## Final Verification (AM Dashboard)
+- [x] Calendar shifted directly beneath the Calendar in the center column.
+- [x] Calendar scrollbars removed; component now fits content size naturally.
+- [x] Recent Lenders isolated in the right column for better focus.
+- [x] Build errors resolved and source comments sanitized.
