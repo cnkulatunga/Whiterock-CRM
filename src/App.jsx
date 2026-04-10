@@ -7,7 +7,8 @@ import SuperAdminLayout from './layout/SuperAdminLayout';
 import TeleAgentLayout from './layout/TeleAgentLayout';
 import AccountsManagerLayout from './layout/AccountsManagerLayout';
 import TeamLeaderLayout from './layout/TeamLeaderLayout';
-import AIAssistant from './components/AIAssistant/AIAssistant';
+// import LeaveLogin from './pages/leave_management/LeaveLogin'; // COMMENTED OUT
+// import LeaveApp from './pages/leave_management/LeaveApp'; // COMMENTED OUT
 
 const ProtectedRoute = ({ children, allowedRoles, isLoggedIn }) => {
     const userString = localStorage.getItem('user');
@@ -208,7 +209,6 @@ function App() {
                     </div>
                 </div>
             )}
-            {isLoggedIn && <AIAssistant />}
         </div>
     );
 }

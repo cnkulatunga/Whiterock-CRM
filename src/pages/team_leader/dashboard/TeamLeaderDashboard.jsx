@@ -1228,13 +1228,7 @@ const TeamLeaderDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                         <div className="h-[105px] overflow-y-auto custom-scrollbar p-3">
                             <div className="grid grid-cols-2 lg:grid-cols-2 sm:grid-cols-1 gap-2.5">
                                 {ASSET_PRODUCTS.map(p => (
-                                    <button 
-                                        key={p.name} 
-                                        onClick={() => { 
-                                            window.dispatchEvent(new CustomEvent('OPEN_AI_ASSISTANT', { detail: { mode: 'product' } }));
-                                        }} 
-                                        className="flex items-center gap-3 px-3 py-2 bg-slate-50/50 dark:bg-white/2 rounded-xl hover:bg-white dark:hover:bg-white/5 transition-all w-full group/btn border border-slate-100 dark:border-white/5 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-sm hover:-translate-y-0.5"
-                                    >
+                                    <button key={p.name} onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }} className="flex items-center gap-3 px-3 py-2 bg-slate-50/50 dark:bg-white/2 rounded-xl hover:bg-white dark:hover:bg-white/5 transition-all w-full group/btn border border-slate-100 dark:border-white/5 hover:border-indigo-300 dark:hover:border-indigo-500 hover:shadow-sm hover:-translate-y-0.5">
                                         <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.5)] group-hover/btn:scale-125 transition-transform" />
                                         <div className="flex flex-col items-start min-w-0 flex-1 text-left">
                                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-200 truncate w-full leading-tight group-hover/btn:text-indigo-600 transition-colors">{p.productCategory}</span>
