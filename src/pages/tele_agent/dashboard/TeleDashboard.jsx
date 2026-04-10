@@ -892,63 +892,68 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
         <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-auto lg:min-h-0">
 
             {/* STRICT SINGLE SCREEN GRID (Row 1: Tiles, Row 2: Main Stacks) */}
-            <div className="grid grid-cols-7 xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-1.5 min-h-0 w-full mb-1">
+            <div className="grid grid-cols-7 xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 gap-3 min-h-0 w-full mb-1">
 
                 {/* Leads Card */}
-                <div onClick={() => setActiveModal('LEAD_COUNT')} className="group bg-blue-50/50 dark:bg-[#1c2340] rounded-2xl sm:rounded-xl border border-blue-200/50 dark:border-blue-500/20 p-4 sm:p-2 flex flex-col justify-center items-center gap-2 sm:gap-1 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform shrink-0"><IconUserGroup width="24" height="24" /></div>
+                <div onClick={() => setActiveModal('LEAD_COUNT')} className="group bg-blue-50/50 dark:bg-[#1c2340] rounded-2xl border border-blue-200/50 dark:border-blue-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform"><IconUserGroup width="24" height="24" /></div>
                     <div className="flex flex-col gap-0.5">
-                        <h2 className="text-3xl lg:text-3xl sm:text-sm font-black leading-none text-blue-700 dark:text-blue-300">
+                        <h2 className="text-3xl lg:text-3xl font-black leading-none text-blue-700 dark:text-blue-300">
                             {(leads || []).filter(l => l.assignedStaffId === user.id && l.status !== 'Completed').length.toLocaleString()}
                         </h2>
-                        <span className="text-[10px] sm:text-[7px] font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-[0.15em]">LEADS</span>
+                        <span className="text-[10px] sm:text-[9px] font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-[0.2em]">LEADS</span>
                     </div>
                 </div>
 
                 {/* Tasks Card */}
-                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="group bg-orange-50/50 dark:bg-[#2a1f1a] rounded-2xl sm:rounded-xl border border-orange-200/50 dark:border-orange-500/20 p-4 sm:p-2 flex flex-col justify-center items-center gap-2 sm:gap-1 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-orange-500 text-white flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform shrink-0"><IconClock width="24" height="24" /></div>
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="group bg-orange-50/50 dark:bg-[#2a1f1a] rounded-2xl border border-orange-200/50 dark:border-orange-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-orange-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-orange-500/20 group-hover:scale-110 transition-transform"><IconClock width="24" height="24" /></div>
                     <div className="flex flex-col gap-0.5">
-                        <h2 className="text-3xl lg:text-3xl sm:text-sm font-black leading-none text-orange-700 dark:text-orange-300">{tasks.length}</h2>
-                        <span className="text-[10px] sm:text-[7px] font-black text-orange-600/70 dark:text-orange-400/70 uppercase tracking-[0.15em]">TASKS</span>
+                        <h2 className="text-3xl lg:text-3xl font-black leading-none text-orange-700 dark:text-orange-300">{tasks.length}</h2>
+                        <span className="text-[10px] sm:text-[9px] font-black text-orange-600/70 dark:text-orange-400/70 uppercase tracking-[0.2em]">TASKS</span>
                     </div>
                 </div>
 
                 {/* Docs Card */}
-                <div onClick={() => setActiveModal('PENDING_DOCS')} className="group bg-emerald-50/50 dark:bg-[#182724] rounded-2xl sm:rounded-xl border border-emerald-200/50 dark:border-emerald-500/20 p-4 sm:p-2 flex flex-col justify-center items-center gap-2 sm:gap-1 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform shrink-0"><IconFolder width="24" height="24" /></div>
+                <div onClick={() => setActiveModal('PENDING_DOCS')} className="group bg-emerald-50/50 dark:bg-[#182724] rounded-2xl border border-emerald-200/50 dark:border-emerald-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform"><IconFolder width="24" height="24" /></div>
                     <div className="flex flex-col gap-0.5">
-                        <h2 className="text-3xl lg:text-3xl sm:text-sm font-black leading-none text-emerald-700 dark:text-emerald-300">
+                        <h2 className="text-3xl lg:text-3xl font-black leading-none text-emerald-700 dark:text-emerald-300">
                             {(leads || []).filter(l => l.assignedStaffId === user.id && (l.status === 'Document Collection' || (l.documents || []).some(d => d.status === 'Pending'))).length}
                         </h2>
-                        <span className="text-[10px] sm:text-[7px] font-black text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-[0.15em]">DOCS</span>
+                        <span className="text-[10px] sm:text-[9px] font-black text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-[0.2em]">DOCS</span>
                     </div>
                 </div>
 
                 {/* Create Lead Card */}
-                <div onClick={() => onNavigate('create-lead')} className="sm:hidden group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-3 flex flex-col justify-center items-center gap-1.5 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-9 h-9 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-lg shadow-rose-600/20 group-hover:scale-110 transition-transform shrink-0"><IconPlus /></div>
-                    <h2 className="text-[10px] font-black leading-tight text-rose-700 dark:text-rose-300 uppercase tracking-[0.08em]">CREATE<br />LEAD</h2>
+                <div onClick={() => onNavigate('create-lead')} className="group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-rose-600 text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-rose-600/20 group-hover:scale-110 transition-transform shrink-0"><IconPlus /></div>
+                    <h2 className="text-[12px] font-black leading-tight text-rose-700 dark:text-rose-300 uppercase tracking-[0.1em]">CREATE<br />LEAD</h2>
                 </div>
 
                 {/* Asset Products Card */}
-                <div onClick={() => setActiveModal('ASSET_PRODUCTS_POPUP')} className="group bg-indigo-50/50 dark:bg-[#1c1e3a] rounded-2xl sm:rounded-xl border border-indigo-200/50 dark:border-indigo-500/20 p-4 sm:p-2 flex flex-col justify-center items-center gap-2 sm:gap-1 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform shrink-0">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                <div 
+                    onClick={() => { 
+                        window.dispatchEvent(new CustomEvent('OPEN_AI_ASSISTANT', { detail: { mode: 'product' } }));
+                    }} 
+                    className="group bg-indigo-50/50 dark:bg-[#1c1e3a] rounded-2xl border border-indigo-200/50 dark:border-indigo-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300"
+                >
+                    <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-indigo-600 text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform shrink-0">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                     </div>
-                    <h2 className="text-[10px] sm:text-[7px] font-black leading-tight text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.1em]">ASSET<br />PRODUCTS</h2>
+                    <h2 className="text-[12px] font-black leading-tight text-indigo-700 dark:text-indigo-400 uppercase tracking-[0.1em]">ASSET<br />PRODUCTS</h2>
                 </div>
 
                 {/* Knowledge Base Card */}
-                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="group bg-amber-50/50 dark:bg-[#282315] rounded-2xl sm:rounded-xl border border-amber-200/50 dark:border-amber-500/20 p-4 sm:p-2 flex flex-col justify-center items-center gap-2 sm:gap-1 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform shrink-0"><IconBulb width="18" height="18" /></div>
-                    <h2 className="text-[10px] sm:text-[7px] font-black leading-tight text-amber-700 dark:text-amber-400 uppercase tracking-[0.1em]">KNOWLEDGE<br />BASE</h2>
+                <div onClick={() => setActiveModal('KNOWLEDGE_BASE')} className="group bg-amber-50/50 dark:bg-[#282315] rounded-2xl border border-amber-200/50 dark:border-amber-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-amber-500 text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform shrink-0"><IconBulb width="24" height="24" /></div>
+                    <h2 className="text-[12px] font-black leading-tight text-amber-700 dark:text-amber-400 uppercase tracking-[0.1em]">KNOWLEDGE<br />BASE</h2>
                 </div>
 
                 {/* MS Teams Card */}
-                <div onClick={() => window.open('msteams://', '_blank')} className="group bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl sm:rounded-xl border border-[#5b5fc7]/30 p-4 sm:p-2 flex flex-col justify-center items-center gap-2 sm:gap-1 shadow-sm cursor-pointer text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-9 h-9 sm:w-8 sm:h-8 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center shadow-lg shadow-[#5b5fc7]/30 group-hover:scale-110 transition-transform shrink-0"><IconTeams width="18" height="18" /></div>
-                    <h2 className="text-[10px] sm:text-[7px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef] uppercase tracking-[0.1em]">MICROSOFT<br />TEAMS</h2>
+                <div onClick={() => window.open('msteams://', '_blank')} className="group bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-[#5b5fc7] text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-[#5b5fc7]/30 group-hover:scale-110 transition-transform shrink-0"><IconTeams width="24" height="24" /></div>
+                    <h2 className="text-[12px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef] uppercase tracking-[0.1em]">MICROSOFT<br />TEAMS</h2>
                 </div>
 
             </div>
