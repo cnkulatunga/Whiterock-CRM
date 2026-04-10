@@ -853,33 +853,50 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 </div>
             );
             case 'ASSET_PRODUCTS_POPUP': return (
-                <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between px-1 mb-1">
-                        <h3 className={`text-[11px] font-black uppercase tracking-widest ${isDark ? 'text-[#94abda]' : 'text-slate-400'}`}>Asset Products</h3>
-                        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${isDark ? 'bg-indigo-500/15 text-indigo-400' : 'bg-indigo-50 text-indigo-600'}`}>{ASSET_PRODUCTS.length} types</span>
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between px-1 mb-2">
+                        <div className="flex flex-col">
+                            <h3 className={`text-[14px] font-black uppercase tracking-tight ${isDark ? 'text-white' : 'text-slate-800'}`}>Asset Products</h3>
+                            <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-widest">Available Funding Types</span>
+                        </div>
+                        <span className={`text-[10px] font-black px-3 py-1 rounded-full ${isDark ? 'bg-indigo-600/20 text-indigo-400 border border-indigo-500/20' : 'bg-indigo-50 text-indigo-600 border border-indigo-100'}`}>{ASSET_PRODUCTS.length} TYPES</span>
                     </div>
+                    
                     {ASSET_PRODUCTS.length > 0 ? (
-                        <div className="flex flex-col gap-2">
+                        <div className="grid grid-cols-2 sm:grid-cols-1 gap-3">
                             {ASSET_PRODUCTS.map(p => (
-                                <button key={p.name}
+                                <button 
+                                    key={p.name}
                                     onClick={() => { setSelectedProduct(p); setActiveModal('PRODUCT_BRIEF'); }}
-                                    className={`w-full text-left p-3.5 rounded-xl border transition-all hover:shadow-sm group ${isDark ? 'bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-indigo-500/30' : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-indigo-200 hover:shadow-indigo-50'}`}
+                                    className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all w-full group/btn border text-left hover:shadow-md hover:-translate-y-0.5 ${
+                                        isDark 
+                                        ? 'bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-indigo-400/30' 
+                                        : 'bg-slate-50 border-slate-100 hover:bg-white hover:border-indigo-200 shadow-sm'
+                                    }`}
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <div className={`w-2 h-2 rounded-full shrink-0 ${p.dotColor || 'bg-indigo-400'}`} />
-                                        <div className="flex flex-col min-w-0 flex-1">
-                                            <span className={`text-[13px] font-bold group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors ${isDark ? 'text-[#e4ecff]' : 'text-slate-800'}`}>{p.name}</span>
-                                            {p.productCategory && <span className={`text-[10px] font-medium ${isDark ? 'text-[#546298]' : 'text-slate-400'}`}>{p.productCategory}</span>}
-                                            {p.brief && <p className={`text-[10px] mt-0.5 line-clamp-2 leading-relaxed ${isDark ? 'text-[#546298]' : 'text-slate-500'}`}>{p.brief}</p>}
-                                        </div>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" className={`shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${isDark ? 'text-indigo-400' : 'text-indigo-500'}`}><polyline points="9 18 15 12 9 6"/></svg>
+                                    <div className="relative shrink-0">
+                                        <div className={`w-3 h-3 rounded-full ${p.dotColor || 'bg-indigo-500'} shadow-[0_0_10px_rgba(99,102,241,0.4)] group-hover/btn:scale-125 transition-transform`} />
+                                        <div className={`absolute inset-0 rounded-full animate-ping opacity-20 ${p.dotColor || 'bg-indigo-500'}`} />
                                     </div>
+                                    <div className="flex flex-col items-start min-w-0 flex-1">
+                                        <span className={`text-[12px] font-black uppercase tracking-widest truncate w-full leading-tight transition-colors ${
+                                            isDark ? 'text-slate-200 group-hover/btn:text-indigo-400' : 'text-slate-700 group-hover/btn:text-indigo-600'
+                                        }`}>
+                                            {p.name}
+                                        </span>
+                                        <span className={`text-[9px] font-bold uppercase tracking-tighter mt-0.5 ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
+                                            {p.productCategory}
+                                        </span>
+                                    </div>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="14" height="14" className={`shrink-0 opacity-0 group-hover/btn:opacity-100 transition-all transform translate-x-1 ${isDark ? 'text-indigo-400' : 'text-indigo-600'}`}>
+                                        <polyline points="9 18 15 12 9 6"/>
+                                    </svg>
                                 </button>
                             ))}
                         </div>
                     ) : (
                         <div className={`p-10 text-center text-[10px] font-bold uppercase tracking-widest border border-dashed rounded-2xl ${isDark ? 'border-white/10 text-[#546298]' : 'border-slate-200 text-slate-400'}`}>
-                            No asset products available
+                            No products currently indexed
                         </div>
                     )}
                 </div>
@@ -933,9 +950,7 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
 
                 {/* Asset Products Card */}
                 <div 
-                    onClick={() => { 
-                        window.dispatchEvent(new CustomEvent('OPEN_AI_ASSISTANT', { detail: { mode: 'product' } }));
-                    }} 
+                    onClick={() => setActiveModal('ASSET_PRODUCTS_POPUP')} 
                     className="group bg-indigo-50/50 dark:bg-[#1c1e3a] rounded-2xl border border-indigo-200/50 dark:border-indigo-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300"
                 >
                     <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-indigo-600 text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform shrink-0">
