@@ -88,6 +88,7 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
     const [showEditModal, setShowEditModal] = useState(false);
     const { addTask, updateTask } = useTasks();
     const [newNote, setNewNote] = useState('');
+    const [showNoteModal, setShowNoteModal] = useState(false);
 
     const handleAddNote = () => {
         if (!newNote.trim()) return;
@@ -204,49 +205,48 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
         <div className="flex flex-col gap-4 animate-fadeIn font-['Sora',sans-serif]">
 
             {/* ── HEADER ── */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-start gap-3 min-w-0 w-full">
+            <div className="flex flex-col gap-3">
+                {/* Top row: back + name + actions */}
+                <div className="flex items-center gap-3">
                     <button 
                         onClick={onBack} 
                         className="p-2.5 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-sm hover:bg-slate-50 dark:hover:bg-white/10 transition-all text-slate-500 shrink-0 active:scale-95"
                     >
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="16" height="16"><polyline points="15 18 9 12 15 6" /></svg>
                     </button>
-                    <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
-                            <h1 className="text-2xl sm:text-xl font-black text-[#1a202c] dark:text-white tracking-tighter bg-gradient-to-br from-[#1a202c] to-[#4a5568] dark:from-white dark:to-slate-400 bg-clip-text text-transparent truncate">{leadId}</h1>
-                            <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm transition-all backdrop-blur-md ${statusCls}`}>
-                                <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
-                                {currentStatus}
-                            </span>
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                            <p className="text-[10px] text-[#94a3b8] font-medium uppercase tracking-tight">
-                                Agent: <span className="text-[#2447d7] dark:text-blue-400 font-bold">{lead.agentName || lead.agent || '—'}</span>
-                            </p>
-                            <span className="w-0.5 h-3 bg-slate-200 dark:bg-white/10 hidden sm:block" />
-                            <p className="text-[10px] text-[#94a3b8] font-medium uppercase tracking-tight">
-                                ID: <span className="text-[#4a5568] dark:text-slate-300 font-bold">{lead.id}</span>
-                            </p>
-                        </div>
+                    <h1 className="text-2xl sm:text-lg font-black text-[#1a202c] dark:text-white tracking-tighter bg-gradient-to-br from-[#1a202c] to-[#4a5568] dark:from-white dark:to-slate-400 bg-clip-text text-transparent truncate flex-1 min-w-0">{leadId}</h1>
+                    {/* Actions inline on mobile */}
+                    <div className="flex items-center gap-2 shrink-0">
+                        {onNavigate && currentStatus === 'Document Verification Done' && 
+                         (isManagerOrAbove || isTeamLeader) && 
+                         !(lead.documents || []).some(d => d.status === 'Rejected') && (
+                            <button
+                                onClick={() => onNavigate('lender_selection', lead)}
+                                className="flex items-center gap-1.5 bg-[#10b981] hover:bg-[#059669] text-white px-3 sm:px-2.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all active:scale-95 whitespace-nowrap"
+                            >
+                                <IconBank size={14} /> <span className="sm:hidden">Lender Selection</span><span className="hidden sm:inline">Lender</span>
+                            </button>
+                        )}
+                        {isManagerOrAbove && (
+                            <button onClick={() => setShowEditModal(true)} className="flex items-center gap-1.5 bg-[#f0f4ff] dark:bg-white/5 text-[#2447d7] dark:text-blue-400 px-3 sm:px-2.5 py-2 rounded-xl text-xs font-bold hover:bg-[#2447d7] hover:text-white dark:hover:bg-blue-500 transition-all border border-transparent dark:border-white/10">
+                                <IconPencil size={14} /> <span className="sm:hidden">Edit</span>
+                            </button>
+                        )}
                     </div>
                 </div>
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                    {onNavigate && currentStatus === 'Document Verification Done' && 
-                     (isManagerOrAbove || isTeamLeader) && 
-                     !(lead.documents || []).some(d => d.status === 'Rejected') && (
-                        <button
-                            onClick={() => onNavigate('lender_selection', lead)}
-                            className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-[#10b981] hover:bg-[#059669] text-white px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
-                        >
-                            <IconBank size={14} /> Lender Selection
-                        </button>
-                    )}
-                    {isManagerOrAbove && (
-                        <button onClick={() => setShowEditModal(true)} className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 bg-[#f0f4ff] dark:bg-white/5 text-[#2447d7] dark:text-blue-400 px-4 py-2 rounded-xl text-xs font-bold hover:bg-[#2447d7] hover:text-white dark:hover:bg-blue-500 transition-all border border-transparent dark:border-white/10">
-                            <IconPencil size={14} /> Edit
-                        </button>
-                    )}
+                {/* Second row: status + meta */}
+                <div className="flex items-center gap-3 flex-wrap pl-1">
+                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-sm backdrop-blur-md ${statusCls}`}>
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-current mr-1.5" />
+                        {currentStatus}
+                    </span>
+                    <p className="text-[10px] text-[#94a3b8] font-medium uppercase tracking-tight">
+                        Agent: <span className="text-[#2447d7] dark:text-blue-400 font-bold">{lead.agentName || lead.agent || '—'}</span>
+                    </p>
+                    <span className="w-0.5 h-3 bg-slate-200 dark:bg-white/10" />
+                    <p className="text-[10px] text-[#94a3b8] font-medium uppercase tracking-tight">
+                        ID: <span className="text-[#4a5568] dark:text-slate-300 font-bold">{lead.id}</span>
+                    </p>
                 </div>
             </div>
 
@@ -445,34 +445,18 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                         iconBg="bg-[#fdf4ff]" 
                         iconColor="text-[#a855f7]" 
                         title="Notes"
+                        action={
+                            <button
+                                onClick={() => setShowNoteModal(true)}
+                                className="flex items-center gap-1 bg-[#a855f7] hover:bg-[#9333ea] text-white px-3 py-1 rounded-lg text-[10px] font-bold transition-all shadow-sm"
+                            >
+                                <IconPlus /> Add Note
+                            </button>
+                        }
                     >
-                        <div className="p-4 flex flex-col gap-4">
-                            {/* Note Input */}
-                            <div className="flex flex-col gap-2">
-                                <textarea
-                                    className="w-full p-3 text-xs bg-[#f8fafc] dark:bg-white/5 border border-[#edf2f7] dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 resize-none min-h-[80px] text-[#4a5568] dark:text-slate-300 placeholder:text-slate-400"
-                                    placeholder="Add a progress update..."
-                                    value={newNote}
-                                    onChange={(e) => setNewNote(e.target.value)}
-                                />
-                                <div className="flex justify-end">
-                                    <button
-                                        onClick={handleAddNote}
-                                        disabled={!newNote.trim()}
-                                        className="px-4 py-1.5 bg-[#a855f7] hover:bg-[#9333ea] disabled:opacity-50 disabled:cursor-not-allowed text-white text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all shadow-sm flex items-center gap-1.5"
-                                    >
-                                        <IconPlus /> Post Note
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Divider if there are notes */}
-                            {(lead.noteHistory && lead.noteHistory.length > 0) && (
-                                <div className="h-px bg-[#f1f5f9] dark:bg-white/5" />
-                            )}
-
+                        <div className="p-4 flex flex-col gap-3">
                             {/* Note History */}
-                            <div className="flex flex-col gap-3 max-h-[140px] overflow-y-auto scrollbar-thin pr-1">
+                            <div className="flex flex-col gap-3 max-h-[280px] overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: '#a855f7 transparent' }}>
                                 {lead.noteHistory && lead.noteHistory.length > 0 ? (
                                     lead.noteHistory.map((note) => (
                                         <div key={note.id} className="group relative bg-[#f8fafc] dark:bg-white/[0.02] border border-[#edf2f7] dark:border-white/5 rounded-xl p-3 hover:border-purple-200 dark:hover:border-purple-500/20 transition-all">
@@ -518,6 +502,49 @@ const LeadDetails = ({ lead: initialLead, onBack, tasks = [], setTasks, onNaviga
                             </div>
                         </div>
                     </Card>
+
+                    {/* Add Note Modal */}
+                    {showNoteModal && (
+                        <div className="fixed inset-0 z-[1100] flex items-center justify-center sm:items-end p-4 sm:p-0 bg-black/50 backdrop-blur-sm animate-fadeIn">
+                            <div className="w-full max-w-md sm:max-w-full bg-white dark:bg-[#1e2347] rounded-2xl sm:rounded-t-2xl sm:rounded-b-none shadow-2xl overflow-hidden animate-slideUp">
+                                {/* drag handle */}
+                                <div className="hidden sm:block w-10 h-1 rounded-full bg-slate-200 dark:bg-slate-700 mx-auto mt-3 mb-1" />
+                                <div className="flex items-center justify-between px-5 py-4 border-b border-[#f1f5f9] dark:border-white/5">
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-7 h-7 rounded-lg bg-[#fdf4ff] flex items-center justify-center text-[#a855f7]">
+                                            <IconPlus />
+                                        </div>
+                                        <h3 className="text-[14px] font-black text-[#1a202c] dark:text-white uppercase tracking-tight">Add Note</h3>
+                                    </div>
+                                    <button onClick={() => { setShowNoteModal(false); setNewNote(''); }} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-all">
+                                        <IconClose size={16} />
+                                    </button>
+                                </div>
+                                <div className="p-5 flex flex-col gap-3">
+                                    <textarea
+                                        autoFocus
+                                        className="w-full p-3 text-sm bg-[#f8fafc] dark:bg-white/5 border border-[#edf2f7] dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500/20 resize-none min-h-[120px] text-[#4a5568] dark:text-slate-300 placeholder:text-slate-400"
+                                        placeholder="Add a progress update..."
+                                        value={newNote}
+                                        onChange={(e) => setNewNote(e.target.value)}
+                                        onKeyDown={(e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { handleAddNote(); setShowNoteModal(false); } }}
+                                    />
+                                    <div className="flex gap-2 justify-end">
+                                        <button onClick={() => { setShowNoteModal(false); setNewNote(''); }} className="px-4 py-2 rounded-xl text-[12px] font-bold text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 transition-all">
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={() => { handleAddNote(); setShowNoteModal(false); }}
+                                            disabled={!newNote.trim()}
+                                            className="px-5 py-2 bg-[#a855f7] hover:bg-[#9333ea] disabled:opacity-40 disabled:cursor-not-allowed text-white text-[12px] font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5"
+                                        >
+                                            <IconPlus /> Post Note
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Tasks & Follow-ups */}
                     <Card

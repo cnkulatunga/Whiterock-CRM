@@ -95,24 +95,24 @@ const Lenders = ({ readOnly = false }) => {
 
 
             {/* ── KPI Cards ── */}
-            <div className="grid grid-cols-4 gap-4 md:grid-cols-2 sm:grid-cols-1">
+            <div className="grid grid-cols-4 gap-4 md:grid-cols-2 sm:grid-cols-2 sm:gap-2">
                 {[
                     { label: 'Total Lenders',     value: stats.total.toLocaleString(), color: 'text-blue-700 dark:text-blue-400',    bg: 'bg-blue-100/40 dark:bg-blue-500/10',    border: 'border-blue-200 dark:border-blue-500/20',    iconBg: 'bg-blue-600',    icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg> },
                     { label: 'Active Partners',   value: stats.active,                  color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-100/40 dark:bg-emerald-500/10', border: 'border-emerald-200 dark:border-emerald-500/20', iconBg: 'bg-emerald-500', icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="18" height="18"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> },
                     { label: 'Inactive / Pending',value: stats.inactive,                color: 'text-slate-700 dark:text-slate-400',    bg: 'bg-slate-100/30 dark:bg-white/5',       border: 'border-slate-200 dark:border-white/10',      iconBg: 'bg-slate-500',   icon: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="18" height="18"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg> },
                 ].map((card, i) => (
-                    <div key={card.label} className={`${card.bg} ${card.border} border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop`}
+                    <div key={card.label} className={`${card.bg} ${card.border} border rounded-2xl sm:rounded-xl p-4 sm:p-2 flex items-center gap-4 sm:gap-2 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop`}
                         style={{ animationDelay: `${150 + i * 70}ms`, animationFillMode: 'both' }}>
                         
-                        <div className={`w-12 h-12 rounded-full ${card.iconBg} text-white flex-shrink-0 flex items-center justify-center shadow-md`}>
+                        <div className={`w-12 h-12 sm:w-8 sm:h-8 rounded-full ${card.iconBg} text-white flex-shrink-0 flex items-center justify-center shadow-md`}>
                             {card.icon}
                         </div>
                         
                         <div className="flex flex-col min-w-0">
-                            <span className={`text-[10px] font-black ${card.color} uppercase tracking-widest leading-none mb-1 opacity-70`}>
+                            <span className={`text-[10px] sm:text-[7px] font-black ${card.color} uppercase tracking-widest leading-none mb-1 opacity-70`}>
                                 {card.label}
                             </span>
-                            <h2 className={`text-[28px] font-black leading-none tracking-tight ${card.color}`}>
+                            <h2 className={`text-[28px] sm:text-sm font-black leading-none tracking-tight ${card.color}`}>
                                 {card.value}
                             </h2>
                         </div>
@@ -121,19 +121,19 @@ const Lenders = ({ readOnly = false }) => {
                 {!readOnly && (
                     <button 
                         onClick={openAdd}
-                        className="bg-rose-100/40 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop group"
+                        className="bg-rose-100/40 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 border rounded-2xl sm:rounded-xl p-4 sm:p-2 flex items-center gap-4 sm:gap-2 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop group"
                         style={{ animationDelay: `${150 + 3 * 70}ms`, animationFillMode: 'both' }}
                     >
-                        <div className="w-12 h-12 rounded-full bg-rose-600 text-white flex-shrink-0 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                        <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-rose-600 text-white flex-shrink-0 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="20" height="20">
                                 <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
                             </svg>
                         </div>
                         <div className="flex flex-col text-left">
-                            <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest leading-none mb-1 opacity-70">
+                            <span className="text-[10px] sm:text-[7px] font-black text-rose-500 uppercase tracking-widest leading-none mb-1 opacity-70">
                                 Quick Action
                             </span>
-                            <h2 className="text-[16px] font-black leading-none text-rose-700 dark:text-rose-400 uppercase tracking-tighter">
+                            <h2 className="text-[16px] sm:text-sm font-black leading-none text-rose-700 dark:text-rose-400 uppercase tracking-tighter">
                                 ADD LENDER
                             </h2>
                         </div>

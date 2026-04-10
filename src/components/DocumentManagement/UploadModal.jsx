@@ -41,48 +41,51 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
     };
 
     return (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/60 backdrop-blur-sm animate-fadeIn">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center sm:items-end p-6 sm:p-0 bg-black/60 backdrop-blur-sm animate-fadeIn">
             <input type="file" ref={fileInputRef} onChange={handleFileChange} style={{ display: 'none' }} />
             <div 
-                className="w-full max-w-2xl rounded-[2.5rem] shadow-2xl overflow-hidden animate-scaleIn"
+                className="w-full max-w-2xl sm:max-w-full rounded-[2.5rem] sm:rounded-t-[2rem] sm:rounded-b-none shadow-2xl overflow-hidden animate-scaleIn sm:animate-slideUp"
                 style={{ 
                     background: isDark ? '#1f2347' : '#ffffff',
                     border: `1px solid ${isDark ? '#36407a' : '#ffffff'}`,
                     boxShadow: isDark ? '0 25px 50px -12px rgba(0,0,0,0.5)' : '0 25px 50px -12px rgba(36,71,215,0.2)'
                 }}
             >
+                {/* Mobile drag handle */}
+                <div className="hidden sm:block w-10 h-1 rounded-full mx-auto mt-3 mb-1" style={{ background: isDark ? '#36407a' : '#e2e8f0' }} />
+
                 {/* Modal Header */}
-                <div className="px-8 py-6 border-b flex items-center justify-between" style={{ borderColor: isDark ? '#36407a' : '#f1f5f9' }}>
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-[#eef2ff] flex items-center justify-center text-[#2447d7]">
+                <div className="px-8 sm:px-5 py-6 sm:py-4 border-b flex items-center justify-between" style={{ borderColor: isDark ? '#36407a' : '#f1f5f9' }}>
+                    <div className="flex items-center gap-4 sm:gap-3 min-w-0">
+                        <div className="w-12 h-12 sm:w-9 sm:h-9 rounded-2xl sm:rounded-xl bg-[#eef2ff] flex items-center justify-center text-[#2447d7] shrink-0">
                             <IconFile size={24} />
                         </div>
-                        <div>
-                            <h3 className="text-xl font-extrabold tracking-tight" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>
+                        <div className="min-w-0">
+                            <h3 className="text-xl sm:text-base font-extrabold tracking-tight truncate" style={{ color: isDark ? '#e4ecff' : '#1a202c' }}>
                                 Manage Documents
                             </h3>
-                            <p className="text-[13px] font-medium" style={{ color: isDark ? '#94abda' : '#64748b' }}>
+                            <p className="text-[13px] sm:text-[11px] font-medium truncate" style={{ color: isDark ? '#94abda' : '#64748b' }}>
                                 {client.name} · {client.id}
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 transition-colors" style={{ color: isDark ? '#94abda' : '#a0aec0' }}><IconClose /></button>
+                    <button onClick={onClose} className="p-2 rounded-xl hover:bg-black/5 transition-colors shrink-0" style={{ color: isDark ? '#94abda' : '#a0aec0' }}><IconClose /></button>
                 </div>
 
                 {/* Modal Body */}
-                <div className="p-8 max-h-[60vh] overflow-y-auto custom-scrollbar">
+                <div className="p-8 sm:p-4 max-h-[60vh] sm:max-h-[70vh] overflow-y-auto custom-scrollbar">
                     {/* New Custom Upload Section */}
                     {canUpload && (
-                        <div className="mb-8 p-6 rounded-3xl border-2 border-dashed flex flex-col gap-4" style={{ borderColor: isDark ? '#36407a' : '#eef2ff', background: isDark ? 'rgba(36,71,215,0.05)' : '#fcfdff' }}>
+                        <div className="mb-8 sm:mb-4 p-6 sm:p-4 rounded-3xl sm:rounded-2xl border-2 border-dashed flex flex-col gap-4 sm:gap-3" style={{ borderColor: isDark ? '#36407a' : '#eef2ff', background: isDark ? 'rgba(36,71,215,0.05)' : '#fcfdff' }}>
                             <div className="flex flex-col gap-1">
                                 <h4 className="text-[13px] font-black uppercase tracking-widest text-[#2447d7]">Add New Document</h4>
                                 <p className="text-[11px] font-medium text-[#94a3b8]">Upload a custom document like NIC, Passport, or Contract</p>
                             </div>
-                            <div className="flex gap-3">
+                            <div className="flex gap-2 sm:gap-2">
                                 <input 
                                     type="text"
                                     placeholder="Enter document name (e.g. NIC Image)"
-                                    className="flex-1 px-4 py-3 rounded-xl text-sm font-medium outline-none border transition-all"
+                                    className="flex-1 min-w-0 px-4 sm:px-3 py-3 sm:py-2.5 rounded-xl text-sm font-medium outline-none border transition-all"
                                     style={{ background: isDark ? '#242b50' : '#ffffff', borderColor: isDark ? '#36407a' : '#e2e8f0', color: isDark ? '#e4ecff' : '#1a202c' }}
                                     value={customName}
                                     onChange={e => setCustomName(e.target.value)}
@@ -93,54 +96,54 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                         setPendingUpload({ clientId: client.id, docId: null, docName: finalName });
                                         fileInputRef.current?.click();
                                     }}
-                                    className="px-6 rounded-xl bg-[#2447d7] text-white text-[13px] font-bold shadow-lg shadow-[#2447d7]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                                    className="shrink-0 px-4 sm:px-3 rounded-xl bg-[#2447d7] text-white text-[13px] font-bold shadow-lg shadow-[#2447d7]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 sm:gap-1"
                                 >
-                                    <IconUpload size={14} /> Upload
+                                    <IconUpload size={14} /> <span className="sm:hidden">Upload</span>
                                 </button>
                             </div>
                         </div>
                     )}
 
-                    <h4 className="text-[11px] font-black uppercase tracking-[0.2em] mb-4 text-[#94a3b8]">Document Checklist</h4>
-                    <div className="flex flex-col gap-4">
+                    <h4 className="text-[11px] font-black uppercase tracking-[0.2em] mb-4 sm:mb-3 text-[#94a3b8]">Document Checklist</h4>
+                    <div className="flex flex-col gap-4 sm:gap-3">
                         {(client.documents || []).map(doc => {
                             const styles = getStatusStyles(doc.status);
                             const uploading = uploadingDocs[doc.id];
                             return (
                                 <div 
                                     key={doc.id}
-                                    className="p-5 rounded-2xl border transition-all duration-300"
+                                    className="p-5 sm:p-3 rounded-2xl sm:rounded-xl border transition-all duration-300"
                                     style={{ 
                                         background: isDark ? '#242b50' : '#ffffff',
                                         borderColor: isDark ? '#36407a' : '#f1f5f9',
                                     }}
                                 >
-                                    <div className="flex items-center justify-between gap-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: isDark ? '#2c3568' : '#f8faff', color: isDark ? '#6080f8' : '#2447d7' }}>
+                                    <div className="flex items-center justify-between gap-4 sm:gap-2">
+                                        <div className="flex items-center gap-3 sm:gap-2 min-w-0">
+                                            <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-xl sm:rounded-lg flex items-center justify-center shrink-0" style={{ background: isDark ? '#2c3568' : '#f8faff', color: isDark ? '#6080f8' : '#2447d7' }}>
                                                 <IconFile size={20} />
                                             </div>
-                                            <div>
-                                                <span className="block text-[14px] font-bold" style={{ color: isDark ? '#e2e8f0' : '#1a202c' }}>{doc.type}</span>
-                                                <div className="flex items-center gap-2 mt-0.5">
+                                            <div className="min-w-0">
+                                                <span className="block text-[14px] sm:text-[12px] font-bold truncate" style={{ color: isDark ? '#e2e8f0' : '#1a202c' }}>{doc.type}</span>
+                                                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                                                     <span 
-                                                        className="text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5"
+                                                        className="text-[9px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider flex items-center gap-1.5 shrink-0"
                                                         style={{ background: styles.bg, color: styles.color, border: `1px solid ${styles.border}` }}
                                                     >
                                                         {styles.icon}
                                                         {doc.status}
                                                     </span>
-                                                    {doc.date && !uploading && <span className="text-[10px] font-medium" style={{ color: isDark ? '#546298' : '#a0aec0' }}>Updated {doc.date}</span>}
+                                                    {doc.date && !uploading && <span className="text-[10px] sm:text-[9px] font-medium whitespace-nowrap" style={{ color: isDark ? '#546298' : '#a0aec0' }}>Updated {doc.date}</span>}
                                                 </div>
                                             </div>
                                         </div>
                                         
                                         {!uploading && (
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 sm:gap-1 shrink-0">
                                                 {!(doc.status === 'Approved' && !canApproveReject) && (
                                                     <button 
                                                         onClick={() => setPreviewDoc(doc)}
-                                                        className="p-2.5 rounded-xl border border-[#2447d7]/20 text-[#2447d7] hover:bg-[#2447d7]/10 active:scale-95 transition-all"
+                                                        className="p-2.5 sm:p-2 rounded-xl border border-[#2447d7]/20 text-[#2447d7] hover:bg-[#2447d7]/10 active:scale-95 transition-all"
                                                         title="View Document"
                                                     >
                                                         <IconEye size={16} />
@@ -154,8 +157,8 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                                             fileInputRef.current?.click();
                                                         }}
                                                         disabled={doc.status === 'Approved' && !isAM}
-                                                        className={`p-2.5 rounded-xl transition-all ${doc.status === 'Approved' && !isAM ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60' : 'bg-[#2447d7] text-white shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:scale-105 active:scale-95'}`}
-                                                        title={doc.status === 'Approved' && !isAM ? "Cannot re-upload approved document" : "Re-upload Document (Admin Override)"}
+                                                        className={`p-2.5 sm:p-2 rounded-xl transition-all ${doc.status === 'Approved' && !isAM ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60' : 'bg-[#2447d7] text-white shadow-lg shadow-[#2447d7]/20 hover:bg-[#1732a3] hover:scale-105 active:scale-95'}`}
+                                                        title={doc.status === 'Approved' && !isAM ? "Cannot re-upload approved document" : "Re-upload Document"}
                                                     >
                                                         <IconUpload size={16} />
                                                     </button>
@@ -164,7 +167,7 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                                 {canDelete && (
                                                     <button 
                                                         onClick={() => onDelete?.(client.id, doc.id)}
-                                                        className="p-2.5 rounded-xl bg-white border border-[#fee2e2] text-[#ef4444] hover:bg-[#ef4444] hover:text-white hover:scale-105 active:scale-95 transition-all shadow-sm"
+                                                        className="p-2.5 sm:p-2 rounded-xl bg-white border border-[#fee2e2] text-[#ef4444] hover:bg-[#ef4444] hover:text-white hover:scale-105 active:scale-95 transition-all shadow-sm"
                                                         title="Delete Document"
                                                     >
                                                         <IconTrash size={16} />
@@ -172,11 +175,11 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                                 )}
                                                 
                                                 {canApproveReject && (
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-1 sm:gap-1">
                                                         {doc.status !== 'Approved' && (
                                                             <button 
                                                                 onClick={() => onApprove?.(client.id, doc.id)}
-                                                                className="p-2.5 rounded-xl bg-[#10b981] text-white shadow-lg shadow-[#10b981]/10 hover:bg-[#059669] hover:scale-105 active:scale-95 transition-all"
+                                                                className="p-2.5 sm:p-2 rounded-xl bg-[#10b981] text-white shadow-lg shadow-[#10b981]/10 hover:bg-[#059669] hover:scale-105 active:scale-95 transition-all"
                                                                 title="Approve"
                                                             >
                                                                 <IconCheck size={16} strokeWidth={3} />
@@ -188,7 +191,7 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                                                                     setRejectionDocId(doc.id);
                                                                     setRejectionReason('');
                                                                 }}
-                                                                className="p-2.5 rounded-xl bg-[#ef4444] text-white shadow-lg shadow-[#ef4444]/10 hover:bg-[#dc2626] hover:scale-105 active:scale-95 transition-all"
+                                                                className="p-2.5 sm:p-2 rounded-xl bg-[#ef4444] text-white shadow-lg shadow-[#ef4444]/10 hover:bg-[#dc2626] hover:scale-105 active:scale-95 transition-all"
                                                                 title="Reject"
                                                             >
                                                                 <IconAlert size={16} />
@@ -265,8 +268,8 @@ const UploadModal = ({ client, onClose, onUpload, onDelete, onApprove, onReject,
                     </div>
                 </div>
 
-                <div className="p-8 border-t flex justify-end" style={{ borderColor: isDark ? '#36407a' : '#f1f5f9', background: isDark ? '#1c2040' : '#fcfdff' }}>
-                    <button onClick={onClose} className="px-8 py-3 rounded-xl text-sm font-bold transition-all border" style={{ background: isDark ? '#242b50' : '#ffffff', color: isDark ? '#94abda' : '#64748b', borderColor: isDark ? '#36407a' : '#e2e8f0' }}>Close Portal</button>
+                <div className="p-8 sm:p-4 border-t flex justify-end" style={{ borderColor: isDark ? '#36407a' : '#f1f5f9', background: isDark ? '#1c2040' : '#fcfdff' }}>
+                    <button onClick={onClose} className="px-8 sm:px-6 py-3 sm:py-2.5 rounded-xl text-sm font-bold transition-all border w-full sm:w-auto" style={{ background: isDark ? '#242b50' : '#ffffff', color: isDark ? '#94abda' : '#64748b', borderColor: isDark ? '#36407a' : '#e2e8f0' }}>Close Portal</button>
                 </div>
             </div>
 

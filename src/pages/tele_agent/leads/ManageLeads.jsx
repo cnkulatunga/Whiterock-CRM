@@ -232,13 +232,13 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
             </div>
 
             <div className={`rounded-2xl border overflow-hidden animate-slideUp [animation-delay:150ms] [animation-fill-mode:both] ${isDark ? 'bg-[#1e2347] border-white/5 shadow-2xl' : 'bg-white border-[#edf2f7] shadow-sm'}`}>
-                <div className={`p-4 sm:p-6 flex flex-col lg:flex-row justify-between lg:items-center border-b gap-4 ${isDark ? 'border-white/5' : 'border-[#f7fafc]'}`}>
-                    <h2 className={`text-sm sm:text-[15px] font-black uppercase tracking-widest ${isDark ? 'text-blue-400' : 'text-[#1a202c]'}`}>Lead Directory</h2>
-                    <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                <div className={`p-4 sm:p-3 flex flex-col lg:flex-row justify-between lg:items-center border-b gap-3 sm:gap-2 ${isDark ? 'border-white/5' : 'border-[#f7fafc]'}`}>
+                    <h2 className={`text-sm font-black uppercase tracking-widest sm:hidden ${isDark ? 'text-blue-400' : 'text-[#1a202c]'}`}>Lead Directory</h2>
+                    <div className="flex items-center gap-2 flex-nowrap w-full">
                         {/* Status Filter */}
-                        <div className="relative grow sm:grow-0">
+                        <div className="relative shrink-0">
                             <select
-                                className={`w-full appearance-none rounded-xl px-3 sm:px-4 py-2 text-[11px] sm:text-[12px] font-bold outline-none cursor-pointer border transition-all pr-8 sm:pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
+                                className={`appearance-none rounded-xl px-3 py-2 text-[11px] sm:text-[10px] font-bold outline-none cursor-pointer border transition-all pr-7 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
                                 value={statusFilter}
                                 onChange={(e) => {
                                     setStatusFilter(e.target.value);
@@ -252,14 +252,14 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                 <option value="Lender Selection">Lender Select</option>
                                 <option value="Completed">Completed</option>
                             </select>
-                            <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                            <svg className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
                         </div>
                         
                         {/* Ownership Filter */}
                         {isLeader && (
-                            <div className="relative grow sm:grow-0">
+                            <div className="relative shrink-0">
                                 <select
-                                    className={`w-full appearance-none rounded-xl px-3 sm:px-4 py-2 text-[11px] sm:text-[12px] font-bold outline-none cursor-pointer border transition-all pr-8 sm:pr-10 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
+                                    className={`appearance-none rounded-xl px-3 py-2 text-[11px] sm:text-[10px] font-bold outline-none cursor-pointer border transition-all pr-7 ${isDark ? 'bg-[#141829] border-white/10 text-slate-300 focus:border-blue-500/50' : 'bg-[#f7fafc] border-[#edf2f7] text-[#4a5568] focus:border-[#2447d7]/30'}`}
                                     value={ownershipFilter}
                                     onChange={(e) => {
                                         setOwnershipFilter(e.target.value);
@@ -270,19 +270,19 @@ const ManageLeads = ({ onViewDetails, onSelectLender, isAccountsManager = false 
                                     <option value="My Leads">My Leads</option>
                                     <option value="Team Leads">Team Leads</option>
                                 </select>
-                                <svg className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
+                                <svg className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[#94a3b8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" width="10" height="10"><polyline points="6 9 12 15 18 9"/></svg>
                             </div>
                         )}
                         
                         {/* Search Bar */}
-                        <div className={`flex items-center gap-2.5 px-3 sm:px-4 py-2 border rounded-xl w-full lg:w-[250px] transition-all ${isDark ? 'bg-[#1e2347] border-[#36407a] focus-within:border-[#5b6aaa]' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
-                            <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#4a5a8a' : '#a0aec0'} strokeWidth="2.5" width="14" height="14">
+                        <div className={`flex items-center gap-2 px-3 py-2 border rounded-xl flex-1 min-w-0 transition-all ${isDark ? 'bg-[#1e2347] border-[#36407a] focus-within:border-[#5b6aaa]' : 'bg-[#f7fafc] border-[#edf2f7] focus-within:border-[#2447d7]/30'}`}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke={isDark ? '#4a5a8a' : '#a0aec0'} strokeWidth="2.5" width="13" height="13" className="shrink-0">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
                             <input
                                 type="text"
-                                className={`bg-transparent border-none outline-none text-[11px] sm:text-[12px] font-medium w-full ${isDark ? 'text-slate-200 placeholder-slate-500' : 'text-[#4a5568] placeholder-[#a0aec0]'}`}
+                                className={`bg-transparent border-none outline-none text-[11px] sm:text-[10px] font-medium w-full min-w-0 ${isDark ? 'text-slate-200 placeholder-slate-500' : 'text-[#4a5568] placeholder-[#a0aec0]'}`}
                                 placeholder="Search leads..."
                                 value={searchTerm}
                                 onChange={(e) => {

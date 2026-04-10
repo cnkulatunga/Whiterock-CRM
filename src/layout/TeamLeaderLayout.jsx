@@ -156,11 +156,11 @@ const TeamLeaderLayout = ({ onLogout }) => {
                         </div>
                     )}
                     {location.pathname === '/team-leader/promotions' && (
-                        <div className="flex flex-col">
-                            <h1 className={`text-lg font-bold tracking-tight ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                        <div className="flex flex-col min-w-0">
+                            <h1 className={`text-lg lg:text-[14px] sm:text-[12px] font-bold tracking-tight truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
                                 Lender Promotions
                             </h1>
-                            <p className={`text-xs font-medium ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                            <p className={`text-xs font-medium lg:hidden ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                                 Manage lender promotions and track their performance.
                             </p>
                         </div>

@@ -45,7 +45,7 @@ const RESPONSIVE = `
 }
 @media (max-width:640px) {
   .tl-page-header { flex-direction:column; }
-  .tl-kpi-grid { grid-template-columns:repeat(2,1fr) !important; gap:8px !important; }
+  .tl-kpi-grid { grid-template-columns:repeat(2,1fr) !important; gap:6px !important; }
   .tl-tabs { overflow-x:auto; padding-bottom:0; -webkit-overflow-scrolling:touch; justify-content:flex-start !important; }
   .tl-tabs-search { display:none !important; }
   .tl-card-body { padding:12px !important; gap:10px !important; }
@@ -955,14 +955,14 @@ const TeamLeaders = ({ onNavigate }) => {
                             { icon: <IconUserSingle width={18} height={18} />, value: totalAgents, label: 'Total Tele Agents', color: 'text-emerald-700 dark:text-emerald-400', bg: 'bg-emerald-100/40 dark:bg-emerald-500/10', border: 'border-emerald-200 dark:border-emerald-500/20', iconBg: 'bg-emerald-500' },
                             { icon: <IconTeams width={18} height={18} />, value: activeTeams, label: 'Active Teams', color: 'text-violet-700 dark:text-violet-400', bg: 'bg-violet-100/40 dark:bg-violet-500/10', border: 'border-violet-200 dark:border-violet-500/20', iconBg: 'bg-violet-600' },
                         ].map((kpi, i) => (
-                            <div key={i} className={`${kpi.bg} ${kpi.border} border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop`}
+                            <div key={i} className={`${kpi.bg} ${kpi.border} border rounded-2xl sm:rounded-xl p-4 sm:p-2 flex items-center gap-4 sm:gap-2 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop`}
                                 style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
-                                <div className={`w-11 h-11 rounded-full ${kpi.iconBg} text-white flex-shrink-0 flex items-center justify-center shadow-md`}>
+                                <div className={`w-11 h-11 sm:w-8 sm:h-8 rounded-full ${kpi.iconBg} text-white flex-shrink-0 flex items-center justify-center shadow-md`}>
                                     {kpi.icon}
                                 </div>
                                 <div className="flex flex-col min-w-0">
-                                    <span className={`text-[10px] font-black ${kpi.color} uppercase tracking-widest leading-none mb-1 opacity-70`}>{kpi.label}</span>
-                                    <h2 className={`text-[26px] font-black leading-none tracking-tight ${kpi.color}`}>
+                                    <span className={`text-[10px] sm:text-[7px] font-black ${kpi.color} uppercase tracking-widest leading-none mb-1 opacity-70`}>{kpi.label}</span>
+                                    <h2 className={`text-[26px] sm:text-sm font-black leading-none tracking-tight ${kpi.color}`}>
                                         <AnimatedNumber value={kpi.value} />
                                     </h2>
                                 </div>
@@ -972,15 +972,15 @@ const TeamLeaders = ({ onNavigate }) => {
                         {/* Add Team Leader Action Card */}
                         <button
                             onClick={() => onNavigate('user-management', { openCreate: true })}
-                            className="bg-rose-100/40 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 border rounded-2xl p-4 flex items-center gap-4 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop group"
+                            className="bg-rose-100/40 dark:bg-rose-500/10 border-rose-200 dark:border-rose-500/20 border rounded-2xl sm:rounded-xl p-4 sm:p-2 flex items-center gap-4 sm:gap-2 shadow-sm hover:-translate-y-1 transition-all duration-300 animate-kpiPop group"
                             style={{ animationDelay: '340ms', animationFillMode: 'both' }}
                         >
-                            <div className="w-11 h-11 rounded-full bg-rose-600 text-white flex-shrink-0 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
+                            <div className="w-11 h-11 sm:w-8 sm:h-8 rounded-full bg-rose-600 text-white flex-shrink-0 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300">
                                 <IconPlus width={20} height={20} />
                             </div>
                             <div className="flex flex-col text-left">
-                                <span className="text-[10px] font-black text-rose-500 uppercase tracking-widest leading-none mb-1 opacity-70">Quick Action</span>
-                                <h2 className="text-[16px] font-black leading-none text-rose-700 dark:text-rose-400 uppercase tracking-tighter">Add Leader</h2>
+                                <span className="text-[10px] sm:text-[7px] font-black text-rose-500 uppercase tracking-widest leading-none mb-1 opacity-70">Quick Action</span>
+                                <h2 className="text-[16px] sm:text-sm font-black leading-none text-rose-700 dark:text-rose-400 uppercase tracking-tighter">Add Leader</h2>
                             </div>
                         </button>
                     </div>

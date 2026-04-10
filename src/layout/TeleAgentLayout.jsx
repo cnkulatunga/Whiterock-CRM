@@ -200,9 +200,9 @@ const TeleAgentLayout = ({ onLogout }) => {
                             )}
                         </div>
                         <ThemeToggle compact={isMobile} />
-                        {!location.pathname.includes('dashboard') && (
+                        {(!location.pathname.includes('dashboard') || isMobile) && (
                             <button
-                                className="text-white border-none h-11 sm:h-10 px-6 sm:px-3 rounded-xl text-sm font-extrabold flex items-center gap-2.5 sm:gap-1 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
+                                className="text-white border-none h-11 sm:h-9 px-6 sm:px-3 rounded-xl text-sm sm:text-[11px] font-extrabold flex items-center gap-2.5 sm:gap-1.5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:scale-95 whitespace-nowrap"
                                 style={{
                                     background: isDark
                                         ? 'linear-gradient(135deg, #3b82f6, #2563eb)'
@@ -213,13 +213,14 @@ const TeleAgentLayout = ({ onLogout }) => {
                                 }}
                                 onClick={() => navigate('/tele-agent/create-lead')}
                             >
-                                <div className="w-5 h-5 rounded-lg bg-white/20 flex items-center justify-center">
+                                <div className="w-5 h-5 sm:w-4 sm:h-4 rounded-lg bg-white/20 flex items-center justify-center">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" width="14" height="14">
                                         <line x1="12" y1="5" x2="12" y2="19" />
                                         <line x1="5" y1="12" x2="19" y2="12" />
                                     </svg>
                                 </div>
                                 <span className="lg:hidden">Create Lead</span>
+                                <span className="hidden lg:inline">New Lead</span>
                             </button>
                         )}
                     </div>

@@ -48,15 +48,15 @@ const LenderSelector = ({ onNavigate }) => {
             </header>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-1">
+            <div className="grid grid-cols-3 gap-4 lg:grid-cols-2 sm:grid-cols-2 sm:gap-2">
                 {stats.map((stat, i) => (
-                    <div key={i} className="bg-white rounded-2xl border border-[#edf2f7] p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex items-center gap-4 animate-kpiPop" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: stat.bg }}>
+                    <div key={i} className="bg-white rounded-2xl sm:rounded-xl border border-[#edf2f7] p-5 sm:p-2 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 flex items-center gap-4 sm:gap-2 animate-kpiPop" style={{ animationDelay: `${100 + i * 80}ms`, animationFillMode: 'both' }}>
+                        <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-xl sm:rounded-lg flex items-center justify-center shrink-0" style={{ background: stat.bg }}>
                             <svg viewBox="0 0 24 24" fill="none" stroke={stat.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">{stat.icon}</svg>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-[#1a202c] leading-none mb-0.5">{stat.value}</div>
-                            <div className="text-[11px] font-medium text-[#a0aec0]">{stat.label}</div>
+                            <div className="text-2xl sm:text-sm font-bold text-[#1a202c] leading-none mb-0.5">{stat.value}</div>
+                            <div className="text-[11px] sm:text-[7px] font-medium text-[#a0aec0]">{stat.label}</div>
                         </div>
                     </div>
                 ))}

@@ -475,64 +475,64 @@ const AMDashboard = ({ onNavigate, tasks: initialTasks = [], notifyReminderSet }
         <div className="w-full flex flex-col font-['Sora',sans-serif] animate-fadeIn p-2 gap-3 h-[calc(100vh-140px)] lg:h-[calc(100vh-116px)] md:h-auto md:overflow-visible">
 
             {/* ROW 1: 7 STAT TILES */}
-            <div className="grid grid-cols-7 lg:grid-cols-3 sm:grid-cols-2 gap-3 sm:gap-2 shrink-0">
+            <div className="grid grid-cols-7 lg:grid-cols-3 sm:grid-cols-3 gap-3 sm:gap-1.5 shrink-0">
                 {/* My Leads */}
-                <div onClick={() => setActiveModal('MY_LEADS')} className="group bg-blue-50/50 dark:bg-[#1c2340] rounded-2xl border border-blue-200/50 dark:border-blue-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-[120px] text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform"><IconUsers className="w-[22px] h-[22px]" /></div>
+                <div onClick={() => setActiveModal('MY_LEADS')} className="group bg-blue-50/50 dark:bg-[#1c2340] rounded-2xl border border-blue-200/50 dark:border-blue-500/20 p-4 sm:p-3 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-0 text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-600/20 group-hover:scale-110 transition-transform"><IconUsers className="w-[22px] h-[22px]" /></div>
                     <div className="flex flex-col gap-0.5">
-                        <h2 className="text-3xl sm:text-[24px] font-black leading-none text-blue-700 dark:text-blue-300">2</h2>
-                        <span className="text-[10px] sm:text-[9px] font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-[0.2em] leading-none">MY LEADS</span>
+                        <h2 className="text-3xl sm:text-sm font-black leading-none text-blue-700 dark:text-blue-300">2</h2>
+                        <span className="text-[10px] sm:text-[7px] font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-[0.15em] leading-none">MY LEADS</span>
                     </div>
                 </div>
 
                 {/* My Follow-ups */}
-                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="group bg-teal-50/50 dark:bg-[#0f2420] rounded-2xl border border-teal-200/50 dark:border-teal-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-[120px] text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-teal-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-teal-500/20 group-hover:scale-110 transition-transform"><IconClock className="w-[22px] h-[22px]" /></div>
+                <div onClick={() => setActiveModal('FOLLOW_UPS')} className="group bg-teal-50/50 dark:bg-[#0f2420] rounded-2xl border border-teal-200/50 dark:border-teal-500/20 p-4 sm:p-3 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-0 text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-teal-600 text-white flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:scale-110 transition-transform"><IconClock className="w-[22px] h-[22px]" /></div>
                     <div className="flex flex-col gap-0.5">
-                        <h2 className="text-3xl sm:text-[24px] font-black leading-none text-teal-700 dark:text-teal-300">22</h2>
-                        <span className="text-[10px] sm:text-[9px] font-black text-teal-600/70 dark:text-teal-400/70 uppercase tracking-[0.2em] leading-none">FOLLOWUPS</span>
+                        <h2 className="text-3xl sm:text-sm font-black leading-none text-teal-700 dark:text-teal-300">22</h2>
+                        <span className="text-[10px] sm:text-[7px] font-black text-teal-600/70 dark:text-teal-400/70 uppercase tracking-[0.15em] leading-none">FOLLOWUPS</span>
                     </div>
                 </div>
 
                 {/* Create Lead */}
-                <div onClick={() => onNavigate && onNavigate('create_lead')} className="group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-[120px] text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-rose-600/20 group-hover:scale-110 transition-transform"><IconPlus className="w-[22px] h-[22px]" /></div>
-                    <h2 className="text-[13px] sm:text-[11px] font-black leading-tight text-rose-700 dark:text-rose-300 uppercase tracking-[0.1em]">CREATE<br />LEAD</h2>
+                <div onClick={() => onNavigate && onNavigate('create_lead')} className="sm:hidden group bg-rose-50/50 dark:bg-[#2a1a1c] rounded-2xl border border-rose-200/50 dark:border-rose-500/20 p-4 sm:p-3 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-0 text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-lg shadow-rose-600/20 group-hover:scale-110 transition-transform"><IconPlus className="w-[22px] h-[22px]" /></div>
+                    <h2 className="text-[13px] sm:text-[7px] font-black leading-tight text-rose-700 dark:text-rose-300 uppercase tracking-[0.1em]">CREATE<br />LEAD</h2>
                 </div>
 
                 {/* Verified Leads */}
-                <div onClick={() => setActiveModal('VERIFIED')} className="group bg-emerald-50/50 dark:bg-[#182724] rounded-2xl border border-emerald-200/50 dark:border-emerald-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-[120px] text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform"><IconCheck className="w-[22px] h-[22px]" /></div>
+                <div onClick={() => setActiveModal('VERIFIED')} className="group bg-emerald-50/50 dark:bg-[#182724] rounded-2xl border border-emerald-200/50 dark:border-emerald-500/20 p-4 sm:p-3 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-0 text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20 group-hover:scale-110 transition-transform"><IconCheck className="w-[22px] h-[22px]" /></div>
                     <div className="flex flex-col gap-0.5">
-                        <h2 className="text-3xl sm:text-[24px] font-black leading-none text-emerald-700 dark:text-emerald-300">3</h2>
-                        <span className="text-[10px] sm:text-[9px] font-black text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-[0.1em] leading-tight">VERIFIED</span>
+                        <h2 className="text-3xl sm:text-sm font-black leading-none text-emerald-700 dark:text-emerald-300">3</h2>
+                        <span className="text-[10px] sm:text-[7px] font-black text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-[0.15em] leading-tight">VERIFIED</span>
                     </div>
                 </div>
 
                 {/* Pending Lead Approval */}
-                <div onClick={() => setActiveModal('PENDING')} className="group bg-amber-50/50 dark:bg-[#282315] rounded-2xl border border-amber-200/50 dark:border-amber-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-[120px] text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center mb-1 shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform"><IconClock className="w-[22px] h-[22px]" /></div>
+                <div onClick={() => setActiveModal('PENDING')} className="group bg-amber-50/50 dark:bg-[#282315] rounded-2xl border border-amber-200/50 dark:border-amber-500/20 p-4 sm:p-3 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-0 text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-lg shadow-amber-500/20 group-hover:scale-110 transition-transform"><IconClock className="w-[22px] h-[22px]" /></div>
                     <div className="flex flex-col gap-0.5">
-                        <h2 className="text-3xl sm:text-[24px] font-black leading-none text-amber-700 dark:text-amber-300">6</h2>
-                        <span className="text-[10px] sm:text-[9px] font-black text-amber-600/70 dark:text-amber-400/70 uppercase tracking-[0.2em] leading-tight">PENDING</span>
+                        <h2 className="text-3xl sm:text-sm font-black leading-none text-amber-700 dark:text-amber-300">6</h2>
+                        <span className="text-[10px] sm:text-[7px] font-black text-amber-600/70 dark:text-amber-400/70 uppercase tracking-[0.15em] leading-tight">PENDING</span>
                     </div>
                 </div>
 
                 {/* Total Teams */}
-                <div onClick={() => setActiveModal('TOTAL_TEAMS')} className="group bg-purple-50/50 dark:bg-[#251a3a] rounded-2xl border border-purple-200/50 dark:border-purple-500/20 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-[120px] text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-                    <div className="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center mb-1 shadow-lg shadow-purple-600/20 group-hover:scale-110 transition-transform"><IconTeam className="w-[22px] h-[22px]" /></div>
+                <div onClick={() => setActiveModal('TOTAL_TEAMS')} className="group bg-purple-50/50 dark:bg-[#251a3a] rounded-2xl border border-purple-200/50 dark:border-purple-500/20 p-4 sm:p-3 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-0 text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg shadow-purple-600/20 group-hover:scale-110 transition-transform"><IconTeam className="w-[22px] h-[22px]" /></div>
                     <div className="flex flex-col gap-0.5">
-                        <h2 className="text-3xl sm:text-[24px] font-black leading-none text-purple-700 dark:text-purple-300">5</h2>
-                        <span className="text-[10px] sm:text-[9px] font-black text-purple-600/70 dark:text-purple-400/70 uppercase tracking-[0.2em]">TEAMS</span>
+                        <h2 className="text-3xl sm:text-sm font-black leading-none text-purple-700 dark:text-purple-300">5</h2>
+                        <span className="text-[10px] sm:text-[7px] font-black text-purple-600/70 dark:text-purple-400/70 uppercase tracking-[0.15em]">TEAMS</span>
                     </div>
                 </div>
 
                 {/* MS Teams Connect */}
-                <div onClick={() => window.open('msteams://', '_blank')} className="group bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-4 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-[120px] text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300 sm:col-span-2">
-                    <div className="w-12 h-12 rounded-2xl bg-[#5b5fc7] text-white flex items-center justify-center mb-1 shadow-lg shadow-[#5b5fc7]/30 group-hover:scale-110 transition-transform">
+                <div onClick={() => window.open('msteams://', '_blank')} className="group bg-[#5b5fc7]/10 dark:bg-[#5b5fc7]/20 rounded-2xl border border-[#5b5fc7]/30 p-4 sm:p-3 flex flex-col justify-center items-center gap-2 shadow-sm cursor-pointer min-h-[140px] sm:min-h-0 text-center hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                    <div className="w-12 h-12 sm:w-8 sm:h-8 rounded-full bg-[#5b5fc7] text-white flex items-center justify-center shadow-lg shadow-[#5b5fc7]/30 group-hover:scale-110 transition-transform">
                         <svg viewBox="0 0 24 24" fill="currentColor" className="w-[22px] h-[22px]"><path d="M12.5 13.5c1.38 0 2.5 1.12 2.5 2.5v1h-5v-1c0-1.38 1.12-2.5 2.5-2.5zm0-4.5c.83 0 1.5.67 1.5 1.5s-.67 1.5-1.5 1.5-1.5-.67-1.5-1.5.67-1.5 1.5-1.5zm.5 11c1.93 0 3.5-1.57 3.5-3.5v-1c0-.28-.22-.5-.5-.5H9c-.28 0-.5.22-.5.5v1c0 1.93 1.57 3.5 3.5 3.5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" /></svg>
                     </div>
-                    <h2 className="text-[13px] sm:text-[11px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef] uppercase tracking-[0.1em]">CONNECT<br />TEAMS</h2>
+                    <h2 className="text-[13px] sm:text-[7px] font-black leading-tight text-[#5b5fc7] dark:text-[#a6a9ef] uppercase tracking-[0.1em]">MICROSOFT<br />TEAMS</h2>
                 </div>
             </div>
 

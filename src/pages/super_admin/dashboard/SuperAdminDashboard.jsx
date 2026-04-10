@@ -70,12 +70,12 @@ const StatTile = ({ icon, value, label, iconBg, tileBg, tileBorder, darkBg, dark
     const isDark = theme === 'dark';
     return (
         <button onClick={onClick}
-            className={`border rounded-2xl p-2.5 flex flex-col items-center justify-center gap-1 shadow-sm hover:-translate-y-0.5 transition-transform text-center w-full ${isDark ? `${darkBg || 'bg-[#1e2347]'} ${darkBorder || 'border-white/5'}` : `${tileBg} ${tileBorder}`}`}>
-            <div className={`w-9 h-9 rounded-full ${iconBg} text-white flex items-center justify-center shadow-md`}>
+            className={`border rounded-2xl sm:rounded-xl p-2.5 sm:p-2 flex flex-col items-center justify-center gap-1 shadow-sm hover:-translate-y-0.5 transition-transform text-center w-full ${isDark ? `${darkBg || 'bg-[#1e2347]'} ${darkBorder || 'border-white/5'}` : `${tileBg} ${tileBorder}`}`}>
+            <div className={`w-9 h-9 sm:w-8 sm:h-8 rounded-full ${iconBg} text-white flex items-center justify-center shadow-md`}>
                 {React.cloneElement(icon, { width: 16, height: 16 })}
             </div>
-            <h2 className={`text-xl font-black leading-none mt-1 ${isDark ? (darkText || 'text-white') : 'text-slate-800'}`}>{value}</h2>
-            <span className={`text-[10px] font-bold uppercase tracking-widest leading-tight ${isDark ? 'text-[#546298]' : 'text-slate-500'}`}>{label}</span>
+            <h2 className={`text-xl sm:text-sm font-black leading-none mt-0.5 ${isDark ? (darkText || 'text-white') : 'text-slate-800'}`}>{value}</h2>
+            <span className={`text-[10px] sm:text-[7px] font-bold uppercase tracking-widest leading-tight ${isDark ? 'text-[#546298]' : 'text-slate-500'}`}>{label}</span>
         </button>
     );
 };
@@ -916,7 +916,7 @@ const SuperAdminDashboard = ({ onNavigate }) => {
                 <div className="flex-1 min-w-0 flex flex-col gap-2 xl:gap-2 min-h-0">
 
                     {/* ROW 1 — 6 stat tiles */}
-                    <div className="grid grid-cols-6 xl:grid-cols-3 md:grid-cols-2 gap-2 xl:gap-3">
+                    <div className="grid grid-cols-6 xl:grid-cols-3 md:grid-cols-3 gap-2 xl:gap-3 sm:gap-1.5">
                         <StatTile icon={<IconUsers width="18" height="18" />} value={SA_STATS.totalLeads} label="Total Leads" iconBg="bg-blue-600" tileBg="bg-blue-50/60" tileBorder="border-blue-200" darkBg="bg-[#1c2340]" darkBorder="border-blue-500/30" darkText="text-blue-300" onClick={() => setStatModal('leads')} />
                         <StatTile icon={<IconMoney width="18" height="18" />} value={loanDisplay} label="Total Loan Amount" iconBg="bg-orange-500" tileBg="bg-orange-50/60" tileBorder="border-orange-200" darkBg="bg-[#2a1e10]" darkBorder="border-orange-500/30" darkText="text-orange-300" />
                         <StatTile icon={<IconClock width="18" height="18" />} value={pendingLeads} label="Pending Lender Approvals" iconBg="bg-amber-500" tileBg="bg-amber-50/60" tileBorder="border-amber-200" darkBg="bg-[#282315]" darkBorder="border-amber-500/30" darkText="text-amber-300" onClick={() => setStatModal('pending-leads')} />
