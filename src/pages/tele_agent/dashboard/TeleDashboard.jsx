@@ -932,7 +932,12 @@ const TeleDashboard = ({ onNavigate, tasks = [], onViewLeadDetails }) => {
                 </div>
 
                 {/* Asset Products Card */}
-                <div onClick={() => setActiveModal('ASSET_PRODUCTS_POPUP')} className="group bg-indigo-50/50 dark:bg-[#1c1e3a] rounded-2xl border border-indigo-200/50 dark:border-indigo-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300">
+                <div 
+                    onClick={() => { 
+                        window.dispatchEvent(new CustomEvent('OPEN_AI_ASSISTANT', { detail: { mode: 'product' } }));
+                    }} 
+                    className="group bg-indigo-50/50 dark:bg-[#1c1e3a] rounded-2xl border border-indigo-200/50 dark:border-indigo-500/20 p-3 sm:p-2.5 flex flex-col sm:flex-row justify-center sm:justify-start items-center gap-2 shadow-sm cursor-pointer text-center sm:text-left hover:-translate-y-1 hover:shadow-md transition-all duration-300"
+                >
                     <div className="w-10 h-10 sm:w-8 sm:h-8 rounded-2xl bg-indigo-600 text-white flex items-center justify-center sm:mb-0 mb-1 shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform shrink-0">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="20" height="20"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
                     </div>
