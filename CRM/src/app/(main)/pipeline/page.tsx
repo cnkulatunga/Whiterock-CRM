@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface Lead {
@@ -769,13 +769,13 @@ export default function PipelinePage() {
                                     <p style={{ fontSize: 8, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.07em', marginBottom: 12 }}>Required Pipeline Workflow</p>
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                         {(['Collection', 'Verified', 'Lender', 'Approved'] as const).map((lbl, i) => (
-                                            <>
-                                                <div key={lbl} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                                            <React.Fragment key={lbl}>
+                                                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
                                                     <div style={{ width: 28, height: 28, borderRadius: '50%', background: i === 3 ? '#eef2ff' : '#fff', border: `2px solid ${i === 3 ? '#6366f1' : '#e2e8f0'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 900, color: i === 3 ? '#6366f1' : '#94a3b8' }}>{i + 1}</div>
                                                     <span style={{ fontSize: 7, fontWeight: 800, color: i === 3 ? '#6366f1' : '#94a3b8', textTransform: 'uppercase', letterSpacing: '.04em' }}>{lbl}</span>
                                                 </div>
-                                                {i < 3 && <i key={`arr${i}`} className="fa-solid fa-arrow-right-long" style={{ color: '#e2e8f0', fontSize: 12 }} />}
-                                            </>
+                                                {i < 3 && <i className="fa-solid fa-arrow-right-long" style={{ color: '#e2e8f0', fontSize: 12 }} />}
+                                            </React.Fragment>
                                         ))}
                                     </div>
                                 </div>
