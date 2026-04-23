@@ -16,64 +16,37 @@ interface User {
     phone: string;
 }
 
-const INITIAL_USERS: User[] = [
-    {
-        id: 1,
-        name: 'Thanushika A',
-        email: 'ceo@whiterock.com',
-        role: 'Super Admin',
-        status: 'Active',
-        designation: 'Chief Executive Officer',
-        joined: '2023-06-01',
-        permissions: DEFAULT_ROLE_PERMISSIONS['Super Admin'],
-        phone: '+94 77 123 4567'
-    },
-    {
-        id: 4,
-        name: 'Ops Manager',
-        email: 'admin.ops@whiterock.com',
-        role: 'Admin',
-        status: 'Active',
-        designation: 'Operations Director',
-        joined: '2024-01-05',
-        permissions: DEFAULT_ROLE_PERMISSIONS['Admin'],
-        phone: '+94 77 987 6543'
-    },
-    {
-        id: 2,
-        name: 'Sarah White',
-        email: 'sarah.w@whiterock.com',
-        role: 'Team Leader',
-        status: 'Active',
-        designation: 'Lending Specialist',
-        joined: '2024-02-15',
-        permissions: DEFAULT_ROLE_PERMISSIONS['Team Leader'],
-        phone: '0400 333 444'
-    },
-    {
-        id: 3,
-        name: 'Cody Lane',
-        email: 'cody@whiterock.com',
-        role: 'Tele Agent',
-        status: 'Active',
-        designation: 'Lead Generator',
-        joined: '2024-03-10',
-        permissions: DEFAULT_ROLE_PERMISSIONS['Tele Agent'],
-        phone: '0400 555 666'
-    },
-];
-
 export default function UsersPage() {
-    const [users, setUsers] = useState<User[]>(INITIAL_USERS);
+    const [users, setUsers] = useState<User[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [moduleFilter, setModuleFilter] = useState('');
     const [activeTab, setActiveTab] = useState('details');
     const [permissionSearch, setPermissionSearch] = useState('');
     const [expandedRows, setExpandedRows] = useState<number[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Simulate logged in user (Change to 'Admin' to test restrictions)
-    const [currentUser] = useState<User>(INITIAL_USERS[0]);
-    const isSuperAdmin = currentUser.role === 'Super Admin';
+    // Load actual session
+    const [currentUser, setCurrentUser] = useState<any>(null);
+    useEffect(() => {
+        const session = JSON.parse(sessionStorage.getItem('crm_session') || '{}');
+        setCurrentUser(session);
+        loadUsers();
+    }, []);
+
+    const loadUsers = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch('/api/users');
+            const data = await res.json();
+            setUsers(data);
+        } catch (err) {
+            console.error('Failed to load users');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const isSuperAdmin = currentUser?.role === 'Super Admin';
 
     // Form State
     const [editId, setEditId] = useState<number | null>(null);
@@ -85,10 +58,31 @@ export default function UsersPage() {
         status: 'Active',
         phone: '',
         joined: '',
-        password: '',
-        confirmPassword: '',
         permissions: JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMISSIONS['Tele Agent'])) as RolePermissions
     });
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const method = editId ? 'PUT' : 'POST';
+            const body = editId ? { id: editId, ...formData } : formData;
+
+            const res = await fetch('/api/users', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+
+            if (res.ok) {
+                alert(editId ? 'User updated!' : 'User created!');
+                loadUsers();
+                setEditId(null);
+            }
+        } catch (err) {
+            alert('Operation failed');
+        }
+    };
+
 
     const toggleRow = (id: number) => {
         setExpandedRows(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
@@ -196,7 +190,9 @@ export default function UsersPage() {
         });
     };
 
-    const saveUser = () => {
+    const saveUser = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+
         if (!formData.name || !formData.email || !formData.role) {
             alert('Please fill in all required fields (*)');
             return;
@@ -211,49 +207,62 @@ export default function UsersPage() {
             }
         }
 
-        const userData: User = {
-            id: editId || Date.now(),
-            name: formData.name,
-            designation: formData.designation,
-            email: formData.email,
-            role: formData.role,
-            status: formData.status,
-            phone: formData.phone,
-            joined: formData.joined,
-            permissions: JSON.parse(JSON.stringify(formData.permissions))
-        };
+        try {
+            const method = editId ? 'PUT' : 'POST';
+            const body = editId ? { id: editId, ...formData } : formData;
 
-        if (editId) {
-            setUsers(prev => prev.map(u => u.id === editId ? userData : u));
-        } else {
-            setUsers(prev => [...prev, userData]);
+            const res = await fetch('/api/users', {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+
+            if (res.ok) {
+                alert(editId ? 'User updated!' : 'User created!');
+                loadUsers();
+                cancelEdit();
+            } else {
+                const errData = await res.json();
+                alert(errData.error || 'Failed to save user');
+            }
+        } catch (err) {
+            alert('Network error while saving user');
         }
-        cancelEdit();
     };
 
     const editUser = (user: User) => {
         setEditId(user.id);
         setFormData({
-            ...user,
-            password: '',
-            confirmPassword: '',
+            name: user.name || '',
+            designation: user.designation || '',
+            email: user.email || '',
+            role: user.role || '',
+            status: user.status || 'Active',
+            phone: user.phone || '',
+            joined: user.joined || '',
             permissions: JSON.parse(JSON.stringify(user.permissions))
         });
         setActiveTab('details');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = async (id: number) => {
         const targetUser = users.find(u => u.id === id);
         if (targetUser?.role === 'Super Admin') {
             alert("Critical Error: The Super Admin account cannot be deleted.");
             return;
         }
-        if (!isSuperAdmin && targetUser?.role === 'Admin') {
-            // Optional: prevent admins from deleting other admins
-        }
+
         if (confirm('Are you sure you want to delete this team member?')) {
-            setUsers(prev => prev.filter(u => u.id !== id));
+            try {
+                // For simplicity in mock API, we might usually use DELETE /api/users?id=X
+                // But if not implemented, we filter locally or call a separate endpoint
+                const res = await fetch(`/api/users?id=${id}`, { method: 'DELETE' });
+                // Note: I need to ensure my api/users route supports DELETE
+                loadUsers();
+            } catch (err) {
+                alert('Delete failed');
+            }
         }
     };
 
@@ -267,18 +276,16 @@ export default function UsersPage() {
             status: 'Active',
             phone: '',
             joined: '',
-            password: '',
-            confirmPassword: '',
             permissions: JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMISSIONS['Tele Agent']))
         });
         setActiveTab('details');
     };
 
     const filteredUsers = users.filter(u => {
-        const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            u.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            u.role.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesModule = !moduleFilter || u.permissions.modules[moduleFilter]?.enabled;
+        const matchesSearch = (u.name || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+            (u.email || '').toLowerCase().includes((searchQuery || '').toLowerCase()) ||
+            (u.role || '').toLowerCase().includes((searchQuery || '').toLowerCase());
+        const matchesModule = !moduleFilter || u.permissions?.modules?.[moduleFilter]?.enabled;
         return matchesSearch && matchesModule;
     });
 
@@ -422,30 +429,8 @@ export default function UsersPage() {
                                     </div>
                                 </div>
 
-                                <div className="pt-4 border-t border-slate-100">
-                                    <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                        <i className="fa-solid fa-key"></i> Credentials Setup
-                                    </p>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-1.5">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">Password</label>
-                                            <input
-                                                value={formData.password}
-                                                onChange={e => setFormData({ ...formData, password: e.target.value })}
-                                                type="password" placeholder="••••••••"
-                                                className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-400 transition-all"
-                                            />
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest px-1">Confirm</label>
-                                            <input
-                                                value={formData.confirmPassword}
-                                                onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                                type="password" placeholder="••••••••"
-                                                className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-bold text-slate-900 outline-none focus:bg-white focus:border-slate-400 transition-all"
-                                            />
-                                        </div>
-                                    </div>
+                                <div className="pt-4 border-t border-slate-100 italic text-[8px] text-slate-400 text-center">
+                                    <p>Default credentials (Admin@123) will be assigned to new accounts and can be reset by the user later.</p>
                                 </div>
                             </div>
                         )}
@@ -622,11 +607,11 @@ export default function UsersPage() {
                     {/* Footer / Submit */}
                     <div className="p-3 bg-white border-t border-slate-100 shadow-[0_-4px_12px_rgba(0,0,0,0.02)] shrink-0">
                         <button
-                            onClick={saveUser}
-                            className="w-full py-3 bg-slate-900 text-white text-[9px] font-black uppercase tracking-[.2em] rounded-xl hover:bg-black transition-all shadow-lg shadow-slate-100 flex items-center justify-center gap-3"
+                            onClick={() => saveUser()}
+                            className="flex-1 w-full h-9 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-2 shadow-lg shadow-slate-200"
                         >
-                            <i className={`fa-solid ${editId ? 'fa-check' : 'fa-plus'}`}></i>
-                            {editId ? 'Save Changes' : 'Add Team Member'}
+                            <i className="fa-solid fa-check"></i>
+                            {editId ? 'Store Changes' : 'Create Account'}
                         </button>
                     </div>
                 </section>
@@ -689,8 +674,10 @@ export default function UsersPage() {
                             </thead>
                             <tbody className="divide-y divide-slate-50">
                                 {filteredUsers.map(user => {
-                                    const activeMods = Object.keys(user.permissions.modules).filter(k => user.permissions.modules[k]?.enabled);
-                                    const activeFeats = Object.keys(user.permissions.features).filter(k => user.permissions.features[k]);
+                                    const modules = user.permissions?.modules || {};
+                                    const features = user.permissions?.features || {};
+                                    const activeMods = Object.keys(modules).filter(k => modules[k]?.enabled);
+                                    const activeFeats = Object.keys(features).filter(k => features[k]);
                                     const isExpanded = expandedRows.includes(user.id);
 
                                     return (

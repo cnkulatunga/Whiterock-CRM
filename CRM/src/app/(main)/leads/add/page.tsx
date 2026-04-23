@@ -41,13 +41,38 @@ export default function RegisterLeadPage() {
         router.push('/leads');
     };
 
-    const saveLead = () => {
+    const saveLead = async () => {
         if (!formData.fullName) {
             alert('Full Name is required');
             return;
         }
-        // In a real app, we would POST to an API here
-        router.push('/leads');
+
+        try {
+            const response = await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: caseId,
+                    name: formData.fullName,
+                    company: formData.company || 'Private Individual',
+                    email: formData.email,
+                    phone: formData.phone,
+                    amount: formData.loanAmount || '£0',
+                    status: 'New',
+                    quality: formData.quality || 'warm',
+                    ...formData
+                }),
+            });
+
+            if (response.ok) {
+                alert('Lead successfully committed to database.');
+                router.push('/leads');
+            } else {
+                throw new Error('Database rejection');
+            }
+        } catch (error) {
+            alert('Critical Error: Failed to secure lead registry');
+        }
     };
 
     return (
@@ -72,12 +97,12 @@ export default function RegisterLeadPage() {
                 <div className="flex-1"></div>
                 <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
-                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                         <span className="text-[10px] font-mono font-black text-[#2447d7] tracking-widest uppercase">{caseId}</span>
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span className="text-[10px] font-mono font-black text-[#2447d7] tracking-widest uppercase">{caseId}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <label className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Initial Priority</label>
-                        <select 
+                        <select
                             value={formData.quality}
                             onChange={e => setFormData({ ...formData, quality: e.target.value })}
                             className="h-8 px-3 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-black text-slate-900 outline-none cursor-pointer"
@@ -149,8 +174,8 @@ export default function RegisterLeadPage() {
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Preferred Method</label>
                                 <div className="flex gap-2 h-11">
                                     {['Email', 'Phone', 'WhatsApp', 'Other'].map(m => (
-                                        <button 
-                                            key={m} 
+                                        <button
+                                            key={m}
                                             type="button"
                                             onClick={() => setFormData({ ...formData, preferredMethod: m })}
                                             className={`flex-1 rounded-2xl text-[9px] font-black transition-all border ${formData.preferredMethod === m ? 'bg-indigo-600 text-white border-indigo-600 shadow-md translate-y-[-1px]' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'}`}
@@ -240,10 +265,10 @@ export default function RegisterLeadPage() {
                             <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-8 flex items-center gap-3 border-b-2 border-indigo-600 pb-3 w-fit">
                                 <i className="fa-solid fa-comment-dots"></i> 4. Operational Context
                             </h3>
-                            <textarea 
+                            <textarea
                                 value={formData.additionalComments || ''}
                                 onChange={e => setFormData({ ...formData, additionalComments: e.target.value })}
-                                placeholder="Enter persistent context/notes for this client record..." 
+                                placeholder="Enter persistent context/notes for this client record..."
                                 className="flex-1 w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black outline-none focus:bg-white resize-none min-h-[160px] shadow-sm"
                             ></textarea>
                         </div>

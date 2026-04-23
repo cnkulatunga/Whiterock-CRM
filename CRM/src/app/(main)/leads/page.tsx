@@ -45,10 +45,10 @@ import { usePermissions } from '@/hooks/usePermissions';
 
 export default function LeadsPage() {
   const { hasAction, hasFeature, isLoading } = usePermissions();
-  const [leadList, setLeadList] = useState<Lead[]>(leads as Lead[]);
+  const [leadList, setLeadList] = useState<Lead[]>([]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [selectedId, setSelectedId] = useState<string | null>(leads[0]?.id || null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('details');
   const [isEditing, setIsEditing] = useState(false);
   const [expandedRows, setExpandedRows] = useState<string[]>([]);
@@ -60,14 +60,29 @@ export default function LeadsPage() {
   const [panelTasks] = useState(followups.slice(0, 3));
   const [aiGenerated, setAiGenerated] = useState(false);
 
+  React.useEffect(() => {
+    loadLeads();
+  }, []);
+
+  const loadLeads = async () => {
+    try {
+      const res = await fetch('/api/leads');
+      const data = await res.json();
+      setLeadList(data);
+      if (data.length > 0 && !selectedId) setSelectedId(data[0].id);
+    } catch (err) {
+      console.error('API Error: Failed to fetch leads');
+    }
+  };
+
   if (isLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
 
   const selectedLead = leadList.find(l => l.id === selectedId) || null;
 
   const filtered = leadList.filter(l => {
-    const q = search.toLowerCase();
-    const matchSearch = l.name.toLowerCase().includes(q) || l.company.toLowerCase().includes(q) || l.id.toLowerCase().includes(q);
-    const matchStatus = statusFilter === 'All' || l.quality.toLowerCase() === statusFilter.toLowerCase();
+    const q = (search || '').toLowerCase();
+    const matchSearch = (l.name || '').toLowerCase().includes(q) || (l.company || '').toLowerCase().includes(q) || (l.id || '').toLowerCase().includes(q);
+    const matchStatus = statusFilter === 'All' || (l.quality || '').toLowerCase() === statusFilter.toLowerCase();
     return matchSearch && matchStatus;
   });
 
@@ -92,16 +107,34 @@ export default function LeadsPage() {
 
   const startEdit = () => { if (selectedLead) setFormData({ ...selectedLead }); setIsEditing(true); };
 
-  const saveChanges = () => {
-    if (!formData.name) return;
-    setLeadList(prev => prev.map(l => l.id === formData.id ? { ...l, ...formData } : l));
-    setIsEditing(false);
+  const saveChanges = async () => {
+    if (!formData.id) return;
+    try {
+      const res = await fetch('/api/leads', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+      if (res.ok) {
+        loadLeads();
+        setIsEditing(false);
+      }
+    } catch (err) {
+      alert('Save operation failed');
+    }
   };
 
-  const deleteLead = () => {
-    if (!selectedLead || !confirm('Delete this lead?')) return;
-    setLeadList(prev => prev.filter(l => l.id !== selectedId));
-    setSelectedId(null);
+  const deleteLead = async () => {
+    if (!selectedId || !confirm('Delete this lead?')) return;
+    try {
+      const res = await fetch(`/api/leads?id=${selectedId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setLeadList(prev => prev.filter(l => l.id !== selectedId));
+        setSelectedId(null);
+      }
+    } catch (err) {
+      alert('Delete failed');
+    }
   };
 
   const fd = (key: string) => formData[key] ?? selectedLead?.[key] ?? '';

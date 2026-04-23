@@ -11,35 +11,38 @@ export default function LoginPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
-    const handleLogin = (e: React.FormEvent) => {
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
-        if (password === 'Whiterock@2026' || password === 'Admin@2026' || password === 'Pass@123') {
-            setLoading(true);
-            setTimeout(() => {
-                if (email === 'ceo@whiterock.com') {
-                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Super Admin', landing: '/dashboard/super_admin' }));
-                    router.push('/dashboard/super_admin');
-                } else if (email === 'admin.ops@whiterock.com') {
-                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Admin', landing: '/dashboard/super_admin' }));
-                    router.push('/dashboard/super_admin');
-                } else if (email === 'manager@taskflow.com') {
-                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Accounts Manager', landing: '/dashboard/accounts_manager' }));
-                    router.push('/dashboard/accounts_manager');
-                } else if (email === 'lead@taskflow.com') {
-                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Team Leader', landing: '/dashboard/team_lead' }));
-                    router.push('/dashboard/team_lead');
-                } else if (email === 'agent@taskflow.com') {
-                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Tele Agent', landing: '/dashboard/tele_agent' }));
-                    router.push('/dashboard/tele_agent');
-                } else {
-                    setError('Access Denied. Invalid email.');
-                    setLoading(false);
-                }
-            }, 700);
-        } else {
-            setError('Invalid password.');
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Authentication failed');
+            }
+
+            const session = await response.json();
+
+            // Map common dashboard paths
+            const landingPath = session.role === 'Super Admin'
+                ? '/dashboard/super_admin'
+                : session.role === 'Admin'
+                    ? '/dashboard/super_admin' // Admin currently shares the super admin dash in this structure
+                    : '/dashboard/tele_agent';
+
+            sessionStorage.setItem('crm_session', JSON.stringify({ ...session, landing: landingPath }));
+            router.push(landingPath);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 

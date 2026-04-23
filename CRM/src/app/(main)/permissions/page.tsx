@@ -17,6 +17,40 @@ export default function PermissionMatrixPage() {
     const [templatePerms, setTemplatePerms] = useState<Record<string, RolePermissions>>(
         JSON.parse(JSON.stringify(DEFAULT_ROLE_PERMISSIONS))
     );
+    const [isSaving, setIsSaving] = useState(false);
+
+    // Load actual permissions from server on mount
+    React.useEffect(() => {
+        fetch('/api/permissions')
+            .then(res => res.json())
+            .then(data => {
+                if (data && Object.keys(data).length > 0) {
+                    setTemplatePerms(data);
+                }
+            })
+            .catch(err => console.error('Failed to load permissions:', err));
+    }, []);
+
+    const pushChanges = async (role?: string) => {
+        setIsSaving(true);
+        try {
+            // If role is provided, only save that role, else save all roles (for initial build, we save all)
+            const rolesToSave = role ? [role] : ROLES;
+
+            for (const r of rolesToSave) {
+                await fetch('/api/permissions', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ role: r, permissions: templatePerms[r] }),
+                });
+            }
+            alert('Permissions saved successfully!');
+        } catch (error) {
+            alert('Failed to save permissions');
+        } finally {
+            setIsSaving(false);
+        }
+    };
 
     const toggleModuleExpansion = (key: string) => {
         setExpandedModules(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
@@ -28,7 +62,6 @@ export default function PermissionMatrixPage() {
 
     const handleToggle = (role: string, category: string, subKey: string, actionOrValue: string | boolean) => {
         setTemplatePerms(prev => {
-            // Deep clone the entire state to ensure reactiveness
             const newTemplates = JSON.parse(JSON.stringify(prev)) as Record<string, RolePermissions>;
             const rolePerms = newTemplates[role];
 
@@ -99,8 +132,13 @@ export default function PermissionMatrixPage() {
                             </div>
                         )}
 
-                        <button className="h-8 px-4 bg-slate-900 text-white rounded-lg text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2">
-                            Push Changes
+                        <button
+                            onClick={() => pushChanges()}
+                            disabled={isSaving}
+                            className={`h-8 px-4 ${isSaving ? 'bg-slate-400' : 'bg-slate-900 hover:bg-black'} text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2`}
+                        >
+                            {isSaving ? <i className="fa-solid fa-circle-notch animate-spin"></i> : <i className="fa-solid fa-cloud-arrow-up"></i>}
+                            {isSaving ? 'Saving...' : 'Push Changes'}
                         </button>
                     </div>
                 </div>
