@@ -36,7 +36,12 @@ export const db = {
         getById: (id: string) => globalDb.users.find((u: any) => u.id === id),
         getByEmail: (email: string) => globalDb.users.find((u: any) => u.email === email),
         create: (user: any) => {
-            const newUser = { ...user, id: `EMP-${Math.floor(Math.random() * 9000) + 1000}` };
+            const rolePerks = globalDb.permissionsMatrix[user.role] || globalDb.permissionsMatrix['Tele Agent'];
+            const newUser = {
+                ...user,
+                id: `EMP-${Math.floor(Math.random() * 9000) + 1000}`,
+                permissions: user.permissions || rolePerks
+            };
             globalDb.users.push(newUser);
             return newUser;
         },

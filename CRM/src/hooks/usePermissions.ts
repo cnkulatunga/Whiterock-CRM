@@ -9,19 +9,28 @@ export function usePermissions() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        // In a real app, this would fetch from an API or JWT
-        // For now, we read the session storage we set during login
         const session = sessionStorage.getItem('crm_session');
         if (session) {
             const data = JSON.parse(session);
             setUserRole(data.role);
 
-            // Map role to its default permissions (or custom permissions from DB if available)
-            // For this demo, we assume roles follow the Matrix defaults
-            const rolePerms = DEFAULT_ROLE_PERMISSIONS[data.role];
-            setPermissions(rolePerms || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
+            // Fetch live permissions from the server
+            fetch('/api/permissions')
+                .then(res => res.json())
+                .then(matrix => {
+                    // Use server-provided matrix, fallback to local defaults if API fails
+                    const livePerms = matrix[data.role] || DEFAULT_ROLE_PERMISSIONS[data.role];
+                    setPermissions(livePerms || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
+                    setIsLoading(false);
+                })
+                .catch(() => {
+                    const fallback = DEFAULT_ROLE_PERMISSIONS[data.role];
+                    setPermissions(fallback || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
+                    setIsLoading(false);
+                });
+        } else {
+            setIsLoading(false);
         }
-        setIsLoading(false);
     }, []);
 
     const hasModule = (moduleKey: string) => {
