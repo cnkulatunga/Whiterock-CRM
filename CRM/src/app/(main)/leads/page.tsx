@@ -61,7 +61,7 @@ export default function LeadsPage() {
   const [aiGenerated, setAiGenerated] = useState(false);
 
   React.useEffect(() => {
-    // loadLeads();
+    loadLeads();
   }, []);
 
   const loadLeads = async () => {
@@ -352,13 +352,13 @@ export default function LeadsPage() {
 
         {/* Tab nav */}
         {selectedLead && (
-          <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-gray-100 bg-white shrink-0 overflow-x-auto">
+          <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-gray-100 bg-white shrink-0 overflow-x-hidden">
             {[
               { key: 'details', icon: 'fa-address-card', label: 'Contact Info' },
               { key: 'tasks', icon: 'fa-list-check', label: 'Follow-ups' },
               ...(hasFeature('ai_assistant') ? [{ key: 'ai', icon: 'fa-robot', label: 'AI Summary' }] : []),
               { key: 'notes', icon: 'fa-note-sticky', label: 'Notes' },
-              { key: 'docs', icon: 'fa-folder-open', label: 'Documents' },
+              { key: 'docs', icon: 'fa-folder-open', label: 'Docs' },
             ].map(tab => (
               <button
                 key={tab.key}
