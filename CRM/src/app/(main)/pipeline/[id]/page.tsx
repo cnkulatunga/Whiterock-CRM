@@ -8,12 +8,14 @@ interface Lead {
     id: string; name: string; business: string; amount: string;
     agent: string; bank: string; stage: string; priority: 'High' | 'Medium' | 'Low';
     days: number; lender: string; notes: string; payoutStatus: 'Yes' | 'No';
+    leadLevel?: string;
 }
 interface Note { author: string; time: string; text: string; }
 interface Reminder { type: string; title: string; assignee: string; due: string; status: string; note?: string; }
 
 /* ── Static data ─────────────────────────────────────────────── */
 const ALL_LEADS: Lead[] = [
+<<<<<<< Updated upstream
     { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics', amount: '£12,000', agent: 'Sarah Jenkins', bank: '—', stage: 'collecting', priority: 'High', days: 2, lender: '—', notes: 'Waiting for bank statements', payoutStatus: 'No' },
     { id: 'AF-550', name: 'Priya Singh', business: 'Singh Media', amount: '£450,000', agent: 'James White', bank: '—', stage: 'collecting', priority: 'Medium', days: 1, lender: '—', notes: 'Large expansion loan request.', payoutStatus: 'No' },
     { id: 'AF-027', name: 'John Smith', business: 'ABC Corp', amount: '£55,000', agent: 'Sarah Jenkins', bank: 'Barclays', stage: 'lender', priority: 'High', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', payoutStatus: 'No' },
@@ -23,6 +25,17 @@ const ALL_LEADS: Lead[] = [
     { id: 'AF-028', name: 'Minosh Example', business: 'ex ABC', amount: '£3,456', agent: 'Sarah White', bank: 'Starling', stage: 'verified', priority: 'High', days: 3, lender: 'NAB', notes: 'Awaiting final sign-off.', payoutStatus: 'Yes' },
     { id: 'AF-002', name: 'Alice Huang', business: 'Huang Tech', amount: '£1,200,000', agent: 'Leo Kumar', bank: 'HSBC', stage: 'lender', priority: 'High', days: 4, lender: 'ANZ', notes: 'Shortlisting lenders.', payoutStatus: 'No' },
     { id: 'AF-003', name: 'David Rivera', business: 'Rivera Designs', amount: '£85,000', agent: 'Priya Sharma', bank: '—', stage: 'approved', priority: 'Medium', days: 1, lender: 'Westpac', notes: 'Approval letter received.', payoutStatus: 'Yes' },
+=======
+    { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics',      amount: '£12,000',     agent: 'Sarah Jenkins', bank: '—',       stage: 'collecting', priority: 'High',   days: 2,  lender: '—',             notes: 'Waiting for bank statements',            payoutStatus: 'No',  leadLevel: 'Level 1' },
+    { id: 'AF-550', name: 'Priya Singh',   business: 'Singh Media',            amount: '£450,000',    agent: 'James White',   bank: '—',       stage: 'collecting', priority: 'Medium', days: 1,  lender: '—',             notes: 'Large expansion loan request.',          payoutStatus: 'No',  leadLevel: 'Level 2' },
+    { id: 'AF-027', name: 'John Smith',    business: 'ABC Corp',               amount: '£55,000',     agent: 'Sarah Jenkins', bank: 'Barclays',stage: 'lender',     priority: 'High',   days: 4,  lender: 'Barclays, HSBC',notes: 'Email sent to partners, awaiting offers.',payoutStatus: 'No',  leadLevel: 'Level 1' },
+    { id: 'AL-339', name: 'Mike Johnson',  business: 'Urban Scaffolding Ltd',  amount: '£85,000',     agent: 'James White',   bank: '—',       stage: 'verified',   priority: 'Low',    days: 5,  lender: '—',             notes: 'Bank statements audited and approved.',  payoutStatus: 'No',  leadLevel: 'Level 2' },
+    { id: 'AF-001', name: 'David Brown',   business: 'Miller Logistics',       amount: '£150,000',    agent: 'Sarah Jenkins', bank: 'Starling',stage: 'approved',   priority: 'High',   days: 12, lender: 'Starling',       notes: 'Offer accepted, final checks in progress.',payoutStatus: 'Yes', leadLevel: 'Level 1' },
+    { id: 'AL-209', name: 'Kevin Malone',  business: 'Malone Paints',          amount: '£25,000',     agent: 'James White',   bank: '—',       stage: 'rejected',   priority: 'Low',    days: 1,  lender: '—',             notes: 'Low credit score and high existing debt.',payoutStatus: 'No',  leadLevel: 'Level 2' },
+    { id: 'AF-028', name: 'Minosh Example',business: 'ex ABC',                 amount: '£3,456',      agent: 'Sarah White',   bank: 'Starling',stage: 'verified',   priority: 'High',   days: 3,  lender: 'NAB',           notes: 'Awaiting final sign-off.',               payoutStatus: 'Yes', leadLevel: 'Level 1' },
+    { id: 'AF-002', name: 'Alice Huang',   business: 'Huang Tech',             amount: '£1,200,000',  agent: 'Leo Kumar',     bank: 'HSBC',    stage: 'lender',     priority: 'High',   days: 4,  lender: 'ANZ',           notes: 'Shortlisting lenders.',                  payoutStatus: 'No',  leadLevel: 'Level 2' },
+    { id: 'AF-003', name: 'David Rivera',  business: 'Rivera Designs',         amount: '£85,000',     agent: 'Priya Sharma',  bank: '—',       stage: 'approved',   priority: 'Medium', days: 1,  lender: 'Westpac',       notes: 'Approval letter received.',              payoutStatus: 'Yes', leadLevel: 'Level 1' },
+>>>>>>> Stashed changes
 ];
 
 const LENDERS_DB: Record<string, { contact: string; email: string; terms: string; phone: string }> = {
@@ -123,9 +136,23 @@ export default function LeadDetailPage() {
     };
 
     /* ── Edit / Save ─────────────────────────────────────────── */
-    const saveChanges = () => {
-        setLead({ ...editForm });
-        setEditing(false);
+    const saveChanges = async () => {
+        try {
+            const response = await fetch('/api/leads', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editForm)
+            });
+            if (response.ok) {
+                setLead({ ...editForm });
+                setEditing(false);
+            } else {
+                alert('Failed to save changes to database.');
+            }
+        } catch (error) {
+            console.error('Save failed:', error);
+            alert('Critical Error: Could not reach lead database');
+        }
     };
     const cancelEdit = () => { setEditForm({ ...lead }); setEditing(false); };
 
@@ -196,6 +223,7 @@ export default function LeadDetailPage() {
                             <h1 style={{ fontSize: 15, fontWeight: 900, color: '#0f172a', margin: 0, lineHeight: 1.2, letterSpacing: '-.01em' }}>{lead.name}</h1>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe', padding: '2px 10px', borderRadius: 20, fontSize: 8, fontWeight: 800, textTransform: 'uppercase' }}>{lead.leadLevel || 'Level 1'}</span>
                             <span style={{ background: ps.bg, color: ps.color, border: `1px solid ${ps.border}`, padding: '2px 10px', borderRadius: 20, fontSize: 8, fontWeight: 700 }}>{lead.priority} Priority</span>
                             <span style={{ background: STAGE_BG[lead.stage], color: STAGE_COLOR[lead.stage], border: `1px solid ${STAGE_COLOR[lead.stage]}33`, padding: '2px 10px', borderRadius: 20, fontSize: 8, fontWeight: 700 }}>{STAGE_LABELS[lead.stage]}</span>
                         </div>
@@ -371,6 +399,12 @@ export default function LeadDetailPage() {
                                         {Object.entries(STAGE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                                     </select>
                                     : <span style={{ background: STAGE_BG[lead.stage], color: STAGE_COLOR[lead.stage], padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700 }}>{STAGE_LABELS[lead.stage]}</span>}
+                                />
+                                <InfoRow label="Level" value={editing
+                                    ? <select className="field-edit" value={editForm.leadLevel || 'Level 1'} onChange={e => setEditForm(p => ({ ...p, leadLevel: e.target.value }))}>
+                                        <option>Level 1</option><option>Level 2</option>
+                                      </select>
+                                    : <span style={{ background: '#eef2ff', color: '#4338ca', padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700, border: '1px solid #c7d2fe' }}>{lead.leadLevel || 'Level 1'}</span>}
                                 />
                                 <InfoRow label="Days" value={`${lead.days}d in stage`} />
                             </div>

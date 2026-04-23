@@ -19,10 +19,10 @@ const today = new Date().toISOString().split('T')[0];
 import { INITIAL_LENDERS as INIT_LENDERS } from '@/data/dummy';
 
 const SEND_APP_LEADS = [
-    { id: '#AF-004', name: 'Courtney Henry', company: 'Henry Logistics', amount: '£150,000', type: 'Asset Finance' },
-    { id: '#AF-007', name: 'Eleanor Pena', company: 'Pena Holdings', amount: '£500,000', type: 'Commercial' },
-    { id: '#AF-006', name: 'Arlene McCoy', company: 'McCoy Dev', amount: '£2,100,000', type: 'Construction' },
-    { id: '#AF-011', name: 'Cody Fisher', company: 'Fisher Marine', amount: '£750,000', type: 'Asset Finance' },
+    { id: '#AF-004', name: 'Courtney Henry', company: 'Henry Logistics', amount: '£150,000', type: 'Asset Finance', level: 'Level 1' },
+    { id: '#AF-007', name: 'Eleanor Pena', company: 'Pena Holdings', amount: '£500,000', type: 'Commercial', level: 'Level 2' },
+    { id: '#AF-006', name: 'Arlene McCoy', company: 'McCoy Dev', amount: '£2,100,000', type: 'Construction', level: 'Level 1' },
+    { id: '#AF-011', name: 'Cody Fisher', company: 'Fisher Marine', amount: '£750,000', type: 'Asset Finance', level: 'Level 2' },
 ];
 
 const s: Record<string, React.CSSProperties> = {
@@ -71,6 +71,12 @@ export default function LenderManagementPage() {
                 setLenders(INIT_LENDERS);
                 setFetchLoading(false);
             });
+
+        // Fetch real leads for send application
+        fetch('/api/leads')
+            .then(res => res.json())
+            .then(data => setAllLeads(data))
+            .catch(err => console.error('Leads Fetch Failed:', err));
     }, []);
 
     // table state
@@ -112,7 +118,9 @@ export default function LenderManagementPage() {
     const [promoPreview, setPromoPreview] = useState<{ lender: Lender; pIndex: number } | null>(null);
 
     // send app
-    const [saStep, setSaStep] = useState(1);
+    const [saStep, setSaStep] = useState(0);
+    const [saLevel, setSaLevel] = useState<'Level 1' | 'Level 2'>('Level 1');
+    const [allLeads, setAllLeads] = useState<any[]>([]);
     const [saLeadSearch, setSaLeadSearch] = useState('');
     const [saSelectedLead, setSaSelectedLead] = useState<typeof SEND_APP_LEADS[0] | null>(null);
     const [saLenders, setSaLenders] = useState<Lender[]>([]);
@@ -236,7 +244,7 @@ export default function LenderManagementPage() {
     function openSendApp(lenderId: number) {
         const l = lenders.find(x => x.id === lenderId);
         if (!l) return;
-        setSaLenders([l]); setSaStep(1); setSaSelectedLead(null);
+        setSaLenders([l]); setSaStep(0); setSaSelectedLead(null);
         setLeftTab('sendapp');
     }
 
@@ -288,7 +296,13 @@ export default function LenderManagementPage() {
         return true;
     });
 
-    const saLeads = SEND_APP_LEADS.filter(l => !saLeadSearch || (l.name + l.company + l.id).toLowerCase().includes(saLeadSearch.toLowerCase()));
+    const saLeads = (allLeads.length > 0 ? allLeads : SEND_APP_LEADS).filter(l => {
+        const matchesSearch = !saLeadSearch || (l.name + (l.company || l.business) + l.id).toLowerCase().includes(saLeadSearch.toLowerCase());
+        const matchesLevel = (l.leadLevel || l.level) === saLevel;
+        // Only show leads in 'verified' or 'lender' stage for application sending
+        const isReady = allLeads.length > 0 ? ['verified', 'lender'].includes(l.status?.toLowerCase() || '') : true;
+        return matchesSearch && matchesLevel && isReady;
+    });
 
     if (fetchLoading || permsLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
 
@@ -559,15 +573,48 @@ export default function LenderManagementPage() {
                         {/* === SEND APPLICATION TAB === */}
                         {leftTab === 'sendapp' && (
                             <div>
+                                {/* Step 0: Choose Level */}
+                                {saStep === 0 && (
+                                    <div style={{ padding: 16 }}>
+                                        <p style={{ fontSize: 10, fontWeight: 900, color: '#111827', textTransform: 'uppercase', letterSpacing: '.06em', marginBottom: 16 }}>Choose Lead Level</p>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                                            {(['Level 1', 'Level 2'] as const).map(lvl => (
+                                                <div
+                                                    key={lvl}
+                                                    onClick={() => { setSaLevel(lvl); setSaStep(1); }}
+                                                    style={{
+                                                        padding: '24px 12px', borderRadius: 12, border: '2px solid',
+                                                        borderColor: saLevel === lvl ? '#6366f1' : '#f1f5f9',
+                                                        background: saLevel === lvl ? '#eff6ff' : '#fff',
+                                                        textAlign: 'center', cursor: 'pointer', transition: 'all .15s'
+                                                    }}
+                                                >
+                                                    <div style={{ width: 32, height: 32, borderRadius: '50%', background: saLevel === lvl ? '#6366f1' : '#f1f5f9', color: saLevel === lvl ? '#fff' : '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', fontSize: 12 }}>
+                                                        <i className={`fa-solid ${lvl === 'Level 1' ? 'fa-1' : 'fa-2'}`} />
+                                                    </div>
+                                                    <p style={{ fontSize: 11, fontWeight: 800, color: saLevel === lvl ? '#6366f1' : '#1e293b', margin: 0 }}>{lvl}</p>
+                                                    <p style={{ fontSize: 8, fontWeight: 600, color: saLevel === lvl ? '#94a3b8' : '#cbd5e1', textTransform: 'uppercase', marginTop: 4 }}>Classification</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Step 1 */}
                                 {saStep === 1 && (
                                     <div style={{ padding: 16 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                                            <button onClick={() => setSaStep(0)} style={{ fontSize: 8, fontWeight: 700, color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                                <i className="fa-solid fa-arrow-left" /> Back to Levels
+                                            </button>
+                                            <span style={{ fontSize: 8, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', background: '#f1f5f9', padding: '2px 8px', borderRadius: 99 }}>{saLevel}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                                             <div>
                                                 <p style={{ fontSize: 10, fontWeight: 900, color: '#111827', textTransform: 'uppercase', letterSpacing: '.06em' }}>Step 1: Select Lead</p>
-                                                <p style={{ fontSize: 8, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.04em', marginTop: 2 }}>Approved documentation leads</p>
+                                                <p style={{ fontSize: 8, color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.04em', marginTop: 2 }}>{saLevel} Approved Leads</p>
                                             </div>
-                                            <input value={saLeadSearch} onChange={e => setSaLeadSearch(e.target.value)} placeholder="Search..." style={{ ...s.inputCompact, width: 120, fontSize: 9 }} />
+                                            <input value={saLeadSearch} onChange={e => setSaLeadSearch(e.target.value)} placeholder="Search..." style={{ ...s.inputCompact, width: 100, fontSize: 9 }} />
                                         </div>
                                         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                                             {saLeads.map(lead => (

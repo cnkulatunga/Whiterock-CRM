@@ -101,6 +101,17 @@ export default function RegisterLeadPage() {
                         <span className="text-[10px] font-mono font-black text-[#2447d7] tracking-widest uppercase">{caseId}</span>
                     </div>
                     <div className="flex items-center gap-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Lead Level</label>
+                        <select
+                            value={formData.leadLevel || 'Level 1'}
+                            onChange={e => setFormData({ ...formData, leadLevel: e.target.value })}
+                            className="h-8 px-3 bg-indigo-50 border border-indigo-200 rounded-lg text-[10px] font-black text-[#2447d7] outline-none cursor-pointer"
+                        >
+                            <option value="Level 1">LEVEL 1</option>
+                            <option value="Level 2">LEVEL 2</option>
+                        </select>
+                    </div>
+                    <div className="flex items-center gap-2">
                         <label className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Initial Priority</label>
                         <select
                             value={formData.quality}

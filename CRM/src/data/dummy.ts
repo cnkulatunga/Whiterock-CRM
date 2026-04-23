@@ -5,12 +5,12 @@
 ═══════════════════════════════════════════════════════════════ */
 
 export const INITIAL_LEADS = [
-    { id: 'AL-902', name: 'Robert Miller', company: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', phone: '07123 456789', amount: '£12,000', agent: 'Sarah Jenkins', status: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements', quality: 'hot', type: 'Asset Finance' },
-    { id: 'AF-550', name: 'Priya Singh', company: 'Singh Media', email: 'contact@singhmedia.com', phone: '07123 987654', amount: '£450,000', agent: 'James White', status: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.', quality: 'warm', type: 'Commercial' },
-    { id: 'AF-027', name: 'John Smith', company: 'ABC Corp', email: 'jsmith@abccorp.uk', phone: '07123 111222', amount: '£55,000', agent: 'Sarah Jenkins', status: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', quality: 'hot', type: 'Asset Finance' },
-    { id: 'AL-339', name: 'Mike Johnson', company: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', phone: '07123 444555', amount: '£85,000', agent: 'James White', status: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.', quality: 'cool', type: 'Invoice Finance' },
-    { id: 'AF-001', name: 'David Brown', company: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', phone: '07123 666777', amount: '£150,000', agent: 'Sarah Jenkins', status: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.', quality: 'hot', type: 'Commercial' },
-    { id: 'AL-209', name: 'Kevin Malone', company: 'Malone Paints', email: 'kevin@malonepaints.com', phone: '07123 888999', amount: '£25,000', agent: 'James White', status: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.', quality: 'cool', type: 'Asset Finance' },
+    { id: 'AL-902', name: 'Robert Miller', company: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', phone: '07123 456789', amount: '£12,000', agent: 'Sarah Jenkins', status: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements', quality: 'hot', type: 'Asset Finance', leadLevel: 'Level 1' },
+    { id: 'AF-550', name: 'Priya Singh', company: 'Singh Media', email: 'contact@singhmedia.com', phone: '07123 987654', amount: '£450,000', agent: 'James White', status: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.', quality: 'warm', type: 'Commercial', leadLevel: 'Level 2' },
+    { id: 'AF-027', name: 'John Smith', company: 'ABC Corp', email: 'jsmith@abccorp.uk', phone: '07123 111222', amount: '£55,000', agent: 'Sarah Jenkins', status: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', quality: 'hot', type: 'Asset Finance', leadLevel: 'Level 1' },
+    { id: 'AL-339', name: 'Mike Johnson', company: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', phone: '07123 444555', amount: '£85,000', agent: 'James White', status: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.', quality: 'cool', type: 'Invoice Finance', leadLevel: 'Level 2' },
+    { id: 'AF-001', name: 'David Brown', company: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', phone: '07123 666777', amount: '£150,000', agent: 'Sarah Jenkins', status: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.', quality: 'hot', type: 'Commercial', leadLevel: 'Level 1' },
+    { id: 'AL-209', name: 'Kevin Malone', company: 'Malone Paints', email: 'kevin@malonepaints.com', phone: '07123 888999', amount: '£25,000', agent: 'James White', status: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.', quality: 'cool', type: 'Asset Finance', leadLevel: 'Level 2' },
 ] as any[];
 
 export const INITIAL_LENDERS = [
@@ -153,6 +153,7 @@ export const DOC_REQUESTS = [
 ];
 
 export const AI_OPTIONS = [
+    { icon: 'fa-wand-magic-sparkles', bg: 'bg-indigo-50', color: 'text-indigo-600', title: 'AI Lead Summary', desc: 'Detailed lead analysis & summaries' },
     { icon: 'fa-chart-line', bg: 'bg-indigo-50', color: 'text-indigo-600', title: 'Pipeline Analysis', desc: 'AI insights on your loan pipeline' },
     { icon: 'fa-users', bg: 'bg-emerald-50', color: 'text-emerald-600', title: 'Lead Scoring', desc: 'Auto-score and prioritise leads' },
     { icon: 'fa-file-invoice', bg: 'bg-amber-50', color: 'text-amber-600', title: 'Report Generator', desc: 'Generate performance reports' },

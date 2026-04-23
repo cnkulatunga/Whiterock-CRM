@@ -8,6 +8,7 @@ interface Lead {
     id: string; name: string; company: string; email: string;
     amount: string; agent: string; status: string;
     priority: 'hot' | 'warm' | 'cool'; days: number; lender: string; notes: string;
+    leadLevel?: string;
 }
 
 /* ── Constants ──────────────────────────────────────────────── */
@@ -140,7 +141,7 @@ export default function PipelinePage() {
     const [lenderDdOpen, setLenderDdOpen] = useState(false);
 
     /* add lead form */
-    const [newLead, setNewLead] = useState({ name: '', company: '', amount: '', agent: 'Sarah Jenkins', priority: 'warm', notes: '' });
+    const [newLead, setNewLead] = useState({ name: '', company: '', amount: '', agent: 'Sarah Jenkins', priority: 'warm', notes: '', leadLevel: 'Level 1' });
 
     /* toast */
     const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
@@ -247,7 +248,7 @@ export default function PipelinePage() {
     };
 
     /* ── Save & move ────────────────────────────────────────── */
-    const saveAndMove = () => {
+    const saveAndMove = async () => {
         const l = leads.find(x => x.id === pendingId);
         if (!l || !pendingStage) return;
         const from = l.status as Stage;
@@ -263,16 +264,25 @@ export default function PipelinePage() {
             if (!rejNoteRef.current?.value.trim()) { showError('Provide a specific rejection reason.'); return; }
         }
 
-        setLeads(prev => prev.map(x => {
-            if (x.id !== pendingId) return x;
-            const auditNote = auditNotesRef.current?.value || '';
-            const notes = auditNote ? `[AUDIT]: ${auditNote}\n${x.notes}` : (genNoteRef.current?.value || rejNoteRef.current?.value || x.notes);
-            const lender = to === 'lender' ? selLenders.join(', ') : to === 'approved' ? (finalLenderRef.current?.value || x.lender) : x.lender;
-            return { ...x, status: to, notes, lender, days: 0 };
-        }));
+        const auditNote = auditNotesRef.current?.value || '';
+        const notes = auditNote ? `[AUDIT]: ${auditNote}\n${l.notes}` : (genNoteRef.current?.value || rejNoteRef.current?.value || l.notes);
+        const lender = to === 'lender' ? selLenders.join(', ') : to === 'approved' ? (finalLenderRef.current?.value || l.lender) : l.lender;
 
-        setUpdateOpen(false);
-        showToast(`${l.name} moved to ${STAGE_META[to].label}`);
+        try {
+            const response = await fetch('/api/leads', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: l.id, status: to, notes, lender, days: 0 })
+            });
+
+            if (response.ok) {
+                setLeads(prev => prev.map(x => x.id === pendingId ? { ...x, status: to, notes, lender, days: 0 } : x));
+                setUpdateOpen(false);
+                showToast(`${l.name} moved to ${STAGE_META[to].label}`);
+            }
+        } catch (e) {
+            showError('Failed to save move to database.');
+        }
     };
 
     /* ── Reassign ───────────────────────────────────────────── */
@@ -286,21 +296,43 @@ export default function PipelinePage() {
 
     /* ── Delete ─────────────────────────────────────────────── */
     const openDelete = (id: string) => { setDeleteTargetId(id); setDeleteOpen(true); };
-    const doDelete = () => {
+    const doDelete = async () => {
         const l = leads.find(x => x.id === deleteTargetId);
-        setLeads(prev => prev.filter(x => x.id !== deleteTargetId));
-        setDeleteOpen(false);
-        showToast(`${l?.name} removed from pipeline`, 'error');
+        try {
+            const response = await fetch(`/api/leads?id=${deleteTargetId}`, { method: 'DELETE' });
+            if (response.ok) {
+                setLeads(prev => prev.filter(x => x.id !== deleteTargetId));
+                setDeleteOpen(false);
+                showToast(`${l?.name} removed from pipeline`, 'error');
+            }
+        } catch (e) {
+            showError('Failed to delete lead from database.');
+        }
     };
 
     /* ── Add lead ───────────────────────────────────────────── */
-    const saveNewLead = () => {
+    const saveNewLead = async () => {
         if (!newLead.name || !newLead.company || !newLead.amount) { showError('Fill all required fields.'); return; }
-        const id = `AL-${Math.floor(Math.random() * 900) + 100}`;
-        setLeads(prev => [{ id, name: newLead.name, company: newLead.company, email: '', amount: newLead.amount, agent: newLead.agent, status: 'collecting', priority: newLead.priority as 'hot' | 'warm' | 'cool', days: 0, lender: '—', notes: newLead.notes }, ...prev]);
-        setNewLead({ name: '', company: '', amount: '', agent: 'Sarah Jenkins', priority: 'warm', notes: '' });
-        setAddDrawerOpen(false);
-        showToast(`Lead registered: ${id}`);
+        try {
+            const response = await fetch('/api/leads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    name: newLead.name, company: newLead.company, email: '', 
+                    amount: newLead.amount, agent: newLead.agent, status: 'collecting', 
+                    priority: newLead.priority, notes: newLead.notes, leadLevel: newLead.leadLevel 
+                })
+            });
+            if (response.ok) {
+                const saved = await response.json();
+                setLeads(prev => [saved, ...prev]);
+                setNewLead({ name: '', company: '', amount: '', agent: 'Sarah Jenkins', priority: 'warm', notes: '', leadLevel: 'Level 1' });
+                setAddDrawerOpen(false);
+                showToast(`Lead registered: ${saved.id}`);
+            }
+        } catch (e) {
+            showError('Failed to register lead in database.');
+        }
     };
 
     /* ── Email preview ──────────────────────────────────────── */
@@ -502,6 +534,12 @@ export default function PipelinePage() {
                                 {/* Lender Selection */}
                                 {to === 'lender' && (
                                     <Section title="Selection & Submission" icon="fa-building-columns" color="#6d28d9">
+                                        <div style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <span style={{ fontSize: 9, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Classification:</span>
+                                            <span style={{ background: '#eef2ff', color: '#4338ca', padding: '2px 10px', borderRadius: 20, fontSize: 9, fontWeight: 800, border: '1px solid #c7d2fe' }}>
+                                                {l.leadLevel || 'Level 1'}
+                                            </span>
+                                        </div>
                                         {/* Multi-select dropdown */}
                                         <div style={{ position: 'relative', marginBottom: 12 }}>
                                             <div
@@ -667,7 +705,7 @@ export default function PipelinePage() {
                                     ))}
                                 </div>
                                 <div style={{ padding: '24px 28px', fontSize: 12, color: '#374151', lineHeight: 1.75, fontWeight: 500, whiteSpace: 'pre-line', minHeight: 280 }}>
-                                    {`Hi Team,\n\nPlease review the following submission for ${pendingLead.name} (${pendingLead.company}).\n\n[DEAL HIGHLIGHTS]\n• Funding Required: ${pendingLead.amount}\n• Purpose: General Working Capital\n• Current Status: High-Priority Lead\n\n[SUBMISSION NOTES]\n${lenderNotesRef.current?.value || 'No additional notes provided.'}\n\nPlease find the full KYC and bank audit files attached. We look forward to your pricing offer.\n\nRegards,\nWhiterock CRM Deal Desk`}
+                                    {`Hi Team,\n\nPlease review the following submission for ${pendingLead.name} (${pendingLead.company}).\n\n[DEAL HIGHLIGHTS]\n• Funding Required: ${pendingLead.amount}\n• Case Level: ${pendingLead.leadLevel || 'Level 1'}\n• Purpose: General Working Capital\n• Current Status: High-Priority Lead\n\n[SUBMISSION NOTES]\n${lenderNotesRef.current?.value || 'No additional notes provided.'}\n\nPlease find the full KYC and bank audit files attached. We look forward to your pricing offer.\n\nRegards,\nWhiterock CRM Deal Desk`}
                                 </div>
                                 <div style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #f1f5f9' }}>
                                     <p style={{ fontSize: 8, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>Case Documents Attached</p>
@@ -835,6 +873,13 @@ export default function PipelinePage() {
                                 </div>
                             </div>
                             <div>
+                                <ULabel>Lead Classification</ULabel>
+                                <select value={newLead.leadLevel} onChange={e => setNewLead(p => ({ ...p, leadLevel: e.target.value }))} style={uInput}>
+                                    <option value="Level 1">Level 1</option>
+                                    <option value="Level 2">Level 2</option>
+                                </select>
+                            </div>
+                            <div>
                                 <ULabel>Notes</ULabel>
                                 <textarea value={newLead.notes} onChange={e => setNewLead(p => ({ ...p, notes: e.target.value }))} style={{ ...uInput, height: 96 }} />
                             </div>
@@ -903,6 +948,7 @@ function LeadCard({ l, onReassign, onDelete, onDragStart, canDelete, canAssign }
             {/* Name & business */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6, overflow: 'hidden' }}>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', flexShrink: 0 }}>{l.name}</span>
+                <span style={{ fontSize: 7, fontWeight: 900, background: '#eef2ff', color: '#4338ca', padding: '1px 6px', borderRadius: 5, border: '1px solid #c7d2fe', textTransform: 'uppercase' }}>{l.leadLevel === 'Level 2' ? 'L2' : 'L1'}</span>
                 <span style={{ width: 3, height: 3, borderRadius: '50%', background: '#e2e8f0', flexShrink: 0 }} />
                 <span style={{ fontSize: 9, fontWeight: 700, color: '#6366f1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', opacity: .85 }}>{l.company}</span>
             </div>
