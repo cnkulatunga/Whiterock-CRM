@@ -17,17 +17,6 @@ interface Reminder { type: string; title: string; assignee: string; due: string;
 
 /* ── Static data ─────────────────────────────────────────────── */
 const ALL_LEADS: Lead[] = [
-<<<<<<< Updated upstream
-    { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics', amount: '£12,000', agent: 'Sarah Jenkins', bank: '—', stage: 'collecting', priority: 'High', days: 2, lender: '—', notes: 'Waiting for bank statements', payoutStatus: 'No' },
-    { id: 'AF-550', name: 'Priya Singh', business: 'Singh Media', amount: '£450,000', agent: 'James White', bank: '—', stage: 'collecting', priority: 'Medium', days: 1, lender: '—', notes: 'Large expansion loan request.', payoutStatus: 'No' },
-    { id: 'AF-027', name: 'John Smith', business: 'ABC Corp', amount: '£55,000', agent: 'Sarah Jenkins', bank: 'Barclays', stage: 'lender', priority: 'High', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', payoutStatus: 'No' },
-    { id: 'AL-339', name: 'Mike Johnson', business: 'Urban Scaffolding Ltd', amount: '£85,000', agent: 'James White', bank: '—', stage: 'verified', priority: 'Low', days: 5, lender: '—', notes: 'Bank statements audited and approved.', payoutStatus: 'No' },
-    { id: 'AF-001', name: 'David Brown', business: 'Miller Logistics', amount: '£150,000', agent: 'Sarah Jenkins', bank: 'Starling', stage: 'approved', priority: 'High', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.', payoutStatus: 'Yes' },
-    { id: 'AL-209', name: 'Kevin Malone', business: 'Malone Paints', amount: '£25,000', agent: 'James White', bank: '—', stage: 'rejected', priority: 'Low', days: 1, lender: '—', notes: 'Low credit score and high existing debt.', payoutStatus: 'No' },
-    { id: 'AF-028', name: 'Minosh Example', business: 'ex ABC', amount: '£3,456', agent: 'Sarah White', bank: 'Starling', stage: 'verified', priority: 'High', days: 3, lender: 'NAB', notes: 'Awaiting final sign-off.', payoutStatus: 'Yes' },
-    { id: 'AF-002', name: 'Alice Huang', business: 'Huang Tech', amount: '£1,200,000', agent: 'Leo Kumar', bank: 'HSBC', stage: 'lender', priority: 'High', days: 4, lender: 'ANZ', notes: 'Shortlisting lenders.', payoutStatus: 'No' },
-    { id: 'AF-003', name: 'David Rivera', business: 'Rivera Designs', amount: '£85,000', agent: 'Priya Sharma', bank: '—', stage: 'approved', priority: 'Medium', days: 1, lender: 'Westpac', notes: 'Approval letter received.', payoutStatus: 'Yes' },
-=======
     { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics',      amount: '£12,000',     agent: 'Sarah Jenkins', bank: '—',       stage: 'collecting', priority: 'High',   days: 2,  lender: '—',             notes: 'Waiting for bank statements',            payoutStatus: 'No',  leadLevel: 'Level 1' },
     { id: 'AF-550', name: 'Priya Singh',   business: 'Singh Media',            amount: '£450,000',    agent: 'James White',   bank: '—',       stage: 'collecting', priority: 'Medium', days: 1,  lender: '—',             notes: 'Large expansion loan request.',          payoutStatus: 'No',  leadLevel: 'Level 2' },
     { id: 'AF-027', name: 'John Smith',    business: 'ABC Corp',               amount: '£55,000',     agent: 'Sarah Jenkins', bank: 'Barclays',stage: 'lender',     priority: 'High',   days: 4,  lender: 'Barclays, HSBC',notes: 'Email sent to partners, awaiting offers.',payoutStatus: 'No',  leadLevel: 'Level 1' },
@@ -37,7 +26,6 @@ const ALL_LEADS: Lead[] = [
     { id: 'AF-028', name: 'Minosh Example',business: 'ex ABC',                 amount: '£3,456',      agent: 'Sarah White',   bank: 'Starling',stage: 'verified',   priority: 'High',   days: 3,  lender: 'NAB',           notes: 'Awaiting final sign-off.',               payoutStatus: 'Yes', leadLevel: 'Level 1' },
     { id: 'AF-002', name: 'Alice Huang',   business: 'Huang Tech',             amount: '£1,200,000',  agent: 'Leo Kumar',     bank: 'HSBC',    stage: 'lender',     priority: 'High',   days: 4,  lender: 'ANZ',           notes: 'Shortlisting lenders.',                  payoutStatus: 'No',  leadLevel: 'Level 2' },
     { id: 'AF-003', name: 'David Rivera',  business: 'Rivera Designs',         amount: '£85,000',     agent: 'Priya Sharma',  bank: '—',       stage: 'approved',   priority: 'Medium', days: 1,  lender: 'Westpac',       notes: 'Approval letter received.',              payoutStatus: 'Yes', leadLevel: 'Level 1' },
->>>>>>> Stashed changes
 ];
 
 const LENDERS_DB: Record<string, { contact: string; email: string; terms: string; phone: string }> = {

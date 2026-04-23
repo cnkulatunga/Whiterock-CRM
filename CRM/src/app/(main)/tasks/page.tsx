@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { followups as initialFollowups, leads, promotions, teamMembers } from '@/data/dummy';
 import { usePermissions } from '@/hooks/usePermissions';
 
@@ -360,7 +360,7 @@ export default function TasksPage() {
                                 {tasks.map((t) => {
                                     const isExpanded = expandedId === t.id;
                                     return (
-                                        <>
+                                        <Fragment key={t.id}>
                                             <tr
                                                 key={t.id}
                                                 onClick={() => setExpandedId(isExpanded ? null : t.id)}
@@ -455,7 +455,7 @@ export default function TasksPage() {
                                                     </td>
                                                 </tr>
                                             )}
-                                        </>
+                                        </Fragment>
                                     );
                                 })}
                             </tbody>
