@@ -12,7 +12,10 @@ import PromotionsCard from "@/components/PromotionsCard";
 import CalendarCard from "@/components/CalendarCard";
 import DetailDrawer from "@/components/DetailDrawer";
 
+import { usePermissions } from "@/hooks/usePermissions";
+
 export default function SuperAdminDashboard() {
+    const { canSeeCard, hasFeature, isLoading } = usePermissions();
     const [selectedEntity, setSelectedEntity] = useState<any>(null);
     const [drawerType, setDrawerType] = useState<'task' | 'lead' | 'agent' | 'promotion' | 'lender' | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -24,6 +27,8 @@ export default function SuperAdminDashboard() {
         setDrawerType(type);
         setIsDrawerOpen(true);
     };
+
+    if (isLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
 
     const aiOptions = [
         { icon: 'fa-chart-line', bg: 'bg-indigo-50', color: 'text-indigo-600', title: 'Pipeline Analysis', desc: 'AI insights on your loan pipeline' },
@@ -41,25 +46,27 @@ export default function SuperAdminDashboard() {
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
                 <div id="mainModuleGrid" className={`module-grid${designMode ? ' design-mode' : ''}`}>
-                    <FollowupsCard />
-                    <NotesCard />
-                    <LicensesCard />
-                    <TeleAgentsCard />
-                    <PortfolioCard />
-                    <PayoutsCard />
-                    <PromotionsCard onSelect={handleSelect} />
-                    <CalendarCard />
+                    {canSeeCard('upcoming_followups') && <FollowupsCard />}
+                    {canSeeCard('notes') && <NotesCard />}
+                    {canSeeCard('license_insurance') && <LicensesCard />}
+                    {canSeeCard('online_agents') && <TeleAgentsCard />}
+                    {canSeeCard('lead_portfolio') && <PortfolioCard />}
+                    {canSeeCard('pending_payouts') && <PayoutsCard />}
+                    {canSeeCard('lender_promotions') && <PromotionsCard onSelect={handleSelect} />}
+                    {canSeeCard('op_calendar') && <CalendarCard />}
                 </div>
             </div>
 
             {/* AI Chatbot FAB */}
-            <div
-                onClick={() => setAiOpen(!aiOpen)}
-                className="fixed bottom-6 right-6 w-14 h-14 bg-[#2447d7] rounded-2xl flex items-center justify-center text-white shadow-[0_10px_25px_rgba(36,71,215,0.4)] cursor-pointer hover:scale-110 hover:-translate-y-1 active:scale-95 transition-all z-[1000] group"
-            >
-                <i className={`fa-solid ${aiOpen ? 'fa-xmark' : 'fa-robot'} text-xl group-hover:rotate-12 transition-transform`}></i>
-                {!aiOpen && <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse"></div>}
-            </div>
+            {hasFeature('ai_assistant') && (
+                <div
+                    onClick={() => setAiOpen(!aiOpen)}
+                    className="fixed bottom-6 right-6 w-14 h-14 bg-[#2447d7] rounded-2xl flex items-center justify-center text-white shadow-[0_10px_25px_rgba(36,71,215,0.4)] cursor-pointer hover:scale-110 hover:-translate-y-1 active:scale-95 transition-all z-[1000] group"
+                >
+                    <i className={`fa-solid ${aiOpen ? 'fa-xmark' : 'fa-robot'} text-xl group-hover:rotate-12 transition-transform`}></i>
+                    {!aiOpen && <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse"></div>}
+                </div>
+            )}
 
             {/* AI Widget Panel */}
             {aiOpen && (

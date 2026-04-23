@@ -5,20 +5,20 @@ import Link from 'next/link';
 import { leads, followups } from '@/data/dummy';
 
 const INDUSTRIES = [
-  'Software','Hardware','IT Services','Telecommunications','E-commerce','Digital Media',
-  'Robotics','Pharmaceuticals','Medical Devices','Hospitals','Health Insurance',
-  'BioTechnology','Wellness','Banking','Insurance','Investment Banking',
-  'Venture Capital','Accounting','Aerospace',
+  'Software', 'Hardware', 'IT Services', 'Telecommunications', 'E-commerce', 'Digital Media',
+  'Robotics', 'Pharmaceuticals', 'Medical Devices', 'Hospitals', 'Health Insurance',
+  'BioTechnology', 'Wellness', 'Banking', 'Insurance', 'Investment Banking',
+  'Venture Capital', 'Accounting', 'Aerospace',
 ];
 const BANKS = [
-  'Santander','HSBC','Lloyds Bank','Starling','NatWest','Barclays','Metro Bank',
-  'Royal Bank of Scotland','The Co-operative Bank','The Cumberland','Tide','TSB',
-  'Ulster Bank','Unity Trust Bank','Zempler',
+  'Santander', 'HSBC', 'Lloyds Bank', 'Starling', 'NatWest', 'Barclays', 'Metro Bank',
+  'Royal Bank of Scotland', 'The Co-operative Bank', 'The Cumberland', 'Tide', 'TSB',
+  'Ulster Bank', 'Unity Trust Bank', 'Zempler',
 ];
 const SOURCES = [
-  'Advertisement','Cold Call','Web','External Referral','Instagram','Organic Search',
-  'Sales Email Alias','Employee Referral','Online Store','Partner','Public Relations',
-  'Seminar Partner','Internal Seminar','Trade Show','Chat',
+  'Advertisement', 'Cold Call', 'Web', 'External Referral', 'Instagram', 'Organic Search',
+  'Sales Email Alias', 'Employee Referral', 'Online Store', 'Partner', 'Public Relations',
+  'Seminar Partner', 'Internal Seminar', 'Trade Show', 'Chat',
 ];
 
 type Lead = {
@@ -34,15 +34,17 @@ const qualityBadge = (q: string) => {
 };
 
 const inputCls = (disabled: boolean) =>
-  `w-full bg-[#fdfdfd] border border-[#e2e8f0] rounded-lg px-3 py-2 text-[10px] font-semibold text-[#1e293b] outline-none transition-all ${
-    disabled
-      ? 'bg-[#f8fafc] border-[#f1f5f9] text-[#64748b] cursor-not-allowed'
-      : 'focus:border-[#2447d7] focus:bg-white focus:shadow-[0_0_0_4px_rgba(36,71,215,0.05)]'
+  `w-full bg-[#fdfdfd] border border-[#e2e8f0] rounded-lg px-3 py-2 text-[10px] font-semibold text-[#1e293b] outline-none transition-all ${disabled
+    ? 'bg-[#f8fafc] border-[#f1f5f9] text-[#64748b] cursor-not-allowed'
+    : 'focus:border-[#2447d7] focus:bg-white focus:shadow-[0_0_0_4px_rgba(36,71,215,0.05)]'
   }`;
 
 const labelCls = 'text-[9px] font-bold text-[#475569] mb-1 block';
 
+import { usePermissions } from '@/hooks/usePermissions';
+
 export default function LeadsPage() {
+  const { hasAction, hasFeature, isLoading } = usePermissions();
   const [leadList, setLeadList] = useState<Lead[]>(leads as Lead[]);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
@@ -57,6 +59,8 @@ export default function LeadsPage() {
   const [noteInput, setNoteInput] = useState('');
   const [panelTasks] = useState(followups.slice(0, 3));
   const [aiGenerated, setAiGenerated] = useState(false);
+
+  if (isLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
 
   const selectedLead = leadList.find(l => l.id === selectedId) || null;
 
@@ -125,9 +129,11 @@ export default function LeadsPage() {
             />
           </div>
 
-          <Link href="/leads/add" className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all shrink-0">
-            <i className="fa-solid fa-plus text-[7px]"></i> Add Lead
-          </Link>
+          {hasAction('leads', 'Add_Lead') && (
+            <Link href="/leads/add" className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all shrink-0">
+              <i className="fa-solid fa-plus text-[7px]"></i> Add Lead
+            </Link>
+          )}
 
           <select
             value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
@@ -243,9 +249,11 @@ export default function LeadsPage() {
         {/* Footer */}
         <div className="p-3 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between shrink-0">
           <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Showing {filtered.length} leads</span>
-          <Link href="/leads/add" className="text-[8px] font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-all">
-            <i className="fa-solid fa-plus mr-1"></i>New Lead
-          </Link>
+          {hasAction('leads', 'Add_Lead') && (
+            <Link href="/leads/add" className="text-[8px] font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-all">
+              <i className="fa-solid fa-plus mr-1"></i>New Lead
+            </Link>
+          )}
         </div>
       </section>
 
@@ -287,7 +295,7 @@ export default function LeadsPage() {
                 </div>
               </div>
             )}
-            {selectedLead && !isEditing && (
+            {selectedLead && !isEditing && hasAction('leads', 'Edit_Lead') && (
               <button onClick={startEdit} className="h-7 px-3 bg-gray-900 text-white text-[8px] font-bold rounded-lg uppercase tracking-widest hover:bg-black transition-all">
                 Edit Lead
               </button>
@@ -306,17 +314,16 @@ export default function LeadsPage() {
           <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-gray-100 bg-white shrink-0 overflow-x-auto">
             {[
               { key: 'details', icon: 'fa-address-card', label: 'Contact Info' },
-              { key: 'tasks',   icon: 'fa-list-check',   label: 'Follow-ups' },
-              { key: 'ai',      icon: 'fa-robot',         label: 'AI Summary' },
-              { key: 'notes',   icon: 'fa-note-sticky',   label: 'Notes' },
-              { key: 'docs',    icon: 'fa-folder-open',   label: 'Documents' },
+              { key: 'tasks', icon: 'fa-list-check', label: 'Follow-ups' },
+              ...(hasFeature('ai_assistant') ? [{ key: 'ai', icon: 'fa-robot', label: 'AI Summary' }] : []),
+              { key: 'notes', icon: 'fa-note-sticky', label: 'Notes' },
+              { key: 'docs', icon: 'fa-folder-open', label: 'Documents' },
             ].map(tab => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-[.06em] cursor-pointer transition-all whitespace-nowrap border-none ${
-                  activeTab === tab.key ? 'bg-[#ebf0ff] text-[#2447d7]' : 'bg-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
-                }`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-[.06em] cursor-pointer transition-all whitespace-nowrap border-none ${activeTab === tab.key ? 'bg-[#ebf0ff] text-[#2447d7]' : 'bg-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                  }`}
               >
                 <i className={`fa-solid ${tab.icon} text-[9px]`}></i> {tab.label}
               </button>
@@ -333,7 +340,7 @@ export default function LeadsPage() {
               <p className="text-[9px] text-gray-300 mt-1">Click any row in the table</p>
             </div>
           ) : activeTab === 'details' ? (
-            <DetailTab fd={fd} setFd={setFd} isEditing={isEditing} onDelete={deleteLead} />
+            <DetailTab fd={fd} setFd={setFd} isEditing={isEditing} onDelete={deleteLead} hasDeleteAccess={hasAction('leads', 'Delete_Lead')} />
           ) : activeTab === 'tasks' ? (
             <TasksTab tasks={panelTasks} />
           ) : activeTab === 'ai' ? (
@@ -375,9 +382,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function DetailTab({ fd, setFd, isEditing, onDelete }: {
+function DetailTab({ fd, setFd, isEditing, onDelete, hasDeleteAccess }: {
   fd: (k: string) => any; setFd: (k: string, v: string) => void;
-  isEditing: boolean; onDelete: () => void;
+  isEditing: boolean; onDelete: () => void; hasDeleteAccess?: boolean;
 }) {
   return (
     <div className="p-4 space-y-5">
@@ -432,11 +439,10 @@ function DetailTab({ fd, setFd, isEditing, onDelete }: {
               {['Email', 'Phone', 'WhatsApp', 'Other'].map(m => (
                 <button key={m} type="button" disabled={!isEditing}
                   onClick={() => setFd('preferredMethod', m)}
-                  className={`flex-1 py-1.5 rounded-lg text-[8px] font-bold border transition-all ${
-                    fd('preferredMethod') === m
-                      ? 'border-[#2447d7] bg-[#ebf0ff] text-[#2447d7]'
-                      : 'border-[#e2e8f0] bg-white text-[#64748b] hover:bg-slate-50'
-                  } ${!isEditing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+                  className={`flex-1 py-1.5 rounded-lg text-[8px] font-bold border transition-all ${fd('preferredMethod') === m
+                    ? 'border-[#2447d7] bg-[#ebf0ff] text-[#2447d7]'
+                    : 'border-[#e2e8f0] bg-white text-[#64748b] hover:bg-slate-50'
+                    } ${!isEditing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
                 >{m}</button>
               ))}
             </div>
@@ -496,21 +502,23 @@ function DetailTab({ fd, setFd, isEditing, onDelete }: {
         </div>
       </section>
 
-      <div className="pt-4 border-t border-gray-100">
-        <button onClick={onDelete}
-          className="w-full py-2.5 border border-red-100 text-red-400 text-[8px] font-bold uppercase tracking-widest rounded-lg hover:border-red-300 hover:text-red-600 transition-all">
-          <i className="fa-solid fa-trash text-[7px] mr-1.5"></i>Delete Lead
-        </button>
-      </div>
+      {hasDeleteAccess && (
+        <div className="pt-4 border-t border-gray-100">
+          <button onClick={onDelete}
+            className="w-full py-2.5 border border-red-100 text-red-400 text-[8px] font-bold uppercase tracking-widest rounded-lg hover:border-red-300 hover:text-red-600 transition-all">
+            <i className="fa-solid fa-trash text-[7px] mr-1.5"></i>Delete Lead
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
 function TasksTab({ tasks }: { tasks: any[] }) {
   const typeColor = (t: string) => {
-    if (t?.includes('Call'))     return 'bg-blue-50 text-blue-700';
-    if (t?.includes('Meeting'))  return 'bg-purple-50 text-purple-700';
-    if (t?.includes('Email'))    return 'bg-green-50 text-green-700';
+    if (t?.includes('Call')) return 'bg-blue-50 text-blue-700';
+    if (t?.includes('Meeting')) return 'bg-purple-50 text-purple-700';
+    if (t?.includes('Email')) return 'bg-green-50 text-green-700';
     if (t?.includes('Document')) return 'bg-amber-50 text-amber-700';
     return 'bg-slate-50 text-slate-600';
   };
@@ -531,9 +539,8 @@ function TasksTab({ tasks }: { tasks: any[] }) {
           <div className="flex items-center gap-3 text-[8px] text-slate-400">
             <span><i className="fa-solid fa-calendar mr-1"></i>{t.date}</span>
             <span><i className="fa-solid fa-clock mr-1"></i>{t.time}</span>
-            <span className={`ml-auto px-2 py-0.5 rounded-full font-bold uppercase text-[7px] ${
-              t.priority === 'Hot' ? 'bg-red-50 text-red-600' : t.priority === 'Warm' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
-            }`}>{t.priority}</span>
+            <span className={`ml-auto px-2 py-0.5 rounded-full font-bold uppercase text-[7px] ${t.priority === 'Hot' ? 'bg-red-50 text-red-600' : t.priority === 'Warm' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+              }`}>{t.priority}</span>
           </div>
         </div>
       ))}

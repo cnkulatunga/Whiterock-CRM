@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { usePermissions } from '@/hooks/usePermissions';
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface Lead {
@@ -14,37 +15,37 @@ const STAGES = ['collecting', 'verified', 'lender', 'approved', 'rejected'] as c
 type Stage = typeof STAGES[number];
 
 const STAGE_META: Record<Stage, { label: string; icon: string; hdr: string; body: string; cnt: string }> = {
-    collecting: { label: 'Doc Collection',   icon: 'fa-file-arrow-up',      hdr: '#f1f5f9', body: '#f8fafc', cnt: '#475569' },
-    verified:   { label: 'Doc Verified',     icon: 'fa-file-circle-check',  hdr: '#eff6ff', body: '#f0f7ff', cnt: '#1d4ed8' },
-    lender:     { label: 'Lender Selection', icon: 'fa-building-columns',   hdr: '#f5f3ff', body: '#f6f4ff', cnt: '#6d28d9' },
-    approved:   { label: 'Loan Approved',    icon: 'fa-circle-check',       hdr: '#f0fdf4', body: '#f2fdf5', cnt: '#166534' },
-    rejected:   { label: 'Rejected',         icon: 'fa-circle-xmark',       hdr: '#fef2f2', body: '#fff5f5', cnt: '#b91c1c' },
+    collecting: { label: 'Doc Collection', icon: 'fa-file-arrow-up', hdr: '#f1f5f9', body: '#f8fafc', cnt: '#475569' },
+    verified: { label: 'Doc Verified', icon: 'fa-file-circle-check', hdr: '#eff6ff', body: '#f0f7ff', cnt: '#1d4ed8' },
+    lender: { label: 'Lender Selection', icon: 'fa-building-columns', hdr: '#f5f3ff', body: '#f6f4ff', cnt: '#6d28d9' },
+    approved: { label: 'Loan Approved', icon: 'fa-circle-check', hdr: '#f0fdf4', body: '#f2fdf5', cnt: '#166534' },
+    rejected: { label: 'Rejected', icon: 'fa-circle-xmark', hdr: '#fef2f2', body: '#fff5f5', cnt: '#b91c1c' },
 };
 
 const AGENTS = [
-    { name: 'Lakshan R',     role: 'Super Admin' },
-    { name: 'Sarah White',   role: 'Team Leader' },
-    { name: 'Michael Chen',  role: 'Team Leader' },
-    { name: 'Cody Lane',     role: 'Tele Agent'  },
-    { name: 'Emma Watson',   role: 'Tele Agent'  },
-    { name: 'Leo Kumar',     role: 'Accounts Manager' },
+    { name: 'Lakshan R', role: 'Super Admin' },
+    { name: 'Sarah White', role: 'Team Leader' },
+    { name: 'Michael Chen', role: 'Team Leader' },
+    { name: 'Cody Lane', role: 'Tele Agent' },
+    { name: 'Emma Watson', role: 'Tele Agent' },
+    { name: 'Leo Kumar', role: 'Accounts Manager' },
 ];
 
 const LENDER_LIST = ['Barclays', 'HSBC', 'NAB', 'Starling', 'Lloyds', 'NatWest', 'Santander'];
 
 const INITIAL_LEADS: Lead[] = [
-    { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics',    email: 'robert.m@miller-logistics.co.uk', amount: '£12,000',  agent: 'Sarah Jenkins', stage: 'collecting', priority: 'hot',  days: 2,  lender: '—',             notes: 'Waiting for bank statements' },
-    { id: 'AF-550', name: 'Priya Singh',   business: 'Singh Media',         email: 'contact@singhmedia.com',          amount: '£450,000', agent: 'James White',   stage: 'collecting', priority: 'warm', days: 1,  lender: '—',             notes: 'Large expansion loan request.' },
-    { id: 'AF-027', name: 'John Smith',    business: 'ABC Corp',            email: 'jsmith@abccorp.uk',               amount: '£55,000',  agent: 'Sarah Jenkins', stage: 'lender',     priority: 'hot',  days: 4,  lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.' },
-    { id: 'AL-339', name: 'Mike Johnson',  business: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk',        amount: '£85,000',  agent: 'James White',   stage: 'verified',   priority: 'cool', days: 5,  lender: '—',             notes: 'Bank statements audited and approved.' },
-    { id: 'AF-001', name: 'David Brown',   business: 'Miller Logistics',    email: 'd.brown@miller-logistics.co.uk',  amount: '£150,000', agent: 'Sarah Jenkins', stage: 'approved',   priority: 'hot',  days: 12, lender: 'Starling',       notes: 'Offer accepted, final checks in progress.' },
-    { id: 'AL-209', name: 'Kevin Malone',  business: 'Malone Paints',       email: 'kevin@malonepaints.com',          amount: '£25,000',  agent: 'James White',   stage: 'rejected',   priority: 'cool', days: 1,  lender: '—',             notes: 'Low credit score and high existing debt.' },
+    { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', amount: '£12,000', agent: 'Sarah Jenkins', stage: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements' },
+    { id: 'AF-550', name: 'Priya Singh', business: 'Singh Media', email: 'contact@singhmedia.com', amount: '£450,000', agent: 'James White', stage: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.' },
+    { id: 'AF-027', name: 'John Smith', business: 'ABC Corp', email: 'jsmith@abccorp.uk', amount: '£55,000', agent: 'Sarah Jenkins', stage: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.' },
+    { id: 'AL-339', name: 'Mike Johnson', business: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', amount: '£85,000', agent: 'James White', stage: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.' },
+    { id: 'AF-001', name: 'David Brown', business: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', amount: '£150,000', agent: 'Sarah Jenkins', stage: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.' },
+    { id: 'AL-209', name: 'Kevin Malone', business: 'Malone Paints', email: 'kevin@malonepaints.com', amount: '£25,000', agent: 'James White', stage: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.' },
 ];
 
 const PRIORITY_STYLE: Record<string, { bar: string; badge: string }> = {
-    hot:  { bar: '#ef4444', badge: 'bg-red-50 text-red-500'      },
-    warm: { bar: '#f59e0b', badge: 'bg-amber-50 text-amber-500'  },
-    cool: { bar: '#22c55e', badge: 'bg-green-50 text-green-600'  },
+    hot: { bar: '#ef4444', badge: 'bg-red-50 text-red-500' },
+    warm: { bar: '#f59e0b', badge: 'bg-amber-50 text-amber-500' },
+    cool: { bar: '#22c55e', badge: 'bg-green-50 text-green-600' },
 };
 
 /* ── Small helpers ──────────────────────────────────────────── */
@@ -99,39 +100,39 @@ function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
 ═══════════════════════════════════════════════════════════════ */
 export default function PipelinePage() {
     const [leads, setLeads] = useState<Lead[]>(INITIAL_LEADS);
-    const [search, setSearch]           = useState('');
+    const [search, setSearch] = useState('');
     const [agentFilter, setAgentFilter] = useState('');
-    const [prioFilter, setPrioFilter]   = useState('');
+    const [prioFilter, setPrioFilter] = useState('');
 
     /* drag */
     const dragId = useRef<string | null>(null);
 
     /* pending move */
-    const [pendingId,    setPendingId]    = useState<string | null>(null);
+    const [pendingId, setPendingId] = useState<string | null>(null);
     const [pendingStage, setPendingStage] = useState<Stage | null>(null);
 
     /* modals */
-    const [confirmOpen,     setConfirmOpen]     = useState(false);
-    const [updateOpen,      setUpdateOpen]       = useState(false);
-    const [docViewerOpen,   setDocViewerOpen]    = useState(false);
-    const [emailOpen,       setEmailOpen]        = useState(false);
-    const [reassignOpen,    setReassignOpen]     = useState(false);
-    const [deleteOpen,      setDeleteOpen]       = useState(false);
-    const [errorOpen,       setErrorOpen]        = useState(false);
-    const [addDrawerOpen,   setAddDrawerOpen]    = useState(false);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [updateOpen, setUpdateOpen] = useState(false);
+    const [docViewerOpen, setDocViewerOpen] = useState(false);
+    const [emailOpen, setEmailOpen] = useState(false);
+    const [reassignOpen, setReassignOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
+    const [errorOpen, setErrorOpen] = useState(false);
+    const [addDrawerOpen, setAddDrawerOpen] = useState(false);
 
-    const [errorMsg,        setErrorMsg]         = useState('');
-    const [showWorkflowViz, setShowWorkflowViz]  = useState(false);
-    const [viewingDoc,      setViewingDoc]       = useState<{ name: string; docType: 'pdf' | 'img' } | null>(null);
-    const [reassignQuery,   setReassignQuery]    = useState('');
-    const [deleteTargetId,  setDeleteTargetId]   = useState<string | null>(null);
+    const [errorMsg, setErrorMsg] = useState('');
+    const [showWorkflowViz, setShowWorkflowViz] = useState(false);
+    const [viewingDoc, setViewingDoc] = useState<{ name: string; docType: 'pdf' | 'img' } | null>(null);
+    const [reassignQuery, setReassignQuery] = useState('');
+    const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
     /* update form refs */
-    const auditNotesRef  = useRef<HTMLTextAreaElement>(null);
+    const auditNotesRef = useRef<HTMLTextAreaElement>(null);
     const lenderNotesRef = useRef<HTMLTextAreaElement>(null);
     const finalLenderRef = useRef<HTMLSelectElement>(null);
-    const rejNoteRef     = useRef<HTMLTextAreaElement>(null);
-    const genNoteRef     = useRef<HTMLTextAreaElement>(null);
+    const rejNoteRef = useRef<HTMLTextAreaElement>(null);
+    const genNoteRef = useRef<HTMLTextAreaElement>(null);
     const [selLenders, setSelLenders] = useState<string[]>([]);
     const [lenderDdOpen, setLenderDdOpen] = useState(false);
 
@@ -145,15 +146,9 @@ export default function PipelinePage() {
         setTimeout(() => setToast(null), 3000);
     };
 
-    /* permissions — read role from sessionStorage */
-    const [role, setRole] = useState<string>('Admin');
-    useEffect(() => {
-        try {
-            const s = JSON.parse(sessionStorage.getItem('crm_session') || 'null');
-            if (s?.role) setRole(s.role);
-        } catch { /* no session, default Admin for preview */ }
-    }, []);
-    const isAdmin = role === 'Admin' || role === 'Super Admin';
+    /* permissions */
+    const { userRole, hasAction, isLoading } = usePermissions();
+    const isSuper = userRole === 'Super Admin';
 
     /* ── Filter ─────────────────────────────────────────────── */
     const getFiltered = (stage: Stage) =>
@@ -173,7 +168,7 @@ export default function PipelinePage() {
         }, 0);
         const symbol = leads[0]?.amount.startsWith('£') ? '£' : '$';
         if (sum >= 1_000_000) return `${symbol}${(sum / 1_000_000).toFixed(1)}M`;
-        if (sum >= 1_000)     return `${symbol}${(sum / 1_000).toFixed(0)}K`;
+        if (sum >= 1_000) return `${symbol}${(sum / 1_000).toFixed(0)}K`;
         return `${symbol}${sum}`;
     };
 
@@ -200,9 +195,9 @@ export default function PipelinePage() {
         if (!l || l.stage === toStage) { dragId.current = null; return; }
 
         const fromIdx = STAGES.indexOf(l.stage as Stage);
-        const toIdx   = STAGES.indexOf(toStage);
-        const isNext  = toIdx === fromIdx + 1;
-        const isBack  = toIdx < fromIdx;
+        const toIdx = STAGES.indexOf(toStage);
+        const isNext = toIdx === fromIdx + 1;
+        const isBack = toIdx < fromIdx;
         const isReject = toStage === 'rejected';
         const isSkipOk = l.stage === 'collecting' && toStage === 'lender';
 
@@ -212,9 +207,16 @@ export default function PipelinePage() {
             return;
         }
 
-        /* Permission: non-admin cannot move to approved */
-        if (toStage === 'approved' && !isAdmin) {
-            showError('Only Admin or Team Leaders can approve loans.');
+        /* Permission: move stage */
+        if (!hasAction('pipeline', 'move_stages')) {
+            showError('You do not have permission to move leads across the pipeline.');
+            dragId.current = null;
+            return;
+        }
+
+        /* Permission: approved validation */
+        if (toStage === 'approved' && !['Super Admin', 'Admin', 'Team Leader'].includes(userRole || '')) {
+            showError('Only Management roles can approve loans.');
             dragId.current = null;
             return;
         }
@@ -361,12 +363,14 @@ export default function PipelinePage() {
                             <option value="warm">Warm</option>
                             <option value="cool">Cool</option>
                         </select>
-                        <button
-                            onClick={() => setAddDrawerOpen(true)}
-                            style={{ background: '#0f172a', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-                        >
-                            <i className="fa-solid fa-plus" style={{ fontSize: 10 }} /> Add Lead
-                        </button>
+                        {hasAction('leads', 'add') && (
+                            <button
+                                onClick={() => setAddDrawerOpen(true)}
+                                style={{ background: '#0f172a', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+                            >
+                                <i className="fa-solid fa-plus" style={{ fontSize: 10 }} /> Add Lead
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -398,7 +402,17 @@ export default function PipelinePage() {
                                     className="custom-scroll"
                                     style={{ flex: 1, background: m.body, borderRadius: '0 0 10px 10px', padding: 8, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 7, minHeight: 200, transition: 'background .15s, outline .15s', outlineOffset: -3 }}
                                 >
-                                    {cards.map(l => <LeadCard key={l.id} l={l} onReassign={openReassign} onDelete={openDelete} onDragStart={onDragStart} isAdmin={isAdmin} />)}
+                                    {cards.map(l => (
+                                        <LeadCard
+                                            key={l.id}
+                                            l={l}
+                                            onReassign={openReassign}
+                                            onDelete={openDelete}
+                                            onDragStart={onDragStart}
+                                            canDelete={hasAction('leads', 'delete')}
+                                            canAssign={hasAction('leads', 'assign')}
+                                        />
+                                    ))}
                                     {cards.length === 0 && (
                                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: .22, padding: '30px 0', border: '2px dashed #cbd5e1', borderRadius: 8 }}>
                                             <i className={`fa-solid ${m.icon}`} style={{ fontSize: 22, marginBottom: 6 }} />
@@ -479,7 +493,7 @@ export default function PipelinePage() {
                                     <Section title="Audit Required Documents" icon="fa-file-shield" color="#1d4ed8">
                                         {[
                                             { name: 'Bank Statement Jan.pdf', type: 'pdf' as const, icon: 'fa-file-pdf', iconColor: '#ef4444', bg: '#fef2f2', date: 'PDF • 14 Apr 2026' },
-                                            { name: 'ID Verification.jpg',    type: 'img' as const, icon: 'fa-image',    iconColor: '#3b82f6', bg: '#eff6ff', date: 'JPG • 14 Apr 2026' },
+                                            { name: 'ID Verification.jpg', type: 'img' as const, icon: 'fa-image', iconColor: '#3b82f6', bg: '#eff6ff', date: 'JPG • 14 Apr 2026' },
                                         ].map(doc => (
                                             <DocRow key={doc.name} doc={doc} onView={() => { setViewingDoc({ name: doc.name, docType: doc.type }); setDocViewerOpen(true); }} />
                                         ))}
@@ -516,7 +530,7 @@ export default function PipelinePage() {
                                                                     setSelLenders(prev => checked ? prev.filter(x => x !== ln) : [...prev, ln]);
                                                                 }}
                                                             >
-                                                                <input type="checkbox" checked={checked} onChange={() => {}} style={{ accentColor: '#6366f1', width: 14, height: 14, cursor: 'pointer' }} />
+                                                                <input type="checkbox" checked={checked} onChange={() => { }} style={{ accentColor: '#6366f1', width: 14, height: 14, cursor: 'pointer' }} />
                                                                 <label style={{ fontSize: 10, fontWeight: 700, color: checked ? '#6366f1' : '#475569', cursor: 'pointer', flex: 1 }}>{ln}</label>
                                                             </div>
                                                         );
@@ -648,7 +662,7 @@ export default function PipelinePage() {
                                 <div style={{ padding: '14px 20px', borderBottom: '1px solid #f1f5f9', background: '#f8fafc' }}>
                                     {[
                                         ['From', 'Whiterock Submission Team <deal-flow@whiterock.com>'],
-                                        ['To',   selLenders.length > 0 ? selLenders.join(', ') : '[Select lenders first]'],
+                                        ['To', selLenders.length > 0 ? selLenders.join(', ') : '[Select lenders first]'],
                                         ['Subject', `OFFER SUBMISSION: ${pendingLead.id} - ${pendingLead.business}`],
                                     ].map(([lbl, val]) => (
                                         <div key={lbl} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
@@ -857,12 +871,13 @@ function Stat({ label, value, color }: { label: string; value: string; color: st
     );
 }
 
-function LeadCard({ l, onReassign, onDelete, onDragStart, isAdmin }: {
+function LeadCard({ l, onReassign, onDelete, onDragStart, canDelete, canAssign }: {
     l: Lead;
     onReassign: (id: string) => void;
     onDelete: (id: string) => void;
     onDragStart: (id: string) => void;
-    isAdmin: boolean;
+    canDelete: boolean;
+    canAssign: boolean;
 }) {
     const ps = PRIORITY_STYLE[l.priority];
     const pLabel = l.priority.charAt(0).toUpperCase() + l.priority.slice(1);
@@ -914,11 +929,11 @@ function LeadCard({ l, onReassign, onDelete, onDragStart, isAdmin }: {
                     <span className={ps.badge} style={{ fontSize: 8, fontWeight: 800, padding: '2px 8px', borderRadius: 5, textTransform: 'uppercase', display: 'inline-block' }}>{pLabel}</span>
                 </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    {isAdmin && (
-                        <>
-                            <ActionBtn icon="fa-user-pen" title="Reassign" hoverColor="#6366f1" onClick={e => { e.stopPropagation(); onReassign(l.id); }} />
-                            <ActionBtn icon="fa-trash" title="Delete" hoverColor="#ef4444" onClick={e => { e.stopPropagation(); onDelete(l.id); }} />
-                        </>
+                    {canAssign && (
+                        <ActionBtn icon="fa-user-pen" title="Reassign" hoverColor="#6366f1" onClick={e => { e.stopPropagation(); onReassign(l.id); }} />
+                    )}
+                    {canDelete && (
+                        <ActionBtn icon="fa-trash" title="Delete" hoverColor="#ef4444" onClick={e => { e.stopPropagation(); onDelete(l.id); }} />
                     )}
                     <a
                         href={`/pipeline/${l.id}`}
@@ -956,7 +971,7 @@ function PipelineViz({ from, to }: { from: Stage; to: Stage }) {
             <div style={{ position: 'absolute', top: '50%', left: 42, right: 42, height: 2, background: '#e2e8f0', transform: 'translateY(-50%)', zIndex: 0 }} />
             {mainStages.map(s => {
                 const isFrom = s === from;
-                const isTo   = s === to;
+                const isTo = s === to;
                 return (
                     <div key={s} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, zIndex: 1 }}>
                         <div style={{
@@ -1000,10 +1015,10 @@ function DocRow({ doc, onView }: { doc: { name: string; icon: string; iconColor:
             <span style={{ fontSize: 8, fontWeight: 800, padding: '2px 8px', borderRadius: 99, background: '#f1f5f9', color: '#64748b', textTransform: 'uppercase', letterSpacing: '.04em' }}>PENDING</span>
             <div style={{ display: 'flex', gap: 4, paddingLeft: 8, borderLeft: '1px solid #f1f5f9' }}>
                 {[
-                    { ic: 'fa-eye',                  cl: '#94a3b8', action: onView },
-                    { ic: 'fa-arrow-up-from-bracket', cl: '#6366f1', action: () => {} },
-                    { ic: 'fa-xmark',                cl: '#ef4444', action: () => {} },
-                    { ic: 'fa-check',                cl: '#16a34a', action: () => {} },
+                    { ic: 'fa-eye', cl: '#94a3b8', action: onView },
+                    { ic: 'fa-arrow-up-from-bracket', cl: '#6366f1', action: () => { } },
+                    { ic: 'fa-xmark', cl: '#ef4444', action: () => { } },
+                    { ic: 'fa-check', cl: '#16a34a', action: () => { } },
                 ].map((b, i) => (
                     <button key={i} onClick={b.action} className="doc-btn" style={{ width: 26, height: 26, borderRadius: 6, background: '#f8fafc', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: b.cl, transition: 'transform .15s' }}>
                         <i className={`fa-solid ${b.ic}`} />

@@ -7,43 +7,35 @@ import Image from 'next/image';
 import ProfileDrawer from './ProfileDrawer';
 
 const navItems = [
-    { id: 'nav-dashboard', name: 'Dashboard', icon: 'fa-gauge-high', path: '/dashboard' },
-    { id: 'nav-tasks', name: 'Tasks', icon: 'fa-tasks', path: '/tasks' },
-    { id: 'nav-leads', name: 'Leads', icon: 'fa-user-group', path: '/leads' },
-    { id: 'nav-pipeline', name: 'Pipeline', icon: 'fa-diagram-project', path: '/pipeline' },
-    { id: 'nav-lenders', name: 'Lenders', icon: 'fa-hand-holding-dollar', path: '/lenders/add' },
-    { id: 'nav-users', name: 'Users', icon: 'fa-user-gear', path: '/users' },
-    { id: 'nav-permissions', name: 'Matrix', icon: 'fa-shield-halved', path: '/permissions' },
-    { id: 'nav-docs', name: 'Docs', icon: 'fa-folder-open', path: '/docs' },
-    { id: 'nav-reports', name: 'Reports', icon: 'fa-chart-line', path: '/reports' },
+    { id: 'nav-dashboard', name: 'Dashboard', icon: 'fa-gauge-high', path: '/dashboard', moduleKey: 'dashboard' },
+    { id: 'nav-tasks', name: 'Tasks', icon: 'fa-tasks', path: '/tasks', moduleKey: 'tasks' },
+    { id: 'nav-leads', name: 'Leads', icon: 'fa-user-group', path: '/leads', moduleKey: 'leads' },
+    { id: 'nav-pipeline', name: 'Pipeline', icon: 'fa-diagram-project', path: '/pipeline', moduleKey: 'pipeline' },
+    { id: 'nav-lenders', name: 'Lenders', icon: 'fa-hand-holding-dollar', path: '/lenders/add', moduleKey: 'lenders' },
+    { id: 'nav-users', name: 'Users', icon: 'fa-user-gear', path: '/users', moduleKey: 'users' },
+    { id: 'nav-permissions', name: 'Matrix', icon: 'fa-shield-halved', path: '/permissions', moduleKey: 'users', roleOnly: ['Super Admin', 'Admin'] },
+    { id: 'nav-docs', name: 'Docs', icon: 'fa-folder-open', path: '/docs', moduleKey: 'docs' },
+    { id: 'nav-reports', name: 'Reports', icon: 'fa-chart-line', path: '/reports', moduleKey: 'reports' },
 ];
 
-const ROLE_NAV: Record<string, string[]> = {
-    'Admin': ['nav-dashboard', 'nav-tasks', 'nav-leads', 'nav-pipeline', 'nav-lenders', 'nav-docs', 'nav-users', 'nav-permissions', 'nav-reports'],
-    'Team Leader': ['nav-dashboard', 'nav-tasks', 'nav-leads'],
-    'Tele Agent': ['nav-dashboard', 'nav-tasks', 'nav-leads'],
-    'Accounts Manager': ['nav-dashboard', 'nav-tasks', 'nav-leads', 'nav-lenders']
-};
+import { usePermissions } from '@/hooks/usePermissions';
 
 export default function Sidebar() {
     const pathname = usePathname();
     const [isProfileOpen, setIsProfileOpen] = useState(false);
-    const [userRole, setUserRole] = useState<string>('Admin');
+    const { userRole, hasModule, isLoading } = usePermissions();
     const [dashboardPath, setDashboardPath] = useState('/dashboard/super_admin');
 
     useEffect(() => {
         const session = JSON.parse(sessionStorage.getItem('crm_session') || 'null');
-        if (session) {
-            setUserRole(session.role || 'Admin');
-            if (session.landing) {
-                const parts = session.landing.split('/');
-                const page = parts[parts.length - 1].replace('.html', '');
-                setDashboardPath(`/dashboard/${page}`);
-            }
+        if (session && session.landing) {
+            const parts = session.landing.split('/');
+            const page = parts[parts.length - 1].replace('.html', '');
+            setDashboardPath(`/dashboard/${page}`);
         }
     }, []);
 
-    const allowedNav = ROLE_NAV[userRole] || ROLE_NAV['Admin'];
+    if (isLoading) return <div className="w-[70px] bg-[#0f172a] h-screen border-r border-[#1e293b]" />;
 
     return (
         <>
@@ -55,7 +47,11 @@ export default function Sidebar() {
                 </div>
 
                 {navItems.map((item) => {
-                    if (!allowedNav.includes(item.id)) return null;
+                    // 1. Check Module Access
+                    if (item.moduleKey !== 'dashboard' && !hasModule(item.moduleKey)) return null;
+
+                    // 2. Check Role Restrictions
+                    if (item.roleOnly && userRole && !item.roleOnly.includes(userRole)) return null;
 
                     const finalPath = item.id === 'nav-dashboard' ? dashboardPath : item.path;
                     const isActive = pathname === item.path || pathname.startsWith(item.path + '/') || (item.id === 'nav-dashboard' && pathname.includes('/dashboard/'));
