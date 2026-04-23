@@ -25,6 +25,7 @@ export default function Sidebar() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const { userRole, hasModule, isLoading } = usePermissions();
     const [dashboardPath, setDashboardPath] = useState('/dashboard/super_admin');
+    const [notifCount, setNotifCount] = useState(0);
 
     useEffect(() => {
         const session = JSON.parse(sessionStorage.getItem('crm_session') || 'null');
@@ -33,6 +34,12 @@ export default function Sidebar() {
             const page = parts[parts.length - 1].replace('.html', '');
             setDashboardPath(`/dashboard/${page}`);
         }
+
+        // Fetch notifications count
+        fetch('/api/notifications')
+            .then(res => res.json())
+            .then(data => setNotifCount(data.filter((n: any) => !n.read).length))
+            .catch(() => { });
     }, []);
 
     if (isLoading) return <div className="w-[70px] bg-[#0f172a] h-screen border-r border-[#1e293b]" />;
@@ -75,8 +82,11 @@ export default function Sidebar() {
                         onClick={() => setIsProfileOpen(true)}
                         className="flex flex-col items-center gap-1 text-[#94a3b8] transition-all cursor-pointer no-underline p-1.5 rounded-lg w-[54px] hover:text-white hover:bg-white/10 group"
                     >
-                        <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700 group-hover:border-slate-500">
+                        <div className="w-5 h-5 rounded-full bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-700 group-hover:border-slate-500 relative">
                             <i className="fa-solid fa-user text-[10px]"></i>
+                            {notifCount > 0 && (
+                                <span className="absolute top-0 right-0 w-1.5 h-1.5 bg-rose-500 rounded-full border border-[#0f172a]"></span>
+                            )}
                         </div>
                         <span className="text-[7px] font-bold uppercase tracking-wider text-center leading-none">Profile</span>
                     </div>

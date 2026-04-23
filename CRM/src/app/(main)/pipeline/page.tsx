@@ -99,7 +99,28 @@ function Toast({ msg, type }: { msg: string; type: 'success' | 'error' }) {
    Main Page
 ═══════════════════════════════════════════════════════════════ */
 export default function PipelinePage() {
-    const [leads, setLeads] = useState<Lead[]>(INITIAL_LEADS);
+    const { userRole, hasAction, isLoading: permsLoading } = usePermissions();
+    const [leads, setLeads] = useState<Lead[]>([]);
+    const [fetchLoading, setFetchLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('/api/pipeline')
+            .then(res => res.json())
+            .then(data => {
+                setLeads(data.length > 0 ? data : INITIAL_LEADS);
+                setFetchLoading(false);
+            });
+    }, []);
+
+    const moveLead = async (id: string, newStage: string) => {
+        setLeads(prev => prev.map(l => l.id === id ? { ...l, stage: newStage } : l));
+        await fetch('/api/pipeline', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, stage: newStage })
+        });
+    };
+
     const [search, setSearch] = useState('');
     const [agentFilter, setAgentFilter] = useState('');
     const [prioFilter, setPrioFilter] = useState('');
@@ -146,8 +167,6 @@ export default function PipelinePage() {
         setTimeout(() => setToast(null), 3000);
     };
 
-    /* permissions */
-    const { userRole, hasAction, isLoading } = usePermissions();
     const isSuper = userRole === 'Super Admin';
 
     /* ── Filter ─────────────────────────────────────────────── */
@@ -308,9 +327,8 @@ export default function PipelinePage() {
     const symb = leads[0]?.amount.startsWith('£') ? '£' : '$';
     const fmtVal = (v: number) => v >= 1_000_000 ? `${symb}${(v / 1_000_000).toFixed(1)}M` : v >= 1_000 ? `${symb}${(v / 1_000).toFixed(0)}K` : `${symb}${v}`;
 
-    /* ═══════════════════════════════════════════════════════════
-       RENDER
-    ═══════════════════════════════════════════════════════════ */
+    if (fetchLoading || permsLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
+
     return (
         <>
             <style>{`

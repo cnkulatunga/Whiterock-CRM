@@ -15,7 +15,17 @@ if (!globalDb) {
         })),
         permissionsMatrix: { ...DEFAULT_ROLE_PERMISSIONS },
         leads: [],
-        tasks: []
+        tasks: [
+            { id: 1, title: 'Follow up with James Wilson', status: 'Pending', priority: 'High', date: '2026-04-25' },
+            { id: 2, title: 'Check valuation report for LD-102', status: 'In Progress', priority: 'Medium', date: '2026-04-24' }
+        ],
+        notifications: [
+            { id: 1, text: 'New lead assigned to you', time: '5m ago', read: false },
+            { id: 2, text: 'Case AF-772 approved', time: '1h ago', read: true }
+        ],
+        audits: [
+            { id: 1, user: 'Sarah White', action: 'Modified Permission Matrix', time: '2026-04-23 10:15' }
+        ]
     };
     (global as any).crm_db = globalDb;
 }
@@ -40,7 +50,33 @@ export const db = {
         getMatrix: () => globalDb.permissionsMatrix,
         updateRole: (role: string, perms: any) => {
             globalDb.permissionsMatrix[role] = perms;
+            // Record audit
+            globalDb.audits.unshift({ id: Date.now(), user: 'System', action: `Updated role: ${role}`, time: new Date().toISOString() });
             return globalDb.permissionsMatrix[role];
+        }
+    },
+    leads: {
+        getAll: () => globalDb.leads,
+        create: (lead: any) => { globalDb.leads.unshift(lead); return lead; },
+        update: (id: string, updates: any) => {
+            const idx = globalDb.leads.findIndex((l: any) => l.id === id);
+            if (idx !== -1) globalDb.leads[idx] = { ...globalDb.leads[idx], ...updates };
+            return globalDb.leads[idx];
+        },
+        delete: (id: string) => { globalDb.leads = globalDb.leads.filter((l: any) => l.id !== id); }
+    },
+    tasks: {
+        getAll: () => globalDb.tasks,
+        create: (task: any) => { globalDb.tasks.push({ ...task, id: Date.now() }); },
+        update: (id: number, status: string) => {
+            const t = globalDb.tasks.find((task: any) => task.id === id);
+            if (t) t.status = status;
+        }
+    },
+    audits: {
+        getAll: () => globalDb.audits,
+        log: (user: string, action: string) => {
+            globalDb.audits.unshift({ id: Date.now(), user, action, time: new Date().toISOString() });
         }
     }
 };

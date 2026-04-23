@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import { usePermissions } from '@/hooks/usePermissions';
 
 interface Promotion { name: string; commission: string; offer: string; expiry: string; document: string; }
 interface Lender {
@@ -59,8 +60,19 @@ function Toast({ msg, onDone }: { msg: string; onDone: () => void }) {
 }
 
 export default function LenderManagementPage() {
-    const [lenders, setLenders] = useState<Lender[]>(INIT_LENDERS);
+    const { hasAction, isLoading: permsLoading } = usePermissions();
+    const [lenders, setLenders] = useState<Lender[]>([]);
+    const [fetchLoading, setFetchLoading] = useState(true);
     const [nextId, setNextId] = useState(13);
+
+    useEffect(() => {
+        fetch('/api/lenders')
+            .then(res => res.json())
+            .then(data => {
+                setLenders(data.length > 0 ? data : INIT_LENDERS);
+                setFetchLoading(false);
+            });
+    }, []);
 
     // table state
     const [search, setSearch] = useState('');
@@ -278,6 +290,8 @@ export default function LenderManagementPage() {
     });
 
     const saLeads = SEND_APP_LEADS.filter(l => !saLeadSearch || (l.name + l.company + l.id).toLowerCase().includes(saLeadSearch.toLowerCase()));
+
+    if (fetchLoading || permsLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
 
     return (
         <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#fff', fontFamily: "'Inter', system-ui, sans-serif" }}>
