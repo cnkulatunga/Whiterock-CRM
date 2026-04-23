@@ -2,12 +2,7 @@
 
 import { useState } from 'react';
 
-const DOC_REQUESTS = [
-    { id: 1, lead: 'James Smith', doc: 'Bank Statements', business: 'Alpha Tech Ltd', status: 'Pending', leadStatus: 'Hot', time: '2h ago' },
-    { id: 2, lead: 'Oliver Noah', doc: 'ID Proof', business: 'Bright Build Co', status: 'Rejected', leadStatus: 'Warm', time: '5h ago', reason: 'Blurry scan' },
-    { id: 3, lead: 'William Davis', doc: 'Payslips', business: 'Summit Retail', status: 'Pending', leadStatus: 'Cool', time: 'Yesterday' },
-    { id: 4, lead: 'Henry Wilson', doc: 'Utility Bill', business: 'Nova Finance', status: 'Pending', leadStatus: 'Hot', time: '2 days ago' },
-];
+import { docRequests as DOC_REQUESTS } from '@/data/dummy';
 
 export default function DocumentRequestsCard() {
     const [tab, setTab] = useState<'pending' | 'rejected'>('pending');
@@ -56,12 +51,12 @@ export default function DocumentRequestsCard() {
                                 <div className="text-[10px] font-black text-slate-900 leading-none">{d.lead}</div>
                                 <div className="text-[8px] font-bold text-slate-400 mt-1 uppercase tracking-tight">{d.doc}</div>
                             </div>
-                            <div className="text-[9px] font-bold text-slate-500 text-center truncate px-2">{d.business}</div>
+                            <div className="text-[9px] font-bold text-slate-500 text-center truncate px-2">{d.company}</div>
                             <div className="flex justify-center">
-                                <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase ${d.leadStatus === 'Hot' ? 'bg-rose-50 text-rose-600' :
-                                        d.leadStatus === 'Warm' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+                                <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase ${d.quality?.toLowerCase() === 'hot' ? 'bg-rose-50 text-rose-600' :
+                                    d.quality?.toLowerCase() === 'warm' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
                                     }`}>
-                                    {d.leadStatus}
+                                    {d.quality}
                                 </span>
                             </div>
                             <div className="flex flex-col items-center">

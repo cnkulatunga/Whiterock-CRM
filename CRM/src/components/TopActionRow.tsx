@@ -1,35 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { notifications } from '@/data/dummy';
+import { vaultDocs as DOCS, fileIcons as FILE_ICONS, catColors as CAT_COLORS, notifications, Notification } from '@/data/dummy';
 
 type Doc = { id: number; title: string; category: string; fileType: string; fileSize: string; version: string; uploaded: string; desc: string };
-
-const DOCS: Doc[] = [
-    { id: 1, title: 'Home Loan Product Guide 2026', category: 'Products', fileType: 'pdf', fileSize: '3.4 MB', version: 'v2.1', uploaded: '2026-04-10', desc: 'Comprehensive guide covering all home loan products, rates, and eligibility criteria.' },
-    { id: 2, title: 'AML & KYC Compliance Policy', category: 'Policies', fileType: 'pdf', fileSize: '1.2 MB', version: 'v4.0', uploaded: '2026-04-08', desc: 'Updated AML and KYC policy aligned with AUSTRAC 2026 guidelines.' },
-    { id: 3, title: 'Broker Onboarding FAQ', category: 'FAQs', fileType: 'docx', fileSize: '420 KB', version: 'v1.3', uploaded: '2026-04-12', desc: 'Frequently asked questions for new brokers joining the panel.' },
-    { id: 4, title: 'Cold Call Script - Refinance', category: 'Scripts', fileType: 'docx', fileSize: '190 KB', version: 'v1.0', uploaded: '2026-04-14', desc: 'Structured outbound call script for refinance lead conversations.' },
-    { id: 5, title: 'Lender Panel Overview Guide', category: 'Guides', fileType: 'pdf', fileSize: '5.1 MB', version: 'v3.2', uploaded: '2026-04-05', desc: 'Full overview of all lenders including products, BDMs, and turnaround times.' },
-    { id: 6, title: 'CRM Usage Knowledge Base', category: 'Knowledge Base', fileType: 'pdf', fileSize: '2.8 MB', version: 'v1.1', uploaded: '2026-04-15', desc: 'Internal knowledge base for using the CRM platform.' },
-    { id: 7, title: 'Commercial Loan Product Sheet', category: 'Products', fileType: 'xlsx', fileSize: '680 KB', version: 'v1.0', uploaded: '2026-04-13', desc: 'Rate and product comparison sheet for commercial lending solutions.' },
-    { id: 8, title: 'Privacy Policy 2026', category: 'Policies', fileType: 'pdf', fileSize: '890 KB', version: 'v2.9', uploaded: '2026-03-01', desc: 'Client privacy and data handling policy.' },
-    { id: 9, title: 'Settlement Checklist Guide', category: 'Guides', fileType: 'docx', fileSize: '310 KB', version: 'v2.0', uploaded: '2026-04-07', desc: 'Step-by-step settlement checklist for brokers to share with clients.' },
-    { id: 10, title: 'Objection Handling Scripts', category: 'Scripts', fileType: 'docx', fileSize: '240 KB', version: 'v1.2', uploaded: '2026-04-11', desc: 'Common objection handling scripts for tele agents.' },
-];
-
-const FILE_ICONS: Record<string, { icon: string; bg: string; color: string }> = {
-    pdf:  { icon: 'fa-solid fa-file-pdf',       bg: '#fee2e2', color: '#dc2626' },
-    docx: { icon: 'fa-solid fa-file-word',       bg: '#dbeafe', color: '#1d4ed8' },
-    xlsx: { icon: 'fa-solid fa-file-excel',      bg: '#d1fae5', color: '#059669' },
-    png:  { icon: 'fa-solid fa-file-image',      bg: '#f3e8ff', color: '#7e22ce' },
-    pptx: { icon: 'fa-solid fa-file-powerpoint', bg: '#fff7ed', color: '#c2410c' },
-};
-
-const CAT_COLORS: Record<string, string> = {
-    'Knowledge Base': '#1d4ed8', 'Guides': '#7e22ce', 'FAQs': '#b45309',
-    'Products': '#065f46', 'Policies': '#b91c1c', 'Scripts': '#334155',
-};
 
 interface TopActionRowProps {
     designMode?: boolean;
@@ -42,7 +16,7 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
     const [showDocs, setShowDocs] = useState(false);
     const [selectedDoc, setSelectedDoc] = useState<Doc | null>(null);
     const [docView, setDocView] = useState<'list' | 'detail'>('list');
-    const [notifList, setNotifList] = useState(notifications);
+    const [notifList, setNotifList] = useState<Notification[]>(notifications);
     const [calcInputs, setCalcInputs] = useState({ amount: 75000, term: 18, annual: '30', monthly: '', flat: '', factor: '', feePercent: '2', feeFixed: '' });
     const [calcResult, setCalcResult] = useState({ monthly: 0, principal: 0, fee: 0, interest: 0, total: 0, daily: 0, yieldRate: 0, factor: 0, flatRate: 0 });
     const [docSearch, setDocSearch] = useState('');
@@ -90,10 +64,10 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
     };
 
     const formatDate = (dateStr: string) => {
-        return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', { 
-            day: '2-digit', 
-            month: 'short', 
-            year: '2-digit' 
+        return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: 'short',
+            year: '2-digit'
         });
     };
 
@@ -180,22 +154,22 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
                         <div className="flex-1 overflow-y-auto custom-scrollbar p-5 bg-slate-50/30">
                             <div className="w-full bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
                                 <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Loan Amount (£)</label><input type="number" value={calcInputs.amount} onChange={e => setCalcInputs({...calcInputs, amount: Number(e.target.value)})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
-                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Term (Months)</label><input type="number" value={calcInputs.term} onChange={e => setCalcInputs({...calcInputs, term: Number(e.target.value)})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
+                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Loan Amount (£)</label><input type="number" value={calcInputs.amount} onChange={e => setCalcInputs({ ...calcInputs, amount: Number(e.target.value) })} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
+                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Term (Months)</label><input type="number" value={calcInputs.term} onChange={e => setCalcInputs({ ...calcInputs, term: Number(e.target.value) })} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
                                     <div className="col-span-2 text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] pt-2 pb-0.5 border-t border-slate-100">Interest Rate Inputs</div>
-                                    {(['Annual (%)|annual','Monthly (%)|monthly','Flat (%)|flat','Factor (Dec)|factor'] as string[]).map(s => { const [label, key] = s.split('|'); return (<div key={key} className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</label><input type="number" step="0.01" value={(calcInputs as any)[key]} onChange={e => setCalcInputs({...calcInputs, [key]: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>); })}
+                                    {(['Annual (%)|annual', 'Monthly (%)|monthly', 'Flat (%)|flat', 'Factor (Dec)|factor'] as string[]).map(s => { const [label, key] = s.split('|'); return (<div key={key} className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</label><input type="number" step="0.01" value={(calcInputs as any)[key]} onChange={e => setCalcInputs({ ...calcInputs, [key]: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>); })}
                                     <div className="col-span-2 text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] pt-2 pb-0.5 border-t border-slate-100">Arrangement Fees</div>
-                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Percentage (%)</label><input type="number" step="0.1" value={calcInputs.feePercent} onChange={e => setCalcInputs({...calcInputs, feePercent: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
-                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fixed Amount (£)</label><input type="number" step="1" value={calcInputs.feeFixed} onChange={e => setCalcInputs({...calcInputs, feeFixed: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
+                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Percentage (%)</label><input type="number" step="0.1" value={calcInputs.feePercent} onChange={e => setCalcInputs({ ...calcInputs, feePercent: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
+                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fixed Amount (£)</label><input type="number" step="1" value={calcInputs.feeFixed} onChange={e => setCalcInputs({ ...calcInputs, feeFixed: e.target.value })} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
                                 </div>
                                 <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
                                     <div className="text-center mb-4"><span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Estimated Monthly Payment</span><span className="block text-2xl font-black text-emerald-600 mt-1">{fmt(calcResult.monthly)}</span></div>
                                     <div className="space-y-2">
-                                        {[['Loan Principal', fmt(calcResult.principal)],['Arrangement Fees', fmt(calcResult.fee)],['Total Interest', fmt(calcResult.interest)]].map(([l,v]) => (<div key={l} className="flex justify-between items-center text-[10px] font-bold border-b border-dotted border-slate-200 pb-1.5"><span className="text-slate-400 uppercase tracking-tight">{l}</span><span className="text-slate-900">{v}</span></div>))}
+                                        {[['Loan Principal', fmt(calcResult.principal)], ['Arrangement Fees', fmt(calcResult.fee)], ['Total Interest', fmt(calcResult.interest)]].map(([l, v]) => (<div key={l} className="flex justify-between items-center text-[10px] font-bold border-b border-dotted border-slate-200 pb-1.5"><span className="text-slate-400 uppercase tracking-tight">{l}</span><span className="text-slate-900">{v}</span></div>))}
                                         <div className="flex justify-between items-center text-[11px] font-black bg-indigo-50 text-indigo-700 p-2 rounded-lg"><span className="uppercase tracking-widest">Total Payable</span><span>{fmt(calcResult.total)}</span></div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 pt-4 border-t border-slate-200">
-                                        {[['Daily:', fmt(calcResult.daily)],['Yield:', fmtPct(calcResult.yieldRate)],['Factor:', calcResult.factor.toFixed(4)],['Flat:', fmtPct(calcResult.flatRate)]].map(([l,v]) => (<div key={l} className="flex justify-between items-center text-[9px] font-bold"><span className="text-slate-400 uppercase">{l}</span><span className="text-slate-900">{v}</span></div>))}
+                                        {[['Daily:', fmt(calcResult.daily)], ['Yield:', fmtPct(calcResult.yieldRate)], ['Factor:', calcResult.factor.toFixed(4)], ['Flat:', fmtPct(calcResult.flatRate)]].map(([l, v]) => (<div key={l} className="flex justify-between items-center text-[9px] font-bold"><span className="text-slate-400 uppercase">{l}</span><span className="text-slate-900">{v}</span></div>))}
                                     </div>
                                 </div>
                             </div>
@@ -214,7 +188,7 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
                         <div className="px-5 py-3.5 flex items-center justify-between shrink-0" style={{ background: docView === 'detail' && selectedDoc ? (CAT_COLORS[selectedDoc.category] || '#0f172a') : '#0f172a' }}>
                             <div className="flex items-center gap-2.5">
                                 {docView === 'detail' && (
-                                    <button 
+                                    <button
                                         onClick={handleBackToList}
                                         className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center text-white hover:bg-white/25 transition-all mr-1"
                                     >
@@ -233,7 +207,7 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
                                         {docView === 'detail' && selectedDoc ? selectedDoc.title : 'Document Vault'}
                                     </div>
                                     <div className="text-[8px] text-slate-300 mt-0.5">
-                                        {docView === 'detail' && selectedDoc 
+                                        {docView === 'detail' && selectedDoc
                                             ? `${selectedDoc.category} • ${selectedDoc.fileType.toUpperCase()}`
                                             : `${filteredDocs.length} document${filteredDocs.length !== 1 ? 's' : ''}`
                                         }
@@ -242,7 +216,7 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
                             </div>
                             <div className="flex items-center gap-2">
                                 {docView === 'detail' && selectedDoc && (
-                                    <button 
+                                    <button
                                         onClick={() => console.log('Downloading:', selectedDoc.title)}
                                         className="w-7 h-7 rounded-lg bg-white/15 flex items-center justify-center text-white hover:bg-white/25 transition-all"
                                         title="Download"
@@ -265,7 +239,7 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
                                 </div>
                                 <select value={docCat} onChange={e => setDocCat(e.target.value)} className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[9px] font-bold text-slate-600 outline-none cursor-pointer">
                                     <option value="">All Categories</option>
-                                    {['Knowledge Base','Guides','FAQs','Products','Policies','Scripts'].map(c => <option key={c}>{c}</option>)}
+                                    {['Knowledge Base', 'Guides', 'FAQs', 'Products', 'Policies', 'Scripts'].map(c => <option key={c}>{c}</option>)}
                                 </select>
                             </div>
                         )}
@@ -284,8 +258,8 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
                                     const cc = CAT_COLORS[d.category] || '#475569';
                                     const date = formatDate(d.uploaded);
                                     return (
-                                        <div 
-                                            key={d.id} 
+                                        <div
+                                            key={d.id}
                                             className="flex items-start gap-3 px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-all cursor-pointer"
                                             onClick={() => handleDocumentClick(d)}
                                         >
@@ -392,19 +366,19 @@ export default function TopActionRow({ designMode = false, onToggleDesignMode }:
 
                                         {/* Actions */}
                                         <div className="p-4 border-t border-slate-100 bg-slate-50 flex gap-2 shrink-0">
-                                            <button 
+                                            <button
                                                 onClick={() => console.log('Sharing:', selectedDoc.title)}
                                                 className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-100 border border-slate-200 rounded-lg text-[8px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-200 transition-all"
                                             >
                                                 <i className="fa-solid fa-share-nodes text-indigo-600"></i> Share
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => console.log('Printing:', selectedDoc.title)}
                                                 className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-100 border border-slate-200 rounded-lg text-[8px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-200 transition-all"
                                             >
                                                 <i className="fa-solid fa-print text-sky-500"></i> Print
                                             </button>
-                                            <button 
+                                            <button
                                                 onClick={() => console.log('Downloading:', selectedDoc.title)}
                                                 className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-900 rounded-lg text-[8px] font-black text-white uppercase tracking-widest hover:bg-black transition-all"
                                             >

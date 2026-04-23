@@ -2,16 +2,15 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
 export async function GET() {
-    // Pipeline usually shows Leads but in a Board view
     return NextResponse.json(db.leads.getAll());
 }
 
-export async function POST(request: Request) {
-    const { id, stage } = await request.json();
-    db.leads.update(id, { stage });
+export async function PATCH(request: Request) {
+    const { id, status } = await request.json();
+    db.leads.update(id, { status });
 
     // Log the move
-    db.audits.log('System', `Moved lead ${id} to ${stage}`);
+    db.audits.log('System', `Moved lead ${id} to ${status}`);
 
     return NextResponse.json({ success: true });
 }

@@ -1,18 +1,20 @@
 import { NextResponse } from 'next/server';
-
-// Simplified INIT_LENDERS
-const lenders = [
-    { id: 1, name: 'ANZ Bank', type: 'Bank', status: 'Active', categories: ['Secured', 'Commercial'], added: '2026-01-10', promotions: [] },
-    { id: 2, name: 'CommBank', type: 'Bank', status: 'Active', categories: ['Secured', 'Commercial'], added: '2026-01-10', promotions: [] },
-];
+import { db } from '@/lib/db';
 
 export async function GET() {
-    return NextResponse.json(lenders);
+    return NextResponse.json(db.lenders.getAll());
 }
 
 export async function POST(request: Request) {
-    const data = await request.json();
-    const newLender = { ...data, id: lenders.length + 1, added: new Date().toISOString().split('T')[0] };
-    lenders.push(newLender);
-    return NextResponse.json(newLender);
+    try {
+        const data = await request.json();
+        const newLender = db.lenders.create({
+            ...data,
+            id: Math.floor(Math.random() * 10000),
+            added: new Date().toISOString().split('T')[0]
+        });
+        return NextResponse.json(newLender);
+    } catch (error) {
+        return NextResponse.json({ error: 'Failed' }, { status: 500 });
+    }
 }

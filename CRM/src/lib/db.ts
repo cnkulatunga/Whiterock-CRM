@@ -3,6 +3,7 @@
 
 import { INITIAL_USERS } from '@/data/users';
 import { DEFAULT_ROLE_PERMISSIONS } from '@/data/permissions';
+import { INITIAL_LEADS, INITIAL_LENDERS, INITIAL_TASKS, INITIAL_NOTIFICATIONS, INITIAL_LICENSES, INITIAL_NOTES, INITIAL_PAYOUTS } from '@/data/dummy';
 
 // Using global to persist across hot-reloads in development
 let globalDb: any = (global as any).crm_db;
@@ -14,15 +15,13 @@ if (!globalDb) {
             permissions: user.permissions || DEFAULT_ROLE_PERMISSIONS[user.role as keyof typeof DEFAULT_ROLE_PERMISSIONS] || DEFAULT_ROLE_PERMISSIONS['Tele Agent']
         })),
         permissionsMatrix: { ...DEFAULT_ROLE_PERMISSIONS },
-        leads: [],
-        tasks: [
-            { id: 1, title: 'Follow up with James Wilson', status: 'Pending', priority: 'High', date: '2026-04-25' },
-            { id: 2, title: 'Check valuation report for LD-102', status: 'In Progress', priority: 'Medium', date: '2026-04-24' }
-        ],
-        notifications: [
-            { id: 1, text: 'New lead assigned to you', time: '5m ago', read: false },
-            { id: 2, text: 'Case AF-772 approved', time: '1h ago', read: true }
-        ],
+        leads: [...INITIAL_LEADS],
+        lenders: [...INITIAL_LENDERS],
+        tasks: [...INITIAL_TASKS],
+        notifications: [...INITIAL_NOTIFICATIONS],
+        licenses: [...INITIAL_LICENSES],
+        notes: [...INITIAL_NOTES],
+        payouts: [...INITIAL_PAYOUTS],
         audits: [
             { id: 1, user: 'Sarah White', action: 'Modified Permission Matrix', time: '2026-04-23 10:15' }
         ]
@@ -50,6 +49,10 @@ export const db = {
             if (idx !== -1) globalDb.users[idx] = { ...globalDb.users[idx], ...data };
             return globalDb.users[idx];
         }
+    },
+    lenders: {
+        getAll: () => globalDb.lenders,
+        create: (lender: any) => { globalDb.lenders.push(lender); return lender; }
     },
     permissions: {
         getMatrix: () => globalDb.permissionsMatrix,
@@ -83,5 +86,18 @@ export const db = {
         log: (user: string, action: string) => {
             globalDb.audits.unshift({ id: Date.now(), user, action, time: new Date().toISOString() });
         }
+    },
+    notifications: {
+        getAll: () => globalDb.notifications,
+        getById: (id: number) => globalDb.notifications.find((n: any) => n.id === id),
+    },
+    licenses: {
+        getAll: () => globalDb.licenses,
+    },
+    notes: {
+        getAll: () => globalDb.notes,
+    },
+    payouts: {
+        getAll: () => globalDb.payouts,
     }
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { financeLenders, financeDocs } from '@/data/dummy';
 
 export default function FinanceCentreCard() {
     const [tab, setTab] = useState<'lenders' | 'docs' | 'summary'>('lenders');
@@ -28,12 +29,7 @@ export default function FinanceCentreCard() {
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
                 {tab === 'lenders' && (
                     <div className="space-y-2">
-                        {[
-                            { name: 'Lloyds Bank', status: 'Submitted', color: 'blue' },
-                            { name: 'Barclays', status: 'Approved', color: 'emerald' },
-                            { name: 'NatWest', status: 'In Review', color: 'amber' },
-                            { name: 'HSBC', status: 'Pending', color: 'slate' },
-                        ].map((l) => (
+                        {financeLenders.map((l) => (
                             <div key={l.name} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
                                 <div className="flex items-center gap-3">
                                     <div className={`w-2 h-2 rounded-full bg-${l.color}-500`}></div>
@@ -47,12 +43,7 @@ export default function FinanceCentreCard() {
 
                 {tab === 'docs' && (
                     <div className="space-y-2">
-                        {[
-                            { name: 'Bank Statements', status: 'Verified', color: 'emerald', icon: 'fa-check' },
-                            { name: 'ID Documents', status: 'Verified', color: 'emerald', icon: 'fa-check' },
-                            { name: 'Financial Accounts', status: 'Pending', color: 'amber', icon: 'fa-clock' },
-                            { name: 'Tax Returns', status: 'Missing', color: 'rose', icon: 'fa-xmark' },
-                        ].map((d) => (
+                        {financeDocs.map((d) => (
                             <div key={d.name} className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-slate-100">
                                 <div className="flex items-center gap-3">
                                     <div className={`w-6 h-6 rounded-lg bg-${d.color}-50 flex items-center justify-center text-${d.color}-600`}>

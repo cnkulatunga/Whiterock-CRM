@@ -1,12 +1,6 @@
 'use client';
 
-const ACTIVITIES = [
-    { id: 1, user: 'James Smith', action: 'Uploaded Bank Statements', time: '10 mins ago', icon: 'fa-file-arrow-up', color: 'indigo' },
-    { id: 2, user: 'NatWest', action: 'Approved Application #AF-022', time: '45 mins ago', icon: 'fa-circle-check', color: 'emerald' },
-    { id: 3, user: 'System', action: 'Sent Automated Follow-up to Oliver', time: '2h ago', icon: 'fa-paper-plane', color: 'blue' },
-    { id: 4, user: 'Priya', action: 'Rejected Document for #AF-045', time: '3h ago', icon: 'fa-circle-xmark', color: 'rose' },
-    { id: 5, user: 'Lloyds Bank', action: 'Requested Further Info', time: '5h ago', icon: 'fa-circle-info', color: 'amber' },
-];
+import { ACTIVITIES } from '@/data/dummy';
 
 export default function RecentActivityCard() {
     return (

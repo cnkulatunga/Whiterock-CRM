@@ -3,14 +3,7 @@
 import { useState } from 'react';
 import { leads } from '@/data/dummy';
 
-const STAGES = [
-    { label: 'Created', count: 12, color: 'slate', key: 'Create Lead' },
-    { label: 'Pending Docs', count: 8, color: 'amber', key: 'Pending Documents' },
-    { label: 'Doc Verify', count: 5, color: 'blue', key: 'Document Verification' },
-    { label: 'Lender', count: 4, color: 'indigo', key: 'Lender Selection' },
-    { label: 'Approved', count: 9, color: 'emerald', key: 'Approved' },
-    { label: 'Rejected', count: 4, color: 'rose', key: 'Reject' },
-];
+import { pipelineStages as STAGES } from '@/data/dummy';
 
 export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: string }) {
     const [page, setPage] = useState(1);

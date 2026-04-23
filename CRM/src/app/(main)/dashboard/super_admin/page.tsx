@@ -13,6 +13,7 @@ import CalendarCard from "@/components/CalendarCard";
 import DetailDrawer from "@/components/DetailDrawer";
 
 import { usePermissions } from "@/hooks/usePermissions";
+import { aiOptions } from "@/data/dummy";
 
 export default function SuperAdminDashboard() {
     const { canSeeCard, hasFeature, isLoading } = usePermissions();
@@ -29,13 +30,6 @@ export default function SuperAdminDashboard() {
     };
 
     if (isLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
-
-    const aiOptions = [
-        { icon: 'fa-chart-line', bg: 'bg-indigo-50', color: 'text-indigo-600', title: 'Pipeline Analysis', desc: 'AI insights on your loan pipeline' },
-        { icon: 'fa-users', bg: 'bg-emerald-50', color: 'text-emerald-600', title: 'Lead Scoring', desc: 'Auto-score and prioritise leads' },
-        { icon: 'fa-file-invoice', bg: 'bg-amber-50', color: 'text-amber-600', title: 'Report Generator', desc: 'Generate performance reports' },
-        { icon: 'fa-robot', bg: 'bg-rose-50', color: 'text-rose-600', title: 'AI Assistant', desc: 'Ask anything about your CRM' },
-    ];
 
     return (
         <div className="flex flex-col flex-1 h-full overflow-hidden">

@@ -5,42 +5,13 @@ import { usePermissions } from '@/hooks/usePermissions';
 
 /* ── Types ─────────────────────────────────────────────────── */
 interface Lead {
-    id: string; name: string; business: string; email: string;
-    amount: string; agent: string; stage: string;
+    id: string; name: string; company: string; email: string;
+    amount: string; agent: string; status: string;
     priority: 'hot' | 'warm' | 'cool'; days: number; lender: string; notes: string;
 }
 
 /* ── Constants ──────────────────────────────────────────────── */
-const STAGES = ['collecting', 'verified', 'lender', 'approved', 'rejected'] as const;
-type Stage = typeof STAGES[number];
-
-const STAGE_META: Record<Stage, { label: string; icon: string; hdr: string; body: string; cnt: string }> = {
-    collecting: { label: 'Doc Collection', icon: 'fa-file-arrow-up', hdr: '#f1f5f9', body: '#f8fafc', cnt: '#475569' },
-    verified: { label: 'Doc Verified', icon: 'fa-file-circle-check', hdr: '#eff6ff', body: '#f0f7ff', cnt: '#1d4ed8' },
-    lender: { label: 'Lender Selection', icon: 'fa-building-columns', hdr: '#f5f3ff', body: '#f6f4ff', cnt: '#6d28d9' },
-    approved: { label: 'Loan Approved', icon: 'fa-circle-check', hdr: '#f0fdf4', body: '#f2fdf5', cnt: '#166534' },
-    rejected: { label: 'Rejected', icon: 'fa-circle-xmark', hdr: '#fef2f2', body: '#fff5f5', cnt: '#b91c1c' },
-};
-
-const AGENTS = [
-    { name: 'Lakshan R', role: 'Super Admin' },
-    { name: 'Sarah White', role: 'Team Leader' },
-    { name: 'Michael Chen', role: 'Team Leader' },
-    { name: 'Cody Lane', role: 'Tele Agent' },
-    { name: 'Emma Watson', role: 'Tele Agent' },
-    { name: 'Leo Kumar', role: 'Accounts Manager' },
-];
-
-const LENDER_LIST = ['Barclays', 'HSBC', 'NAB', 'Starling', 'Lloyds', 'NatWest', 'Santander'];
-
-const INITIAL_LEADS: Lead[] = [
-    { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', amount: '£12,000', agent: 'Sarah Jenkins', stage: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements' },
-    { id: 'AF-550', name: 'Priya Singh', business: 'Singh Media', email: 'contact@singhmedia.com', amount: '£450,000', agent: 'James White', stage: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.' },
-    { id: 'AF-027', name: 'John Smith', business: 'ABC Corp', email: 'jsmith@abccorp.uk', amount: '£55,000', agent: 'Sarah Jenkins', stage: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.' },
-    { id: 'AL-339', name: 'Mike Johnson', business: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', amount: '£85,000', agent: 'James White', stage: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.' },
-    { id: 'AF-001', name: 'David Brown', business: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', amount: '£150,000', agent: 'Sarah Jenkins', stage: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.' },
-    { id: 'AL-209', name: 'Kevin Malone', business: 'Malone Paints', email: 'kevin@malonepaints.com', amount: '£25,000', agent: 'James White', stage: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.' },
-];
+import { INITIAL_LEADS, AGENTS, STAGES, Stage, STAGE_META, LENDER_LIST } from '@/data/dummy';
 
 const PRIORITY_STYLE: Record<string, { bar: string; badge: string }> = {
     hot: { bar: '#ef4444', badge: 'bg-red-50 text-red-500' },
@@ -112,13 +83,24 @@ export default function PipelinePage() {
             });
     }, []);
 
-    const moveLead = async (id: string, newStage: string) => {
-        setLeads(prev => prev.map(l => l.id === id ? { ...l, stage: newStage } : l));
-        await fetch('/api/pipeline', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, stage: newStage })
-        });
+    const finalizeMove = async () => {
+        if (!pendingId || !pendingStage) return;
+        try {
+            const res = await fetch('/api/pipeline', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: pendingId, status: pendingStage }),
+            });
+            if (!res.ok) throw new Error('Update failed');
+
+            setLeads(leads.map(l => l.id === pendingId ? { ...l, status: pendingStage } : l));
+            showToast(`Lead moved to ${STAGE_META[pendingStage].label}`);
+            setConfirmOpen(false);
+            setPendingId(null);
+            setPendingStage(null);
+        } catch (err) {
+            showToast('Failed to move lead', 'error');
+        }
     };
 
     const [search, setSearch] = useState('');
@@ -172,7 +154,7 @@ export default function PipelinePage() {
     /* ── Filter ─────────────────────────────────────────────── */
     const getFiltered = (stage: Stage) =>
         leads.filter(l =>
-            l.stage === stage &&
+            l.status === stage &&
             (!search || l.name.toLowerCase().includes(search.toLowerCase()) || l.id.toLowerCase().includes(search.toLowerCase())) &&
             (!agentFilter || l.agent === agentFilter) &&
             (!prioFilter || l.priority === prioFilter)
@@ -192,7 +174,9 @@ export default function PipelinePage() {
     };
 
     /* ── Drag & Drop ────────────────────────────────────────── */
-    const onDragStart = (id: string) => { dragId.current = id; };
+    const onDragStart = (e: React.DragEvent, id: string) => {
+        dragId.current = id;
+    };
 
     const onDragOver = (e: React.DragEvent) => {
         e.preventDefault();
@@ -205,23 +189,24 @@ export default function PipelinePage() {
         (e.currentTarget as HTMLElement).style.outline = '';
     };
 
-    const onDrop = (e: React.DragEvent, toStage: Stage) => {
+    const onDrop = (e: React.DragEvent, targetStage: Stage) => {
         e.preventDefault();
         (e.currentTarget as HTMLElement).style.background = '';
         (e.currentTarget as HTMLElement).style.outline = '';
-        if (!dragId.current) return;
-        const l = leads.find(x => x.id === dragId.current);
-        if (!l || l.stage === toStage) { dragId.current = null; return; }
+        const id = dragId.current;
+        if (!id) return;
+        const l = leads.find(x => x.id === id);
+        if (!l || l.status === targetStage) { dragId.current = null; return; }
 
-        const fromIdx = STAGES.indexOf(l.stage as Stage);
-        const toIdx = STAGES.indexOf(toStage);
+        const fromIdx = STAGES.indexOf(l.status as Stage);
+        const toIdx = STAGES.indexOf(targetStage);
         const isNext = toIdx === fromIdx + 1;
         const isBack = toIdx < fromIdx;
-        const isReject = toStage === 'rejected';
-        const isSkipOk = l.stage === 'collecting' && toStage === 'lender';
+        const isReject = targetStage === 'rejected';
+        const isSkipOk = l.status === 'collecting' && targetStage === 'lender';
 
         if (!isNext && !isBack && !isReject && !isSkipOk) {
-            showError(`You cannot skip to "${STAGE_META[toStage].label}" from "${STAGE_META[l.stage as Stage].label}". Follow the pipeline sequence.`, true);
+            showError(`You cannot skip to "${STAGE_META[targetStage].label}" from "${STAGE_META[l.status as Stage].label}". Follow the pipeline sequence.`, true);
             dragId.current = null;
             return;
         }
@@ -234,14 +219,14 @@ export default function PipelinePage() {
         }
 
         /* Permission: approved validation */
-        if (toStage === 'approved' && !['Super Admin', 'Admin', 'Team Leader'].includes(userRole || '')) {
+        if (targetStage === 'approved' && !['Super Admin', 'Admin', 'Team Leader'].includes(userRole || '')) {
             showError('Only Management roles can approve loans.');
             dragId.current = null;
             return;
         }
 
         setPendingId(dragId.current);
-        setPendingStage(toStage);
+        setPendingStage(targetStage);
         setConfirmOpen(true);
         dragId.current = null;
     };
@@ -265,7 +250,7 @@ export default function PipelinePage() {
     const saveAndMove = () => {
         const l = leads.find(x => x.id === pendingId);
         if (!l || !pendingStage) return;
-        const from = l.stage as Stage;
+        const from = l.status as Stage;
         const to = pendingStage;
 
         if (to === 'lender') {
@@ -283,7 +268,7 @@ export default function PipelinePage() {
             const auditNote = auditNotesRef.current?.value || '';
             const notes = auditNote ? `[AUDIT]: ${auditNote}\n${x.notes}` : (genNoteRef.current?.value || rejNoteRef.current?.value || x.notes);
             const lender = to === 'lender' ? selLenders.join(', ') : to === 'approved' ? (finalLenderRef.current?.value || x.lender) : x.lender;
-            return { ...x, stage: to, notes, lender, days: 0 };
+            return { ...x, status: to, notes, lender, days: 0 };
         }));
 
         setUpdateOpen(false);
@@ -311,8 +296,8 @@ export default function PipelinePage() {
     /* ── Add lead ───────────────────────────────────────────── */
     const saveNewLead = () => {
         if (!newLead.name || !newLead.company || !newLead.amount) { showError('Fill all required fields.'); return; }
-        const id = 'AF-' + Math.floor(Math.random() * 900 + 100);
-        setLeads(prev => [{ id, name: newLead.name, business: newLead.company, email: '', amount: newLead.amount, agent: newLead.agent, stage: 'collecting', priority: newLead.priority as 'hot' | 'warm' | 'cool', days: 0, lender: '—', notes: newLead.notes }, ...prev]);
+        const id = `AL-${Math.floor(Math.random() * 900) + 100}`;
+        setLeads(prev => [{ id, name: newLead.name, company: newLead.company, email: '', amount: newLead.amount, agent: newLead.agent, status: 'collecting', priority: newLead.priority as 'hot' | 'warm' | 'cool', days: 0, lender: '—', notes: newLead.notes }, ...prev]);
         setNewLead({ name: '', company: '', amount: '', agent: 'Sarah Jenkins', priority: 'warm', notes: '' });
         setAddDrawerOpen(false);
         showToast(`Lead registered: ${id}`);
@@ -322,7 +307,7 @@ export default function PipelinePage() {
     const pendingLead = leads.find(x => x.id === pendingId);
 
     /* ── Pipeline stats ─────────────────────────────────────── */
-    const activeLeads = leads.filter(l => l.stage !== 'rejected');
+    const activeLeads = leads.filter(l => l.status !== 'rejected');
     const totalPipeVal = activeLeads.reduce((a, l) => a + parseFloat(l.amount.replace(/[^0-9.]/g, '') || '0'), 0);
     const symb = leads[0]?.amount.startsWith('£') ? '£' : '$';
     const fmtVal = (v: number) => v >= 1_000_000 ? `${symb}${(v / 1_000_000).toFixed(1)}M` : v >= 1_000 ? `${symb}${(v / 1_000).toFixed(0)}K` : `${symb}${v}`;
@@ -359,7 +344,7 @@ export default function PipelinePage() {
                         <div style={{ display: 'flex', gap: 12, marginLeft: 16, paddingLeft: 16, borderLeft: '1px solid #f1f5f9' }}>
                             <Stat label="Active" value={String(activeLeads.length)} color="#6366f1" />
                             <Stat label="Pipeline" value={fmtVal(totalPipeVal)} color="#166534" />
-                            <Stat label="Approved" value={String(leads.filter(l => l.stage === 'approved').length)} color="#1d4ed8" />
+                            <Stat label="Approved" value={String(leads.filter(l => l.status === 'approved').length)} color="#1d4ed8" />
                         </div>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -476,7 +461,7 @@ export default function PipelinePage() {
                                         <div style={{ flex: 1, padding: '8px 0', borderRadius: 8, textAlign: 'center', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}>{STAGE_META[to].label}</div>
                                     </div>
                                 ) : (
-                                    <PipelineViz from={l.stage as Stage} to={to} />
+                                    <PipelineViz from={l.status as Stage} to={to} />
                                 )}
                             </div>
                             <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
@@ -681,7 +666,7 @@ export default function PipelinePage() {
                                     {[
                                         ['From', 'Whiterock Submission Team <deal-flow@whiterock.com>'],
                                         ['To', selLenders.length > 0 ? selLenders.join(', ') : '[Select lenders first]'],
-                                        ['Subject', `OFFER SUBMISSION: ${pendingLead.id} - ${pendingLead.business}`],
+                                        ['Subject', `OFFER SUBMISSION: ${pendingLead.id} - ${pendingLead.company}`],
                                     ].map(([lbl, val]) => (
                                         <div key={lbl} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                                             <span style={{ fontSize: 8, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', width: 52 }}>{lbl}:</span>
@@ -690,7 +675,7 @@ export default function PipelinePage() {
                                     ))}
                                 </div>
                                 <div style={{ padding: '24px 28px', fontSize: 12, color: '#374151', lineHeight: 1.75, fontWeight: 500, whiteSpace: 'pre-line', minHeight: 280 }}>
-                                    {`Hi Team,\n\nPlease review the following submission for ${pendingLead.name} (${pendingLead.business}).\n\n[DEAL HIGHLIGHTS]\n• Funding Required: ${pendingLead.amount}\n• Purpose: General Working Capital\n• Current Status: High-Priority Lead\n\n[SUBMISSION NOTES]\n${lenderNotesRef.current?.value || 'No additional notes provided.'}\n\nPlease find the full KYC and bank audit files attached. We look forward to your pricing offer.\n\nRegards,\nWhiterock CRM Deal Desk`}
+                                    {`Hi Team,\n\nPlease review the following submission for ${pendingLead.name} (${pendingLead.company}).\n\n[DEAL HIGHLIGHTS]\n• Funding Required: ${pendingLead.amount}\n• Purpose: General Working Capital\n• Current Status: High-Priority Lead\n\n[SUBMISSION NOTES]\n${lenderNotesRef.current?.value || 'No additional notes provided.'}\n\nPlease find the full KYC and bank audit files attached. We look forward to your pricing offer.\n\nRegards,\nWhiterock CRM Deal Desk`}
                                 </div>
                                 <div style={{ padding: '14px 20px', background: '#f8fafc', borderTop: '1px solid #f1f5f9' }}>
                                     <p style={{ fontSize: 8, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 }}>Case Documents Attached</p>
@@ -893,7 +878,7 @@ function LeadCard({ l, onReassign, onDelete, onDragStart, canDelete, canAssign }
     l: Lead;
     onReassign: (id: string) => void;
     onDelete: (id: string) => void;
-    onDragStart: (id: string) => void;
+    onDragStart: (e: React.DragEvent, id: string) => void;
     canDelete: boolean;
     canAssign: boolean;
 }) {
@@ -904,7 +889,7 @@ function LeadCard({ l, onReassign, onDelete, onDragStart, canDelete, canAssign }
     return (
         <div
             draggable
-            onDragStart={() => { onDragStart(l.id); setTimeout(() => setDragging(true), 0); }}
+            onDragStart={(e) => { onDragStart(e, l.id); setTimeout(() => setDragging(true), 0); }}
             onDragEnd={() => setDragging(false)}
             className="lead-card"
             style={{
@@ -927,7 +912,7 @@ function LeadCard({ l, onReassign, onDelete, onDragStart, canDelete, canAssign }
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 6, overflow: 'hidden' }}>
                 <span style={{ fontSize: 10, fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', flexShrink: 0 }}>{l.name}</span>
                 <span style={{ width: 3, height: 3, borderRadius: '50%', background: '#e2e8f0', flexShrink: 0 }} />
-                <span style={{ fontSize: 9, fontWeight: 700, color: '#6366f1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', opacity: .85 }}>{l.business}</span>
+                <span style={{ fontSize: 9, fontWeight: 700, color: '#6366f1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', opacity: .85 }}>{l.company}</span>
             </div>
 
             {/* Notes */}

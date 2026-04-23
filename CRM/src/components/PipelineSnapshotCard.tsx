@@ -1,18 +1,6 @@
 'use client';
 
-const AGENTS = [
-    { name: 'Thanushika', cases: 24, volume: '£1.2M', perf: 85, color: '#6366f1' },
-    { name: 'Ravindu', cases: 18, volume: '£950k', perf: 72, color: '#0891b2' },
-    { name: 'Priya', cases: 31, volume: '£2.1M', perf: 94, color: '#16a34a' },
-    { name: 'Amal', cases: 15, volume: '£600k', perf: 60, color: '#b45309' },
-    { name: 'Nirosha', cases: 22, volume: '£1.1M', perf: 78, color: '#b91c1c' },
-];
-
-const STAGES = [
-    { label: 'Created', count: 48, status: 'slate' },
-    { label: 'Pending', count: 32, status: 'amber' },
-    { label: 'Verify', count: 18, status: 'blue' },
-];
+import { agentPerformance as AGENTS, snapshotStages as STAGES } from '@/data/dummy';
 
 export default function PipelineSnapshotCard() {
     return (

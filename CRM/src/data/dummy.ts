@@ -1,162 +1,222 @@
-export const leads = [
-    { id: '#AF-001', name: 'James Wilson', company: 'Wilson Real Estate', status: 'In Progress', type: 'Residential Land', amount: '£450,000', quality: 'hot', phone: '+44 7700 900123', email: 'james@wilsonestate.co.uk' },
-    { id: '#AF-002', name: 'Robert Fox', company: 'Fox Construction', status: 'Review', type: 'Commercial Build', amount: '£1,200,000', quality: 'warm', phone: '+44 7700 900456', email: 'robert@foxbuild.com' },
-    { id: '#AF-003', name: 'Darlene Robertson', company: 'Robertson & Co', status: 'Pending', type: 'Bridge Loan', amount: '£250,500', quality: 'cool', phone: '+44 7700 900789', email: 'darlene@robertson.com' },
-    { id: '#AF-004', name: 'Courtney Henry', company: 'Henry Logistics', status: 'Closing', type: 'Asset Finance', amount: '£150,000', quality: 'hot', phone: '+44 7700 900111', email: 'courtney@henrylogistics.co.uk' },
-    { id: '#AF-005', name: 'Jane Cooper', company: 'Cooper Group', status: 'Appraisal', type: 'Mortgage', amount: '£850,000', quality: 'warm', phone: '+44 7700 900222', email: 'jane@coopergroup.com' },
-    { id: '#AF-006', name: 'Arlene McCoy', company: 'McCoy Dev', status: 'Underwriting', type: 'Construction', amount: '£2,100,000', quality: 'hot', phone: '+44 7700 900333', email: 'arlene@mccoydev.co.uk' },
-    { id: '#AF-007', name: 'Eleanor Pena', company: 'Pena Holdings', status: 'Approved', type: 'Commercial', amount: '£500,000', quality: 'cool', phone: '+44 7700 900444', email: 'eleanor@penaholdings.com' },
-    { id: '#AF-008', name: 'Bessie Cooper', company: 'Cooper & Sons', status: 'Initial', type: 'Mortgage', amount: '£300,000', quality: 'hot', phone: '+44 7700 900555', email: 'bessie@coopersons.co.uk' },
-    { id: '#AF-009', name: 'Annette Black', company: 'Black Capital', status: 'In Progress', type: 'Investment', amount: '£1,500,000', quality: 'warm', phone: '+44 7700 900666', email: 'annette@blackcapital.com' },
-    { id: '#AF-010', name: 'Theresa Webb', company: 'Webb Solutions', status: 'Review', type: 'SME Loan', amount: '£50,000', quality: 'cool', phone: '+44 7700 900777', email: 'theresa@webbsolutions.co.uk' },
-    { id: '#AF-011', name: 'Cody Fisher', company: 'Fisher Marine', status: 'Closing', type: 'Asset Finance', amount: '£750,000', quality: 'hot', phone: '+44 7700 900888', email: 'cody@fishermarine.com' },
-    { id: '#AF-012', name: 'Kristin Watson', company: 'Watson Wealth', status: 'Appraisal', type: 'Private', amount: '£2,000,000', quality: 'warm', phone: '+44 7700 900999', email: 'kristin@watsonwealth.co.uk' },
+/* ═══════════════════════════════════════════════════════════════
+   CENTRAL MOCK DATA REPOSITORY
+   Whiterock CRM Ecosystem
+   (Fixed & Consolidated)
+═══════════════════════════════════════════════════════════════ */
+
+export const INITIAL_LEADS = [
+    { id: 'AL-902', name: 'Robert Miller', company: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', amount: '£12,000', agent: 'Sarah Jenkins', status: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements', quality: 'hot' },
+    { id: 'AF-550', name: 'Priya Singh', company: 'Singh Media', email: 'contact@singhmedia.com', amount: '£450,000', agent: 'James White', status: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.', quality: 'warm' },
+    { id: 'AF-027', name: 'John Smith', company: 'ABC Corp', email: 'jsmith@abccorp.uk', amount: '£55,000', agent: 'Sarah Jenkins', status: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', quality: 'hot' },
+    { id: 'AL-339', name: 'Mike Johnson', company: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', amount: '£85,000', agent: 'James White', status: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.', quality: 'cool' },
+    { id: 'AF-001', name: 'David Brown', company: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', amount: '£150,000', agent: 'Sarah Jenkins', status: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.', quality: 'hot' },
+    { id: 'AL-209', name: 'Kevin Malone', company: 'Malone Paints', email: 'kevin@malonepaints.com', amount: '£25,000', agent: 'James White', status: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.', quality: 'cool' },
 ];
 
-export const followups = [
-    {
-        id: 1,
-        title: 'ABC Quotation Review',
-        desc: 'Follow up on the pending expansion loan documentation. Client requires physical copies sent via courier.',
-        client: 'James Wilson',
-        phone: '+44 7700 900123',
-        email: 'james@wilsonestate.co.uk',
-        time: '14:30',
-        date: '2026-04-23',
-        priority: 'Hot',
-        type: '📞 Call',
-        assignee: 'Thanushika'
-    },
-    {
-        id: 2,
-        title: 'Contract Negotiation',
-        desc: 'Discuss the new asset valuation report with the client. Check if they agree with the commercial premises appraisal.',
-        client: 'Robert Fox',
-        phone: '+44 7700 900456',
-        email: 'robert@foxbuild.com',
-        time: '09:00',
-        date: '2026-04-24',
-        priority: 'Warm',
-        type: '🤝 Meeting',
-        assignee: 'Ravindu'
-    },
-    {
-        id: 3,
-        title: 'KYC Document Upload',
-        desc: 'Routine check-in call to ensure client is happy with the current application progress.',
-        client: 'Darlene Robertson',
-        phone: '+44 7700 900789',
-        email: 'darlene@robertson.com',
-        time: '11:30',
-        date: '2026-04-23',
-        priority: 'Cool',
-        type: '📄 Document',
-        assignee: 'Priya'
-    },
-    {
-        id: 4,
-        title: 'Lender Rate Comparison',
-        desc: 'Compare rates between Barclays and HSBC for the commercial project.',
-        client: 'Courtney Henry',
-        phone: '+44 7700 900111',
-        email: 'courtney@henrylogistics.co.uk',
-        time: '14:00',
-        date: '2026-04-25',
-        priority: 'Hot',
-        type: '📊 Research',
-        assignee: 'Thanushika'
-    },
-    {
-        id: 5,
-        title: 'Send Term Sheet',
-        desc: 'Prepare and send the final terms for the bridge loan.',
-        client: 'Arlene McCoy',
-        phone: '+44 7700 900333',
-        email: 'arlene@mccoydev.co.uk',
-        time: '10:00',
-        date: '2026-04-24',
-        priority: 'Hot',
-        type: '📨 Email',
-        assignee: 'Ravindu'
-    },
-    {
-        id: 6,
-        title: 'Site Visit Confirmation',
-        desc: 'Confirm the site visit with the surveyor for the new construction site.',
-        client: 'Jane Cooper',
-        phone: '+44 7700 900222',
-        email: 'jane@coopergroup.com',
-        time: '09:30',
-        date: '2026-04-26',
-        priority: 'Warm',
-        type: '🤝 Meeting',
-        assignee: 'Thanushika'
-    },
+export const INITIAL_LENDERS = [
+    { id: 1, name: 'ANZ Bank', trading: 'ANZ', type: 'Bank', status: 'Active', email: 'broker@anz.com.au', manager: 'Sarah Collins', managerEmail: 's.collins@anz.com.au', address: '242 Pitt Street, Sydney NSW 2000', regAddress: '242 Pitt Street, Sydney NSW 2000', tradingYears: 185, rateMin: 5.74, rateMax: 9.49, loanMin: 20000, loanMax: 5000000, categories: ['Secured', 'Commercial', 'Refinance'], notes: "One of Australia's Big Four banks.", added: '2026-01-10', promotions: [] },
+    { id: 2, name: 'Commonwealth Bank', trading: 'CommBank', type: 'Bank', status: 'Active', email: 'broker@cba.com.au', manager: 'James Wu', managerEmail: 'j.wu@cba.com.au', address: '201 Sussex St, Sydney', regAddress: '201 Sussex St, Sydney', tradingYears: 112, rateMin: 5.69, rateMax: 9.99, loanMin: 10000, loanMax: 10000000, categories: ['Secured', 'Commercial', 'Unsecured'], notes: "Australia's largest bank.", added: '2026-01-10', promotions: [] },
+    { id: 3, name: 'NAB', trading: 'NAB', type: 'Bank', status: 'Active', email: 'broker@nab.com.au', manager: 'Emily Tran', managerEmail: 'e.tran@nab.com.au', address: '800 Bourke St, Docklands', regAddress: '800 Bourke St, Docklands', tradingYears: 163, rateMin: 5.79, rateMax: 9.89, loanMin: 20000, loanMax: 8000000, categories: ['Secured', 'Commercial'], notes: 'Strong SME focus.', added: '2026-02-01', promotions: [] },
 ];
 
-export const notes = [
-    { id: 1, text: 'System audit scheduled for Monday morning.', date: '2026-04-09 | 01:54 PM', pinned: true, highlighted: false },
-    { id: 2, text: 'Remember to call James regarding the appraisal.', date: '2026-04-10 | 10:30 AM', pinned: false, highlighted: true },
+export const INITIAL_TASKS = [
+    { id: 1, title: 'Follow up with James Wilson', status: 'Pending', priority: 'High', date: '2026-04-25', description: 'Discuss valuation report gaps' },
+    { id: 2, title: 'Check valuation report for LD-102', status: 'In Progress', priority: 'Medium', date: '2026-04-24', description: 'Pending lender response' },
+    { id: 3, title: 'Review compliance for new Tele Agent', status: 'Done', priority: 'Low', date: '2026-04-20', description: 'All docs verified' },
 ];
 
-export const licenses = [
-    {
-        id: 1,
-        name: 'FCA Regulatory License',
-        type: 'License',
-        date: '24 May 2026',
-        remind: 30,
-        status: 'ACTIVE',
-        desc: 'Financial Conduct Authority regulatory license for brokerage operations.',
-    },
-    {
-        id: 2,
-        name: 'Professional Indemnity',
-        type: 'Insurance',
-        date: '15 June 2026',
-        remind: 14,
-        status: 'PENDING',
-        desc: 'Annual PI insurance renewal required.',
-    },
+export type Notification = {
+    id: number;
+    title: string;
+    desc: string;
+    time: string;
+    unread: boolean;
+    icon: string;
+    color: string;
+};
+
+export const INITIAL_NOTIFICATIONS: Notification[] = [
+    { id: 1, title: 'New lead assigned', desc: 'Robert Miller from Miller Logistics', time: '5m ago', unread: true, icon: 'fa-user-plus', color: 'bg-indigo-50 text-indigo-600' },
+    { id: 2, title: 'Case Approved', desc: 'Case AF-772 has been approved by lender', time: '1h ago', unread: false, icon: 'fa-circle-check', color: 'bg-emerald-50 text-emerald-600' },
+    { id: 3, title: 'System Alert', desc: 'Server Maintenance at 12:00 tonight', time: '3h ago', unread: true, icon: 'fa-triangle-exclamation', color: 'bg-amber-50 text-amber-600' }
 ];
 
-export const teleAgents = [
-    { id: 'TM', name: 'Thanushika M.', email: 'thanushika@whiterock.com', phone: '+44 7700 900123', status: 'ACTIVE', leads: 42, color: 'bg-indigo-600' },
-    { id: 'JS', name: 'John Smith', email: 'john.smith@whiterock.com', phone: '+44 7700 900555', status: 'OFFLINE', leads: 28, color: 'bg-slate-400' },
-    { id: 'SJ', name: 'Sarah Jones', email: 'sarah.jones@whiterock.com', phone: '+44 7700 900222', status: 'ACTIVE', leads: 35, color: 'bg-rose-500' },
-    { id: 'MB', name: 'Michael Brown', email: 'michael.b@whiterock.com', phone: '+44 7700 900333', status: 'ACTIVE', leads: 19, color: 'bg-teal-500' },
+export const INITIAL_LICENSES = [
+    { id: 1, type: 'License', name: 'FCA Broker License', desc: 'Financial Conduct Authority primary brokerage authorization.', date: '2026-12-15', remind: 30, status: 'ACTIVE' },
+    { id: 2, type: 'Insurance', name: 'Professional Indemnity', desc: 'Annual coverage for brokerage activities.', date: '2026-10-01', remind: 30, status: 'ACTIVE' },
+    { id: 3, type: 'License', name: 'Data Protection (ICO)', desc: 'Information Commissioner Office entry renewal.', date: '2026-05-20', remind: 14, status: 'ACTIVE' },
 ];
 
-export const notifications = [
-    { id: 1, title: 'New lead assigned', desc: 'James Wilson has been assigned to you.', time: '2 mins ago', unread: true, icon: 'fa-user-plus', color: 'bg-indigo-50 text-indigo-600' },
-    { id: 2, title: 'Loan approved', desc: 'Loan #AF-007 has been approved.', time: '1 hour ago', unread: true, icon: 'fa-check-circle', color: 'bg-emerald-50 text-emerald-600' },
-    { id: 3, title: 'Upcoming followup', desc: 'Followup with Johnathan Doe in 30 mins.', time: '30 mins ago', unread: true, icon: 'fa-clock', color: 'bg-amber-50 text-amber-600' },
+export const INITIAL_NOTES = [
+    { id: 1, text: 'Remember to check quarterly commission structures.', date: '2026-04-20 | 14:30', pinned: true, highlighted: false },
+    { id: 2, text: 'New server migration scheduled for next month.', date: '2026-04-22 | 09:15', pinned: false, highlighted: true },
 ];
 
-export const stats = [
-    { label: 'Leads', value: '1,284', change: '+12%', icon: 'fa-users', color: 'indigo' },
-    { label: 'Active Pipeline', value: '£4.2M', change: '+8%', icon: 'fa-chart-line', color: 'emerald' },
-    { label: 'Applications', value: '156', change: '-3%', icon: 'fa-file-invoice', color: 'blue' },
-    { label: 'Closure Rate', value: '64%', change: '+5%', icon: 'fa-percentage', color: 'amber' },
+export const INITIAL_PAYOUTS = [
+    { id: '#PO-1022', client: 'Acme Corp', lender: 'Barclays', amount: '£4,500', status: 'Pending Approval', statusColor: 'amber', time: '2h ago' },
+    { id: '#PO-0985', client: 'John Doe Ltd', lender: 'HSBC', amount: '£2,100', status: 'Verified', statusColor: 'emerald', time: '5h ago' },
+    { id: '#PO-1104', client: 'Sky High Ltd', lender: 'Starling', amount: '£12,300', status: 'In Review', statusColor: 'indigo', time: '1d ago' },
 ];
 
-export const lenders = [
-    { id: 1, name: 'Barclays Bank', rating: 'A+', type: 'Mainstream', rate: '4.5%', maxLtv: '75%', active: true },
-    { id: 2, name: 'Starling Bank', rating: 'A', type: 'Digital', rate: '4.8%', maxLtv: '80%', active: true },
-    { id: 3, name: 'HSBC Commercial', rating: 'A+', type: 'Mainstream', rate: '4.2%', maxLtv: '70%', active: true },
-    { id: 4, name: 'LendInvest', rating: 'B+', type: 'Bridge', rate: '0.85% (m)', maxLtv: '75%', active: true },
-    { id: 5, name: 'Together Money', rating: 'B', type: 'Specialist', rate: '5.2%', maxLtv: '65%', active: false },
+export const INITIAL_TELE_AGENTS = [
+    { id: 'CL', name: 'Cody Lane', email: 'cody@whiterock.com', phone: '07123 456789', status: 'ACTIVE', leads: 12, color: 'bg-indigo-600' },
+    { id: 'EW', name: 'Emma Watson', email: 'emma@whiterock.com', phone: '07123 987654', status: 'ACTIVE', leads: 8, color: 'bg-emerald-600' },
+    { id: 'LK', name: 'Leo Kumar', email: 'leo@whiterock.com', phone: '07123 111222', status: 'OFFLINE', leads: 0, color: 'bg-slate-400' },
 ];
 
-export const payouts = [
-    { id: '#AF-028', client: 'A. Thompson', lender: 'Lloyds Bank', amount: '£4,250', status: 'PENDING SUBMISSION', statusColor: 'amber', time: '2h ago' },
-    { id: '#AF-027', client: 'Global Logistics', lender: 'Funding Circle', amount: '£12,800', status: 'LENDER REVIEW', statusColor: 'blue', time: 'Yesterday' },
-    { id: '#AF-026', client: 'Retail Ventures', lender: 'Allica Bank', amount: '£7,400', status: 'PENDING SUBMISSION', statusColor: 'amber', time: '5h ago' },
-    { id: '#AF-025', client: 'Cresthold Dev', lender: 'Shawbrook', amount: '£9,100', status: 'LENDER REVIEW', statusColor: 'blue', time: '1d ago' },
-];
+export const INITIAL_CALENDAR_EVENTS: Record<string, any[]> = {
+    '2026-04-23': [
+        { type: 'task', title: 'Review loan application #AF-045', lead: 'Johnathan Doe', time: '09:00', priority: 'high' },
+        { type: 'followup', title: 'Contract Signature Call', lead: 'ABC Corp', time: '14:30', priority: 'high' },
+    ],
+    '2026-04-24': [
+        { type: 'task', title: 'Submit valuation report', lead: 'Sarah Smith', time: '11:00', priority: 'medium' },
+        { type: 'followup', title: 'Courtesy Check-in', lead: 'James Wilson', time: '15:00', priority: 'low' },
+    ],
+};
 
 export const promotions = [
-    { id: 1, lender: 'Lloyds Bank', title: '0.25% Rate Cut', desc: 'Applicable to all new business expansion loans...', type: 'Exclusive', typeColor: 'indigo', expiry: '30 Apr' },
-    { id: 2, lender: 'Funding Circle', title: '1% Fee Rebate', desc: 'Bonus commission on all asset finance deals...', type: 'Bonus', typeColor: 'emerald', expiry: '15 May' },
-    { id: 3, lender: 'Starling Bank', title: 'Speedy Approval', desc: '48h turnaround time for Small Business Loans...', type: 'SLA', typeColor: 'amber', expiry: 'Ongoing' },
+    { id: 1, lender: 'Barclays', title: 'Q2 Recovery Plus', desc: 'Up to 90% LVR for hospitality sector recovery loans.', type: 'Exclusive', typeColor: 'indigo', expiry: '30 Jun 2026' },
+    { id: 2, lender: 'Starling', title: 'SME Fixed Rate', desc: 'Fixed rates from 6.49% for loans over £50k.', type: 'Standard', typeColor: 'slate', expiry: '15 May 2026' },
+    { id: 3, lender: 'HSBC', title: 'Green Asset Fund', desc: 'Lower commission but 0.5% rate discount for green vehicles.', type: 'Exclusive', typeColor: 'indigo', expiry: '31 Aug 2026' },
+    { id: 4, lender: 'NatWest', title: 'FastTrack Asset', desc: 'Auto-approval for asset finance under £25k.', type: 'Standard', typeColor: 'slate', expiry: 'Ongoing' },
 ];
+
+export const ACTIVITIES = [
+    { id: 1, user: 'James Smith', action: 'Uploaded Bank Statements', time: '10 mins ago', icon: 'fa-file-arrow-up', color: 'indigo' },
+    { id: 2, user: 'NatWest', action: 'Approved Application #AF-022', time: '45 mins ago', icon: 'fa-circle-check', color: 'emerald' },
+    { id: 3, user: 'System', action: 'Sent Automated Follow-up to Oliver', time: '2h ago', icon: 'fa-paper-plane', color: 'blue' },
+    { id: 4, user: 'Priya', action: 'Rejected Document for #AF-045', time: '3h ago', icon: 'fa-circle-xmark', color: 'rose' },
+    { id: 5, user: 'Lloyds Bank', action: 'Requested Further Info', time: '5h ago', icon: 'fa-circle-info', color: 'amber' },
+];
+
+// Pipeline shared constants
+export const STAGES = ['collecting', 'verified', 'lender', 'approved', 'rejected'] as const;
+export type Stage = typeof STAGES[number];
+
+export const STAGE_META: Record<Stage, { label: string; icon: string; hdr: string; body: string; cnt: string }> = {
+    collecting: { label: 'Doc Collection', icon: 'fa-file-arrow-up', hdr: '#f1f5f9', body: '#f8fafc', cnt: '#475569' },
+    verified: { label: 'Doc Verified', icon: 'fa-file-circle-check', hdr: '#eff6ff', body: '#f0f7ff', cnt: '#1d4ed8' },
+    lender: { label: 'Lender Selection', icon: 'fa-building-columns', hdr: '#f5f3ff', body: '#f6f4ff', cnt: '#6d28d9' },
+    approved: { label: 'Loan Approved', icon: 'fa-circle-check', hdr: '#f0fdf4', body: '#f2fdf5', cnt: '#166534' },
+    rejected: { label: 'Rejected', icon: 'fa-circle-xmark', hdr: '#fef2f2', body: '#fff5f5', cnt: '#b91c1c' },
+};
+
+export const PIPELINE_STAGES = [
+    { label: 'Created', count: 12, color: 'slate', key: 'collecting' },
+    { label: 'Pending Docs', count: 8, color: 'amber', key: 'collecting' },
+    { label: 'Doc Verify', count: 5, color: 'blue', key: 'verified' },
+    { label: 'Lender', count: 4, color: 'indigo', key: 'lender' },
+    { label: 'Approved', count: 9, color: 'emerald', key: 'approved' },
+    { label: 'Rejected', count: 4, color: 'rose', key: 'rejected' },
+];
+
+export const LENDER_LIST = ['Barclays', 'HSBC', 'NAB', 'Starling', 'Lloyds', 'NatWest', 'Santander'];
+
+export const AGENTS = [
+    { name: 'Lakshan R', role: 'Super Admin', initials: 'LR' },
+    { name: 'Sarah White', role: 'Team Leader', initials: 'SW' },
+    { name: 'Michael Chen', role: 'Team Leader', initials: 'MC' },
+    { name: 'Cody Lane', role: 'Tele Agent', initials: 'CL' },
+    { name: 'Emma Watson', role: 'Tele Agent', initials: 'EW' },
+    { name: 'Leo Kumar', role: 'Accounts Manager', initials: 'LK' },
+];
+
+export const MEMBERS = [
+    { name: 'Thanushika', role: 'Senior Agent', status: 'Online', lastActive: 'Now', color: '#6366f1' },
+    { name: 'Ravindu', role: 'Support Agent', status: 'Away', lastActive: '12m ago', color: '#0891b2' },
+    { name: 'Priya', role: 'Tele Agent', status: 'Online', lastActive: 'Now', color: '#16a34a' },
+    { name: 'Amal', role: 'Junior Agent', status: 'Offline', lastActive: '2h ago', color: '#b45309' },
+    { name: 'Nirosha', role: 'Tele Agent', status: 'Online', lastActive: 'Now', color: '#b91c1c' },
+    { name: 'Kasun', role: 'Senior Agent', status: 'Online', lastActive: 'Now', color: '#7c3aed' },
+];
+
+export const FINANCE_LENDERS = [
+    { name: 'Lloyds Bank', status: 'Submitted', color: 'blue' },
+    { name: 'Barclays', status: 'Approved', color: 'emerald' },
+    { name: 'NatWest', status: 'In Review', color: 'amber' },
+    { name: 'HSBC', status: 'Pending', color: 'slate' },
+];
+
+export const FINANCE_DOCS = [
+    { name: 'Bank Statements', status: 'Verified', color: 'emerald', icon: 'fa-check' },
+    { name: 'ID Documents', status: 'Verified', color: 'emerald', icon: 'fa-check' },
+    { name: 'Financial Accounts', status: 'Pending', color: 'amber', icon: 'fa-clock' },
+    { name: 'Tax Returns', status: 'Missing', color: 'rose', icon: 'fa-xmark' },
+];
+
+export const DOC_REQUESTS = [
+    { id: 1, lead: 'James Smith', doc: 'Bank Statements', company: 'Alpha Tech Ltd', status: 'Pending', quality: 'hot', time: '2h ago' },
+    { id: 2, lead: 'Oliver Noah', doc: 'ID Proof', company: 'Bright Build Co', status: 'Rejected', quality: 'warm', time: '5h ago', reason: 'Blurry scan' },
+    { id: 3, lead: 'William Davis', doc: 'Payslips', company: 'Summit Retail', status: 'Pending', quality: 'cool', time: 'Yesterday' },
+    { id: 4, lead: 'Henry Wilson', doc: 'Utility Bill', company: 'Nova Finance', status: 'Pending', quality: 'hot', time: '2 days ago' },
+];
+
+export const AI_OPTIONS = [
+    { icon: 'fa-chart-line', bg: 'bg-indigo-50', color: 'text-indigo-600', title: 'Pipeline Analysis', desc: 'AI insights on your loan pipeline' },
+    { icon: 'fa-users', bg: 'bg-emerald-50', color: 'text-emerald-600', title: 'Lead Scoring', desc: 'Auto-score and prioritise leads' },
+    { icon: 'fa-file-invoice', bg: 'bg-amber-50', color: 'text-amber-600', title: 'Report Generator', desc: 'Generate performance reports' },
+    { icon: 'fa-robot', bg: 'bg-rose-50', color: 'text-rose-600', title: 'AI Assistant', desc: 'Ask anything about your CRM' },
+];
+
+export const AGENT_PERFORMANCE = [
+    { name: 'Thanushika', cases: 24, volume: '£1.2M', perf: 85, color: '#6366f1' },
+    { name: 'Ravindu', cases: 18, volume: '£950k', perf: 72, color: '#0891b2' },
+    { name: 'Priya', cases: 31, volume: '£2.1M', perf: 94, color: '#16a34a' },
+    { name: 'Amal', cases: 15, volume: '£600k', perf: 60, color: '#b45309' },
+    { name: 'Nirosha', cases: 22, volume: '£1.1M', perf: 78, color: '#b91c1c' },
+];
+
+export const SNAPSHOT_STAGES = [
+    { label: 'Created', count: 48, status: 'slate' },
+    { label: 'Pending', count: 32, status: 'amber' },
+    { label: 'Verify', count: 18, status: 'blue' },
+];
+
+export const VAULT_DOCS = [
+    { id: 1, title: 'Home Loan Product Guide 2026', category: 'Products', fileType: 'pdf', fileSize: '3.4 MB', version: 'v2.1', uploaded: '2026-04-10', desc: 'Comprehensive guide covering all home loan products, rates, and eligibility criteria.' },
+    { id: 2, title: 'AML & KYC Compliance Policy', category: 'Policies', fileType: 'pdf', fileSize: '1.2 MB', version: 'v4.0', uploaded: '2026-04-08', desc: 'Updated AML and KYC policy aligned with AUSTRAC 2026 guidelines.' },
+    { id: 3, title: 'Broker Onboarding FAQ', category: 'FAQs', fileType: 'docx', fileSize: '420 KB', version: 'v1.3', uploaded: '2026-04-12', desc: 'Frequently asked questions for new brokers joining the panel.' },
+    { id: 4, title: 'Cold Call Script - Refinance', category: 'Scripts', fileType: 'docx', fileSize: '190 KB', version: 'v1.0', uploaded: '2026-04-14', desc: 'Structured outbound call script for refinance lead conversations.' },
+    { id: 5, title: 'Lender Panel Overview Guide', category: 'Guides', fileType: 'pdf', fileSize: '5.1 MB', version: 'v3.2', uploaded: '2026-04-05', desc: 'Full overview of all lenders including products, BDMs, and turnaround times.' },
+    { id: 6, title: 'CRM Usage Knowledge Base', category: 'Knowledge Base', fileType: 'pdf', fileSize: '2.8 MB', version: 'v1.1', uploaded: '2026-04-15', desc: 'Internal knowledge base for using the CRM platform.' },
+    { id: 7, title: 'Commercial Loan Product Sheet', category: 'Products', fileType: 'xlsx', fileSize: '680 KB', version: 'v1.0', uploaded: '2026-04-13', desc: 'Rate and product comparison sheet for commercial lending solutions.' },
+    { id: 8, title: 'Privacy Policy 2026', category: 'Policies', fileType: 'pdf', fileSize: '890 KB', version: 'v2.9', uploaded: '2026-03-01', desc: 'Client privacy and data handling policy.' },
+    { id: 9, title: 'Settlement Checklist Guide', category: 'Guides', fileType: 'docx', fileSize: '310 KB', version: 'v2.0', uploaded: '2026-04-07', desc: 'Step-by-step settlement checklist for brokers to share with clients.' },
+    { id: 10, title: 'Objection Handling Scripts', category: 'Scripts', fileType: 'docx', fileSize: '240 KB', version: 'v1.2', uploaded: '2026-04-11', desc: 'Common objection handling scripts for tele agents.' },
+];
+
+export const FILE_ICONS: Record<string, { icon: string; bg: string; color: string }> = {
+    pdf: { icon: 'fa-solid fa-file-pdf', bg: '#fee2e2', color: '#dc2626' },
+    docx: { icon: 'fa-solid fa-file-word', bg: '#dbeafe', color: '#1d4ed8' },
+    xlsx: { icon: 'fa-solid fa-file-excel', bg: '#d1fae5', color: '#059669' },
+    png: { icon: 'fa-solid fa-file-image', bg: '#f3e8ff', color: '#7e22ce' },
+    pptx: { icon: 'fa-solid fa-file-powerpoint', bg: '#fff7ed', color: '#c2410c' },
+};
+
+export const CAT_COLORS: Record<string, string> = {
+    'Knowledge Base': '#1d4ed8', 'Guides': '#7e22ce', 'FAQs': '#b45309',
+    'Products': '#065f46', 'Policies': '#b91c1c', 'Scripts': '#334155',
+};
+
+// Compatibility Aliases
+export const leads = INITIAL_LEADS;
+export const followups = INITIAL_TASKS;
+export const tasks = INITIAL_TASKS;
+export const notes = INITIAL_NOTES;
+export const licenses = INITIAL_LICENSES;
+export const notifications = INITIAL_NOTIFICATIONS;
+export const payouts = INITIAL_PAYOUTS;
+export const teleAgents = INITIAL_TELE_AGENTS;
+export const calEvents = INITIAL_CALENDAR_EVENTS;
+export const teamMembers = MEMBERS;
+export const financeLenders = FINANCE_LENDERS;
+export const financeDocs = FINANCE_DOCS;
+export const docRequests = DOC_REQUESTS;
+export const aiOptions = AI_OPTIONS;
+export const pipelineStages = PIPELINE_STAGES;
+export const agentPerformance = AGENT_PERFORMANCE;
+export const snapshotStages = SNAPSHOT_STAGES;
+export const vaultDocs = VAULT_DOCS;
+export const fileIcons = FILE_ICONS;
+export const catColors = CAT_COLORS;

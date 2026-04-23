@@ -1,13 +1,6 @@
 'use client';
 
-const MEMBERS = [
-    { name: 'Thanushika', role: 'Senior Agent', status: 'Online', lastActive: 'Now', color: '#6366f1' },
-    { name: 'Ravindu', role: 'Support Agent', status: 'Away', lastActive: '12m ago', color: '#0891b2' },
-    { name: 'Priya', role: 'Tele Agent', status: 'Online', lastActive: 'Now', color: '#16a34a' },
-    { name: 'Amal', role: 'Junior Agent', status: 'Offline', lastActive: '2h ago', color: '#b45309' },
-    { name: 'Nirosha', role: 'Tele Agent', status: 'Online', lastActive: 'Now', color: '#b91c1c' },
-    { name: 'Kasun', role: 'Senior Agent', status: 'Online', lastActive: 'Now', color: '#7c3aed' },
-];
+import { teamMembers as MEMBERS } from '@/data/dummy';
 
 export default function TeamDirectoryCard() {
     return (
@@ -35,7 +28,7 @@ export default function TeamDirectoryCard() {
                             <div className="flex items-center justify-between">
                                 <h4 className="text-[10px] font-black text-slate-900 truncate">{member.name}</h4>
                                 <span className={`text-[7px] font-black uppercase ${member.status === 'Online' ? 'text-emerald-500' :
-                                        member.status === 'Away' ? 'text-amber-500' : 'text-slate-400'
+                                    member.status === 'Away' ? 'text-amber-500' : 'text-slate-400'
                                     }`}>
                                     {member.status}
                                 </span>
