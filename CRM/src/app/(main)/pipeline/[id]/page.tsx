@@ -1,7 +1,9 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { usePermissions } from '@/hooks/usePermissions';
+import { AGENTS, teamMembers } from '@/data/dummy';
 
 /* ── Types ──────────────────────────────────────────────────── */
 interface Lead {
@@ -72,6 +74,8 @@ function now() {
 export default function LeadDetailPage() {
     const { id } = useParams<{ id: string }>();
     const router = useRouter();
+    const { hasAction } = usePermissions();
+    const canAssign = hasAction('tasks', 'assign');
 
     const found = ALL_LEADS.find(l => l.id === id) ?? ALL_LEADS[0];
 
@@ -101,6 +105,7 @@ export default function LeadDetailPage() {
     const [remType, setRemType] = useState('Call');
     const [remTitle, setRemTitle] = useState('');
     const [remDate, setRemDate] = useState('');
+    const [remAssignee, setRemAssignee] = useState(found.agent);
     const [remNote, setRemNote] = useState('');
 
     /* docs */
@@ -166,7 +171,7 @@ export default function LeadDetailPage() {
     /* ── Reminders ───────────────────────────────────────────── */
     const addReminder = () => {
         if (!remTitle.trim() || !remDate) return;
-        setReminders(prev => [{ type: remType, title: remTitle, assignee: 'You', due: remDate, status: 'Pending', note: remNote || undefined }, ...prev]);
+        setReminders(prev => [{ type: remType, title: remTitle, assignee: remAssignee, due: remDate, status: 'Pending', note: remNote || undefined }, ...prev]);
         setRemTitle(''); setRemDate(''); setRemNote('');
     };
 
@@ -346,7 +351,19 @@ export default function LeadDetailPage() {
                                                 </div>
                                                 <span style={{ fontSize: 10, fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.title}</span>
                                             </div>
-                                            <span style={{ fontSize: 8, fontWeight: 700, padding: '2px 7px', borderRadius: 20, whiteSpace: 'nowrap', background: STATUS_COLOR[r.status] + '18', color: STATUS_COLOR[r.status], border: `1px solid ${STATUS_COLOR[r.status]}33` }}>{r.status}</span>
+                                            <select
+                                                value={r.status}
+                                                onChange={e => {
+                                                    const next = [...reminders];
+                                                    next[i] = { ...next[i], status: e.target.value };
+                                                    setReminders(next);
+                                                }}
+                                                style={{ fontSize: 8, fontWeight: 700, padding: '2px 4px', borderRadius: 6, whiteSpace: 'nowrap', background: STATUS_COLOR[r.status] + '18', color: STATUS_COLOR[r.status], border: `1px solid ${STATUS_COLOR[r.status]}33`, outline: 'none', cursor: 'pointer' }}
+                                            >
+                                                <option>Pending</option>
+                                                <option>Completed</option>
+                                                <option>Overdue</option>
+                                            </select>
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 3 }}>
                                             <span style={{ fontSize: 8, fontWeight: 700, textTransform: 'uppercase', color: REM_COLOR[r.type] }}>{r.type}</span>
@@ -363,6 +380,15 @@ export default function LeadDetailPage() {
                                         <option>Call</option><option>Meeting</option><option>Follow-up</option><option>Document</option>
                                     </select>
                                     <input value={remTitle} onChange={e => setRemTitle(e.target.value)} placeholder="Task title…" style={{ flex: 2, minWidth: 0, border: '1px solid #e2e8f0', borderRadius: 6, padding: '4px 8px', fontSize: 10, outline: 'none' }} />
+                                    <select
+                                        disabled={!canAssign}
+                                        value={remAssignee}
+                                        onChange={e => setRemAssignee(e.target.value)}
+                                        style={{ flex: 1, minWidth: 0, border: '1px solid #e2e8f0', borderRadius: 6, padding: '4px 6px', fontSize: 10, fontWeight: 700, outline: 'none', background: !canAssign ? '#f1f5f9' : '#fff' }}
+                                    >
+                                        {!canAssign && <option value={remAssignee}>{remAssignee}</option>}
+                                        {canAssign && AGENTS.map((a: { name: string }) => <option key={a.name}>{a.name}</option>)}
+                                    </select>
                                     <input type="date" value={remDate} onChange={e => setRemDate(e.target.value)} style={{ flex: 1, minWidth: 0, border: '1px solid #e2e8f0', borderRadius: 6, padding: '4px 6px', fontSize: 10, outline: 'none' }} />
                                 </div>
                                 <div style={{ position: 'relative' }}>

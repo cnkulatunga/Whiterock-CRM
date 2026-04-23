@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { followups as initialFollowups, leads, promotions } from '@/data/dummy';
+import { followups as initialFollowups, leads, promotions, teamMembers } from '@/data/dummy';
+import { usePermissions } from '@/hooks/usePermissions';
 
 const TYPE_META: Record<string, { emoji: string, color: string }> = {
     'Call': { emoji: '📞', color: 'text-blue-500' },
@@ -16,6 +17,9 @@ const TYPE_META: Record<string, { emoji: string, color: string }> = {
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function TasksPage() {
+    const { hasAction, userRole } = usePermissions();
+    const canAssign = hasAction('tasks', 'assign');
+
     // --- State Management ---
     const [tasks, setTasks] = useState(initialFollowups.map((f) => ({
         id: f.id,
@@ -193,10 +197,17 @@ export default function TasksPage() {
                         <div className="grid grid-cols-2 gap-2">
                             <div className="space-y-1.5">
                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Assignee</label>
-                                <select value={formData.assignee} onChange={e => setFormData({ ...formData, assignee: e.target.value })} className="w-full h-8 px-2 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold outline-none">
-                                    <option>Thanushika</option>
-                                    <option>Ravindu</option>
-                                    <option>Priya</option>
+                                <select
+                                    disabled={!canAssign}
+                                    value={formData.assignee}
+                                    onChange={e => setFormData({ ...formData, assignee: e.target.value })}
+                                    className={`w-full h-8 px-2 border border-slate-100 rounded-lg text-[10px] font-bold outline-none transition-all ${!canAssign ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-slate-50 focus:bg-white focus:border-indigo-500'
+                                        }`}
+                                >
+                                    {!canAssign && <option value={formData.assignee}>{formData.assignee}</option>}
+                                    {canAssign && teamMembers.map(m => (
+                                        <option key={m.name} value={m.name}>{m.name}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="space-y-1.5">
@@ -339,6 +350,7 @@ export default function TasksPage() {
                                 <tr>
                                     <th className="px-4 py-2.5 text-[8px] font-black text-slate-400 uppercase tracking-widest">Case Activity</th>
                                     <th className="px-4 py-2.5 text-[8px] font-black text-slate-400 uppercase tracking-widest">Lead</th>
+                                    <th className="px-4 py-2.5 text-[8px] font-black text-slate-400 uppercase tracking-widest">Assignee</th>
                                     <th className="px-4 py-2.5 text-[8px] font-black text-slate-400 uppercase tracking-widest">Schedule</th>
                                     <th className="px-4 py-1.5 text-[8px] font-black text-slate-400 uppercase tracking-widest">Task Status</th>
                                     <th className="px-4 py-1.5 text-[8px] font-black text-slate-400 uppercase tracking-widest">Priority</th>
@@ -367,6 +379,14 @@ export default function TasksPage() {
                                                     <p className="text-[10px] font-black text-slate-700 leading-none">{t.client}</p>
                                                 </td>
                                                 <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-1.5">
+                                                        <div className="w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center text-[7px] font-black text-slate-500 uppercase">
+                                                            {t.assignee?.charAt(0)}
+                                                        </div>
+                                                        <p className="text-[9px] font-black text-slate-600 leading-none">{t.assignee}</p>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3">
                                                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">{formatDate(t.date, t.time)}</p>
                                                 </td>
                                                 <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
@@ -388,16 +408,25 @@ export default function TasksPage() {
                                                     </select>
                                                 </td>
                                                 <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                                                    <span className={`text-[8px] font-black px-2 py-0.5 rounded-lg uppercase tracking-tighter border
-                                                        ${t.leadStatus === 'Hot' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                                                            t.leadStatus === 'Warm' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}>
-                                                        {t.leadStatus}
-                                                    </span>
+                                                    <select
+                                                        value={t.leadStatus}
+                                                        onChange={e => {
+                                                            const newTasks = tasks.map(tk => tk.id === t.id ? { ...tk, leadStatus: e.target.value as any } : tk);
+                                                            setTasks(newTasks);
+                                                        }}
+                                                        className={`h-6 px-2 text-[8px] font-black border rounded-lg outline-none uppercase tracking-tighter cursor-pointer transition-all
+                                                            ${t.leadStatus === 'Hot' ? 'bg-rose-50 text-rose-600 border-rose-100' :
+                                                                t.leadStatus === 'Warm' ? 'bg-amber-50 text-amber-600 border-amber-100' : 'bg-blue-50 text-blue-600 border-blue-100'}`}
+                                                    >
+                                                        <option>Hot</option>
+                                                        <option>Warm</option>
+                                                        <option>Cool</option>
+                                                    </select>
                                                 </td>
                                             </tr>
                                             {isExpanded && (
                                                 <tr className="bg-indigo-50/30 border-b border-indigo-100/50 animate-in slide-in-from-top-1 duration-200">
-                                                    <td colSpan={5} className="px-10 py-5">
+                                                    <td colSpan={6} className="px-10 py-5">
                                                         <div className="grid grid-cols-4 gap-6">
                                                             <div className="space-y-1">
                                                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Assignee</label>

@@ -36,10 +36,14 @@ export default function DetailDrawer({ isOpen, onClose, entity, type }: DetailDr
                                 <p className="text-[12px] text-slate-600 leading-relaxed font-medium">{entity.desc}</p>
                             </div>
                         </section>
-                        <section className="grid grid-cols-2 gap-4">
+                        <section className="grid grid-cols-3 gap-4">
                             <div className="p-4 bg-white border border-slate-100 rounded-2xl">
                                 <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Status</p>
                                 <p className="text-[11px] font-black text-indigo-600">IN PROGRESS</p>
+                            </div>
+                            <div className="p-4 bg-white border border-slate-100 rounded-2xl">
+                                <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Assignee</p>
+                                <p className="text-[11px] font-black text-slate-900">{entity.assignee || 'Unassigned'}</p>
                             </div>
                             <div className="p-4 bg-white border border-slate-100 rounded-2xl">
                                 <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Due Date</p>
