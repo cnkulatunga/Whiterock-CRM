@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white border border-slate-100 rounded-2xl shadow-card transition-all duration-300;
+  }
+  .glass-card:hover {
+    @apply -translate-y-0.5 shadow-lg;
+  }
+  .nav-item {
+    @apply flex flex-col items-center gap-1 text-slate-400 transition-all cursor-pointer
+           no-underline p-1.5 rounded-lg w-14 hover:text-white hover:bg-white/10;
+  }
+  .nav-item.active {
+    @apply text-white bg-white/10;
+  }
+  .badge {
+    @apply inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-black
+           uppercase tracking-wide whitespace-nowrap;
+  }
+  .badge-hot   { @apply bg-red-100 text-red-700; }
+  .badge-warm  { @apply bg-amber-100 text-amber-700; }
+  .badge-cool  { @apply bg-blue-100 text-blue-700; }
+  .badge-active   { @apply bg-emerald-100 text-emerald-700; }
+  .badge-inactive { @apply bg-slate-100 text-slate-500; }
+  .input-field {
+    @apply w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2
+           text-[11px] font-medium text-slate-900 outline-none transition-all
+           focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100;
+  }
+  .btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white
+           text-[9px] font-black uppercase tracking-widest rounded-lg
+           hover:bg-black transition-all cursor-pointer border-none;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-slate-100 text-slate-600
+           text-[9px] font-black uppercase tracking-widest rounded-lg
+           hover:bg-slate-200 transition-all cursor-pointer border-none;
+  }
+  .btn-danger {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600
+           text-[9px] font-black uppercase tracking-widest rounded-lg
+           hover:bg-red-100 transition-all cursor-pointer border border-red-100;
+  }
+  .panel-card {
+    @apply bg-white rounded-2xl border border-slate-100 flex flex-col overflow-hidden shadow-card;
+  }
+  .section-header {
+    @apply text-[9px] font-black text-slate-900 uppercase tracking-widest
+           border-b-2 border-slate-100 pb-2 mb-3 flex items-center gap-2;
+  }
+  .stat-card {
+    @apply bg-slate-50 border border-slate-100 rounded-xl p-3;
+  }
+}
