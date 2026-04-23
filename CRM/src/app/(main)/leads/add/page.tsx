@@ -17,7 +17,7 @@ const BANKS = [
 ];
 
 const SOURCES = [
-    "Advertisement", "Cold Call", "Web", "External Referral", "Sales Email Alias",
+    "Advertisement", "Cold Call", "Web", "External Referral", "Instagram", "Organic Search", "Sales Email Alias",
     "Employee Referral", "Online Store", "Partner", "Public Relations",
     "Seminar Partner", "Internal Seminar", "Trade Show", "Chat"
 ];
@@ -26,272 +26,240 @@ export default function RegisterLeadPage() {
     const router = useRouter();
     const [caseId, setCaseId] = useState('');
     const [existingLoan, setExistingLoan] = useState('No');
+    const [formData, setFormData] = useState<any>({
+        quality: 'warm',
+        preferredMethod: 'Email',
+        homeOwner: 'Yes',
+        creditConsent: 'Yes'
+    });
 
     useEffect(() => {
         setCaseId('AF-CASE-' + Math.floor(1000 + Math.random() * 9000));
     }, []);
 
     const handleBack = () => {
-        router.back();
+        router.push('/leads');
+    };
+
+    const saveLead = () => {
+        if (!formData.fullName) {
+            alert('Full Name is required');
+            return;
+        }
+        // In a real app, we would POST to an API here
+        router.push('/leads');
     };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden bg-[#f8fafc]">
-            {/* ══ Page Header ══ */}
-            <header className="bg-white border-b border-slate-100 shadow-sm flex items-center gap-4 px-5 h-[52px] shrink-0 z-20">
-                <button className="flex items-center gap-2 text-slate-400 hover:text-[#2447d7] transition-all group outline-none" onClick={handleBack}>
-                    <div className="w-[26px] h-[26px] rounded-full bg-[#f8fafc] border border-slate-200 flex items-center justify-center group-hover:bg-[#2447d7] group-hover:border-[#2447d7] transition-all">
-                        <i className="fa-solid fa-arrow-left text-[9px] group-hover:text-white"></i>
+        <div className="flex-1 flex flex-col bg-[#f8fafc] h-screen overflow-hidden animate-in fade-in duration-300">
+            {/* Registration Header */}
+            <header className="h-[52px] bg-white border-b border-slate-100 flex items-center px-5 shrink-0 shadow-sm z-10">
+                <button onClick={handleBack} className="flex items-center gap-2 group mr-6 text-left outline-none">
+                    <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center group-hover:bg-[#2447d7] group-hover:border-[#2447d7] transition-all">
+                        <i className="fa-solid fa-arrow-left text-[10px] text-slate-400 group-hover:text-white"></i>
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest leading-none">Back</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#2447d7]">Exit Process</span>
                 </button>
-
-                <div className="w-[1px] h-6 bg-slate-100 shrink-0"></div>
-
                 <div className="flex items-center gap-3">
-                    <div className="w-[30px] h-[30px] rounded-xl bg-[#ebf0ff] flex items-center justify-center shrink-0 shadow-sm">
-                        <i className="fa-solid fa-user-plus text-[#2447d7] text-xs"></i>
+                    <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#2447d7]">
+                        <i className="fa-solid fa-user-plus text-[14px]"></i>
                     </div>
                     <div>
-                        <h1 className="text-[12px] font-black text-slate-900 leading-none uppercase tracking-widest m-0">Register New Lead</h1>
-                        <p className="text-[8px] text-slate-400 font-bold mt-0.5 uppercase tracking-tighter m-0 whitespace-nowrap">Integrated Case Registration System • {caseId}</p>
+                        <h1 className="text-[12px] font-black text-slate-900 uppercase tracking-widest leading-none">Register New Lead</h1>
+                        <p className="text-[8px] text-slate-400 font-bold mt-0.5 uppercase tracking-tighter">Secure Registry Protocol Active</p>
                     </div>
                 </div>
-
                 <div className="flex-1"></div>
-
-                <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-2 px-3 border-l border-slate-100">
-                        <label className="text-[8px] font-black text-slate-400 uppercase tracking-tighter">Status</label>
-                        <select className="h-7 px-2 text-[9px] font-black border border-slate-200 rounded-lg bg-slate-50 outline-none uppercase cursor-pointer">
-                            <option>Warm</option>
-                            <option>Hot</option>
-                            <option>Cool</option>
+                <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                         <span className="text-[10px] font-mono font-black text-[#2447d7] tracking-widest uppercase">{caseId}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Initial Priority</label>
+                        <select 
+                            value={formData.quality}
+                            onChange={e => setFormData({ ...formData, quality: e.target.value })}
+                            className="h-8 px-3 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-black text-slate-900 outline-none cursor-pointer"
+                        >
+                            <option value="hot">HOT</option>
+                            <option value="warm">WARM</option>
+                            <option value="cool">COOL</option>
                         </select>
                     </div>
-
-                    <button className="h-8.5 px-5 bg-[#2447d7] hover:bg-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 transition-all flex items-center gap-2">
-                        <i className="fa-solid fa-check text-[8px]"></i> Save Lead
+                    <button onClick={saveLead} className="h-9 px-6 bg-[#2447d7] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-lg flex items-center gap-2">
+                        <i className="fa-solid fa-check text-[9px]"></i> Terminate & Save
                     </button>
                 </div>
             </header>
 
-            {/* ══ Scrollable Form Body ══ */}
-            <main className="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4 bg-[#fcfcfd]">
-
-                {/* 1. Contact Information */}
-                <section className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm">
-                    <h3 className="text-[9px] font-black text-slate-900 uppercase tracking-widest border-b-2 border-slate-50 pb-2.5 mb-6 flex items-center gap-2">
-                        <i className="fa-solid fa-address-card text-[#2447d7]"></i> 1. Contact Information
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
-                        {[
-                            { label: 'Title', placeholder: 'Mr, Mrs, Dr...', required: true },
-                            { label: 'Full Name', placeholder: 'Jonathan Doe', required: true },
-                            { label: 'Date of Birth', type: 'date', required: true },
-                            { label: 'Company / Organization Name', placeholder: 'Registered name...', required: true },
-                            { label: 'Company House Number', placeholder: 'e.g. 12345678', required: true },
-                            { label: 'Business Annual Turnover', placeholder: '£0.00', required: true },
-                            { label: 'Job Title / Position', placeholder: 'Managing Director' },
-                            { label: 'Industry', type: 'select', options: INDUSTRIES },
-                            { label: 'Email Address', type: 'email', placeholder: 'client@example.com', required: true },
-                            { label: 'Phone Number', type: 'tel', placeholder: '+44 77...', required: true },
-                            { label: 'Preferred Method', type: 'method' },
-                            { label: 'Home Owner', type: 'select', options: ['Yes', 'No'], required: true },
-                            { label: 'Time at Current Address', placeholder: 'e.g. 3 years' },
-                        ].map((field, i) => (
-                            <div key={i} className="space-y-1.5 focus-within:z-10">
-                                <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block ml-1">
-                                    {field.label} {field.required && <span className="text-rose-500">*</span>}
-                                </label>
-                                {field.type === 'select' ? (
-                                    <select className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black text-slate-900 outline-none focus:bg-white focus:border-[#2447d7] transition-all cursor-pointer">
-                                        <option value="">Select industry...</option>
-                                        {field.options?.map(opt => <option key={opt}>{opt}</option>)}
-                                    </select>
-                                ) : field.type === 'method' ? (
-                                    <div className="flex gap-1.5">
-                                        {['Email', 'Phone', 'WhatsApp', 'Other'].map((m) => (
-                                            <div key={m} className={`h-9 flex-1 flex items-center justify-center border text-[9px] font-black rounded-xl cursor-pointer transition-all ${m === 'Email' ? 'bg-[#ebf0ff] border-[#2447d7] text-[#2447d7]' : 'bg-white border-slate-200 text-slate-400 hover:bg-slate-50'}`}>
-                                                {m}
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <input
-                                        type={field.type || 'text'}
-                                        placeholder={field.placeholder}
-                                        className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black text-slate-900 outline-none focus:bg-white focus:border-[#2447d7] transition-all"
-                                    />
-                                )}
+            {/* Registration Form Body */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6 bg-[#fcfcfd]">
+                <div className="max-w-6xl mx-auto space-y-6">
+                    {/* 1. Contact Information */}
+                    <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
+                        <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-8 flex items-center gap-3 border-b-2 border-indigo-600 pb-3 w-fit">
+                            <i className="fa-solid fa-address-card"></i> 1. Legal Identity & Contact
+                        </h3>
+                        <div className="grid grid-cols-3 gap-8">
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Title *</label>
+                                <input value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Mr, Mrs, Dr..." className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
                             </div>
-                        ))}
-                        <div className="lg:col-span-3 space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block ml-1">Residential Address <span className="text-rose-500">*</span></label>
-                            <input className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none focus:bg-white transition-all" placeholder="Full address (Street, City, Postcode)..." />
-                        </div>
-                        <div className="lg:col-span-3 space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block ml-1">Previous Address</label>
-                            <input className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none focus:bg-white transition-all" placeholder="Previous address if at current for < 3 years..." />
-                        </div>
-                    </div>
-                </section>
-
-                {/* 2. Loan Details */}
-                <section className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm">
-                    <h3 className="text-[9px] font-black text-slate-900 uppercase tracking-widest border-b-2 border-slate-50 pb-2.5 mb-6 flex items-center gap-2">
-                        <i className="fa-solid fa-sack-dollar text-[#2447d7]"></i> 2. Loan & Financial Details
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Amount Needed <span className="text-rose-500">*</span></label>
-                            <input className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none focus:bg-white transition-all" placeholder="£0.00" />
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Loan Purpose</label>
-                            <input className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none focus:bg-white transition-all" placeholder="Business expansion..." />
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Existing Loan</label>
-                            <select
-                                value={existingLoan}
-                                onChange={(e) => setExistingLoan(e.target.value)}
-                                className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none cursor-pointer"
-                            >
-                                <option>No</option>
-                                <option>Yes</option>
-                            </select>
-                        </div>
-
-                        {existingLoan === 'Yes' && (
-                            <div className="col-span-full bg-[#f8fafc] border border-slate-100 rounded-2xl p-5 space-y-4 animate-in slide-in-from-top-2 duration-200">
-                                <p className="text-[9px] font-black text-[#2447d7] uppercase tracking-widest m-0 leading-none">Existing Indebtedness</p>
-                                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                                    <input placeholder="Lender Name" className="h-9 px-3 bg-white border border-slate-200 rounded-xl text-[9px] font-black outline-none" />
-                                    <input placeholder="Amount (£)" className="h-9 px-3 bg-white border border-slate-200 rounded-xl text-[9px] font-black outline-none" />
-                                    <input placeholder="Interest %" className="h-9 px-3 bg-white border border-slate-200 rounded-xl text-[9px] font-black outline-none" />
-                                    <input placeholder="Monthly (£)" className="h-9 px-3 bg-white border border-slate-200 rounded-xl text-[9px] font-black outline-none" />
-                                    <input placeholder="Term" className="h-9 px-3 bg-white border border-slate-200 rounded-xl text-[9px] font-black outline-none" />
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Full Name *</label>
+                                <input value={formData.fullName || ''} onChange={e => setFormData({ ...formData, fullName: e.target.value })} placeholder="e.g. Jonathan Doe" className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Date of Birth *</label>
+                                <input type="date" value={formData.dob || ''} onChange={e => setFormData({ ...formData, dob: e.target.value })} className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Company Entity *</label>
+                                <input value={formData.company || ''} onChange={e => setFormData({ ...formData, company: e.target.value })} placeholder="Registered name..." className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">House Number *</label>
+                                <input value={formData.companyHouseNumber || ''} onChange={e => setFormData({ ...formData, companyHouseNumber: e.target.value })} placeholder="e.g. 12345678" className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Annual Turnover *</label>
+                                <input value={formData.businessAnnualTurnover || ''} onChange={e => setFormData({ ...formData, businessAnnualTurnover: e.target.value })} placeholder="£0.00" className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all font-mono shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Designation</label>
+                                <input value={formData.jobTitle || ''} onChange={e => setFormData({ ...formData, jobTitle: e.target.value })} placeholder="Managing Director" className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Industry</label>
+                                <select value={formData.industry || ''} onChange={e => setFormData({ ...formData, industry: e.target.value })} className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all cursor-pointer shadow-sm">
+                                    <option value="">Select industry...</option>
+                                    {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Email Address *</label>
+                                <input type="email" value={formData.email || ''} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="client@example.com" className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Phone Number *</label>
+                                <input type="tel" value={formData.phone || ''} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="+44 77..." className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all font-mono shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Preferred Method</label>
+                                <div className="flex gap-2 h-11">
+                                    {['Email', 'Phone', 'WhatsApp', 'Other'].map(m => (
+                                        <button 
+                                            key={m} 
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, preferredMethod: m })}
+                                            className={`flex-1 rounded-2xl text-[9px] font-black transition-all border ${formData.preferredMethod === m ? 'bg-indigo-600 text-white border-indigo-600 shadow-md translate-y-[-1px]' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'}`}
+                                        >
+                                            {m}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
-                        )}
-
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Overdraft Facility</label>
-                            <select className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none cursor-pointer">
-                                <option>No</option>
-                                <option>Yes</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Company Bank</label>
-                            <select className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none cursor-pointer">
-                                <option value="">Select a bank...</option>
-                                {BANKS.map(bank => <option key={bank}>{bank}</option>)}
-                            </select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Lead Source</label>
-                            <select className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none cursor-pointer">
-                                <option value="">Select source...</option>
-                                {SOURCES.map(source => <option key={source}>{source}</option>)}
-                            </select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Funding Timeline</label>
-                            <input className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none" placeholder="e.g. Within 2 weeks" />
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Alpha Loan Before? <span className="text-rose-500">*</span></label>
-                            <select className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none cursor-pointer">
-                                <option>No</option>
-                                <option>Yes</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Credit Consent <span className="text-rose-500">*</span></label>
-                            <select className="w-full h-9 px-3 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none cursor-pointer">
-                                <option>Yes</option>
-                                <option>No</option>
-                            </select>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Residential Ownership</label>
+                                <select value={formData.homeOwner || 'Yes'} onChange={e => setFormData({ ...formData, homeOwner: e.target.value })} className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm">
+                                    <option>Yes</option><option>No</option>
+                                </select>
+                            </div>
+                            <div className="col-span-3 text-left">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Residential Address *</label>
+                                <input value={formData.residentialAddress || ''} onChange={e => setFormData({ ...formData, residentialAddress: e.target.value })} placeholder="Full address (Street, City, Postcode)..." className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                            </div>
                         </div>
                     </div>
-                </section>
 
-                {/* 3. Docs & Comments */}
-                <section className="bg-white rounded-[24px] border border-slate-100 p-6 shadow-sm grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-1">
-                        <h3 className="text-[9px] font-black text-slate-900 uppercase tracking-widest border-b-2 border-slate-50 pb-2.5 mb-4 flex items-center gap-2">
-                            <i className="fa-solid fa-paperclip text-[#2447d7]"></i> Supporting Docs
+                    {/* 2. Loan Details */}
+                    <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
+                        <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-8 flex items-center gap-3 border-b-2 border-indigo-600 pb-3 w-fit">
+                            <i className="fa-solid fa-sack-dollar"></i> 2. Financial Requirements
                         </h3>
-                        <div className="border-2 border-dashed border-slate-100 rounded-2xl p-6 text-center hover:bg-[#ebf0ff] hover:border-[#2447d7] transition-all group cursor-pointer">
-                            <i className="fa-solid fa-cloud-arrow-up text-slate-300 group-hover:text-[#2447d7] text-xl mb-2 block"></i>
-                            <span className="text-[8px] font-black text-slate-400 group-hover:text-[#2447d7] uppercase tracking-[.2em]">Click to Upload</span>
+                        <div className="grid grid-cols-3 gap-8">
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Amount Needed *</label>
+                                <input value={formData.loanAmount || ''} onChange={e => setFormData({ ...formData, loanAmount: e.target.value })} placeholder="£0.00" className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all font-mono shadow-sm" />
+                            </div>
+                            <div>
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Loan Purpose</label>
+                                <input value={formData.loanPurpose || ''} onChange={e => setFormData({ ...formData, loanPurpose: e.target.value })} placeholder="Business expansion..." className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                            </div>
+                            <div className="text-left">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Existing Indebtedness</label>
+                                <select value={formData.existingLoan || 'No'} onChange={e => setFormData({ ...formData, existingLoan: e.target.value })} className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm">
+                                    <option>No</option><option>Yes</option>
+                                </select>
+                            </div>
+                            <div className="text-left">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Bank Institution</label>
+                                <select value={formData.companyBank || ''} onChange={e => setFormData({ ...formData, companyBank: e.target.value })} className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm">
+                                    <option value="">Select a bank...</option>
+                                    {BANKS.map(b => <option key={b} value={b}>{b}</option>)}
+                                </select>
+                            </div>
+                            <div className="text-left">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Lead Source</label>
+                                <select value={formData.leadSource || ''} onChange={e => setFormData({ ...formData, leadSource: e.target.value })} className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm">
+                                    <option value="">Select source...</option>
+                                    {SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                            <div className="text-left">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Credit Search Consent *</label>
+                                <select value={formData.creditConsent || 'Yes'} onChange={e => setFormData({ ...formData, creditConsent: e.target.value })} className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm">
+                                    <option>Yes</option><option>No</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
-                    <div className="lg:col-span-2">
-                        <h3 className="text-[9px] font-black text-slate-900 uppercase tracking-widest border-b-2 border-slate-50 pb-2.5 mb-4 flex items-center gap-2">
-                            <i className="fa-solid fa-comment-dots text-[#2447d7]"></i> Additional Comments
-                        </h3>
-                        <textarea className="w-full h-[88px] p-3 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[10px] font-black outline-none focus:bg-white resize-none" placeholder="Enter persistent context/notes for this client..." />
-                    </div>
-                </section>
 
-                {/* 4. Schedule Follow-up */}
-                <section className="bg-[#f0f4ff]/40 border border-blue-100 rounded-[24px] p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-5 border-b border-blue-100 pb-2.5">
-                        <h4 className="text-[10px] font-black text-[#2447d7] uppercase tracking-[.15em] m-0 flex items-center gap-2">
-                            <i className="fa-solid fa-calendar-plus"></i> 4. Schedule Follow-up
-                        </h4>
-                        <div className="w-2 h-2 rounded-full bg-[#2447d7] animate-pulse"></div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-4">
-                        <div className="md:col-span-2 space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Task Description</label>
-                            <input className="w-full h-9 px-4 bg-white border border-slate-200 rounded-xl text-[10px] font-black outline-none shadow-sm" placeholder="e.g. Initial Consultation..." />
+                    {/* 3. Follow-up & Comments */}
+                    <div className="grid grid-cols-2 gap-8">
+                        <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm">
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-8 flex items-center gap-3 border-b-2 border-amber-500 pb-3 w-fit">
+                                <i className="fa-solid fa-calendar-plus text-amber-500"></i> 3. Initial Action Schedule
+                            </h3>
+                            <div className="space-y-6">
+                                <div className="text-left">
+                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Action Protocol</label>
+                                    <select className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm">
+                                        <option>Call</option><option>Meeting</option><option>Follow-up</option><option>Email</option>
+                                    </select>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input type="date" className="h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black outline-none shadow-sm" />
+                                    <input type="time" className="h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black outline-none shadow-sm" />
+                                </div>
+                                <textarea placeholder="Instructions for assigned specialist..." rows={2} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black outline-none focus:bg-white resize-none shadow-sm"></textarea>
+                            </div>
                         </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Assignee</label>
-                            <select className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black outline-none cursor-pointer shadow-sm">
-                                <option>Thanushika</option>
-                                <option>Admin</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Task Type</label>
-                            <select className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black outline-none cursor-pointer shadow-sm">
-                                <option>Call</option>
-                                <option>Meeting</option>
-                                <option>Follow-up</option>
-                            </select>
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Date</label>
-                            <input type="date" className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black outline-none shadow-sm" />
-                        </div>
-                        <div className="space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Time</label>
-                            <input type="time" className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black outline-none shadow-sm" />
-                        </div>
-                        <div className="md:col-span-2 space-y-1.5">
-                            <label className="text-[9px] font-bold text-slate-500 uppercase ml-1 block">Instructions</label>
-                            <input className="w-full h-9 px-3 bg-white border border-slate-200 rounded-xl text-[10px] font-black outline-none shadow-sm" placeholder="Additional notes for the task..." />
+                        <div className="bg-white rounded-[2.5rem] border border-slate-100 p-8 shadow-sm flex flex-col">
+                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-8 flex items-center gap-3 border-b-2 border-indigo-600 pb-3 w-fit">
+                                <i className="fa-solid fa-comment-dots"></i> 4. Operational Context
+                            </h3>
+                            <textarea 
+                                value={formData.additionalComments || ''}
+                                onChange={e => setFormData({ ...formData, additionalComments: e.target.value })}
+                                placeholder="Enter persistent context/notes for this client record..." 
+                                className="flex-1 w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black outline-none focus:bg-white resize-none min-h-[160px] shadow-sm"
+                            ></textarea>
                         </div>
                     </div>
-                </section>
 
-                {/* Footer Buttons */}
-                <div className="flex items-center justify-end gap-3 pt-4 pb-8">
-                    <button onClick={handleBack} className="h-10 px-6 bg-slate-100 text-slate-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all hover:bg-slate-200">
-                        Cancel
-                    </button>
-                    <button className="h-10 px-8 bg-[#2447d7] hover:bg-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-indigo-100 transition-all flex items-center gap-2">
-                        <i className="fa-solid fa-check text-[8px]"></i> Complete Registration
-                    </button>
+                    <div className="pt-6 flex justify-end gap-4 pb-12">
+                        <button onClick={handleBack} className="h-12 px-10 bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-[1.25rem] hover:bg-slate-200 transition-all">Discard Registry</button>
+                        <button onClick={saveLead} className="h-12 px-12 bg-[#2447d7] text-white text-[10px] font-black uppercase tracking-widest rounded-[1.25rem] hover:bg-black transition-all shadow-2xl shadow-indigo-200">Commit to Database</button>
+                    </div>
                 </div>
-
-            </main>
+            </div>
+            <style jsx global>{`
+                .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+            `}</style>
         </div>
     );
 }
