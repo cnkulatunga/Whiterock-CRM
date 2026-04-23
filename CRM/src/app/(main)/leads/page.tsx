@@ -394,11 +394,11 @@ export default function LeadsPage() {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm transition-all border ${lead.quality === 'hot' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                                                lead.quality === 'warm' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                    'bg-blue-50 text-blue-600 border-blue-100'
+                                            lead.quality === 'warm' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                'bg-blue-50 text-blue-600 border-blue-100'
                                             }`}>
                                             <span className={`w-1.5 h-1.5 rounded-full mr-2.5 animate-pulse ${lead.quality === 'hot' ? 'bg-rose-500' :
-                                                    lead.quality === 'warm' ? 'bg-amber-500' : 'bg-blue-500'
+                                                lead.quality === 'warm' ? 'bg-amber-500' : 'bg-blue-500'
                                                 }`}></span>
                                             {lead.quality} LEADS
                                         </span>
