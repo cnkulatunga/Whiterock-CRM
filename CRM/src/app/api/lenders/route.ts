@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
 export async function GET() {
-    return NextResponse.json(db.lenders.getAll());
+    try {
+        const lenders = db.lenders.getAll() || [];
+        return NextResponse.json(lenders);
+    } catch (error) {
+        return NextResponse.json([], { status: 200 }); // Return empty array instead of failing
+    }
 }
 
 export async function POST(request: Request) {

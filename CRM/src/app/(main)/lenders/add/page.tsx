@@ -54,9 +54,21 @@ export default function LenderManagementPage() {
 
     useEffect(() => {
         fetch('/api/lenders')
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error('API Error');
+                return res.json().catch(() => null);
+            })
             .then(data => {
-                setLenders(data.length > 0 ? data : INIT_LENDERS);
+                if (data && Array.isArray(data) && data.length > 0) {
+                    setLenders(data);
+                } else {
+                    setLenders(INIT_LENDERS);
+                }
+                setFetchLoading(false);
+            })
+            .catch(err => {
+                console.error('Lenders Fetch Failed:', err);
+                setLenders(INIT_LENDERS);
                 setFetchLoading(false);
             });
     }, []);

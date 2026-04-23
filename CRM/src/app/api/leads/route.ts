@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
 export async function GET() {
-    return NextResponse.json(db.leads.getAll());
+    try {
+        const leads = db.leads.getAll() || [];
+        return NextResponse.json(leads);
+    } catch (error) {
+        return NextResponse.json([], { status: 200 });
+    }
 }
 
 export async function POST(request: Request) {

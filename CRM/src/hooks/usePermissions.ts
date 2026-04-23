@@ -11,23 +11,27 @@ export function usePermissions() {
     useEffect(() => {
         const session = sessionStorage.getItem('crm_session');
         if (session) {
-            const data = JSON.parse(session);
-            setUserRole(data.role);
+            try {
+                const data = JSON.parse(session);
+                setUserRole(data.role);
 
-            // Fetch live permissions from the server
-            fetch('/api/permissions')
-                .then(res => res.json())
-                .then(matrix => {
-                    // Use server-provided matrix, fallback to local defaults if API fails
-                    const livePerms = matrix[data.role] || DEFAULT_ROLE_PERMISSIONS[data.role];
-                    setPermissions(livePerms || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
-                    setIsLoading(false);
-                })
-                .catch(() => {
-                    const fallback = DEFAULT_ROLE_PERMISSIONS[data.role];
-                    setPermissions(fallback || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
-                    setIsLoading(false);
-                });
+                // Fetch live permissions from the server
+                fetch('/api/permissions')
+                    .then(res => res.json())
+                    .then(matrix => {
+                        // Use server-provided matrix, fallback to local defaults if API fails
+                        const livePerms = matrix[data.role] || DEFAULT_ROLE_PERMISSIONS[data.role];
+                        setPermissions(livePerms || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
+                        setIsLoading(false);
+                    })
+                    .catch(() => {
+                        const fallback = DEFAULT_ROLE_PERMISSIONS[data.role];
+                        setPermissions(fallback || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
+                        setIsLoading(false);
+                    });
+            } catch (e) {
+                setIsLoading(false);
+            }
         } else {
             setIsLoading(false);
         }

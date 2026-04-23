@@ -5,13 +5,13 @@
 ═══════════════════════════════════════════════════════════════ */
 
 export const INITIAL_LEADS = [
-    { id: 'AL-902', name: 'Robert Miller', company: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', amount: '£12,000', agent: 'Sarah Jenkins', status: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements', quality: 'hot' },
-    { id: 'AF-550', name: 'Priya Singh', company: 'Singh Media', email: 'contact@singhmedia.com', amount: '£450,000', agent: 'James White', status: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.', quality: 'warm' },
-    { id: 'AF-027', name: 'John Smith', company: 'ABC Corp', email: 'jsmith@abccorp.uk', amount: '£55,000', agent: 'Sarah Jenkins', status: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', quality: 'hot' },
-    { id: 'AL-339', name: 'Mike Johnson', company: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', amount: '£85,000', agent: 'James White', status: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.', quality: 'cool' },
-    { id: 'AF-001', name: 'David Brown', company: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', amount: '£150,000', agent: 'Sarah Jenkins', status: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.', quality: 'hot' },
-    { id: 'AL-209', name: 'Kevin Malone', company: 'Malone Paints', email: 'kevin@malonepaints.com', amount: '£25,000', agent: 'James White', status: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.', quality: 'cool' },
-];
+    { id: 'AL-902', name: 'Robert Miller', company: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', phone: '07123 456789', amount: '£12,000', agent: 'Sarah Jenkins', status: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements', quality: 'hot', type: 'Asset Finance' },
+    { id: 'AF-550', name: 'Priya Singh', company: 'Singh Media', email: 'contact@singhmedia.com', phone: '07123 987654', amount: '£450,000', agent: 'James White', status: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.', quality: 'warm', type: 'Commercial' },
+    { id: 'AF-027', name: 'John Smith', company: 'ABC Corp', email: 'jsmith@abccorp.uk', phone: '07123 111222', amount: '£55,000', agent: 'Sarah Jenkins', status: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', quality: 'hot', type: 'Asset Finance' },
+    { id: 'AL-339', name: 'Mike Johnson', company: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', phone: '07123 444555', amount: '£85,000', agent: 'James White', status: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.', quality: 'cool', type: 'Invoice Finance' },
+    { id: 'AF-001', name: 'David Brown', company: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', phone: '07123 666777', amount: '£150,000', agent: 'Sarah Jenkins', status: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.', quality: 'hot', type: 'Commercial' },
+    { id: 'AL-209', name: 'Kevin Malone', company: 'Malone Paints', email: 'kevin@malonepaints.com', phone: '07123 888999', amount: '£25,000', agent: 'James White', status: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.', quality: 'cool', type: 'Asset Finance' },
+] as any[];
 
 export const INITIAL_LENDERS = [
     { id: 1, name: 'ANZ Bank', trading: 'ANZ', type: 'Bank', status: 'Active', email: 'broker@anz.com.au', manager: 'Sarah Collins', managerEmail: 's.collins@anz.com.au', address: '242 Pitt Street, Sydney NSW 2000', regAddress: '242 Pitt Street, Sydney NSW 2000', tradingYears: 185, rateMin: 5.74, rateMax: 9.49, loanMin: 20000, loanMax: 5000000, categories: ['Secured', 'Commercial', 'Refinance'], notes: "One of Australia's Big Four banks.", added: '2026-01-10', promotions: [] },
@@ -20,9 +20,9 @@ export const INITIAL_LENDERS = [
 ];
 
 export const INITIAL_TASKS = [
-    { id: 1, title: 'Follow up with James Wilson', status: 'Pending', priority: 'High', date: '2026-04-25', description: 'Discuss valuation report gaps' },
-    { id: 2, title: 'Check valuation report for LD-102', status: 'In Progress', priority: 'Medium', date: '2026-04-24', description: 'Pending lender response' },
-    { id: 3, title: 'Review compliance for new Tele Agent', status: 'Done', priority: 'Low', date: '2026-04-20', description: 'All docs verified' },
+    { id: 1, title: 'Follow up with James Wilson', type: 'Priority Call', status: 'Pending', priority: 'High', date: '2026-04-23', time: '09:30', client: 'Alpha Tech Ltd', phone: '07123 456789', email: 'james@alphatech.com', assignee: 'Thanushika', description: 'Discuss valuation report gaps' },
+    { id: 2, title: 'Check valuation report for LD-102', type: 'Case Research', status: 'In Progress', priority: 'Medium', date: '2026-04-23', time: '11:00', client: 'Bright Build Co', phone: '07123 987654', email: 'oliver@brightbuild.co', assignee: 'Ravindu', description: 'Pending lender response' },
+    { id: 3, title: 'Review compliance for new Tele Agent', type: 'Critical Document', status: 'Done', priority: 'Low', date: '2026-04-20', time: '14:30', client: 'System Registry', phone: '—', email: 'compliance@whiterock.com', assignee: 'Thanushika', description: 'All docs verified' },
 ];
 
 export type Notification = {

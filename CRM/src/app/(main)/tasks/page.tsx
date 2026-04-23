@@ -30,7 +30,7 @@ export default function TasksPage() {
         taskStatus: 'To Do',
         leadStatus: f.priority as any,
         assignee: f.assignee,
-        notes: f.desc
+        notes: f.description
     })));
 
     const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -283,8 +283,8 @@ export default function TasksPage() {
                         </div>
                         {/* Day headers */}
                         <div className="grid grid-cols-7 gap-1 mb-1">
-                            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                                <div key={d} className="text-center text-[7px] font-black text-slate-400 uppercase">{d}</div>
+                            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                                <div key={i} className="text-center text-[7px] font-black text-slate-400 uppercase">{d}</div>
                             ))}
                         </div>
                         {/* Days Grid */}

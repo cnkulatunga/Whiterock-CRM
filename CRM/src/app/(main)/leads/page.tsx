@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { leads, followups } from '@/data/dummy';
+import { INITIAL_LEADS as DUMMY_LEADS, followups } from '@/data/dummy';
 
 const INDUSTRIES = [
   'Software', 'Hardware', 'IT Services', 'Telecommunications', 'E-commerce', 'Digital Media',
@@ -45,7 +45,7 @@ import { usePermissions } from '@/hooks/usePermissions';
 
 export default function LeadsPage() {
   const { hasAction, hasFeature, isLoading } = usePermissions();
-  const [leadList, setLeadList] = useState<Lead[]>([]);
+  const [leadList, setLeadList] = useState<Lead[]>(DUMMY_LEADS);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -61,17 +61,25 @@ export default function LeadsPage() {
   const [aiGenerated, setAiGenerated] = useState(false);
 
   React.useEffect(() => {
-    loadLeads();
+    // loadLeads();
   }, []);
 
   const loadLeads = async () => {
     try {
       const res = await fetch('/api/leads');
+      if (!res.ok) throw new Error('API Error');
       const data = await res.json();
-      setLeadList(data);
-      if (data.length > 0 && !selectedId) setSelectedId(data[0].id);
+      if (Array.isArray(data) && data.length > 0) {
+        setLeadList(data);
+        if (!selectedId) setSelectedId(data[0].id);
+      } else {
+        setLeadList(DUMMY_LEADS);
+        if (!selectedId && DUMMY_LEADS.length > 0) setSelectedId(DUMMY_LEADS[0].id);
+      }
     } catch (err) {
-      console.error('API Error: Failed to fetch leads');
+      console.error('API Error: Failed to fetch leads', err);
+      setLeadList(DUMMY_LEADS);
+      if (!selectedId && DUMMY_LEADS.length > 0) setSelectedId(DUMMY_LEADS[0].id);
     }
   };
 
