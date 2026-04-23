@@ -1,0 +1,1381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accounts Manager Dashboard - Alpha Funding CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        * { box-sizing:border-box; }
+        body { font-family:'Inter',system-ui,sans-serif; overflow:hidden; height:100vh; background:#fff; margin:0; display:flex; }
+        .custom-scrollbar::-webkit-scrollbar { width:3px; height:3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:10px; }
+
+
+
+
+
+        .dashboard-container { display:flex; flex-direction:column; height:100vh; flex-grow:1; min-width:0; background:#f8fafc; }
+        .glass-card { background:white; border:1px solid #f1f5f9; border-radius:20px; box-shadow:0 4px 20px rgba(0,0,0,0.03); transition:all 0.3s ease; }
+        .glass-card:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(0,0,0,0.06); }
+        .module-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1rem; padding:1rem; max-width:1800px; margin:0 auto; width:100%; }
+        .badge { display:inline-flex; align-items:center; padding:2px 8px; border-radius:99px; font-size:8px; font-weight:800; text-transform:uppercase; white-space:nowrap; }
+        .data-table { width:100%; border-collapse:collapse; table-layout:fixed; }
+        .data-table thead th { padding:12px 14px; font-size:10px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:.08em; background:#f8fafc; border-bottom:1px solid #f1f5f9; white-space:nowrap; position:sticky; top:0; z-index:1; text-align:left; }
+        .data-table tbody tr { border-bottom:1px solid #f1f5f9; transition:background .1s; }
+        .data-table tbody tr:hover { background:#f8fafc; }
+        .data-table tbody td { padding:12px 14px; font-size:12px; color:#1e293b; font-weight:500; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; vertical-align:middle; text-align:left; }
+        .dark-input { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:7px; padding:5px 10px; font-size:9px; font-weight:600; color:#fff; outline:none; }
+        .dark-input::placeholder { color:rgba(255,255,255,.3); }
+        .dark-select { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:7px; padding:5px 22px 5px 9px; font-size:9px; font-weight:700; color:#d1d5db; outline:none; cursor:pointer; appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='%23ffffff60' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 6px center; }
+        .dark-select option { background:#1e293b; color:#fff; }
+        .modal-overlay { position:fixed; inset:0; background:rgba(15,23,42,0.5); backdrop-filter:blur(4px); z-index:200; display:none; align-items:center; justify-content:center; }
+        .modal-overlay.active { display:flex; }
+        .form-input { width:100%; background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:8px 12px; font-size:11px; font-weight:600; color:#0f172a; outline:none; transition:all .2s; }
+        .form-input:focus { background:#fff; border-color:#d97706; box-shadow:0 0 0 3px rgba(217,119,6,0.1); }
+        .form-label { font-size:8px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:.07em; margin-bottom:4px; display:block; }
+        .tab-bar { display:flex; background:#0f172a; border-bottom:1px solid rgba(255,255,255,.06); flex-shrink:0; }
+        .tab-btn { flex:1; padding:9px 4px; font-size:7px; font-weight:800; text-transform:uppercase; letter-spacing:.07em; color:#64748b; cursor:pointer; border:none; background:none; transition:all .2s; border-bottom:2px solid transparent; }
+        .tab-btn.active { color:#fff; border-bottom-color:#d97706; }
+        .tab-content { display:none; flex-direction:column; flex:1; overflow:hidden; min-height:0; }
+        .tab-content.active { display:flex; }
+        .card-wide { grid-column:span 2 !important; }
+        @media (max-width:768px) { .card-wide { grid-column:span 1; } }
+        /* Notification Bell */
+        .notif-bell-wrap { position:relative; display:flex; align-items:center; }
+        .notif-bell-btn { width:40px; height:40px; border-radius:12px; background:#fff; border:1px solid #f1f5f9; box-shadow:0 4px 20px rgba(0,0,0,0.03); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .2s; position:relative; flex-shrink:0; }
+        .notif-bell-btn:hover { background:#f8fafc; box-shadow:0 10px 30px rgba(0,0,0,0.06); transform:translateY(-2px); }
+        .notif-badge { position:absolute; top:-4px; right:-4px; min-width:16px; height:16px; background:#ef4444; border-radius:99px; font-size:8px; font-weight:900; color:#fff; display:flex; align-items:center; justify-content:center; padding:0 4px; border:2px solid #f8fafc; animation:badgePop .3s cubic-bezier(.175,.885,.32,1.275); }
+        @keyframes badgePop { from{transform:scale(0)} to{transform:scale(1)} }
+        .notif-panel { position:fixed; top:70px; right:20px; width:340px; background:#fff; border:1px solid #f1f5f9; border-radius:20px; box-shadow:0 20px 50px rgba(0,0,0,0.12); z-index:500; display:none; flex-direction:column; overflow:hidden; transform-origin:top right; }
+        .notif-panel.open { display:flex; animation:panelReveal .25s cubic-bezier(.175,.885,.32,1.275); }
+        @keyframes panelReveal { from{opacity:0;transform:scale(.95) translateY(-8px)} to{opacity:1;transform:scale(1) translateY(0)} }
+        .notif-header { padding:14px 16px 10px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; }
+        .notif-item { display:flex; align-items:flex-start; gap:10px; padding:10px 16px; border-bottom:1px solid #f8fafc; cursor:pointer; transition:background .15s; }
+        .notif-item:hover { background:#f8fafc; }
+        .notif-item.unread { background:#fafbff; }
+        .notif-item:last-child { border-bottom:none; }
+        .notif-icon { width:32px; height:32px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:12px; }
+        .notif-dot { width:6px; height:6px; border-radius:50%; background:#6366f1; flex-shrink:0; margin-top:5px; }            .side-nav {
+            width: 70px;
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 4px;
+            border-right: 1px solid #1e293b;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #94a3b8;
+            transition: all .2s;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 6px 4px;
+            border-radius: 8px;
+            width: 54px;
+        }
+        .nav-item:hover,
+        .nav-item.active {
+            color: #fff;
+            background: rgba(255,255,255,.08);
+        }
+        .nav-item i {
+            font-size: 14px;
+        }
+        .nav-text {
+            font-size: 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            text-align: center;
+            line-height: 1;
+        }
+            /* Docs Drawer */
+        .docs-modal { position:fixed; inset:0; z-index:1100; display:none; justify-content:flex-end; overflow:hidden; pointer-events:none; }
+        .docs-modal.open { pointer-events:all; display:flex; }
+        .docs-modal-backdrop { position:absolute; inset:0; background:rgba(15,23,42,0.2); backdrop-filter:blur(2px); opacity:0; transition:opacity .3s; }
+        .docs-modal.open .docs-modal-backdrop { opacity:1; }
+        .docs-panel { position:relative; width:100%; max-width:500px; background:#fff; height:100%; box-shadow:-20px 0 50px rgba(0,0,0,0.1); border-left:1px solid #f1f5f9; display:flex; flex-direction:column; transform:translateX(100%); transition:transform .4s cubic-bezier(0.16,1,0.3,1); }
+        .docs-modal.open .docs-panel { transform:translateX(0); }
+        .docs-upload-zone { border:2px dashed #e2e8f0; border-radius:10px; padding:28px 16px; text-align:center; cursor:pointer; transition:all .2s; background:#f8fafc; position:relative; }
+        .docs-upload-zone:hover { border-color:#6366f1; background:#eef2ff; }
+        .docs-upload-zone input[type="file"] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+        .docs-input { width:100%; background:#f8fafc; border:1px solid #f1f5f9; border-radius:8px; padding:7px 10px; font-size:10px; font-weight:500; outline:none; transition:border .15s; color:#1e293b; }
+        .docs-input:focus { border-color:#6366f1; background:#fff; }
+        .docs-label { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; margin-bottom:3px; display:block; }
+        .card-wide { grid-column: span 2; }
+        .design-mode .glass-card { cursor: move; outline: 2px dashed #6366f1; outline-offset: 4px; }
+        .resize-btn { width:22px; height:22px; border-radius:6px; background:#f1f5f9; border:none; color:#64748b; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+        .resize-btn:hover { background:#0f172a; color:#fff; }
+        @keyframes expandDown{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+        /* AI Chatbot Widget Styles */
+        .ai-fab {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            width: 56px;
+            height: 56px;
+            background: #2447d7;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 25px rgba(36, 71, 215, 0.4);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        .ai-fab:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 15px 30px rgba(36, 71, 215, 0.5);
+        }
+
+        .ai-widget {
+            position: fixed;
+            bottom: 6rem;
+            right: 1.5rem;
+            width: 320px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none;
+            flex-direction: column;
+            z-index: 999;
+            transform-origin: bottom right;
+        }
+
+        .ai-widget.active {
+            display: flex;
+            animation: widgetReveal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes widgetReveal {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .ai-header {
+            padding: 0.75rem 1.25rem;
+            border-bottom: 1px solid #f1f5f9;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .ai-option {
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .ai-option:last-child {
+            border-bottom: none;
+        }
+
+        .ai-option:hover {
+            background: rgba(255, 255, 255, 0.8);
+            transform: translateX(4px);
+        }
+
+        .ai-option .icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        /* Day Events Drawer */
+        .day-drawer{position:fixed;inset:0;z-index:1100;display:none;justify-content:flex-end;overflow:hidden;pointer-events:none;}
+        .day-drawer.open{pointer-events:all;display:flex;}
+        .day-drawer-backdrop{position:absolute;inset:0;background:rgba(15,23,42,0.28);backdrop-filter:blur(3px);opacity:0;transition:opacity .3s;}
+        .day-drawer.open .day-drawer-backdrop{opacity:1;}
+        .day-drawer-panel{position:relative;width:100%;max-width:520px;background:#fff;height:100%;box-shadow:-24px 0 60px rgba(0,0,0,0.14);border-left:1px solid #f1f5f9;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .42s cubic-bezier(0.16,1,0.3,1);}
+        .day-drawer.open .day-drawer-panel{transform:translateX(0);}
+        .day-evt-row{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid #f8fafc;transition:background .1s;}
+        .day-evt-row:hover{background:#f8fafc;}
+        .day-evt-task{border-left:3px solid #6366f1;}
+        .day-evt-followup{border-left:3px solid #f59e0b;}
+        .day-evt-done{opacity:0.48;}
+        .day-evt-overdue{border-left:3px solid #ef4444;}
+        .dd-tab-btn{flex:1;padding:9px 6px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;background:none;border:none;border-bottom:2px solid transparent;color:#94a3b8;cursor:pointer;transition:all .15s;}
+        .dd-tab-btn.active{color:#6366f1;border-bottom-color:#6366f1;}
+        .cal-day{height:26px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border-radius:7px;position:relative;cursor:pointer;transition:all .15s;color:#1e293b;}
+        .cal-day:hover{background:#f1f5f9;}
+        .cal-day.today{background:#0f172a;color:#fff;font-weight:900;}
+        .cal-day.selected{background:#6366f1;color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.3);}
+        .cal-day.muted{color:#cbd5e1;cursor:default;pointer-events:none;}
+        .cal-day .evt-dot{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:#6366f1;}
+        .cal-day.today .evt-dot,.cal-day.selected .evt-dot{background:rgba(255,255,255,.8);}
+    </style>
+</head>
+<body>
+<nav class="side-nav">
+    <div class="mb-6"><img src="../logo/alpha.png" alt="Alpha Funding" style="width:38px;height:38px;object-fit:contain;border-radius:8px;"></div>
+    <a href="accounts_manager_dashboard.html" class="nav-item active"><i class="fa-solid fa-gauge-high"></i><span class="nav-text">Dashboard</span></a>
+    <a href="../task_and_followups/task_management.html" class="nav-item"><i class="fa-solid fa-tasks"></i><span class="nav-text">Tasks</span></a>
+    <a href="../lead_management/lead_management.html" class="nav-item"><i class="fa-solid fa-user-group"></i><span class="nav-text">Leads</span></a>
+    <a href="../lenders/lender_management.html" class="nav-item"><i class="fa-solid fa-hand-holding-dollar"></i><span class="nav-text">Lenders</span></a>
+    <div class="mt-auto">    <div class="nav-item" onclick="openProfileDrawer()" title="Profile" style="cursor:pointer;">
+        <i class="fa-solid fa-circle-user"></i>
+        <span class="nav-text">Profile</span>
+    </div>
+<div class="nav-item" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i><span class="nav-text">Logout</span></div></div>
+</nav>
+<main class="dashboard-container">
+    <!-- Top Action Row -->
+    <div class="flex items-center gap-2 px-6 pt-4 w-full" style="flex-shrink:0;overflow-x:auto;min-height:60px;"><div class="flex items-center gap-2 flex-nowrap flex-1 min-w-0">
+        <div class="glass-card p-2.5 flex items-center gap-3 w-[200px]">
+            <div id="u-avatar" style="width:32px;height:32px;border-radius:50%;background:#d97706;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:#fff;flex-shrink:0;"></div>
+            <div class="truncate"><h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Accounts Mgr</h4><p id="u-name" class="text-[10px] font-black text-slate-900 mt-1 truncate">Ã¢â‚¬â€</p></div>
+        </div>
+        <a href="../lead_management/register_lead.html" class="glass-card p-2.5 flex items-center gap-3 hover:border-amber-500/50 group transition-all w-[140px]">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all shrink-0"><i class="fa-solid fa-user-plus text-sm"></i></div>
+            <div class="truncate"><h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">New</h4><p class="text-[10px] font-black text-slate-900 mt-1">ADD LEAD</p></div>
+        </a>
+        <a href="../lead_management/lead_management.html" class="glass-card p-2.5 flex items-center gap-3 hover:border-indigo-500/50 group transition-all w-[140px]">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0"><i class="fa-solid fa-users text-sm"></i></div>
+            <div class="truncate"><h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Leads</h4><p id="chip-total" class="text-[10px] font-black text-slate-900 mt-1">0</p></div>
+        </a>
+        <a href="../lenders/lender_management.html" class="glass-card p-2.5 flex items-center gap-3 hover:border-amber-400/50 group transition-all w-[140px]">
+            <div class="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all shrink-0"><i class="fa-solid fa-hand-holding-dollar text-sm"></i></div>
+            <div class="truncate"><h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Lenders</h4><p class="text-[10px] font-black text-slate-900 mt-1">MANAGE</p></div>
+        </a>
+        <a href="mailto:admin@taskflow.com" class="glass-card p-2.5 flex items-center gap-3 hover:border-blue-400/50 group transition-all w-[130px]">
+            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-sky-500 group-hover:bg-[#0EA5E9] group-hover:text-white transition-all shrink-0"><i class="fa-solid fa-envelope text-sm"></i></div>
+            <div class="truncate">
+                <h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Official</h4>
+                <p class="text-[10px] font-black text-slate-900 mt-1">MAIL HUB</p>
+            </div>
+        </a>
+        <a href="https://web.whatsapp.com" target="_blank" class="glass-card p-2.5 flex items-center gap-3 hover:border-emerald-400/50 group transition-all w-[130px]">
+            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-emerald-500 group-hover:bg-[#25D366] group-hover:text-white transition-all shrink-0"><i class="fa-brands fa-whatsapp text-sm"></i></div>
+            <div class="truncate"><h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Chat</h4><p class="text-[10px] font-black text-slate-900 mt-1">WHATSAPP</p></div>
+        </a>
+        <button onclick="openCalculator()" class="glass-card p-2.5 flex items-center gap-3 hover:border-amber-400/50 group transition-all w-[130px]">
+            <div class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-amber-500 group-hover:bg-amber-500 group-hover:text-white transition-all shrink-0"><i class="fa-solid fa-calculator text-sm"></i></div>
+            <div class="truncate text-left"><h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Utility</h4><p class="text-[10px] font-black text-slate-900 mt-1">CALCULATOR</p></div>
+        </button>
+        <button id="designModeBtn" onclick="toggleDesignMode()" class="glass-card p-2.5 flex items-center gap-3 hover:border-indigo-500/50 group transition-all w-[150px]">
+            <div id="designIconBox" class="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0"><i class="fa-solid fa-wand-magic-sparkles text-sm"></i></div>
+            <div class="truncate text-left"><h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Layout</h4><p id="designModeLabel" class="text-[10px] font-black text-slate-900 mt-1">DESIGN MODE</p></div>
+        </button>
+        <a href="javascript:void(0)" onclick="openDocsDrawer()" class="glass-card p-2.5 flex items-center gap-3 hover:border-indigo-400/50 group transition-all w-[130px]">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0"><i class="fa-solid fa-folder-open text-sm"></i></div>
+            <div class="truncate"><h4 class="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Docs</h4><p class="text-[10px] font-black text-slate-900 mt-1">UPLOAD</p></div>
+        </a>
+
+        
+        </div><!-- Notification Bell -->
+        <div class="notif-bell-wrap" style="flex-shrink:0;margin-left:8px;">
+            <div class="notif-bell-btn" onclick="toggleNotifPanel()" id="notifBellBtn">
+                <i class="fa-solid fa-bell text-slate-500" style="font-size:15px;"></i>
+                <span class="notif-badge" id="notifBadge">3</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Panel -->
+    <div class="notif-panel" id="notifPanel">
+        <div class="notif-header">
+            <div>
+                <div style="font-size:11px;font-weight:800;color:#0f172a;">Notifications</div>
+                <div style="font-size:8px;font-weight:700;color:#94a3b8;margin-top:1px;" id="notif-unread-txt">3 unread</div>
+            </div>
+            <button onclick="markAllRead()" style="font-size:8px;font-weight:800;color:#6366f1;background:none;border:none;cursor:pointer;text-transform:uppercase;">Mark all read</button>
+        </div>
+        <div style="max-height:360px;overflow-y:auto;" id="notifList"></div>
+        <div style="padding:10px 16px;border-top:1px solid #f1f5f9;text-align:center;">
+            <button onclick="clearAllNotifs()" style="font-size:8px;font-weight:800;color:#94a3b8;background:none;border:none;cursor:pointer;text-transform:uppercase;">Clear All</button>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar">
+        <div class="module-grid">
+            <!-- My Leads Card (Wide) -->
+            <div class="glass-card flex flex-col card-wide" style="height:280px;" data-id="my-leads">
+                <div class="border-b" style="background:#0f172a;border-radius:20px 20px 0 0;padding:0 16px;display:flex;align-items:center;gap:10px;min-height:46px;flex-shrink:0;">
+                    <i class="fa-solid fa-users" style="color:rgba(255,255,255,.4);font-size:13px;"></i>
+                    <span style="font-size:9px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.12em;">My Leads</span>
+                    <div style="flex:1;"></div>
+                    <input id="srch" type="text" placeholder="SearchÃ¢â‚¬Â¦" class="dark-input" style="width:130px;" oninput="renderTable()">
+                    <select id="f-stage" class="dark-select" onchange="renderTable()">
+                        <option value="">All Stages</option>
+                        <option>Inquiry</option><option>Qualified</option><option>Proposal</option><option>Negotiation</option><option>Closed</option>
+                    </select>
+                    <a href="../lead_management/register_lead.html" style="background:#d97706;color:#fff;text-decoration:none;border-radius:8px;padding:5px 12px;font-size:8px;font-weight:800;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:5px;"><i class="fa-solid fa-plus"></i> New Lead</a>
+                </div>
+                <div class="flex-1 overflow-y-auto custom-scrollbar" id="tbl-scroll">
+                    <table class="data-table">
+                        <colgroup><col style="width:26%;"><col style="width:14%;"><col style="width:11%;"><col style="width:15%;"><col style="width:12%;"><col style="width:10%;"><col style="width:12%;"></colgroup>
+                        <thead><tr><th>Lead Name</th><th>Stage</th><th>Status</th><th>Loan Amount</th><th>Lender</th><th>Date</th><th>Actions</th></tr></thead>
+                        <tbody id="tbody"></tbody>
+                    </table>
+                </div>
+                <div style="padding:6px 14px;border-top:1px solid #f1f5f9;background:#f8fafc;border-radius:0 0 20px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+                    <span id="count-txt" style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;"></span>
+                    <div id="pagination" style="display:flex;align-items:center;gap:4px;"></div>
+                </div>
+            </div>
+
+            <!-- My Notes -->
+            <div class="glass-card flex flex-col" style="height:320px;" data-id="notes">
+                <div class="px-6 py-3 border-b border-amber-100 flex items-center justify-between bg-[#fefce8] border-t" style="border-radius:20px 20px 0 0;">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-list text-amber-600 text-[10px]"></i>
+                        <h3 class="text-[10px] font-black uppercase tracking-wider text-amber-900">My Notes</h3>
+                    </div>
+                    <button onclick="clearNotes()" class="text-[8px] font-black uppercase tracking-widest text-amber-700 hover:text-amber-900">Clear All</button>
+                </div>
+                <div id="notesContainer" class="flex-1 p-3 overflow-y-auto custom-scrollbar space-y-2 bg-[#fffdf0]/50"></div>
+                <div class="p-3 border-t border-amber-100 flex gap-2 items-center bg-white" style="border-radius:0 0 20px 20px;">
+                    <input id="noteInput" type="text" class="flex-1 bg-white border border-amber-100 rounded-lg px-3 py-2 text-[10px] font-medium focus:outline-none focus:border-amber-400 placeholder:text-slate-300" placeholder="Type a note & press Enter..." onkeypress="if(event.key==='Enter')addNote()">
+                    <button onclick="addNote()" class="bg-[#fbbf24] hover:bg-[#f59e0b] text-white px-4 py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all">Add</button>
+                </div>
+            </div>
+
+
+            <!-- Finance Centre -->
+            <div class="glass-card flex flex-col" style="height:280px;" data-id="finance">
+                <div class="border-b" style="background:#0f172a;border-radius:20px 20px 0 0;padding:0 14px;display:flex;align-items:center;gap:8px;height:44px;flex-shrink:0;">
+                    <i class="fa-solid fa-layer-group" style="color:rgba(255,255,255,.4);font-size:13px;"></i>
+                    <span style="font-size:9px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.1em;">Finance Centre</span>
+                </div>
+                <div class="tab-bar" style="border-radius:0;">
+                    <button class="tab-btn active" onclick="switchTab('lenders',this)">Lenders</button>
+                    <button class="tab-btn" onclick="switchTab('docs',this)">Documents</button>
+                    <button class="tab-btn" onclick="switchTab('summary',this)">Summary</button>
+                </div>
+                <div class="tab-content active" id="tab-lenders"><div class="flex-1 overflow-y-auto custom-scrollbar p-3" id="lenders-list"></div></div>
+                <div class="tab-content" id="tab-docs">
+                    <div style="padding:8px 12px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+                        <span style="font-size:7.5px;font-weight:800;text-transform:uppercase;color:#94a3b8;">Pending Documents</span>
+                        <span id="docs-count" style="font-size:7px;font-weight:800;background:#fee2e2;color:#b91c1c;padding:1px 7px;border-radius:99px;"></span>
+                    </div>
+                    <div class="flex-1 overflow-y-auto custom-scrollbar p-3" id="docs-list"></div>
+                </div>
+                <div class="tab-content" id="tab-summary"><div class="flex-1 overflow-y-auto custom-scrollbar p-4" id="summary-content"></div></div>
+            </div>
+
+            <!-- Stats -->
+            <div class="glass-card flex flex-col" style="height:280px;" data-id="stats">
+                <div class="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-indigo-600 text-[10px]"></i>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-900">Finance Overview</h3>
+                    </div>
+                </div>
+                <div class="flex-1 p-4 grid grid-cols-2 gap-3 content-start">
+                    <div class="p-3 bg-red-50 rounded-xl border border-red-100">
+                        <div id="s-hot" class="text-2xl font-black text-red-600">8</div>
+                        <div class="text-[7px] font-800 uppercase tracking-widest text-red-500 mt-1">Hot Leads</div>
+                    </div>
+                    <div class="p-3 bg-indigo-50 rounded-xl border border-indigo-100">
+                        <div id="s-pipeline" class="text-2xl font-black text-indigo-600">35</div>
+                        <div class="text-[7px] font-800 uppercase tracking-widest text-indigo-500 mt-1">Total Pipeline</div>
+                    </div>
+                    <div class="p-3 bg-violet-50 rounded-xl border border-violet-100">
+                        <div id="s-lenders" class="text-2xl font-black text-violet-600">0</div>
+                        <div class="text-[7px] font-800 uppercase tracking-widest text-violet-500 mt-1">Active Lenders</div>
+                    </div>
+                    <div class="p-3 bg-red-50 rounded-xl border border-red-100">
+                        <div id="s-docs" class="text-2xl font-black text-red-500">0</div>
+                        <div class="text-[7px] font-800 uppercase tracking-widest text-red-400 mt-1">Docs Overdue</div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Recent Activity card -->
+            <div class="glass-card flex flex-col" style="height:280px;" data-id="activity">
+                <div class="px-5 py-3 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left text-blue-600 text-[10px]"></i>
+                        <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-900">Recent Activity</h3>
+                    </div>
+                </div>
+                <div class="flex-1 p-4 overflow-y-auto custom-scrollbar">
+                    <div class="space-y-4">
+                        <div class="flex gap-3">
+                            <div class="w-6 h-6 rounded-full bg-emerald-50 flex items-center justify-center shrink-0"><i class="fa-solid fa-user-plus text-[10px] text-emerald-600"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-800">Lead Moved to Negotiation</p>
+                                <p class="text-[8px] font-medium text-slate-500">Robert Vance - Westpac</p>
+                                <p class="text-[7px] font-bold text-slate-400 mt-1">1 HR AGO</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <div class="w-6 h-6 rounded-full bg-amber-50 flex items-center justify-center shrink-0"><i class="fa-solid fa-clock text-[10px] text-amber-600"></i></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-800">Follow-up Task Completed</p>
+                                <p class="text-[8px] font-medium text-slate-500">Sarah Jenkins - Call Logged</p>
+                                <p class="text-[7px] font-bold text-slate-400 mt-1">3 HRS AGO</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operational Calendar -->
+            <div class="glass-card flex flex-col" style="height:280px;" data-id="calendar">
+                <div class="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-slate-900 flex items-center justify-center text-white shadow-lg">
+                            <i class="fa-solid fa-calendar-days text-xs"></i>
+                        </div>
+                        <h3 class="text-[11px] font-black uppercase tracking-widest text-slate-900">Operational Calendar</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="changeMonth(-1)" class="w-6 h-6 rounded bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white transition-all"><i class="fa-solid fa-chevron-left text-[8px]"></i></button>
+                        <span id="amCurrentMonthYear" class="text-[9px] font-black text-slate-900 uppercase"></span>
+                        <button onclick="changeMonth(1)" class="w-6 h-6 rounded bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-indigo-600 hover:text-white transition-all"><i class="fa-solid fa-chevron-right text-[8px]"></i></button>
+                    </div>
+                </div>
+                <div class="flex-1 px-3 pt-2 pb-1">
+                    <div class="grid grid-cols-7 gap-0.5 mb-1">
+                        <div class="text-center text-[7px] font-black text-slate-400 uppercase">S</div>
+                        <div class="text-center text-[7px] font-black text-slate-400 uppercase">M</div>
+                        <div class="text-center text-[7px] font-black text-slate-400 uppercase">T</div>
+                        <div class="text-center text-[7px] font-black text-slate-400 uppercase">W</div>
+                        <div class="text-center text-[7px] font-black text-slate-400 uppercase">T</div>
+                        <div class="text-center text-[7px] font-black text-slate-400 uppercase">F</div>
+                        <div class="text-center text-[7px] font-black text-slate-400 uppercase">S</div>
+                    </div>
+                    <div id="amCalGrid" class="grid grid-cols-7 gap-0.5"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- Create Lead Modal -->
+<div class="modal-overlay" id="createLeadModal">
+    <div style="background:#fff;border-radius:24px;width:680px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.15);">
+        <div style="background:#0f172a;border-radius:24px 24px 0 0;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;"><div style="width:32px;height:32px;border-radius:10px;background:#d97706;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-user-plus" style="color:#fff;font-size:13px;"></i></div><span style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.1em;">Create New Lead</span></div>
+            <button onclick="closeCreateLead()" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="padding:24px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
+                <div><label class="form-label">First Name *</label><input type="text" id="lf-fname" class="form-input" placeholder="John"></div>
+                <div><label class="form-label">Last Name *</label><input type="text" id="lf-lname" class="form-input" placeholder="Smith"></div>
+                <div><label class="form-label">Phone *</label><input type="text" id="lf-phone" class="form-input" placeholder="+44 7700 900000"></div>
+                <div><label class="form-label">Email</label><input type="email" id="lf-email" class="form-input" placeholder="john@example.com"></div>
+                <div><label class="form-label">Business Name</label><input type="text" id="lf-biz" class="form-input" placeholder="ABC Ltd"></div>
+                <div><label class="form-label">Loan Amount (£)</label><input type="number" id="lf-amount" class="form-input" placeholder="50000"></div>
+                <div><label class="form-label">Stage</label><select id="lf-stage" class="form-input"><option>Inquiry</option><option>Qualified</option><option>Proposal</option><option>Negotiation</option><option>Closed</option></select></div>
+                <div><label class="form-label">Status</label><select id="lf-status" class="form-input"><option>Hot</option><option>Warm</option><option>Cool</option></select></div>
+                <div><label class="form-label">Lender</label><select id="lf-lender" class="form-input"><option>Westpac</option><option>ANZ</option><option>NAB</option><option>CBA</option><option>Macquarie</option></select></div>
+                <div style="grid-column:span 3;"><label class="form-label">Notes</label><textarea id="lf-notes" class="form-input" rows="2" placeholder="Additional notes..."></textarea></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:18px;justify-content:flex-end;">
+                <button onclick="closeCreateLead()" style="padding:10px 20px;border-radius:10px;background:#f1f5f9;border:none;font-size:10px;font-weight:800;color:#64748b;cursor:pointer;text-transform:uppercase;">Cancel</button>
+                <button onclick="saveLead()" style="padding:10px 24px;border-radius:10px;background:#d97706;border:none;font-size:10px;font-weight:800;color:#fff;cursor:pointer;text-transform:uppercase;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-check"></i> Save Lead</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const SESSION = JSON.parse(sessionStorage.getItem('crm_session')||'null');
+if(!SESSION){ window.location.replace('../login/login.html'); }
+else if(SESSION.role !== 'Accounts Manager'){ window.location.replace(SESSION.landing || '../login/login.html'); }
+function logout(){sessionStorage.removeItem('crm_session');window.location.replace('../login/login.html');}
+document.getElementById('u-name').textContent=SESSION?.name||'Accounts Manager';
+document.getElementById('u-avatar').textContent=SESSION?.avatar||'AM';
+if(SESSION?.avatarBg) document.getElementById('u-avatar').style.background=SESSION.avatarBg;
+
+const STAGES=['Inquiry','Qualified','Proposal','Negotiation','Closed'];
+const LENDERS_LIST=['Westpac','ANZ','NAB','CBA','Macquarie'];
+function rnd(a){ return a[Math.floor(Math.random()*a.length)]; }
+function rndInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function rndDate(){ const d=new Date(2026,0,1); d.setDate(d.getDate()+rndInt(0,110)); return d.toISOString().slice(0,10); }
+
+let MY_LEADS=Array.from({length:35},(_,i)=>({id:i+1,name:[['James','Oliver','Henry','Liam','Noah'],['Smith','Johnson','Williams','Brown','Jones']].map(a=>rnd(a)).join(' '),stage:rnd(STAGES),status:rnd(['Hot','Warm','Cool']),loanAmt:rndInt(50,800)*1000,lender:rnd(LENDERS_LIST),date:rndDate()}));
+document.getElementById('chip-total').textContent=MY_LEADS.length;
+
+const PAYOUTS=[{id:1,agent:'Thanushika R.',client:'ABC Corp',lender:'Westpac',amt:12400,status:'Pending',due:'Today',ab:'#6366f1'},{id:2,agent:'Amal J.',client:'Brown Family',lender:'ANZ',amt:8750,status:'Pending',due:'Today',ab:'#0891b2'},{id:3,agent:'Ravindu P.',client:'XYZ Ltd',lender:'NAB',amt:21000,status:'Approved',due:'Tomorrow',ab:'#16a34a'},{id:4,agent:'Priya S.',client:'Patel Finance',lender:'CBA',amt:6500,status:'Pending',due:'Today',ab:'#b45309'},{id:5,agent:'Kasun M.',client:'Green & Co',lender:'Macquarie',amt:9300,status:'On Hold',due:'Next week',ab:'#7c3aed'},{id:6,agent:'Nirosha K.',client:'White Corp',lender:'Westpac',amt:15600,status:'Approved',due:'2 days',ab:'#b91c1c'},{id:7,agent:'Thanushika R.',client:'Miller Logistics',lender:'ANZ',amt:18200,status:'Paid',due:'Done',ab:'#6366f1'},{id:8,agent:'Amal J.',client:'Rivera Designs',lender:'NAB',amt:7400,status:'Pending',due:'Tomorrow',ab:'#0891b2'}];
+const LENDERS=[{name:'Westpac',rate:'5.89%',maxLvr:'80%',status:'Active',deals:18,color:'#dc2626'},{name:'ANZ',rate:'5.74%',maxLvr:'85%',status:'Active',deals:24,color:'#2563eb'},{name:'NAB',rate:'5.99%',maxLvr:'80%',status:'Active',deals:15,color:'#16a34a'},{name:'CBA',rate:'5.69%',maxLvr:'90%',status:'Active',deals:31,color:'#d97706'},{name:'Macquarie',rate:'6.15%',maxLvr:'75%',status:'Review',deals:9,color:'#7c3aed'}];
+const DOCS=[{client:'ABC Corp',type:'Payslips x3',agent:'Thanushika R.',overdue:'2 days',urgent:true},{client:'Brown Family',type:'Bank Statements',agent:'Amal J.',overdue:'Today',urgent:true},{client:'XYZ Ltd',type:'ID Verification',agent:'Ravindu P.',overdue:'1 day',urgent:true},{client:'Patel Finance',type:'Tax Returns',agent:'Priya S.',overdue:'3 days',urgent:false}];
+
+function updateStats(){
+    const hotLeads = MY_LEADS.filter(l => l.status === 'Hot').length;
+    const hotEl = document.getElementById('s-hot');
+    if(hotEl) hotEl.textContent = hotLeads;
+
+    const pipelineEl = document.getElementById('s-pipeline');
+    if(pipelineEl) pipelineEl.textContent = MY_LEADS.length;
+
+    const lenderEl = document.getElementById('s-lenders');
+    if(lenderEl) lenderEl.textContent = LENDERS.filter(l=>l.status==='Active').length;
+
+    const docsEl = document.getElementById('s-docs');
+    if(docsEl) docsEl.textContent = DOCS.filter(d=>d.urgent).length;
+}
+const SS={Pending:'background:#fef3c7;color:#b45309',Approved:'background:#dcfce7;color:#15803d','On Hold':'background:#fee2e2;color:#b91c1c',Paid:'background:#f1f5f9;color:#64748b'};
+
+function renderPayouts(){}
+function approvePayout(id){}
+function markPaid(id){}
+
+function renderLenders(){document.getElementById('lenders-list').innerHTML=LENDERS.map(l=>'<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;border:1px solid #f1f5f9;background:#fafbfc;margin-bottom:5px;"><div style="width:32px;height:32px;border-radius:8px;background:'+l.color+'22;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-building-columns" style="font-size:12px;color:'+l.color+';"></i></div><div style="flex:1;min-width:0;"><div style="font-size:10px;font-weight:700;color:#0f172a;">'+l.name+'</div><div style="font-size:8px;color:#94a3b8;">Rate: '+l.rate+' · Max LVR: '+l.maxLvr+'</div></div><div style="text-align:right;flex-shrink:0;"><span class="badge" style="background:'+(l.status==='Active'?'#dcfce7':'#fef3c7')+';color:'+(l.status==='Active'?'#15803d':'#b45309')+';">'+l.status+'</span><div style="font-size:7px;color:#94a3b8;margin-top:2px;">'+l.deals+' deals</div></div></div>').join('');}
+function renderDocs(){document.getElementById('docs-count').textContent=DOCS.filter(d=>d.urgent).length+' urgent';document.getElementById('docs-list').innerHTML=DOCS.map(d=>'<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;border:1px solid #f1f5f9;background:#fafbfc;margin-bottom:5px;"><div style="width:30px;height:30px;border-radius:8px;background:'+(d.urgent?'#fee2e2':'#f1f5f9')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-file-circle-exclamation" style="font-size:12px;color:'+(d.urgent?'#b91c1c':'#64748b')+';"></i></div><div style="flex:1;min-width:0;"><div style="font-size:10px;font-weight:700;color:#0f172a;">'+d.client+'</div><div style="font-size:8px;color:#94a3b8;">'+d.type+' · '+d.agent+'</div></div><div style="text-align:right;flex-shrink:0;"><div style="font-size:8px;font-weight:800;color:'+(d.urgent?'#b91c1c':'#64748b')+';">'+d.overdue+'</div></div></div>').join('');}
+function renderSummary(){
+    const summaryContainer = document.getElementById('summary-content');
+    if(!summaryContainer) return;
+
+    summaryContainer.innerHTML = '<p style="font-size:7.5px;font-weight:800;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Pipeline Summary</p>' + 
+        '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;">' +
+            '<div style="padding:10px 12px;border-radius:10px;background:#fee2e2;">' +
+                '<div style="font-size:7px;font-weight:800;text-transform:uppercase;color:#b91c1c;margin-bottom:4px;">Hot Leads</div>' +
+                '<div style="font-size:16px;font-weight:900;color:#0f172a;">' + MY_LEADS.filter(l => l.status === 'Hot').length + '</div>' +
+            '</div>' +
+            '<div style="padding:10px 12px;border-radius:10px;background:#f1f5f9;">' +
+                '<div style="font-size:7px;font-weight:800;text-transform:uppercase;color:#475569;margin-bottom:4px;">Total Leads</div>' +
+                '<div style="font-size:16px;font-weight:900;color:#0f172a;">' + MY_LEADS.length + '</div>' +
+            '</div>' +
+        '</div>' +
+        LENDERS.map(l=>'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;"><div style="font-size:8px;font-weight:700;color:#475569;width:80px;text-align:right;">'+l.name+'</div><div style="flex:1;background:#f1f5f9;border-radius:99px;height:5px;overflow:hidden;"><div style="width:'+Math.round(l.deals/31*100)+'%;height:100%;border-radius:99px;background:'+l.color+';"></div></div><div style="font-size:8px;font-weight:800;color:#1e293b;width:24px;text-align:right;">'+l.deals+'</div></div>').join('');
+}
+function switchTab(name,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+name).classList.add('active');btn.classList.add('active');}
+
+// Leads table
+function stageStyle(s){const m={Inquiry:'background:#f1f5f9;color:#475569',Qualified:'background:#dbeafe;color:#1d4ed8',Proposal:'background:#fef3c7;color:#b45309',Negotiation:'background:#f5f3ff;color:#7c3aed',Closed:'background:#dcfce7;color:#15803d'};return m[s]||'';}
+function statusBadge(s){const m={Hot:'background:#fee2e2;color:#b91c1c',Warm:'background:#fef3c7;color:#b45309',Cool:'background:#dbeafe;color:#1d4ed8'};return '<span class="badge" style="'+m[s]+'">'+s+'</span>';}
+function fmtAmt(n){return '£'+n.toLocaleString();}
+function fmtDate(d){return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});}
+let page=1;const PAGE=12;
+function getFiltered(){const q=document.getElementById('srch').value.toLowerCase();const fs=document.getElementById('f-stage').value;return MY_LEADS.filter(l=>{if(q&&!l.name.toLowerCase().includes(q))return false;if(fs&&l.stage!==fs)return false;return true;});}
+function renderTable(){const filtered=getFiltered();const total=filtered.length;const totalPages=Math.max(1,Math.ceil(total/PAGE));if(page>totalPages)page=1;const rows=filtered.slice((page-1)*PAGE,page*PAGE);document.getElementById('tbody').innerHTML=rows.map(l=>`<tr onclick="window.location.href='../loan_pipeline/lead_detail.html?id=AF-${String(l.id).padStart(3,'0')}'"><td><div style="font-size:10px;font-weight:700;color:#0f172a;">${l.name}</div><div style="font-size:8px;color:#94a3b8;">${l.lender}</div></td><td><span style="display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:8px;font-weight:700;text-transform:uppercase;${stageStyle(l.stage)}">${l.stage}</span></td><td>${statusBadge(l.status)}</td><td style="font-weight:700;">${fmtAmt(l.loanAmt)}</td><td style="font-size:9px;color:#64748b;">${l.lender}</td><td style="font-size:9px;color:#94a3b8;">${fmtDate(l.date)}</td><td><div style="display:flex;gap:4px;"><button onclick="event.stopPropagation();window.location.href='../loan_pipeline/lead_detail.html?id=AF-${String(l.id).padStart(3,'0')}'" style="width:26px;height:26px;border-radius:6px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-eye" style="font-size:9px;"></i></button></div></td></tr>`).join('');document.getElementById('count-txt').textContent=`${(page-1)*PAGE+1}Ã¢â‚¬â€œ${Math.min(page*PAGE,total)} of ${total}`;let pg=`<div class="pg-btn ${page===1?'opacity-30 pointer-events-none':''}" onclick="goPage(${page-1})"><i class="fa-solid fa-chevron-left" style="font-size:8px;"></i></div>`;const s=Math.max(1,page-2),e=Math.min(totalPages,page+2);for(let p=s;p<=e;p++)pg+=`<div class="pg-btn ${p===page?'active':''}" onclick="goPage(${p})">${p}</div>`;pg+=`<div class="pg-btn ${page===totalPages?'opacity-30 pointer-events-none':''}" onclick="goPage(${page+1})"><i class="fa-solid fa-chevron-right" style="font-size:8px;"></i></div>`;document.getElementById('pagination').innerHTML=pg;}
+function goPage(p){page=p;renderTable();document.getElementById('tbl-scroll').scrollTop=0;}
+
+let NOTES=JSON.parse(localStorage.getItem('am_notes')||'[]');
+let noteId=Math.max(0,...NOTES.map(n=>n.id||0))+1;
+function renderNotes(){document.getElementById('notesContainer').innerHTML=NOTES.length?NOTES.map(n=>`<div class="bg-[#eff6ff] border border-[#dbeafe] p-3 rounded-xl relative group"><div class="flex items-center justify-between mb-1"><span class="text-[8px] font-bold text-slate-400">${n.date}</span><button onclick="deleteNote(${n.id})" class="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity"><i class="fa-solid fa-trash-can text-[9px]"></i></button></div><p class="text-[10px] font-medium text-slate-700">${n.text}</p></div>`).join(''):'<div style="text-align:center;padding:20px;font-size:9px;color:#94a3b8;">No notes yet</div>';}
+function addNote(){const v=document.getElementById('noteInput').value.trim();if(!v)return;NOTES.unshift({id:noteId++,text:v,date:new Date().toLocaleString()});localStorage.setItem('am_notes',JSON.stringify(NOTES));document.getElementById('noteInput').value='';renderNotes();}
+function deleteNote(id){NOTES=NOTES.filter(n=>n.id!==id);localStorage.setItem('am_notes',JSON.stringify(NOTES));renderNotes();}
+function clearNotes(){NOTES=[];localStorage.setItem('am_notes',JSON.stringify(NOTES));renderNotes();}
+
+function openCreateLead(){document.getElementById('createLeadModal').classList.add('active');}
+function closeCreateLead(){document.getElementById('createLeadModal').classList.remove('active');}
+function saveLead(){const fname=document.getElementById('lf-fname').value.trim();const lname=document.getElementById('lf-lname').value.trim();if(!fname||!lname){alert('First and last name are required.');return;}MY_LEADS.unshift({id:MY_LEADS.length+1,name:fname+' '+lname,stage:document.getElementById('lf-stage').value,status:document.getElementById('lf-status').value,loanAmt:parseInt(document.getElementById('lf-amount').value)||0,lender:document.getElementById('lf-lender').value,date:new Date().toISOString().slice(0,10)});document.getElementById('chip-total').textContent=MY_LEADS.length;renderTable();closeCreateLead();['lf-fname','lf-lname','lf-phone','lf-email','lf-biz','lf-amount','lf-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});}
+
+// Notification Bell
+let NOTIFS=[{id:1,unread:true,icon:'fa-triangle-exclamation',iconBg:'#fee2e2',iconColor:'#b91c1c',title:'3 documents overdue',body:'Action needed on pending client documents.',time:'2 min ago'},{id:2,unread:true,icon:'fa-clock',iconBg:'#fef3c7',iconColor:'#b45309',title:'Follow-ups due today',body:'12 leads require follow-up before 17:00.',time:'15 min ago'},{id:3,unread:true,icon:'fa-diagram-project',iconBg:'#dbeafe',iconColor:'#1d4ed8',title:'Pipeline updated',body:'2 leads moved to Negotiation stage.',time:'1 hr ago'},{id:4,unread:false,icon:'fa-user-plus',iconBg:'#dcfce7',iconColor:'#15803d',title:'New lead assigned',body:'James Smith has been assigned to you.',time:'3 hrs ago'},{id:5,unread:false,icon:'fa-hand-holding-dollar',iconBg:'#f5f3ff',iconColor:'#7c3aed',title:'Payout approved',body:'Payout for ABC Corp approved.',time:'Yesterday'}];
+function renderNotifs(){const list=document.getElementById('notifList');const unread=NOTIFS.filter(n=>n.unread).length;const badge=document.getElementById('notifBadge');if(badge){badge.textContent=unread;badge.style.display=unread?'flex':'none';}const ut=document.getElementById('notif-unread-txt');if(ut)ut.textContent=unread?unread+' unread':'All caught up';if(!NOTIFS.length){list.innerHTML='<div style="padding:32px;text-align:center;font-size:9px;color:#94a3b8;">No notifications</div>';return;}list.innerHTML=NOTIFS.map(n=>'<div class="notif-item '+(n.unread?'unread':'')+'" onclick="readNotif('+n.id+')"><div class="notif-icon" style="background:'+n.iconBg+';font-size:12px;"><i class="fa-solid '+n.icon+'" style="color:'+n.iconColor+';font-size:12px;"></i></div><div style="flex:1;min-width:0;"><div style="font-size:10px;font-weight:'+(n.unread?'800':'600')+';color:#0f172a;">'+n.title+'</div><div style="font-size:8px;color:#64748b;margin-top:2px;">'+n.body+'</div><div style="font-size:7px;color:#94a3b8;margin-top:3px;font-weight:700;">'+n.time+'</div></div>'+(n.unread?'<div class="notif-dot"></div>':'')+'</div>').join('');}function toggleNotifPanel(){document.getElementById('notifPanel').classList.toggle('open');}function readNotif(id){const n=NOTIFS.find(x=>x.id===id);if(n){n.unread=false;renderNotifs();}}function markAllRead(){NOTIFS.forEach(n=>n.unread=false);renderNotifs();}function clearAllNotifs(){NOTIFS=[];renderNotifs();document.getElementById('notifPanel').classList.remove('open');}document.addEventListener('click',function(e){const panel=document.getElementById('notifPanel');const btn=document.getElementById('notifBellBtn');if(panel&&btn&&!panel.contains(e.target)&&!btn.contains(e.target)){panel.classList.remove('open');}});renderNotifs();
+updateStats();renderPayouts();renderLenders();renderDocs();renderSummary();renderTable();renderNotes();
+
+        // Dashboard Design Mode (Sortable)
+        let sortableInstance = null;
+        let isDesignMode = false;
+
+        function toggleDesignMode() {
+            const grid = document.querySelector('.module-grid');
+            const btn = document.getElementById('designModeBtn');
+            const iconBox = document.getElementById('designIconBox');
+            const label = document.getElementById('designModeLabel');
+            isDesignMode = !isDesignMode;
+            if (isDesignMode) {
+                grid.classList.add('design-mode');
+                btn.classList.add('border-indigo-500', 'bg-indigo-50/30');
+                iconBox.classList.replace('bg-slate-50', 'bg-indigo-600');
+                iconBox.classList.replace('text-indigo-500', 'text-white');
+                label.textContent = 'SAVE LAYOUT';
+                sortableInstance = new Sortable(grid, { animation: 150, ghostClass: 'sortable-ghost', onEnd: saveDashboardLayout });
+            } else {
+                grid.classList.remove('design-mode');
+                btn.classList.remove('border-indigo-500', 'bg-indigo-50/30');
+                iconBox.classList.replace('bg-indigo-600', 'bg-slate-50');
+                iconBox.classList.replace('text-white', 'text-indigo-500');
+                label.textContent = 'DESIGN MODE';
+                if (sortableInstance) { sortableInstance.destroy(); sortableInstance = null; }
+            }
+        }
+
+        function saveDashboardLayout() {
+            const grid = document.querySelector('.module-grid');
+            const order = Array.from(grid.children).map(child => ({ id: child.getAttribute('data-id'), isWide: child.classList.contains('card-wide') })).filter(item => item.id);
+            localStorage.setItem('dashboard-layout-am-v2', JSON.stringify(order));
+        }
+
+        function loadDashboardLayout() {
+            const order = JSON.parse(localStorage.getItem('dashboard-layout-am-v2'));
+            if (!order) return;
+            const grid = document.querySelector('.module-grid');
+            const modules = Array.from(grid.children);
+            order.forEach(item => {
+                const module = modules.find(m => m.getAttribute('data-id') === item.id);
+                if (module) {
+                    if (item.isWide) module.classList.add('card-wide'); else module.classList.remove('card-wide');
+                    grid.appendChild(module);
+                }
+            });
+        }
+
+        function injectResizeButtons() {
+            const modules = document.querySelectorAll('.module-grid > [data-id]');
+            modules.forEach(module => {
+                const header = module.querySelector('.border-b');
+                if (header && !module.querySelector('.resize-btn')) {
+                    const titleWrapper = header.querySelector('.flex.items-center') || header;
+                    const btn = document.createElement('button');
+                    btn.className = 'resize-btn mr-2';
+                    btn.innerHTML = '<i class="fa-solid fa-arrows-left-right" style="font-size:9px;"></i>';
+                    btn.onclick = (e) => { e.stopPropagation(); toggleCardSize(btn); };
+                    titleWrapper.prepend(btn);
+                }
+            });
+        }
+
+        function toggleCardSize(btn) {
+            const card = btn.closest('[data-id]');
+            card.classList.toggle('card-wide');
+            saveDashboardLayout();
+        }
+        window.addEventListener('load', () => {
+            loadDashboardLayout();
+            injectResizeButtons();
+        });
+</script>
+    <!-- Docs Drawer -->
+    <div class="docs-modal" id="docsModal">
+        <div class="docs-modal-backdrop" onclick="closeDocsDrawer()"></div>
+        <div class="docs-panel">
+            <!-- Header -->
+            <div style="background:#0f172a;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:32px;height:32px;border-radius:10px;background:#6366f1;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-vault" style="color:#fff;font-size:13px;"></i></div>
+                    <div>
+                        <div style="font-size:11px;font-weight:800;color:#fff;text-transform:uppercase;letter-spacing:.08em;">Document Vault</div>
+                        <div id="drawer-doc-count" style="font-size:8px;color:#64748b;margin-top:1px;">Loading...</div>
+                    </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <a href="../documents/document_vault.html" style="font-size:8px;font-weight:800;color:#6366f1;background:rgba(99,102,241,.15);padding:4px 10px;border-radius:6px;text-decoration:none;text-transform:uppercase;">Full View</a>
+                    <button onclick="closeDocsDrawer()" style="width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <!-- Search + Filter -->
+            <div style="padding:10px 16px;border-bottom:1px solid #f1f5f9;display:flex;gap:8px;align-items:center;flex-shrink:0;background:#f8fafc;">
+                <div style="position:relative;flex:1;">
+                    <input type="text" id="drawer-search" placeholder="Search documents..." oninput="renderDrawerDocs()" style="width:100%;background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px 6px 28px;font-size:9px;font-weight:600;color:#1e293b;outline:none;">
+                    <i class="fa-solid fa-magnifying-glass" style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:8px;color:#94a3b8;"></i>
+                </div>
+                <select id="drawer-cat-filter" onchange="renderDrawerDocs()" style="background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:6px 10px;font-size:9px;font-weight:700;color:#475569;outline:none;cursor:pointer;">
+                    <option value="">All Categories</option>
+                    <option>Knowledge Base</option><option>Guides</option><option>FAQs</option><option>Products</option><option>Policies</option><option>Scripts</option>
+                </select>
+            </div>
+            <!-- Document List -->
+            <div style="flex:1;overflow-y:auto;" id="drawer-doc-list"></div>
+        </div>
+    </div>
+<script>
+const DRAWER_DOCS = [
+    { id:1, title:"Home Loan Product Guide 2026",    category:"Products",       fileType:"pdf",  fileSize:"3.4 MB", version:"v2.1", uploaded:"2026-04-10", desc:"Comprehensive guide covering all home loan products, rates, and eligibility criteria for 2026." },
+    { id:2, title:"AML & KYC Compliance Policy",     category:"Policies",       fileType:"pdf",  fileSize:"1.2 MB", version:"v4.0", uploaded:"2026-04-08", desc:"Updated AML and KYC policy aligned with AUSTRAC 2026 guidelines." },
+    { id:3, title:"Broker Onboarding FAQ",           category:"FAQs",           fileType:"docx", fileSize:"420 KB", version:"v1.3", uploaded:"2026-04-12", desc:"Frequently asked questions for new brokers joining the panel." },
+    { id:4, title:"Cold Call Script – Refinance",    category:"Scripts",        fileType:"docx", fileSize:"190 KB", version:"v1.0", uploaded:"2026-04-14", desc:"Structured outbound call script for refinance lead conversations." },
+    { id:5, title:"Lender Panel Overview Guide",     category:"Guides",         fileType:"pdf",  fileSize:"5.1 MB", version:"v3.2", uploaded:"2026-04-05", desc:"Full overview of all lenders including products, BDMs, and turnaround times." },
+    { id:6, title:"CRM Usage Knowledge Base",        category:"Knowledge Base", fileType:"pdf",  fileSize:"2.8 MB", version:"v1.1", uploaded:"2026-04-15", desc:"Internal knowledge base for using the CRM platform." },
+    { id:7, title:"Commercial Loan Product Sheet",   category:"Products",       fileType:"xlsx", fileSize:"680 KB", version:"v1.0", uploaded:"2026-04-13", desc:"Rate and product comparison sheet for commercial lending solutions." },
+    { id:8, title:"Privacy Policy 2026",             category:"Policies",       fileType:"pdf",  fileSize:"890 KB", version:"v2.9", uploaded:"2026-03-01", desc:"Client privacy and data handling policy." },
+    { id:9, title:"Settlement Checklist Guide",      category:"Guides",         fileType:"docx", fileSize:"310 KB", version:"v2.0", uploaded:"2026-04-07", desc:"Step-by-step settlement checklist for brokers to share with clients." },
+    { id:10,title:"Objection Handling Scripts",      category:"Scripts",        fileType:"docx", fileSize:"240 KB", version:"v1.2", uploaded:"2026-04-11", desc:"Common objection handling scripts for tele agents." },
+];
+const FILE_ICONS_D = {
+    pdf:  { icon:"fa-solid fa-file-pdf",        bg:"#fee2e2", color:"#dc2626" },
+    docx: { icon:"fa-solid fa-file-word",       bg:"#dbeafe", color:"#1d4ed8" },
+    xlsx: { icon:"fa-solid fa-file-excel",      bg:"#d1fae5", color:"#059669" },
+    png:  { icon:"fa-solid fa-file-image",      bg:"#f3e8ff", color:"#7e22ce" },
+    pptx: { icon:"fa-solid fa-file-powerpoint", bg:"#fff7ed", color:"#c2410c" },
+};
+const CAT_COLORS = {
+    "Knowledge Base":"#1d4ed8","Guides":"#7e22ce","FAQs":"#b45309",
+    "Products":"#065f46","Policies":"#b91c1c","Scripts":"#334155"
+};
+function openDocsDrawer(){
+    const fab = document.querySelector('.ai-fab');
+    if (fab) { fab.style.opacity = '0'; fab.style.pointerEvents = 'none'; }
+    const m=document.getElementById('docsModal');m.style.display='flex';void m.offsetWidth;m.classList.add('open');
+    renderDrawerDocs();
+}
+function closeDocsDrawer(){ 
+    const fab = document.querySelector('.ai-fab');
+    if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'all'; }
+    const m=document.getElementById('docsModal'); m.classList.remove('open'); m.style.display=''; 
+}
+function renderDrawerDocs(){
+    const q=(document.getElementById('drawer-search').value||'').toLowerCase();
+    const cat=document.getElementById('drawer-cat-filter').value;
+    const filtered=DRAWER_DOCS.filter(d=>{
+        if(cat && d.category!==cat) return false;
+        if(q && !d.title.toLowerCase().includes(q) && !d.category.toLowerCase().includes(q)) return false;
+        return true;
+    });
+    document.getElementById('drawer-doc-count').textContent=filtered.length+' document'+(filtered.length!==1?'s':'');
+    const list=document.getElementById('drawer-doc-list');
+    if(!filtered.length){
+        list.innerHTML='<div style="padding:40px;text-align:center;"><i class="fa-solid fa-folder-open" style="font-size:28px;color:#e2e8f0;display:block;margin-bottom:10px;"></i><div style="font-size:10px;font-weight:700;color:#94a3b8;">No documents found</div></div>';
+        return;
+    }
+    list.innerHTML=filtered.map(d=>{
+        const fi=FILE_ICONS_D[d.fileType]||{icon:'fa-solid fa-file',bg:'#f1f5f9',color:'#475569'};
+        const cc=CAT_COLORS[d.category]||'#475569';
+        const date=new Date(d.uploaded+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});
+        return '<div style="display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid #f8fafc;transition:background .1s;cursor:default;" onmouseover="this.style.background=\'#f8fafc\'" onmouseout="this.style.background=\'#fff\'">'
+            +'<div style="width:36px;height:36px;border-radius:10px;background:'+fi.bg+';display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="'+fi.icon+'" style="color:'+fi.color+';font-size:14px;"></i></div>'
+            +'<div style="flex:1;min-width:0;">'
+            +'<div style="font-size:10px;font-weight:800;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+d.title+'</div>'
+            +'<div style="font-size:8px;color:#64748b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+d.desc+'</div>'
+            +'<div style="display:flex;align-items:center;gap:6px;margin-top:5px;">'
+            +'<span style="font-size:7px;font-weight:800;padding:2px 6px;border-radius:99px;background:'+cc+'22;color:'+cc+';">'+d.category+'</span>'
+            +'<span style="font-size:7px;font-weight:700;color:#94a3b8;">'+d.version+'</span>'
+            +'<span style="font-size:7px;font-weight:700;color:#94a3b8;">'+d.fileSize+'</span>'
+            +'<span style="font-size:7px;font-weight:700;color:#94a3b8;margin-left:auto;">'+date+'</span>'
+            +'</div>'
+            +'</div>'
+            +'<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">'
+            +'<button title="Download" style="width:26px;height:26px;border-radius:6px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-download" style="font-size:9px;"></i></button>'
+            +'</div>'
+            +'</div>';
+    }).join('');
+}
+
+
+
+function openDocDetail(id){
+    const d=DRAWER_DOCS.find(x=>x.id===id);
+    if(!d)return;
+    const fi=FILE_ICONS_D[d.fileType]||{icon:'fa-solid fa-file',bg:'#f1f5f9',color:'#475569'};
+    const cc=CAT_COLORS[d.category]||'#475569';
+    const date=new Date(d.uploaded+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+    document.getElementById('ddm-header').style.background=cc;
+    document.getElementById('ddm-icon').style.background='rgba(255,255,255,.15)';
+    document.getElementById('ddm-icon').innerHTML='<i class="'+fi.icon+'" style="color:#fff;font-size:18px;"></i>';
+    document.getElementById('ddm-title').textContent=d.title;
+    document.getElementById('ddm-cat').textContent=d.category;
+    document.getElementById('ddm-desc').textContent=d.desc;
+    document.getElementById('ddm-type').textContent=d.fileType.toUpperCase();
+    document.getElementById('ddm-size').textContent=d.fileSize;
+    document.getElementById('ddm-version').textContent=d.version;
+    document.getElementById('ddm-date').textContent=date;
+    const _m=document.getElementById('docDetailModal');
+    document.body.appendChild(_m);
+    _m.style.display='flex';
+}
+function closeDocDetail(){
+    document.getElementById('docDetailModal').style.display='none';
+}
+
+// AI Core Assistant Functions
+function toggleAIWidget() {
+    openAIDrawer();
+}
+function openAIDrawer() {
+    const drawer = document.getElementById('aiDrawer');
+    const panel = drawer.querySelector('.day-drawer-panel');
+    const fab = document.querySelector('.ai-fab');
+    if (fab) { fab.style.opacity = '0'; fab.style.pointerEvents = 'none'; }
+    drawer.style.display = 'flex';
+    void panel.offsetWidth;
+    drawer.classList.add('open');
+}
+function closeAIDrawer() {
+    const drawer = document.getElementById('aiDrawer');
+    const fab = document.querySelector('.ai-fab');
+    drawer.classList.remove('open');
+    if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'all'; }
+    setTimeout(() => { drawer.style.display = 'none'; }, 420);
+}
+
+// Close widget when clicking outside
+document.addEventListener('click', (e) => {
+    const drawer = document.getElementById('aiDrawer');
+    const panel = drawer?.querySelector('.day-drawer-panel');
+    const fab = document.querySelector('.ai-fab');
+    if (drawer && drawer.classList.contains('open') && !panel.contains(e.target) && !fab.contains(e.target)) {
+        closeAIDrawer();
+    }
+});
+</script>
+
+
+<!-- Doc Detail Modal -->
+<div id="docDetailModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,0.5);backdrop-filter:blur(4px);align-items:center;justify-content:center;" onclick="if(event.target===this)closeDocDetail();">
+    <div style="background:#fff;border-radius:24px;width:520px;max-width:95vw;box-shadow:0 25px 60px rgba(0,0,0,0.2);overflow:hidden;">
+        <div id="ddm-header" style="padding:18px 24px;display:flex;align-items:center;gap:12px;">
+            <div id="ddm-icon" style="width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+                <div id="ddm-title" style="font-size:13px;font-weight:800;color:#fff;line-height:1.3;"></div>
+                <div id="ddm-cat" style="font-size:9px;font-weight:700;color:rgba(255,255,255,.6);margin-top:2px;text-transform:uppercase;letter-spacing:.06em;"></div>
+            </div>
+            <button onclick="closeDocDetail()" style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.15);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div style="padding:20px 24px;display:flex;flex-direction:column;gap:14px;">
+            <div style="background:#f8fafc;border-radius:12px;padding:14px 16px;">
+                <div style="font-size:8px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Description</div>
+                <div id="ddm-desc" style="font-size:11px;font-weight:500;color:#334155;line-height:1.6;"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="background:#f8fafc;border-radius:12px;padding:12px 14px;">
+                    <div style="font-size:8px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">File Type</div>
+                    <div id="ddm-type" style="font-size:12px;font-weight:800;color:#0f172a;text-transform:uppercase;"></div>
+                </div>
+                <div style="background:#f8fafc;border-radius:12px;padding:12px 14px;">
+                    <div style="font-size:8px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">File Size</div>
+                    <div id="ddm-size" style="font-size:12px;font-weight:800;color:#0f172a;"></div>
+                </div>
+                <div style="background:#f8fafc;border-radius:12px;padding:12px 14px;">
+                    <div style="font-size:8px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Version</div>
+                    <div id="ddm-version" style="font-size:12px;font-weight:800;color:#0f172a;"></div>
+                </div>
+                <div style="background:#f8fafc;border-radius:12px;padding:12px 14px;">
+                    <div style="font-size:8px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;">Uploaded</div>
+                    <div id="ddm-date" style="font-size:12px;font-weight:800;color:#0f172a;"></div>
+                </div>
+            </div>
+            <button onclick="closeDocDetail()" style="width:100%;padding:11px;border-radius:12px;background:#f1f5f9;border:none;font-size:10px;font-weight:800;color:#64748b;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;">Close</button>
+        </div>
+    </div>
+</div>
+    <!-- AI Chatbot FAB -->
+    <div class="ai-fab" onclick="toggleAIWidget()">
+        <i class="fa-solid fa-robot text-2xl"></i>
+    </div>
+
+    <!-- AI Side Drawer -->
+    <div id="aiDrawer" class="day-drawer" style="z-index: 1100;">
+        <div class="day-drawer-backdrop" onclick="closeAIDrawer()"></div>
+        <div class="day-drawer-panel" style="max-width: 480px;">
+            <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-lg">
+                        <i class="fa-solid fa-robot text-lg"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-xs font-black text-slate-900 uppercase tracking-widest leading-none">AI Core Assistant</h2>
+                        <p class="text-[9px] font-bold text-slate-400 mt-1.5 uppercase tracking-wider">Lead Intelligence Hub</p>
+                    </div>
+                </div>
+                <button onclick="closeAIDrawer()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                    <i class="fa-solid fa-xmark text-xs"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+                <!-- Summarizing Section -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Lead Summarizing</h3>
+                        <span class="px-2 py-0.5 rounded-full bg-purple-100 text-purple-600 text-[8px] font-black uppercase">Active</span>
+                    </div>
+                    
+                    <div class="glass-card p-5 border border-purple-100 bg-purple-50/20">
+                        <div class="flex items-start gap-4">
+                            <div class="w-8 h-8 rounded-xl bg-purple-600 flex items-center justify-center text-white shrink-0 shadow-md">
+                                <i class="fa-solid fa-clipboard-list text-xs"></i>
+                            </div>
+                            <div class="space-y-2">
+                                <p class="text-[11px] font-bold text-slate-700 leading-relaxed">
+                                    Select a lead from your pipeline to generate a high-fidelity intelligence summary.
+                                </p>
+                                <div class="flex gap-2">
+                                    <button class="px-3 py-1.5 bg-purple-600 text-white text-[9px] font-black uppercase rounded-lg hover:bg-purple-700 transition-all">Select Lead</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="p-6 bg-slate-50 border-t border-slate-100 mt-auto rounded-b-[28px]">
+                <div class="relative">
+                    <input type="text" placeholder="Ask AI Core anything..." class="w-full bg-white border border-slate-200 rounded-xl py-3 pl-4 pr-12 text-[11px] font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                    <button class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-indigo-600 transition-all">
+                        <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Day Events Drawer -->
+<div class="day-drawer" id="dayDrawer">
+    <div class="day-drawer-backdrop" onclick="closeDayDrawer()"></div>
+    <div class="day-drawer-panel">
+        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500">
+                    <i class="fa-solid fa-calendar-day text-lg"></i>
+                </div>
+                <div>
+                    <h2 id="ddDateLabel" class="text-xs font-black text-slate-900 uppercase tracking-widest leading-none"></h2>
+                    <p id="ddMeta" class="text-[9px] font-bold text-slate-400 mt-1.5 uppercase tracking-wider"></p>
+                </div>
+            </div>
+            <button onclick="closeDayDrawer()"
+                class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all">
+                <i class="fa-solid fa-xmark text-xs"></i>
+            </button>
+        </div>
+        <div style="display:flex;border-bottom:2px solid #f1f5f9;background:#f8fafc;flex-shrink:0;">
+            <button id="dd-tab-todo" class="dd-tab-btn" onclick="switchDayTab('todo')">To Do</button>
+            <button id="dd-tab-inprogress" class="dd-tab-btn" onclick="switchDayTab('inprogress')">In Progress</button>
+            <button id="dd-tab-overdue" class="dd-tab-btn" onclick="switchDayTab('overdue')">Overdue</button>
+            <button id="dd-tab-complete" class="dd-tab-btn" onclick="switchDayTab('complete')">Complete</button>
+        </div>
+        <div id="ddEventsList" class="custom-scrollbar" style="flex:1;overflow-y:auto;background:#fafbfc;"></div>
+        <div style="padding:20px 32px;border-top:1px solid #f1f5f9;background:#fff;flex-shrink:0;">
+            <a href="../task_and_followups/task_management.html" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border-radius:14px;background:#0f172a;color:#fff;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;text-decoration:none;box-shadow:0 10px 20px rgba(15,23,42,0.15);"><i class="fa-solid fa-list-check"></i>Open Task Hub</a>
+        </div>
+    </div>
+</div>
+
+<script>
+// ── Calendar + Day Drawer ─────────────────────────────────────
+let _amCurDate = new Date();
+let _amSelDate = null;
+let _ddFilter = 'all';
+let _ddKey = '';
+
+function _addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r;}
+function _dateKey(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+const CAL_EVENTS={};
+(function(){
+    const t=new Date();
+    [
+        [0,'task','Process Payout for Alpha Ltd','Alpha Ltd','09:00','high',false],
+        [0,'task','Review Commission Structure','Internal','11:00','medium',true],
+        [0,'followup','Lender rates confirmation call','Westpac','10:30','high',false],
+        [0,'followup','Broker agreement follow up','Sarah Brown','14:00','low',false],
+        [1,'task','Prepare monthly volume report','Internal','09:30','high',false],
+        [1,'followup','New lender onboarding sync','HSBC','11:00','medium',false],
+        [2,'followup','Quarterly review preparation','Finance Team','11:30','low',false],
+        [2,'task','Audit pending payout queue','Internal','14:00','medium',false],
+        [3,'task','System compliance update','Internal','09:00','high',false],
+        [3,'followup','Loan approval confirmation call','Henry Miller','15:00','high',false],
+        [-1,'task','Review credit files (completed)','Multiple','10:00','high',true],
+        [-1,'followup','Contract signature follow-up','Johnathan Doe','14:30','high',true],
+        [-3,'task','Lender panel rate update','Internal','09:00','medium',true],
+        [5,'task','Monthly portfolio review','Internal','10:00','high',false],
+        [5,'followup','Settlement checklist review','ABC Corp','13:00','medium',false],
+        [7,'followup','Post-settlement courtesy call','Wilson Family','09:00','medium',false],
+        [10,'task','Quarterly compliance check','Internal','10:00','medium',false],
+        [14,'followup','Annual review check-in','Davis Holdings','11:00','low',false],
+    ].forEach(([delta,type,title,lead,time,priority,done])=>{
+        const key=_dateKey(_addDays(t,delta));
+        if(!CAL_EVENTS[key])CAL_EVENTS[key]=[];
+        CAL_EVENTS[key].push({type,title,lead,time,priority,done});
+    });
+})();
+
+function renderCalendar(){
+    const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const y=_amCurDate.getFullYear(),m=_amCurDate.getMonth();
+    document.getElementById('amCurrentMonthYear').textContent=MONTHS[m]+' '+y;
+    const grid=document.getElementById('amCalGrid');
+    grid.innerHTML='';
+    const firstDay=new Date(y,m,1).getDay();
+    const daysInMonth=new Date(y,m+1,0).getDate();
+    const prevDays=new Date(y,m,0).getDate();
+    const today=new Date();
+    for(let i=firstDay;i>0;i--){
+        const d=document.createElement('div');
+        d.className='cal-day muted';
+        d.textContent=prevDays-i+1;
+        grid.appendChild(d);
+    }
+    for(let i=1;i<=daysInMonth;i++){
+        const d=document.createElement('div');
+        const isToday=i===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+        const isSel=_amSelDate&&i===_amSelDate.getDate()&&m===_amSelDate.getMonth()&&y===_amSelDate.getFullYear();
+        d.className='cal-day'+(isToday?' today':'')+(isSel?' selected':'');
+        d.textContent=i;
+        const key=y+'-'+String(m+1).padStart(2,'0')+'-'+String(i).padStart(2,'0');
+        if(CAL_EVENTS[key]&&CAL_EVENTS[key].length){
+            const dot=document.createElement('div');
+            dot.className='evt-dot';
+            d.appendChild(dot);
+        }
+        d.onclick=(ev)=>{ev.stopPropagation();_amSelDate=new Date(y,m,i);renderCalendar();openDayDrawer(y,m,i);};
+        grid.appendChild(d);
+    }
+}
+
+function changeMonth(delta){
+    _amCurDate.setMonth(_amCurDate.getMonth()+delta);
+    renderCalendar();
+}
+
+function openDayDrawer(year,month,day){
+    const fab = document.querySelector('.ai-fab');
+    if (fab) { fab.style.opacity = '0'; fab.style.pointerEvents = 'none'; }
+    _ddKey=year+'-'+String(month+1).padStart(2,'0')+'-'+String(day).padStart(2,'0');
+    const date=new Date(year,month,day);
+    const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    document.getElementById('ddDateLabel').textContent=DAYS[date.getDay()]+', '+day+' '+MONTHS[month]+' '+year;
+    const evts=CAL_EVENTS[_ddKey]||[];
+    const tC=evts.filter(e=>e.type==='task').length,fC=evts.filter(e=>e.type==='followup').length;
+    document.getElementById('ddMeta').textContent=tC+' task'+(tC!==1?'s':'')+' · '+fC+' follow-up'+(fC!==1?'s':'');
+    const _clickedDate=new Date(year,month,day);_clickedDate.setHours(0,0,0,0);
+    const _todayMid=new Date();_todayMid.setHours(0,0,0,0);
+    _ddFilter=_clickedDate<_todayMid?'overdue':_clickedDate.getTime()===_todayMid.getTime()?'inprogress':'todo';
+    ['todo','inprogress','overdue','complete'].forEach(f=>{const b=document.getElementById('dd-tab-'+f);if(b)b.className='dd-tab-btn'+(f===_ddFilter?' active':'');});
+    renderDayEvents();
+    document.getElementById('dayDrawer').classList.add('open');
+}
+
+function closeDayDrawer(){
+    const fab = document.querySelector('.ai-fab');
+    if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'all'; }
+    document.getElementById('dayDrawer').classList.remove('open');
+}
+
+function switchDayTab(filter){
+    _ddFilter=filter;
+    ['todo','inprogress','overdue','complete'].forEach(f=>{const b=document.getElementById('dd-tab-'+f);if(b)b.className='dd-tab-btn'+(f===filter?' active':'');});
+    renderDayEvents();
+}
+
+// Calculator Logic
+function openCalculator() {
+    const fab = document.querySelector('.ai-fab');
+    if (fab) { fab.style.opacity = '0'; fab.style.pointerEvents = 'none'; }
+    closeDayDrawer();
+    const modal = document.getElementById('calculatorModal');
+    const panel = document.getElementById('calculatorPanel');
+    modal.style.display = 'flex';
+    void panel.offsetWidth;
+    panel.classList.remove('translate-x-full');
+    setTimeout(initModalCalculator, 50);
+}
+function closeCalculator() {
+    const fab = document.querySelector('.ai-fab');
+    if (fab) { fab.style.opacity = '1'; fab.style.pointerEvents = 'all'; }
+    const modal = document.getElementById('calculatorModal');
+    const panel = document.getElementById('calculatorPanel');
+    panel.classList.add('translate-x-full');
+    setTimeout(() => { modal.style.display = 'none'; }, 500);
+}
+function calculateAdvanced(triggerId) {
+    const inputs = {
+        loan: document.getElementById('mod-loanAmount'),
+        term: document.getElementById('mod-loanTerm'),
+        rAnn: document.getElementById('mod-rateAnnual'),
+        rMon: document.getElementById('mod-rateMonthly'),
+        rFla: document.getElementById('mod-rateFlat'),
+        rFac: document.getElementById('mod-rateFactor'),
+        fPer: document.getElementById('mod-feePercent'),
+        fFix: document.getElementById('mod-feeFixed')
+    };
+    let L = parseFloat(inputs.loan.value) || 0;
+    let T = parseInt(inputs.term.value) || 1;
+    if (triggerId === 'mod-feePercent') {
+        inputs.fFix.value = (L * (parseFloat(inputs.fPer.value) / 100)).toFixed(2);
+    } else if (triggerId === 'mod-feeFixed') {
+        inputs.fPer.value = L > 0 ? ((parseFloat(inputs.fFix.value) / L) * 100).toFixed(2) : 0;
+    } else {
+        inputs.fFix.value = (L * (parseFloat(inputs.fPer.value) / 100)).toFixed(2);
+    }
+    let fee = parseFloat(inputs.fFix.value) || 0;
+    let P = L + fee;
+    if (triggerId === 'mod-rateMonthly') {
+        inputs.rAnn.value = (parseFloat(inputs.rMon.value) * 12).toFixed(2);
+    } else if (triggerId === 'mod-rateFlat') {
+        let flat = parseFloat(inputs.rFla.value) / 100;
+        let totalInt = P * flat * (T / 12);
+        inputs.rAnn.value = ((totalInt / P) / (T / 12) * 180).toFixed(2);
+    } else if (triggerId === 'mod-rateFactor') {
+        let factor = parseFloat(inputs.rFac.value);
+        let totalPay = P * factor;
+        let totalInt = totalPay - P;
+        inputs.rAnn.value = ((totalInt / P) / (T / 12) * 180).toFixed(2);
+    }
+    let rAnn = (parseFloat(inputs.rAnn.value) || 0) / 100;
+    let rMon = rAnn / 12;
+    let M = (rMon === 0) ? P / T : P * (rMon * Math.pow(1 + rMon, T)) / (Math.pow(1 + rMon, T) - 1);
+    let totalPayable = M * T;
+    let totalInterest = totalPayable - P;
+    if (triggerId !== 'mod-rateMonthly') inputs.rMon.value = (rAnn / 12 * 100).toFixed(2);
+    if (triggerId !== 'mod-rateFlat') inputs.rFla.value = ((totalInterest / P) / (T / 12) * 100).toFixed(2);
+    if (triggerId !== 'mod-rateFactor') inputs.rFac.value = (totalPayable / P).toFixed(4);
+    const fmt = new Intl.NumberFormat('en-GB', { style: 'currency', currency: 'GBP' });
+    document.getElementById('mod-resMonthlyDisplay').innerText = fmt.format(M);
+    document.getElementById('mod-resPrincipalDisplay').innerText = fmt.format(L);
+    document.getElementById('mod-resFeeDisplay').innerText = fmt.format(fee);
+    document.getElementById('mod-resInterestDisplay').innerText = fmt.format(totalInterest);
+    document.getElementById('mod-resTotalDisplay').innerText = fmt.format(totalPayable);
+    document.getElementById('mod-outDailyDisplay').innerText = (rAnn / 365 * 100).toFixed(4) + '%';
+    document.getElementById('mod-outYieldDisplay').innerText = ((totalInterest / P) * 100).toFixed(2) + '%';
+    document.getElementById('mod-outFactorDisplay').innerText = (totalPayable / P).toFixed(4);
+    document.getElementById('mod-outFlatDisplay').innerText = ((totalInterest / P) / (T / 12) * 100).toFixed(2) + '%';
+}
+let modalCalcInitialized = false;
+function handleModalInput(e) { calculateAdvanced(e.target.id); }
+function initModalCalculator() {
+    if (modalCalcInitialized) { calculateAdvanced(); return; }
+    const ids = ['mod-loanAmount','mod-loanTerm','mod-rateAnnual','mod-rateMonthly','mod-rateFlat','mod-rateFactor','mod-feePercent','mod-feeFixed'];
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('input', handleModalInput); });
+    modalCalcInitialized = true;
+    calculateAdvanced();
+}
+
+function editTask(dateKey,idx){const row=document.querySelector(`[data-event-index="${idx}"]`);if(row){row.querySelector('.view-mode').style.display='none';row.querySelector('.edit-mode').style.display='block';}}
+function saveTask(dateKey,idx){
+    const events=CAL_EVENTS[dateKey];if(!events||!events[idx])return;
+    events[idx].title=document.getElementById('am-edit-title-'+idx).value;
+    events[idx].lead=document.getElementById('am-edit-lead-'+idx).value;
+    events[idx].time=document.getElementById('am-edit-time-'+idx).value;
+    events[idx].priority=document.getElementById('am-edit-priority-'+idx).value;
+    events[idx].type=document.getElementById('am-edit-type-'+idx).value;
+    const sv=document.getElementById('am-edit-status-'+idx).value;
+    events[idx].done=sv==='done';events[idx].customStatus=sv!=='done'?sv:undefined;
+    const nf=sv==='done'?'complete':sv==='overdue'?'overdue':sv==='in progress'?'inprogress':'todo';
+    _ddFilter=nf;['todo','inprogress','overdue','complete'].forEach(f=>{const b=document.getElementById('dd-tab-'+f);if(b)b.className='dd-tab-btn'+(f===nf?' active':'');});
+    renderDayEvents();
+    const evts=CAL_EVENTS[_ddKey]||[];const tC=evts.filter(e=>e.type==='task').length,fC=evts.filter(e=>e.type==='followup').length;
+    document.getElementById('ddMeta').textContent=tC+' task'+(tC!==1?'s':'')+' · '+fC+' follow-up'+(fC!==1?'s':'');
+}
+function cancelEdit(idx){const row=document.querySelector(`[data-event-index="${idx}"]`);if(row){row.querySelector('.view-mode').style.display='flex';row.querySelector('.edit-mode').style.display='none';}}
+
+function renderDayEvents(){
+    const evts=CAL_EVENTS[_ddKey]||[];
+    const today=new Date();today.setHours(0,0,0,0);
+    const drawerDate=new Date(_ddKey.split('-')[0],_ddKey.split('-')[1]-1,_ddKey.split('-')[2]);drawerDate.setHours(0,0,0,0);
+    const filtered=evts.filter(e=>{
+        let status='to do';
+        if(e.done)status='done';
+        else if(e.customStatus)status=e.customStatus;
+        else if(drawerDate<today)status='overdue';
+        else if(drawerDate.getTime()===today.getTime())status='in progress';
+        else status='to do';
+        if(_ddFilter==='todo')return status==='to do';
+        if(_ddFilter==='inprogress')return status==='in progress';
+        if(_ddFilter==='overdue')return status==='overdue';
+        if(_ddFilter==='complete')return status==='done';
+        return true;
+    });
+    const list=document.getElementById('ddEventsList');
+    if(!filtered.length){
+        list.innerHTML=`<div style="padding:100px 40px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">
+            <div class="w-16 h-16 rounded-3xl bg-slate-50 flex items-center justify-center text-slate-200 mb-6"><i class="fa-solid fa-calendar-xmark text-3xl"></i></div>
+            <div style="font-size:14px;font-weight:900;color:#0f172a;text-transform:uppercase;letter-spacing:0.1em;">No ${_ddFilter==='todo'?'To Do':_ddFilter==='inprogress'?'In Progress':_ddFilter==='overdue'?'Overdue':'Complete'} Activities</div>
+            <div style="font-size:11px;font-weight:600;color:#94a3b8;margin-top:8px;max-width:240px;line-height:1.6;">No ${_ddFilter==='todo'?'to do':_ddFilter==='inprogress'?'in progress':_ddFilter==='overdue'?'overdue':'completed'} tasks or follow-ups for this date.</div>
+            <button onclick="closeDayDrawer()" style="margin-top:24px;padding:10px 24px;border-radius:12px;background:#0f172a;color:#fff;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em;cursor:pointer;">Return to Calendar</button>
+        </div>`;return;
+    }
+    const prioC={high:'#b91c1c',medium:'#b45309',low:'#64748b'},prioBg={high:'#fee2e2',medium:'#fef3c7',low:'#f1f5f9'};
+    list.innerHTML=[...filtered].sort((a,b)=>a.time.localeCompare(b.time)).map((e,index)=>{
+        let status='to do';
+        if(e.done)status='done';else if(e.customStatus)status=e.customStatus;else if(drawerDate<today)status='overdue';else if(drawerDate.getTime()===today.getTime())status='in progress';else status='to do';
+        const statusC=status==='done'?'#15803d':status==='overdue'?'#b91c1c':status==='in progress'?'#b45309':'';
+        const statusBg=status==='done'?'#dcfce7':status==='overdue'?'#fee2e2':status==='in progress'?'#fef3c7':'';
+        return `<div class="day-evt-row day-evt-${e.type}${e.done?' day-evt-done':''}${status==='overdue'?' day-evt-overdue':''}" data-event-index="${index}">
+            <div class="view-mode" style="display:flex;align-items:flex-start;gap:10px;width:100%;">
+                <div style="width:38px;height:38px;border-radius:10px;background:${e.type==='task'?'#f5f3ff':'#fffbeb'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">
+                    <i class="fa-solid ${e.type==='task'?'fa-list-check':'fa-phone-volume'}" style="color:${e.type==='task'?'#7c3aed':'#d97706'};font-size:13px;"></i>
+                </div>
+                <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:4px;">
+                        <span style="font-size:7px;font-weight:800;padding:2px 6px;border-radius:99px;background:${e.type==='task'?'#ede9fe':'#fef3c7'};color:${e.type==='task'?'#7c3aed':'#b45309'};text-transform:uppercase;">${e.type==='task'?'Task':'Follow-up'}</span>
+                        <span style="font-size:7px;font-weight:800;padding:2px 6px;border-radius:99px;background:${prioBg[e.priority]};color:${prioC[e.priority]};text-transform:uppercase;">${e.priority}</span>
+                        <span style="font-size:7px;font-weight:800;padding:2px 6px;border-radius:99px;background:${statusBg};color:${statusC};text-transform:uppercase;">${status}</span>
+                    </div>
+                    <div style="font-size:10px;font-weight:700;color:#0f172a;line-height:1.4;${e.done?'text-decoration:line-through;opacity:.7;':''}">${e.title}</div>
+                    <div style="display:flex;align-items:center;gap:10px;margin-top:4px;">
+                        <span style="font-size:8px;color:#64748b;font-weight:600;"><i class="fa-solid fa-user" style="font-size:7px;margin-right:3px;"></i>${e.lead}</span>
+                        <span style="font-size:8px;color:#94a3b8;font-weight:700;"><i class="fa-solid fa-clock" style="font-size:7px;margin-right:3px;"></i>${e.time}</span>
+                        <button onclick="editTask('${_ddKey}',${index})" style="margin-left:auto;padding:4px 8px;border-radius:4px;background:#f1f5f9;color:#64748b;font-size:8px;border:1px solid #e2e8f0;cursor:pointer;"><i class="fa-solid fa-pencil"></i> Edit</button>
+                    </div>
+                </div>
+            </div>
+            <div class="edit-mode" style="display:none;width:100%;padding:10px 0;">
+                <div style="display:flex;flex-direction:column;gap:6px;background:#f8fafc;padding:8px;border-radius:8px;">
+                    <input type="text" id="am-edit-title-${index}" value="${e.title}" style="padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:9px;font-weight:500;" placeholder="Title">
+                    <input type="text" id="am-edit-lead-${index}" value="${e.lead}" style="padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:9px;font-weight:500;" placeholder="Lead/Client">
+                    <input type="text" id="am-edit-time-${index}" value="${e.time}" style="padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:9px;font-weight:500;" placeholder="Time">
+                    <select id="am-edit-priority-${index}" style="padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:9px;font-weight:500;cursor:pointer;">
+                        <option value="low" ${e.priority==='low'?'selected':''}>Low Priority</option>
+                        <option value="medium" ${e.priority==='medium'?'selected':''}>Medium Priority</option>
+                        <option value="high" ${e.priority==='high'?'selected':''}>High Priority</option>
+                    </select>
+                    <select id="am-edit-type-${index}" style="padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:9px;font-weight:500;cursor:pointer;">
+                        <option value="task" ${e.type==='task'?'selected':''}>Type: Task</option>
+                        <option value="followup" ${e.type==='followup'?'selected':''}>Type: Follow-up</option>
+                    </select>
+                    <select id="am-edit-status-${index}" style="padding:6px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:9px;font-weight:500;cursor:pointer;">
+                        <option value="to do" ${status==='to do'?'selected':''}>Status: To Do</option>
+                        <option value="in progress" ${status==='in progress'?'selected':''}>Status: In Progress</option>
+                        <option value="overdue" ${status==='overdue'?'selected':''}>Status: Overdue</option>
+                        <option value="done" ${status==='done'?'selected':''}>Status: Done</option>
+                    </select>
+                    <div style="display:flex;gap:6px;margin-top:4px;">
+                        <button onclick="saveTask('${_ddKey}',${index})" style="flex:1;padding:6px 10px;border-radius:6px;background:#4f46e5;color:#fff;font-size:9px;border:none;cursor:pointer;font-weight:600;">✓ Save</button>
+                        <button onclick="cancelEdit(${index})" style="flex:1;padding:6px 10px;border-radius:6px;background:#e2e8f0;color:#64748b;font-size:9px;border:none;cursor:pointer;font-weight:600;">✕ Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+document.addEventListener('click',function(e){
+    const drawer=document.getElementById('dayDrawer');
+    if(!drawer||!drawer.classList.contains('open'))return;
+    if(!drawer.querySelector('.day-drawer-panel').contains(e.target))closeDayDrawer();
+});
+
+window.addEventListener('load',()=>renderCalendar());
+</script>
+<!-- Calculator Modal (matches Tele Agent) -->
+<div id="calculatorModal" class="fixed inset-0 z-[1100] justify-end overflow-hidden" style="display:none">
+    <div class="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] transition-opacity duration-300" onclick="closeCalculator()"></div>
+    <div id="calculatorPanel" class="relative w-full max-w-[520px] bg-white h-full shadow-[-20px_0_50px_rgba(0,0,0,0.1)] border-l border-slate-100 translate-x-full transition-transform duration-500 ease-out flex flex-col">
+        <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500">
+                    <i class="fa-solid fa-calculator text-lg"></i>
+                </div>
+                <div>
+                    <h2 class="text-xs font-black text-slate-900 uppercase tracking-widest leading-none">Business Loan</h2>
+                    <p class="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tight">Calculator Hub</p>
+                </div>
+            </div>
+            <button onclick="closeCalculator()" class="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-all">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto custom-scrollbar p-5 bg-slate-50/30">
+            <div class="w-full bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
+                <div class="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Loan Amount (£)</label>
+                        <input type="number" id="mod-loanAmount" value="75000" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Term (Months)</label>
+                        <input type="number" id="mod-loanTerm" value="18" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                    </div>
+                    <div class="col-span-2 text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] pt-2 pb-0.5 border-t border-slate-100">Interest Rate Inputs</div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Annual (%)</label>
+                        <input type="number" id="mod-rateAnnual" value="30" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Monthly (%)</label>
+                        <input type="number" id="mod-rateMonthly" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Flat (%)</label>
+                        <input type="number" id="mod-rateFlat" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Factor (Dec)</label>
+                        <input type="number" id="mod-rateFactor" step="0.0001" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                    </div>
+                    <div class="col-span-2 text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] pt-2 pb-0.5 border-t border-slate-100">Arrangement Fees</div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Percentage (%)</label>
+                        <input type="number" id="mod-feePercent" value="2" step="0.1" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fixed Amount (£)</label>
+                        <input type="number" id="mod-feeFixed" step="1" class="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all">
+                    </div>
+                </div>
+                <div class="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="text-center mb-4">
+                        <span class="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Estimated Monthly Payment</span>
+                        <span class="block text-2xl font-black text-emerald-600 mt-1" id="mod-resMonthlyDisplay">£0.00</span>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center text-[10px] font-bold border-b border-dotted border-slate-200 pb-1.5">
+                            <span class="text-slate-400 uppercase tracking-tight">Loan Principal</span>
+                            <span class="text-slate-900" id="mod-resPrincipalDisplay">£0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] font-bold border-b border-dotted border-slate-200 pb-1.5">
+                            <span class="text-slate-400 uppercase tracking-tight">Arrangement Fees</span>
+                            <span class="text-slate-900" id="mod-resFeeDisplay">£0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[10px] font-bold border-b border-dotted border-slate-200 pb-1.5">
+                            <span class="text-slate-400 uppercase tracking-tight">Total Interest</span>
+                            <span class="text-slate-900" id="mod-resInterestDisplay">£0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px] font-black bg-indigo-50 text-indigo-700 p-2 rounded-lg">
+                            <span class="uppercase tracking-widest">Total Payable</span>
+                            <span id="mod-resTotalDisplay">£0.00</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 pt-4 border-t border-slate-200">
+                        <div class="flex justify-between items-center text-[9px] font-bold">
+                            <span class="text-slate-400 uppercase">Daily:</span>
+                            <span class="text-slate-900" id="mod-outDailyDisplay">0%</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[9px] font-bold">
+                            <span class="text-slate-400 uppercase">Yield:</span>
+                            <span class="text-slate-900" id="mod-outYieldDisplay">0%</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[9px] font-bold">
+                            <span class="text-slate-400 uppercase">Factor:</span>
+                            <span class="text-slate-900" id="mod-outFactorDisplay">0</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[9px] font-bold">
+                            <span class="text-slate-400 uppercase">Flat:</span>
+                            <span class="text-slate-900" id="mod-outFlatDisplay">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../profile/profile_drawer.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Task Hub - Alpha Funding CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family:'Inter',system-ui,sans-serif; overflow:hidden; height:100vh; background:#f8fafc; margin:0; display:flex; }
+        .custom-scrollbar::-webkit-scrollbar { width:3px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background:transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:10px; }
+        .dashboard-container { display:grid; grid-template-columns:240px 220px 1fr 240px; gap:0.75rem; height:100vh; padding:0.75rem; flex-grow:1; min-width:0; }
+        .panel-card { background:white; border-radius:16px; border:1px solid #f1f5f9; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.04); }
+        .card-header { padding:10px 14px; border-bottom:1px solid #f1f5f9; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+        .card-header-dark { background:#0f172a; padding:10px 14px; border-bottom:none; display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+        .card-title { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:#0f172a; }
+        .card-title-light { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.1em; color:#fff; }
+        .calendar-mini { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; }
+        .cal-day { aspect-ratio:1.2; display:flex; align-items:center; justify-content:center; font-size:9px; font-weight:500; color:#64748b; }
+        .cal-day.today { background:#111827; color:white; border-radius:8px; }
+        .label-text { font-size:8px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:#94a3b8; margin-bottom:4px; display:block; }
+        .input-compact { width:100%; background:#f8fafc; border:1px solid #f1f5f9; border-radius:8px; padding:6px 10px; font-size:10px; font-weight:500; outline:none; transition:border .15s; }
+        .input-compact:focus { border-color:#6366f1; background:#fff; }
+        .promo-item { padding:10px 14px; border-bottom:1px solid #f8fafc; transition:background .15s; cursor:pointer; }
+        .promo-item:hover { background:#fafbff; }
+        .promo-item:last-child { border-bottom:none; }
+        .promo-badge { font-size:7px; font-weight:800; padding:2px 6px; border-radius:99px; text-transform:uppercase; color:#fff; }
+        .side-nav { width:70px; background:#0f172a; height:100vh; display:flex; flex-direction:column; align-items:center; padding:12px 0; gap:4px; border-right:1px solid #1e293b; flex-shrink:0; overflow:hidden; }
+        .nav-item { display:flex; flex-direction:column; align-items:center; gap:4px; color:#94a3b8; transition:all .2s; cursor:pointer; text-decoration:none; padding:6px 4px; border-radius:8px; width:54px; }
+        .nav-item:hover,.nav-item.active { color:#fff; background:rgba(255,255,255,.08); }
+        .nav-item i { font-size:14px; }
+        .nav-text { font-size:7px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; text-align:center; line-height:1; }
+    </style>
+</head>
+<body>
+    <nav class="side-nav">
+        <div class="mb-6"><img src="../logo/alpha.png" alt="Alpha Funding" style="width:38px;height:38px;object-fit:contain;border-radius:8px;"></div>
+        <a href="../dashboard/super_admin_dashboard.html" id="nav-dashboard" class="nav-item"><i class="fa-solid fa-gauge-high"></i><span class="nav-text">Dashboard</span></a>
+        <a href="../task_and_followups/task_management.html" id="nav-tasks" class="nav-item active"><i class="fa-solid fa-tasks"></i><span class="nav-text">Tasks</span></a>
+        <a href="../lead_management/lead_management.html" id="nav-leads" class="nav-item"><i class="fa-solid fa-user-group"></i><span class="nav-text">Leads</span></a>
+        <a href="../loan_pipeline/loan_pipeline.html" id="nav-pipeline" class="nav-item"><i class="fa-solid fa-diagram-project"></i><span class="nav-text">Pipeline</span></a>
+        <a href="../lenders/lender_management.html" id="nav-lenders" class="nav-item"><i class="fa-solid fa-hand-holding-dollar"></i><span class="nav-text">Lenders</span></a>
+        <a href="../documents/document_vault.html" id="nav-docs" class="nav-item"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Docs</span></a>
+        <a href="../user_management/user_management.html" id="nav-users" class="nav-item"><i class="fa-solid fa-user-gear"></i><span class="nav-text">Users</span></a>
+        <a href="../reporting/reporting_logs.html" id="nav-reports" class="nav-item"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Reports</span></a>
+        <div style="flex:1;"></div>
+                <div class="nav-item" onclick="openProfileDrawer()" title="Profile" style="cursor:pointer;">
+            <i class="fa-solid fa-circle-user"></i>
+            <span class="nav-text">Profile</span>
+        </div>
+<div class="nav-item" onclick="logout()" style="margin-bottom:8px;" title="Logout"><i class="fa-solid fa-right-from-bracket"></i><span class="nav-text">Logout</span></div>
+    </nav>
+
+    <script>
+    (function(){
+        const s=JSON.parse(sessionStorage.getItem('crm_session')||'null');
+        if(!s){window.location.replace('../login/login.html');return;}
+        const el=document.getElementById('nav-dashboard');
+        if(el&&s.landing){el.href='../dashboard/'+s.landing.split('/').pop();}
+        const ROLE_NAV={
+            'Admin':['nav-tasks','nav-leads','nav-pipeline','nav-lenders','nav-docs','nav-users','nav-reports'],
+            'Team Leader':['nav-tasks','nav-leads'],
+            'Tele Agent':['nav-tasks','nav-leads'],
+            'Accounts Manager':['nav-tasks','nav-leads','nav-lenders']
+        };
+        const allowed=ROLE_NAV[s.role]||ROLE_NAV['Admin'];
+        ['nav-tasks','nav-leads','nav-pipeline','nav-lenders','nav-docs','nav-users','nav-reports'].forEach(id=>{const n=document.getElementById(id);if(n&&!allowed.includes(id))n.style.display='none';});
+    })();
+    function logout(){sessionStorage.removeItem('crm_session');window.location.replace('../login/login.html');}
+    </script>
+
+    <main class="dashboard-container">
+
+        <!-- CARD 1: CREATE TASK -->
+        <section class="panel-card">
+            <div class="card-header">
+                <span class="card-title">Create New Task</span>
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+            </div>
+            <div class="flex-1 p-3 space-y-2 overflow-y-auto custom-scrollbar">
+                <div><label class="label-text">Task Description</label><input id="f-title" type="text" placeholder="Title..." class="input-compact"></div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="label-text">Assignee</label><select id="f-assignee" class="input-compact"><option>Thanushika</option><option>Ravindu</option><option>Priya</option><option>Amal</option></select></div>
+                    <div><label class="label-text">Lead</label><select id="f-client" class="input-compact" onchange="onLeadSelect(this)"><option value="">Select lead...</option></select></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="label-text">Task Type</label><select id="f-type" class="input-compact"><option>Call</option><option>Meeting</option><option>Follow-up</option><option>Email</option><option>Document</option><option>Research</option><option>Outbound</option></select></div>
+                    <div><label class="label-text">Task Status</label><select id="f-taskstatus" class="input-compact"><option>To Do</option><option>In Progress</option><option>Complete</option><option>Overdue</option></select></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="label-text">Lead Status</label><select id="f-leadstatus" class="input-compact"><option>Hot</option><option>Warm</option><option>Cold</option></select></div>
+                    <div></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="label-text">Phone</label><input id="f-phone" type="tel" placeholder="077..." class="input-compact"></div>
+                    <div><label class="label-text">Email</label><input id="f-email" type="email" placeholder="mail@lead.com" class="input-compact"></div>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="label-text">Date</label><input id="f-date" type="date" class="input-compact" value="2026-04-18"></div>
+                    <div><label class="label-text">Time</label><input id="f-time" type="time" class="input-compact" value="14:30"></div>
+                </div>
+                <div><label class="label-text">Notes</label><textarea id="f-notes" rows="5" placeholder="..." class="input-compact resize-none"></textarea></div>
+                <div id="f-error" class="hidden text-[9px] text-red-500 font-bold"></div>
+                <button onclick="createTask()" class="w-full py-2 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg hover:bg-black transition-all">Create Task</button>
+            </div>
+        </section>
+
+        <!-- CARD 2: CALENDAR VIEW -->
+        <section class="panel-card">
+            <div class="card-header">
+                <span class="card-title">Calendar View</span>
+                <span id="cal-year-label" style="font-size:9px;font-weight:700;color:#94a3b8;font-family:monospace;"></span>
+            </div>
+            <div class="flex-1 p-3 flex flex-col overflow-hidden">
+                <!-- Month navigation -->
+                <div class="flex items-center justify-between mb-2">
+                    <button onclick="calPrev()" class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all text-gray-400 hover:text-gray-700">
+                        <i class="fa-solid fa-chevron-left" style="font-size:8px;"></i>
+                    </button>
+                    <span id="cal-month-label" style="font-size:9px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:.08em;"></span>
+                    <button onclick="calNext()" class="w-5 h-5 flex items-center justify-center rounded-full hover:bg-gray-100 transition-all text-gray-400 hover:text-gray-700">
+                        <i class="fa-solid fa-chevron-right" style="font-size:8px;"></i>
+                    </button>
+                </div>
+                <!-- Day headers -->
+                <div class="calendar-mini mb-1">
+                    <div class="cal-day font-bold text-slate-400">S</div><div class="cal-day font-bold text-slate-400">M</div><div class="cal-day font-bold text-slate-400">T</div><div class="cal-day font-bold text-slate-400">W</div><div class="cal-day font-bold text-slate-400">T</div><div class="cal-day font-bold text-slate-400">F</div><div class="cal-day font-bold text-slate-400">S</div>
+                </div>
+                <!-- Dynamic days grid -->
+                <div id="cal-days-grid" class="calendar-mini mb-3"></div>
+                <div class="flex-1 overflow-y-auto custom-scrollbar">
+                    <label id="cal-priority-label" class="label-text mb-2">Today's Tasks</label>
+                    <div id="cal-tasks-list" class="space-y-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CARD 3: ALL TASKS -->
+        <section class="panel-card">
+            <div class="card-header-dark">
+                <span class="card-title-light">All Tasks</span>
+                <span id="task-active-count" style="font-size:8px;font-weight:700;color:#64748b;text-transform:uppercase;">0 active</span>
+            </div>
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="px-4 py-2 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Task Details</th>
+                            <th class="px-4 py-2 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Lead</th>
+                            <th class="px-4 py-2 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Schedule</th>
+                            <th class="px-4 py-2 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Task Status</th>
+                            <th class="px-4 py-2 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Lead Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasks-tbody" class="divide-y divide-gray-50"></tbody>
+                </table>
+            </div>
+            <div class="px-4 py-2 border-t border-gray-100 bg-gray-50/30 text-center flex-shrink-0">
+                <button class="text-[8px] font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-all">Refresh Database</button>
+            </div>
+        </section>
+
+        <!-- CARD 4: LENDER PROMOTIONS -->
+        <section class="panel-card">
+            <div class="card-header" style="background:#fffbeb;border-bottom:1px solid #fde68a;">
+                <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 rounded-lg bg-amber-500 flex items-center justify-center"><i class="fa-solid fa-tags text-white" style="font-size:10px;"></i></div>
+                    <span class="card-title" style="color:#92400e;">Lender Promotions</span>
+                </div>
+                <div style="width:7px;height:7px;border-radius:50%;background:#f59e0b;animation:pulse 1.5s infinite;"></div>
+            </div>
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <!-- Promo 1 (Active) -->
+                <div class="promo-item">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <span class="promo-badge" style="background:#10b981;">Active</span>
+                        <span style="font-size:7px;font-weight:700;color:#94a3b8;">Exp: 15 May</span>
+                    </div>
+                    <div style="font-size:10px;font-weight:800;color:#0f172a;margin-bottom:3px;">Funding Circle: 1% Fee Rebate</div>
+                    <div style="font-size:8px;color:#64748b;line-height:1.5;">Bonus commission on all asset finance deals this month.</div>
+                    <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+                        <button onclick="openDocViewer('Funding Circle','1% Fee Rebate','Bonus commission on all asset finance deals this month.','15 May')" style="background:#f1f5f9;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:8px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-file-pdf"></i> View Doc</button>
+                        <span style="font-size:8px;font-weight:700;color:#10b981;font-style:italic;">Auto-Applied</span>
+                    </div>
+                </div>
+                <!-- Promo 2 (Active) -->
+                <div class="promo-item">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <span class="promo-badge" style="background:#10b981;">Active</span>
+                        <span style="font-size:7px;font-weight:700;color:#94a3b8;">Exp: 22 Apr</span>
+                    </div>
+                    <div style="font-size:10px;font-weight:800;color:#0f172a;margin-bottom:3px;">Allica: Fast-Track Processing</div>
+                    <div style="font-size:8px;color:#64748b;line-height:1.5;">Guaranteed 24-hour turnaround on commercial mortgage apps.</div>
+                    <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+                        <button onclick="openDocViewer('Allica','Fast-Track Processing','Guaranteed 24-hour turnaround on commercial mortgage apps.','22 Apr')" style="background:#f1f5f9;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:8px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-file-pdf"></i> View Doc</button>
+                        <i class="fa-solid fa-chevron-right" style="color:#cbd5e1;font-size:8px;"></i>
+                    </div>
+                </div>
+                <!-- Promo 3 (Active) -->
+                <div class="promo-item">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <span class="promo-badge" style="background:#10b981;">Active</span>
+                        <span style="font-size:7px;font-weight:700;color:#94a3b8;">Exp: 28 Apr</span>
+                    </div>
+                    <div style="font-size:10px;font-weight:800;color:#0f172a;margin-bottom:3px;">Westpac: Zero Arrangement Fee</div>
+                    <div style="font-size:8px;color:#64748b;line-height:1.5;">No arrangement fee on SME loans £100k–£500k this month.</div>
+                    <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+                        <button onclick="openDocViewer('Westpac','Zero Arrangement Fee','No arrangement fee on SME loans £100k–£500k this month.','28 Apr')" style="background:#f1f5f9;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:8px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-file-pdf"></i> View Doc</button>
+                        <i class="fa-solid fa-chevron-right" style="color:#cbd5e1;font-size:8px;"></i>
+                    </div>
+                </div>
+                <!-- Promo 4 (Expired) -->
+                <div class="promo-item opacity-60 bg-gray-50/50">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                        <span class="promo-badge" style="background:#ef4444;">Expired</span>
+                        <span style="font-size:7px;font-weight:700;color:#94a3b8;">Exp: 10 Apr</span>
+                    </div>
+                    <div style="font-size:10px;font-weight:800;color:#0f172a;margin-bottom:3px;">Lloyds Bank: 0.25% Rate Cut</div>
+                    <div style="font-size:8px;color:#64748b;line-height:1.5;">All new business expansion loans over £250k.</div>
+                    <div style="margin-top:6px;padding-top:6px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;">
+                        <button onclick="openDocViewer('Lloyds Bank','0.25% Rate Cut','All new business expansion loans over £250k.','10 Apr')" style="background:#f1f5f9;border:none;border-radius:6px;padding:3px 8px;cursor:pointer;font-size:8px;font-weight:700;color:#64748b;display:flex;align-items:center;gap:4px;"><i class="fa-solid fa-file-pdf"></i> View Doc</button>
+                        <i class="fa-solid fa-chevron-right" style="color:#cbd5e1;font-size:8px;"></i>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Document Viewer Modal -->
+    <div id="doc-viewer-modal" class="fixed inset-0 bg-slate-900/90 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-4xl h-full max-h-[90vh] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center text-indigo-600">
+                        <i class="fa-solid fa-file-pdf"></i>
+                    </div>
+                    <div>
+                        <h3 id="dv-filename" class="text-[11px] font-black text-gray-900 uppercase">promotion_document.pdf</h3>
+                        <p class="text-[8px] text-gray-400 font-bold uppercase tracking-widest">Promotion Reference Document</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button class="w-8 h-8 rounded-lg hover:bg-gray-100 text-gray-400 transition-all"><i class="fa-solid fa-print"></i></button>
+                    <button class="w-8 h-8 rounded-lg hover:bg-gray-100 text-gray-400 transition-all"><i class="fa-solid fa-download"></i></button>
+                    <div class="w-px h-4 bg-gray-200 mx-1"></div>
+                    <button onclick="closeDocViewer()" class="w-8 h-8 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+            </div>
+            <!-- Modal Content (Mock Document) -->
+            <div class="flex-1 bg-gray-100 p-8 overflow-y-auto flex justify-center">
+                <div class="bg-white w-full max-w-[800px] shadow-lg p-12 min-h-[1100px] relative">
+                    <!-- Ribbon -->
+                    <div class="absolute top-0 right-0 w-32 h-32 overflow-hidden">
+                        <div class="bg-indigo-600 text-white text-[8px] font-bold text-center py-1 transform rotate-45 translate-x-10 translate-y-6 w-[150%] uppercase tracking-widest shadow-sm">Official Offer</div>
+                    </div>
+                    
+                    <div class="border-b-4 border-indigo-600 pb-8 mb-8 flex justify-between items-end">
+                        <div class="text-indigo-600 font-black text-2xl tracking-tighter">WHITEROCK <span class="text-gray-300">|</span> <span class="text-gray-900 text-lg uppercase tracking-widest">Lender Promo</span></div>
+                        <div class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Issued: 21 Apr 2026</div>
+                    </div>
+
+                    <div class="space-y-8 text-left">
+                        <div>
+                            <h1 id="dv-title" class="text-3xl font-black text-gray-900 leading-none mb-2">Q3 CASHBACK SPECIAL</h1>
+                            <p id="dv-lender-label" class="text-indigo-600 font-bold uppercase tracking-widest text-[11px]">ANZ BANK</p>
+                        </div>
+
+                        <div class="bg-slate-50 border-l-4 border-indigo-600 p-6">
+                            <p class="text-[9px] font-bold text-indigo-600 uppercase mb-2 tracking-widest">Promotion Summary</p>
+                            <p id="dv-detail" class="text-base text-slate-700 leading-relaxed italic">"Get up to $3000 cashback on all new home loan applications submitted before the end of the quarter."</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-12 text-left">
+                            <div class="space-y-4">
+                                <h4 class="text-[10px] font-black uppercase text-gray-900 border-b border-gray-100 pb-2">Terms & Conditions</h4>
+                                <ul class="text-[10px] text-gray-500 space-y-2 list-disc pl-4 leading-relaxed">
+                                    <li>Terms and conditions apply as per lender agreement.</li>
+                                    <li>Available for accredited brokers only.</li>
+                                    <li>Subject to final credit approval.</li>
+                                    <li>Lender reserves right to withdraw offer.</li>
+                                </ul>
+                            </div>
+                            <div class="space-y-4 text-left">
+                                <h4 class="text-[10px] font-black uppercase text-gray-900 border-b border-gray-100 pb-2">Eligibility</h4>
+                                <p class="text-[10px] text-gray-500 leading-relaxed">This promotion is exclusively available through the Whiterock partner network. Electronic submission via CRM is required.</p>
+                                <div class="p-4 bg-indigo-50 rounded-xl">
+                                    <p class="text-[8px] font-bold text-indigo-600 uppercase mb-1">Valid Until</p>
+                                    <p id="dv-expiry-date" class="text-lg font-black text-indigo-900">30 APR 2026</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-20 border-t border-gray-100 mt-20 flex justify-between items-center opacity-50">
+                            <div class="text-[8px] font-bold text-gray-400 uppercase">Ref: WR-LENDER-PROMO-2026</div>
+                            <div class="text-[8px] font-bold text-gray-400 uppercase tracking-widest text-right">Whiterock CRM Ecosystem<br>Authorized Electronic Document</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.2)} }
+        .table-status-select { font-size:8px; font-weight:700; border-radius:6px; padding:2px 6px; border:none; outline:none; cursor:pointer; appearance:none; -webkit-appearance:none; text-align:center; }
+        .table-status-select.ts-todo    { background:#f1f5f9; color:#475569; }
+        .table-status-select.ts-inprog  { background:#eff6ff; color:#2563eb; }
+        .table-status-select.ts-done    { background:#f0fdf4; color:#16a34a; }
+        .table-status-select.ts-overdue { background:#fef2f2; color:#dc2626; }
+        .table-status-select.ls-hot     { background:#fef2f2; color:#dc2626; }
+        .table-status-select.ls-warm    { background:#fffbeb; color:#d97706; }
+        .table-status-select.ls-cold    { background:#eff6ff; color:#2563eb; }
+        .cal-day.other-month { opacity: 0.2; }
+        .cal-day.selected { background: #6366f1; color: white; border-radius: 8px; }
+        .cal-day.today { background: #111827; color: white; border-radius: 8px; }
+        .cal-day:not(.other-month) { cursor: pointer; border-radius: 8px; transition: background .15s; }
+        .cal-day:not(.other-month):not(.today):not(.selected):hover { background: #f1f5f9; color: #0f172a; }
+    </style>
+    <script>
+        // ── Leads reference data ─────────────────────────────────────────
+        const leadsData = [
+            { key:'L-1004', name:'John Perera',     phone:'+44 7700 900000', email:'john@abc.com',                  company:'ABC Solutions Ltd',       leadStatus:'Warm' },
+            { key:'L-1005', name:'Sarah Silva',      phone:'+44 7700 111222', email:'sarah@xyz.com',                 company:'XYZ Logistics',           leadStatus:'Hot'  },
+            { key:'L-1006', name:'David Thompson',   phone:'+44 7888 222333', email:'david@thompson-build.co.uk',    company:'Thompson Construction',   leadStatus:'Warm' },
+            { key:'L-1007', name:'Elena Rodriguez',  phone:'+44 7444 555666', email:'elena@solroasters.com',         company:'Sol Coffee Roasters',     leadStatus:'Hot'  },
+            { key:'L-1008', name:'Mark Walberg',     phone:'+44 7111 222333', email:'mark@primefit.com',             company:'Prime Fitness Hub',       leadStatus:'Cool' },
+        ];
+
+        function populateLeadDropdown() {
+            const sel = document.getElementById('f-client');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Select lead...</option>' +
+                leadsData.map(l => `<option value="${l.key}">${l.name} — ${l.company}</option>`).join('');
+        }
+
+        function onLeadSelect(sel) {
+            const lead = leadsData.find(l => l.key === sel.value);
+            document.getElementById('f-phone').value = lead ? lead.phone : '';
+            document.getElementById('f-email').value = lead ? lead.email : '';
+        }
+
+        // ── Task data store ──────────────────────────────────────────────
+        const tasksData = [
+            { id:1,  title:'ABC Quotation Review',    type:'📞 Outbound',  typeColor:'text-blue-500',   client:'John Perera',    phone:'+44 7700 900000', email:'john@abc.com',             date:'2026-04-18', time:'14:30', taskStatus:'To Do',       leadStatus:'Warm', assignee:'Thanushika' },
+            { id:2,  title:'Contract Negotiation',    type:'🤝 Meeting',   typeColor:'text-purple-500', client:'Sarah Silva',    phone:'+44 7700 111222', email:'sarah@xyz.com',            date:'2026-04-19', time:'09:00', taskStatus:'To Do',       leadStatus:'Hot',  assignee:'Ravindu'    },
+            { id:3,  title:'KYC Document Upload',     type:'📄 Document',  typeColor:'text-amber-500',  client:'David Thompson', phone:'+44 7888 222333', email:'david@thompson-build.co.uk',date:'2026-04-18', time:'17:00', taskStatus:'In Progress', leadStatus:'Warm', assignee:'Priya'      },
+            { id:4,  title:'Lender Rate Comparison',  type:'📊 Research',  typeColor:'text-emerald-500',client:'Mark Walberg',   phone:'+44 7111 222333', email:'mark@primefit.com',        date:'2026-04-19', time:'11:00', taskStatus:'Overdue',     leadStatus:'Cold', assignee:'Amal'       },
+            { id:5,  title:'Proposal Submission',     type:'📨 Email',     typeColor:'text-rose-500',   client:'Elena Rodriguez',phone:'+44 7444 555666', email:'elena@solroasters.com',    date:'2026-04-22', time:'10:00', taskStatus:'To Do',       leadStatus:'Hot',  assignee:'Thanushika' },
+            { id:6,  title:'Initial Discovery Call',  type:'📞 Call',      typeColor:'text-blue-500',   client:'Sarah Silva',    phone:'+44 7700 111222', email:'sarah@xyz.com',            date:'2026-04-21', time:'10:00', taskStatus:'To Do',       leadStatus:'Hot',  assignee:'Ravindu'    },
+            { id:7,  title:'Send Term Sheet',         type:'📨 Email',     typeColor:'text-rose-500',   client:'Elena Rodriguez',phone:'+44 7444 555666', email:'elena@solroasters.com',    date:'2026-04-21', time:'11:30', taskStatus:'In Progress', leadStatus:'Hot',  assignee:'Priya'      },
+            { id:8,  title:'Credit File Review',      type:'📄 Document',  typeColor:'text-amber-500',  client:'John Perera',    phone:'+44 7700 900000', email:'john@abc.com',             date:'2026-04-22', time:'14:00', taskStatus:'To Do',       leadStatus:'Warm', assignee:'Amal'       },
+            { id:9,  title:'Follow-up on Offer',      type:'🔁 Follow-up', typeColor:'text-indigo-500', client:'Elena Rodriguez',phone:'+44 7444 555666', email:'elena@solroasters.com',    date:'2026-04-23', time:'09:30', taskStatus:'To Do',       leadStatus:'Hot',  assignee:'Thanushika' },
+            { id:10, title:'Valuation Instruction',   type:'📄 Document',  typeColor:'text-amber-500',  client:'David Thompson', phone:'+44 7888 222333', email:'david@thompson-build.co.uk',date:'2026-04-23', time:'15:00', taskStatus:'Overdue',     leadStatus:'Warm', assignee:'Ravindu'    },
+            { id:11, title:'Broker Commission Check', type:'📊 Research',  typeColor:'text-emerald-500',client:'Mark Walberg',   phone:'+44 7111 222333', email:'mark@primefit.com',        date:'2026-04-24', time:'10:00', taskStatus:'To Do',       leadStatus:'Cold', assignee:'Priya'      },
+            { id:12, title:'Sign Off Meeting',        type:'🤝 Meeting',   typeColor:'text-purple-500', client:'Sarah Silva',    phone:'+44 7700 111222', email:'sarah@xyz.com',            date:'2026-04-25', time:'13:00', taskStatus:'To Do',       leadStatus:'Hot',  assignee:'Amal'       },
+            { id:13, title:'Compliance Document Send',type:'📨 Email',     typeColor:'text-rose-500',   client:'Mark Walberg',   phone:'+44 7111 222333', email:'mark@primefit.com',        date:'2026-04-25', time:'16:00', taskStatus:'To Do',       leadStatus:'Cold', assignee:'Thanushika' },
+            { id:14, title:'Rate Lock Confirmation',  type:'📞 Call',      typeColor:'text-blue-500',   client:'David Thompson', phone:'+44 7888 222333', email:'david@thompson-build.co.uk',date:'2026-04-28', time:'09:00', taskStatus:'To Do',       leadStatus:'Warm', assignee:'Ravindu'    },
+            { id:15, title:'Pipeline Review',         type:'📊 Research',  typeColor:'text-emerald-500',client:'John Perera',    phone:'+44 7700 900000', email:'john@abc.com',             date:'2026-04-30', time:'11:00', taskStatus:'In Progress', leadStatus:'Hot',  assignee:'Priya'      },
+        ];
+        let nextId = 16;
+
+        const TYPE_META = {
+            'Call':      { emoji:'📞', color:'text-blue-500'    },
+            'Meeting':   { emoji:'🤝', color:'text-purple-500'  },
+            'Follow-up': { emoji:'🔁', color:'text-indigo-500'  },
+            'Email':     { emoji:'📨', color:'text-rose-500'    },
+            'Document':  { emoji:'📄', color:'text-amber-500'   },
+            'Research':  { emoji:'📊', color:'text-emerald-500' },
+            'Outbound':  { emoji:'📞', color:'text-blue-500'    },
+        };
+
+        function createTask() {
+            const title    = document.getElementById('f-title').value.trim();
+            const leadKey  = document.getElementById('f-client').value;
+            const date     = document.getElementById('f-date').value;
+            const errEl    = document.getElementById('f-error');
+            if (!title || !leadKey || !date) {
+                errEl.textContent = 'Title, Lead and Date are required.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            errEl.classList.add('hidden');
+            const lead    = leadsData.find(l => l.key === leadKey);
+            const typeVal = document.getElementById('f-type').value;
+            const meta    = TYPE_META[typeVal] || { emoji:'📋', color:'text-gray-500' };
+            tasksData.push({
+                id:         nextId++,
+                title,
+                type:       meta.emoji + ' ' + typeVal,
+                typeColor:  meta.color,
+                client:     lead ? lead.name : leadKey,
+                phone:      lead ? lead.phone : document.getElementById('f-phone').value,
+                email:      lead ? lead.email : document.getElementById('f-email').value,
+                date,
+                time:       document.getElementById('f-time').value || '09:00',
+                taskStatus: document.getElementById('f-taskstatus').value,
+                leadStatus: document.getElementById('f-leadstatus').value,
+                assignee:   document.getElementById('f-assignee').value,
+                notes:      document.getElementById('f-notes').value,
+            });
+            renderTasksTable();
+            renderCalTasks(selectedYear, selectedMonth, selectedDay);
+            // Reset form
+            document.getElementById('f-title').value  = '';
+            document.getElementById('f-client').value = '';
+            document.getElementById('f-notes').value  = '';
+        }
+
+        const LEAD_PRIORITY = { Hot:0, Warm:1, Cold:2 };
+        const TS_CLASS = { 'To Do':'ts-todo', 'In Progress':'ts-inprog', 'Complete':'ts-done', 'Overdue':'ts-overdue' };
+        const LS_CLASS = { Hot:'ls-hot', Warm:'ls-warm', Cold:'ls-cold' };
+
+        function fmtDate(dateStr, time) {
+            const t = today;
+            const d = new Date(dateStr);
+            const todayStr = t.toISOString().slice(0,10);
+            const tmr = new Date(t); tmr.setDate(t.getDate()+1);
+            const tmrStr = tmr.toISOString().slice(0,10);
+            if (dateStr === todayStr) return 'Today, ' + time;
+            if (dateStr === tmrStr)  return 'Tmr, '   + time;
+            return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ', ' + time;
+        }
+
+        // ── All Tasks table ──────────────────────────────────────────────
+        let expandedId = null;
+
+        function renderTasksTable() {
+            const sorted = [...tasksData].sort((a,b) => LEAD_PRIORITY[a.leadStatus] - LEAD_PRIORITY[b.leadStatus]);
+            const active = tasksData.filter(t => t.taskStatus === 'To Do' || t.taskStatus === 'In Progress').length;
+            const counter = document.getElementById('task-active-count');
+            if (counter) counter.textContent = active + ' active';
+            const tbody = document.getElementById('tasks-tbody');
+            tbody.innerHTML = sorted.map(t => {
+                const isOpen = expandedId === t.id;
+                const lsBg = { Hot:'#fef2f2', Warm:'#fffbeb', Cold:'#eff6ff' }[t.leadStatus] || '#f8fafc';
+                const lsTx = { Hot:'#dc2626', Warm:'#d97706', Cold:'#2563eb' }[t.leadStatus] || '#64748b';
+                const tsLabel = `<span class="table-status-select ${TS_CLASS[t.taskStatus]}" style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:8px;font-weight:700;">${t.taskStatus}</span>`;
+                return `
+                <tr class="task-row cursor-pointer transition-colors ${isOpen ? 'bg-indigo-50' : 'hover:bg-gray-50'}" onclick="toggleExpand(${t.id}, event)">
+                    <td class="px-4 py-2.5">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-chevron-right text-[8px] text-gray-300 transition-transform duration-200 ${isOpen ? 'rotate-90 text-indigo-400' : ''}"></i>
+                            <div><p class="text-[10px] font-bold text-gray-900">${t.title}</p><p class="text-[7px] ${t.typeColor} font-bold uppercase mt-0.5">${t.type}</p></div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-2.5"><p class="text-[10px] font-bold text-gray-700">${t.client}</p><p class="text-[8px] text-gray-400">${t.leadStatus}</p></td>
+                    <td class="px-4 py-2.5"><p class="text-[9px] font-bold text-gray-400">${fmtDate(t.date, t.time)}</p></td>
+                    <td class="px-3 py-2" onclick="event.stopPropagation()">
+                        <select onchange="onTaskStatusChange(this,${t.id})" class="table-status-select task-status-select ${TS_CLASS[t.taskStatus]}">
+                            ${['To Do','In Progress','Complete','Overdue'].map(s=>`<option${s===t.taskStatus?' selected':''}>${s}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="px-3 py-2" onclick="event.stopPropagation()">
+                        <select onchange="onLeadStatusChange(this,${t.id})" class="table-status-select lead-status-select ${LS_CLASS[t.leadStatus]}">
+                            ${['Hot','Warm','Cold'].map(s=>`<option${s===t.leadStatus?' selected':''}>${s}</option>`).join('')}
+                        </select>
+                    </td>
+                </tr>
+                ${isOpen ? `
+                <tr class="detail-row bg-indigo-50 border-b border-indigo-100">
+                    <td colspan="5" class="px-6 py-3">
+                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px 20px;padding:8px 0;">
+                            <div><p class="label-text" style="margin-bottom:2px;">Task Title</p><p style="font-size:10px;font-weight:700;color:#0f172a;">${t.title}</p></div>
+                            <div><p class="label-text" style="margin-bottom:2px;">Lead</p><p style="font-size:10px;font-weight:700;color:#0f172a;">${t.client}</p></div>
+                            <div><p class="label-text" style="margin-bottom:2px;">Task Type</p><p style="font-size:10px;font-weight:700;color:#0f172a;">${t.type}</p></div>
+                            <div><p class="label-text" style="margin-bottom:2px;">Assignee</p><p style="font-size:10px;font-weight:700;color:#0f172a;">${t.assignee || '—'}</p></div>
+                            <div><p class="label-text" style="margin-bottom:2px;">Date & Time</p><p style="font-size:10px;font-weight:700;color:#0f172a;">${t.date} ${t.time}</p></div>
+                            <div><p class="label-text" style="margin-bottom:2px;">Task Status</p>${tsLabel}</div>
+                            <div><p class="label-text" style="margin-bottom:2px;">Lead Status</p><span style="display:inline-block;background:${lsBg};color:${lsTx};font-size:8px;font-weight:700;padding:2px 8px;border-radius:6px;">${t.leadStatus}</span></div>
+                            <div><p class="label-text" style="margin-bottom:2px;">Phone</p><p style="font-size:10px;font-weight:700;color:#0f172a;">${t.phone || '—'}</p></div>
+                            <div style="grid-column:span 2;"><p class="label-text" style="margin-bottom:2px;">Email</p><p style="font-size:10px;font-weight:700;color:#0f172a;">${t.email || '—'}</p></div>
+                            <div style="grid-column:span 2;"><p class="label-text" style="margin-bottom:2px;">Notes</p><p style="font-size:10px;color:#475569;line-height:1.5;">${t.notes || '—'}</p></div>
+                        </div>
+                    </td>
+                </tr>` : ''}`;
+            }).join('');
+        }
+
+        function toggleExpand(id, e) {
+            expandedId = expandedId === id ? null : id;
+            renderTasksTable();
+        }
+
+        function onTaskStatusChange(sel, id) {
+            const task = tasksData.find(t => t.id === id);
+            if (task) task.taskStatus = sel.value;
+            sel.className = 'table-status-select task-status-select ' + (TS_CLASS[sel.value] || 'ts-todo');
+        }
+
+        function onLeadStatusChange(sel, id) {
+            const task = tasksData.find(t => t.id === id);
+            if (task) task.leadStatus = sel.value;
+            // Re-sort table after lead status change
+            renderTasksTable();
+            // Refresh calendar panel for currently selected date
+            renderCalTasks(selectedYear, selectedMonth, selectedDay);
+        }
+
+        // ── Calendar task filter ─────────────────────────────────────────
+        const CAL_TYPE_BG = {
+            'text-blue-500':'bg-blue-50 border-blue-100 text-blue-600',
+            'text-purple-500':'bg-purple-50 border-purple-100 text-purple-600',
+            'text-amber-500':'bg-amber-50 border-amber-100 text-amber-600',
+            'text-emerald-500':'bg-emerald-50 border-emerald-100 text-emerald-600',
+            'text-rose-500':'bg-rose-50 border-rose-100 text-rose-600',
+        };
+
+        function renderCalTasks(year, month, day) {
+            const dateStr = year + '-' + String(month+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+            const filtered = tasksData.filter(t => t.date === dateStr);
+            const list = document.getElementById('cal-tasks-list');
+            const isToday = dateStr === today.toISOString().slice(0,10);
+            document.getElementById('cal-priority-label').textContent = isToday
+                ? "Today's Tasks"
+                : MONTHS[month] + ' ' + day + ', ' + year;
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<p class="text-[9px] text-gray-400 font-medium">No tasks for this date.</p>';
+                return;
+            }
+            list.innerHTML = filtered.map(t => {
+                const cls = CAL_TYPE_BG[t.typeColor] || 'bg-gray-50 border-gray-100 text-gray-500';
+                const [bg, border, tc] = cls.split(' ');
+                return `<div class="p-2.5 ${bg} border ${border} rounded-xl">
+                    <p class="text-[8px] font-bold ${tc} uppercase">${t.time} • ${t.type.replace(/^\S+\s/,'')}</p>
+                    <p class="text-[10px] font-bold text-slate-800">${t.title}</p>
+                    <p class="text-[8px] text-slate-500 mt-0.5">${t.client}</p>
+                </div>`;
+            }).join('');
+        }
+
+        // ── Calendar render ──────────────────────────────────────────────
+        const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const today = new Date();
+        let calYear = today.getFullYear();
+        let calMonth = today.getMonth();
+        let selectedDay = today.getDate();
+        let selectedMonth = calMonth;
+        let selectedYear = calYear;
+
+        function renderCalendar() {
+            document.getElementById('cal-month-label').textContent = MONTHS[calMonth];
+            document.getElementById('cal-year-label').textContent = calYear;
+            const grid = document.getElementById('cal-days-grid');
+            grid.innerHTML = '';
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+            const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+            for (let i = firstDay - 1; i >= 0; i--) {
+                const d = document.createElement('div');
+                d.className = 'cal-day other-month';
+                d.textContent = daysInPrev - i;
+                grid.appendChild(d);
+            }
+            for (let d = 1; d <= daysInMonth; d++) {
+                const el = document.createElement('div');
+                const isToday = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+                const isSelected = d === selectedDay && calMonth === selectedMonth && calYear === selectedYear;
+                el.className = 'cal-day' + (isToday ? ' today font-bold' : '') + (isSelected && !isToday ? ' selected' : '');
+                el.textContent = d;
+                const _d = d;
+                el.onclick = () => {
+                    selectedDay = _d; selectedMonth = calMonth; selectedYear = calYear;
+                    renderCalendar();
+                    renderCalTasks(calYear, calMonth, _d);
+                };
+                grid.appendChild(el);
+            }
+            const totalCells = firstDay + daysInMonth;
+            const trailing = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+            for (let d = 1; d <= trailing; d++) {
+                const el = document.createElement('div');
+                el.className = 'cal-day other-month';
+                el.textContent = d;
+                grid.appendChild(el);
+            }
+        }
+
+        function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+        function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+
+        // ── Document Viewer ──────────────────────────────────────────────
+        function openDocViewer(lender, name, detail, expiry) {
+            document.getElementById('dv-filename').textContent = (name + '.pdf').toLowerCase().replace(/\s+/g, '_');
+            document.getElementById('dv-title').textContent = name.toUpperCase();
+            document.getElementById('dv-lender-label').textContent = lender.toUpperCase();
+            document.getElementById('dv-detail').textContent = '"' + detail + '"';
+            document.getElementById('dv-expiry-date').textContent = expiry.toUpperCase() + ' 2026';
+            document.getElementById('doc-viewer-modal').classList.remove('hidden');
+        }
+        function closeDocViewer() {
+            document.getElementById('doc-viewer-modal').classList.add('hidden');
+        }
+
+        // ── Init ─────────────────────────────────────────────────────────
+        populateLeadDropdown();
+        renderCalendar();
+        renderCalTasks(calYear, calMonth, selectedDay);
+        renderTasksTable();
+    </script>
+    <script src="../profile/profile_drawer.js"></script>
+</body>
+</html>

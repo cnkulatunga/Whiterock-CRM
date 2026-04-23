@@ -1,0 +1,1808 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Management Hub - Alpha Funding CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            background: #fff;
+            margin: 0;
+            display: flex;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .dashboard-container {
+            display: flex;
+            gap: .75rem;
+            height: 100vh;
+            padding: .75rem;
+            flex-grow: 1;
+            min-width: 0;
+            background: #f8fafc;
+        }
+
+        #lead-database-panel {
+            flex: 1;
+            min-width: 0;
+            transition: all 0.3s ease;
+        }
+
+        #lead-detail-panel {
+            width: 480px;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-container.create-mode>#lead-database-panel {
+            display: none !important;
+        }
+
+        .dashboard-container.create-mode>#lead-detail-panel {
+            flex: 1;
+            width: 100% !important;
+            max-width: none !important;
+            background: #fff;
+        }
+
+        .dashboard-container.create-mode .detail-tab-nav {
+            display: none !important;
+        }
+
+        .dashboard-container.create-mode #lead-form-container {
+            max-width: 100%;
+            margin: 0;
+            padding: 15px 25px;
+        }
+
+        .dashboard-container.create-mode .registration-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem 1.5rem;
+        }
+
+        .dashboard-container.create-mode .col-span-full-create {
+            grid-column: span 3 / span 3;
+        }
+
+        .dashboard-container.create-mode .detail-header-info {
+            display: none;
+        }
+
+        .dashboard-container.create-mode #edit-toggle-btn {
+            display: none;
+        }
+
+        .dashboard-container.create-mode #activity-log-section {
+            display: none !important;
+        }
+
+        .panel-card {
+            background: #fff;
+            border-radius: 24px;
+            border: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, .04);
+        }
+
+        .toggle-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 8px 0;
+            border-bottom: 2px solid #f1f5f9;
+            margin-bottom: 10px;
+            user-select: none;
+        }
+        .toggle-header:hover .toggle-title { color: #2447d7; }
+        .toggle-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            transition: color .15s;
+        }
+        .toggle-chevron {
+            font-size: 9px;
+            color: #cbd5e1;
+            transition: transform .2s ease;
+        }
+        .toggle-chevron.open { transform: rotate(180deg); }
+
+        /* ── Detail Panel Tabs ── */
+        .detail-tab-nav {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            background: #fff;
+            flex-shrink: 0;
+        }
+        .detail-tab {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 11px;
+            border-radius: 8px;
+            border: none;
+            background: none;
+            font-size: 8px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            cursor: pointer;
+            transition: all .15s;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+        }
+        .detail-tab:hover { background: #f8fafc; color: #475569; }
+        .detail-tab.active { background: #ebf0ff; color: #2447d7; }
+        .detail-tab i { font-size: 9px; }
+
+        .section-header {
+            font-size: 9px;
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-input-premium {
+            width: 100%;
+            background: #fdfdfd;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input-premium:focus:not(:disabled) {
+            border-color: #2447d7;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(36, 71, 215, 0.05);
+        }
+
+        .form-input-premium:disabled {
+            background: #f8fafc;
+            border-color: #f1f5f9;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        .label-premium {
+            font-size: 9px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .radio-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            background: white;
+            color: #64748b;
+        }
+
+        .radio-btn.active {
+            border-color: #2447d7;
+            background: #ebf0ff;
+            color: #2447d7;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 7px;
+            border-radius: 99px;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .badge-hot {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .badge-warm {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .badge-cool {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .metric-card {
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 10px;
+            padding: 10px 12px;
+        }
+
+        .metric-value {
+            font-size: 22px;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .followup-card {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .lead-row {
+            cursor: pointer;
+            transition: background .1s;
+        }
+
+        .lead-row:hover,
+        .lead-row.expanded {
+            background: #f8fafc;
+        }
+
+        .row-chevron {
+            transition: transform .2s ease;
+        }
+
+        .row-chevron.open {
+            transform: rotate(90deg);
+        }
+
+        .detail-expand-row td {
+            padding: 0;
+        }
+
+        .detail-expand-inner {
+            background: #f8fafc;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 2px solid #e2e8f0;
+            animation: expandDown .18s ease;
+        }
+
+        @keyframes expandDown {
+            from {
+                opacity: 0;
+                transform: translateY(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .summary-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: .03em;
+        }
+
+        .dark-select {
+            background: rgba(255, 255, 255, .07);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 7px;
+            padding: 5px 22px 5px 9px;
+            font-size: 9px;
+            font-weight: 700;
+            color: #d1d5db;
+            outline: none;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 24 24' fill='none' stroke='%23ffffff60' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 6px center;
+            flex-shrink: 0;
+        }
+
+        .dark-select option {
+            background: #1e293b;
+            color: #fff;
+        }
+
+        .side-nav {
+            width: 70px;
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 4px;
+            border-right: 1px solid #1e293b;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #94a3b8;
+            transition: all .2s;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 6px 4px;
+            border-radius: 8px;
+            width: 54px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #fff;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .nav-item i {
+            font-size: 14px;
+        }
+
+        .nav-text {
+            font-size: 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            text-align: center;
+            line-height: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar -->
+    <nav class="side-nav">
+        <div class="mb-6">
+            <img src="../logo/alpha.png" alt="Alpha Funding" style="width:38px;height:38px;object-fit:contain;border-radius:8px;">
+        </div>
+
+        <a href="${s.landing || '../dashboard/tele_agent_dashboard.html'}" id="nav-dashboard" class="nav-item">
+            <i class="fa-solid fa-house"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+
+        <a href="../task_and_followups/task_management.html" id="nav-tasks" class="nav-item">
+            <i class="fa-solid fa-tasks"></i>
+            <span class="nav-text">Tasks</span>
+        </a>
+
+        <a href="../lead_management/lead_management.html" id="nav-leads" class="nav-item active">
+            <i class="fa-solid fa-user-group"></i>
+            <span class="nav-text">Leads</span>
+        </a>
+
+        <a href="../loan_pipeline/loan_pipeline.html" id="nav-pipeline" class="nav-item">
+            <i class="fa-solid fa-diagram-project"></i>
+            <span class="nav-text">Pipeline</span>
+        </a>
+
+        <a href="../lenders/lender_management.html" id="nav-lenders" class="nav-item">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+            <span class="nav-text">Lenders</span>
+        </a>
+
+        <a href="../documents/document_vault.html" id="nav-docs" class="nav-item">
+            <i class="fa-solid fa-folder-open"></i>
+            <span class="nav-text">Docs</span>
+        </a>
+
+        <a href="../user_management/user_management.html" id="nav-users" class="nav-item">
+            <i class="fa-solid fa-user-gear"></i>
+            <span class="nav-text">Users</span>
+        </a>
+
+        <a href="../reporting/reporting_logs.html" id="nav-reports" class="nav-item">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Reports</span>
+        </a>
+        <div style="flex:1;"></div>
+                    <div class="nav-item" onclick="openProfileDrawer()" title="Profile" style="cursor:pointer;">
+                <i class="fa-solid fa-circle-user"></i>
+                <span class="nav-text">Profile</span>
+            </div>
+<div class="nav-item" onclick="logout()" style="margin-bottom:8px;" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="nav-text">Logout</span>
+        </div>
+    </nav>
+<script>
+(function(){
+    const s=JSON.parse(sessionStorage.getItem('crm_session')||'null');
+    if(!s){window.location.replace('../login/login.html');return;}
+    // Dashboard link
+    const el=document.getElementById('nav-dashboard');
+    if(el&&s.landing){el.href='../dashboard/'+s.landing.split('/').pop();}
+    // Role-based nav visibility
+    const ROLE_NAV = {
+        'Admin':            ['nav-tasks', 'nav-leads', 'nav-pipeline', 'nav-lenders', 'nav-docs', 'nav-users', 'nav-reports'],
+        'Team Leader':      ['nav-tasks', 'nav-leads'],
+        'Tele Agent':       ['nav-tasks', 'nav-leads'],
+        'Accounts Manager': ['nav-tasks', 'nav-leads', 'nav-lenders']
+    };
+    const allowed = ROLE_NAV[s.role] || ROLE_NAV['Admin'];
+    ['nav-tasks', 'nav-leads', 'nav-pipeline', 'nav-lenders', 'nav-docs', 'nav-users', 'nav-reports'].forEach(id => {
+        const node = document.getElementById(id);
+        if (node && !allowed.includes(id)) node.style.display = 'none';
+    });
+})();
+function logout(){sessionStorage.removeItem('crm_session');window.location.replace('../login/login.html');}
+</script>
+
+    <main class="dashboard-container">
+        <section class="panel-card" id="lead-database-panel">
+            <div class="px-4 border-b border-white/5 bg-gray-900 flex items-center gap-3" style="min-height:48px;">
+                <h2 class="text-[9px] font-bold uppercase tracking-widest text-white flex-shrink-0">Lead Database</h2>
+                <span id="result-count" class="text-[8px] font-bold text-gray-500 font-mono flex-shrink-0"></span>
+                <div class="relative flex-1 min-w-[80px]">
+                    <input id="lead-search" type="text" placeholder="Search leads..."
+                        style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:7px;padding:5px 10px 5px 26px;font-size:9px;font-weight:600;color:#fff;outline:none;"
+                        oninput="renderLeadTable()" onfocus="this.style.background='rgba(255,255,255,.12)'"
+                        onblur="this.style.background='rgba(255,255,255,.07)'">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[8px]"
+                        style="color:rgba(255,255,255,.3);"></i>
+                </div>
+                <a href="register_lead.html"
+                    class="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all" style="text-decoration:none;">
+                    <i class="fa-solid fa-plus text-[7px]"></i>
+                    Add Lead
+                </a>
+                <select id="status-filter" onchange="renderLeadTable()" class="dark-select">
+                    <option value="All">All Status</option>
+                    <option value="Hot">Hot</option>
+                    <option value="Warm">Warm</option>
+                    <option value="Cool">Cool</option>
+                </select>
+                <div class="flex items-center gap-0 flex-shrink-0 border-l border-white/10 pl-3 ml-1">
+                    <div class="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10"><span id="stat-total"
+                            class="text-[13px] font-black text-white">2</span><span
+                            class="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Total</span></div>
+                    <div class="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10"><span id="stat-hot"
+                            class="text-[13px] font-black text-red-100">1</span><span
+                            class="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Hot</span></div>
+                    <div class="flex items-center gap-1.5 px-2.5 py-2"><span id="stat-warm"
+                            class="text-[13px] font-black text-amber-100">1</span><span
+                            class="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Warm</span></div>
+                </div>
+            </div>
+
+            <div class="flex-1 overflow-y-auto custom-scrollbar">
+                <table class="w-full text-left">
+                    <thead class="sticky top-0 bg-gray-50 border-b border-gray-100 z-10">
+                        <tr>
+                            <th class="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Lead
+                            </th>
+                            <th class="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Company
+                            </th>
+                            <th class="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Need
+                            </th>
+                            <th class="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Status
+                            </th>
+                            <th class="px-2 py-1.5 w-6"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="lead-tbody" class="divide-y divide-gray-50"></tbody>
+                </table>
+                <div id="lead-empty-state" class="hidden flex-col items-center justify-center py-16 text-center">
+                    <i class="fa-solid fa-users text-3xl text-gray-200 mb-3"></i>
+                    <p class="text-[10px] font-bold text-gray-400">No leads match your filters</p>
+                </div>
+            </div>
+
+            <div class="p-3 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between">
+                <span id="footer-count" class="text-[8px] font-bold text-gray-400 uppercase tracking-widest"></span>
+                <a href="register_lead.html"
+                    class="text-[8px] font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-all" style="text-decoration:none;"><i
+                        class="fa-solid fa-plus mr-1"></i>New Lead</a>
+            </div>
+        </section>
+
+        <div id="lead-detail-panel" class="flex flex-col border-l border-gray-100 bg-white">
+            <!-- PANEL HEADER: Ultra Compact -->
+            <div class="px-3 py-2 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <button id="detail-back-btn" onclick="exitCreateMode()"
+                        class="hidden flex items-center gap-2 group">
+                        <div
+                            class="w-6 h-6 flex items-center justify-center rounded-full bg-gray-50 border border-gray-100 group-hover:bg-[#2447d7] group-hover:border-[#2447d7] transition-all">
+                            <i class="fa-solid fa-arrow-left text-[9px] text-gray-400 group-hover:text-white"></i>
+                        </div>
+                        <span
+                            class="text-[9px] font-black text-gray-400 uppercase tracking-widest group-hover:text-[#2447d7]">Dashboard</span>
+                    </button>
+                    <div>
+                        <h2 id="creation-header-title"
+                            class="hidden text-[11px] font-black text-gray-900 uppercase tracking-widest">Register New
+                            Lead</h2>
+                        <div class="detail-header-info">
+                            <h2 id="panel-title" class="text-[12px] font-black text-gray-900 leading-none">SELECT A LEAD
+                            </h2>
+                            <p id="panel-subtitle"
+                                class="text-[9px] text-[#2447d7] font-extrabold mt-0.5 tracking-wider">CHOOSE FROM THE
+                                LIST</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <!-- Status & ID: Single Line / Packed -->
+                    <div id="status-id-layer" class="flex items-center gap-3 pr-4 border-r border-gray-100">
+                        <div class="flex items-center gap-2">
+                            <label class="text-[8px] font-bold text-gray-400 uppercase tracking-tight">Status</label>
+                            <select id="field-leadStatus"
+                                class="w-16 h-6 px-1.5 text-[9px] font-bold border rounded bg-gray-50/50 outline-none">
+                                <option value="Hot">Hot</option>
+                                <option value="Warm">Warm</option>
+                                <option value="Cool">Cool</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <label class="text-[8px] font-bold text-gray-400 uppercase tracking-tight">ID</label>
+                            <input type="text" id="field-id"
+                                class="w-20 h-6 px-1.5 text-[9px] font-mono font-bold border rounded bg-gray-50/50 outline-none text-blue-600"
+                                disabled>
+                        </div>
+                    </div>
+
+                    <button id="edit-toggle-btn" onclick="toggleEditMode()"
+                        class="h-7 px-3 bg-gray-900 text-white text-[8px] font-bold rounded-lg uppercase tracking-widest hover:bg-black transition-all">Edit
+                        Lead</button>
+                    <button id="save-btn" onclick="saveLead()"
+                        style="display: none;"
+                        class="h-7 px-3 bg-amber-600 text-white text-[8px] font-bold rounded-lg uppercase tracking-widest hover:bg-amber-700 transition-all">Save
+                        Changes</button>
+                    <div id="panel-dot" class="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+                </div>
+            </div>
+
+            <!-- Detail Tab Navigation -->
+            <div class="detail-tab-nav">
+                <button class="detail-tab" onclick="switchLeadTab('details')" id="tab-btn-details">
+                    <i class="fa-solid fa-address-card"></i> Contact Info
+                </button>
+                <button class="detail-tab active" onclick="switchLeadTab('tasks')" id="tab-btn-tasks">
+                    <i class="fa-solid fa-list-check"></i> Follow-ups
+                </button>
+                <button class="detail-tab" onclick="switchLeadTab('ai')" id="tab-btn-ai">
+                    <i class="fa-solid fa-robot"></i> AI Summary
+                </button>
+                <button class="detail-tab" onclick="switchLeadTab('notes')" id="tab-btn-notes">
+                    <i class="fa-solid fa-note-sticky"></i> Notes
+                </button>
+                <button class="detail-tab" onclick="switchLeadTab('docs')" id="tab-btn-docs">
+                    <i class="fa-solid fa-folder-open"></i> Documents
+                </button>
+            </div>
+
+            <div id="lead-form-scroll-outer" class="flex-1 overflow-y-auto custom-scrollbar"
+                style="display:none;scrollbar-width:none;-ms-overflow-style:none;background:#fcfcfd;">
+                <style>
+                    #lead-form-scroll-outer::-webkit-scrollbar {
+                        display: none;
+                    }
+                </style>
+                <div id="lead-form-container" class="p-4 space-y-6">
+
+                    <!-- 1. CONTACT INFORMATION -->
+                    <section>
+                        <h3 class="section-header">Contact Information</h3>
+                        <div class="grid grid-cols-2 registration-grid">
+                            <div>
+                                <label class="label-premium">Title <span class="text-red-500">*</span></label>
+                                <input type="text" id="field-title" placeholder="e.g. Mr, Mrs, Dr..."
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Full Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="field-fullName" placeholder="e.g. Jonathan Doe"
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Date of Birth <span class="text-red-500">*</span></label>
+                                <input type="date" id="field-dob" class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Company Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="field-companyName" placeholder="Registered name..."
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Company House Number <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" id="field-companyHouseNumber" placeholder="e.g. 12345678"
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Business Annual Turnover <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" id="field-businessAnnualTurnover" placeholder="£0.00"
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Job Title / Position</label>
+                                <input type="text" id="field-jobTitle" placeholder="Managing Director"
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Industry</label>
+                                <select id="field-industry" class="form-input-premium" disabled>
+                                    <option value="">Select industry...</option>
+                                    <option>Software</option>
+                                    <option>Hardware</option>
+                                    <option>IT Services</option>
+                                    <option>Telecommunications</option>
+                                    <option>E-commerce </option>
+                                    <option>Digital Media</option>
+                                    <option>Robotics</option>
+                                    <option>Pharmaceuticals</option>
+                                    <option>Medical Devices</option>
+                                    <option>Hospitals </option>
+                                    <option>Health Insurance</option>
+                                    <option>BioTechnology</option>
+                                    <option>Wellness</option>
+                                    <option>Banking</option>
+                                    <option>Insurance</option>
+                                    <option>Investment Banking</option>
+                                    <option>Venture Capital</option>
+                                    <option>Accounting</option>
+                                    <option>Aerospace</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">Email Address <span class="text-red-500">*</span></label>
+                                <input type="email" id="field-emailAddress" placeholder="client@example.com"
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Phone Number <span class="text-red-500">*</span></label>
+                                <input type="tel" id="field-phoneNumber" placeholder="+44 77..."
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Preferred Method</label>
+                                <div class="flex gap-2">
+                                    <div class="radio-btn active px-2.5 py-1.5" id="contact-email">Email</div>
+                                    <div class="radio-btn px-2.5 py-1.5" id="contact-phone">Phone</div>
+                                    <div class="radio-btn px-2.5 py-1.5" id="contact-whatsapp">WhatsApp</div>
+                                    <div class="radio-btn px-2.5 py-1.5" id="contact-other">Other</div>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="label-premium">Home Owner <span class="text-red-500">*</span></label>
+                                <select id="field-homeOwner" class="form-input-premium" disabled>
+                                    <option>Yes</option>
+                                    <option>No</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">Time at Current Address</label>
+                                <input type="text" id="field-timeAtCurrentAddress" placeholder="e.g. 3 years"
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="label-premium">Residential Address <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" id="field-residentialAddress" placeholder="Full address..."
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="label-premium">Previous Address</label>
+                                <input type="text" id="field-previousAddress" placeholder="Previous if < 3 years..."
+                                    class="form-input-premium" disabled>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- LOAN DETAILS -->
+                    <section>
+                        <h3 class="section-header">Loan Details</h3>
+                        <div class="registration-grid">
+                            <div>
+                                <label class="label-premium">Amount Needed <span class="text-red-500">*</span></label>
+                                <input type="text" id="field-loanAmount" placeholder="£0.00" class="form-input-premium"
+                                    disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Purpose of Taking Loan</label>
+                                <input type="text" id="field-loanPurpose" placeholder="Business expansion..."
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Existing Loan</label>
+                                <select id="field-existingLoan" class="form-input-premium" disabled
+                                    onchange="toggleExistingLoanSection(this.value)">
+                                    <option value="No">No</option>
+                                    <option value="Yes">Yes</option>
+                                </select>
+                            </div>
+
+                            <!-- Conditional Existing Loan Section -->
+                            <div id="existing-loan-details"
+                                class="hidden col-span-full-create bg-gray-50/50 p-6 rounded-[20px] border border-gray-100">
+                                <p class="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-4">Existing
+                                    Indebtedness</p>
+                                <div class="grid grid-cols-3 gap-4">
+                                    <input type="text" id="field-existingLender" placeholder="Lender Name"
+                                        class="form-input-premium bg-white" disabled>
+                                    <input type="text" id="field-existingAmount" placeholder="Amount Taken (£)"
+                                        class="form-input-premium bg-white" disabled>
+                                    <input type="text" id="field-existingRate" placeholder="Interest Rate (%)"
+                                        class="form-input-premium bg-white" disabled>
+                                    <input type="text" id="field-existingRepayment" placeholder="Monthly Repayment(£)"
+                                        class="form-input-premium bg-white" disabled>
+                                    <input type="text" id="field-existingTerm" placeholder="Loan Term"
+                                        class="form-input-premium bg-white col-span-2" disabled>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="label-premium">Overdraft Facility</label>
+                                <select id="field-overdraftFacility" class="form-input-premium" disabled>
+                                    <option>No</option>
+                                    <option>Yes</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">Which Bank is your Company with</label>
+                                <select id="field-companyBank" class="form-input-premium" disabled>
+                                    <option value="">Select a bank...</option>
+                                    <option>Santander</option>
+                                    <option>HSBC</option>
+                                    <option>Lloyds Bank</option>
+                                    <option>Starling</option>
+                                    <option>NatWest</option>
+                                    <option>Barclays</option>
+                                    <option>Metro Bank</option>
+                                    <option>Royal Bank of Scotland</option>
+                                    <option>The Co-operative Bank</option>
+                                    <option>The Cumberland</option>
+                                    <option>Tide</option>
+                                    <option>TSB</option>
+                                    <option>Ulster Bank</option>
+                                    <option>Unity Trust Bank</option>
+                                    <option>Zempler</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">Lead Source</label>
+                                <select id="field-leadSource" class="form-input-premium" disabled>
+                                    <option value="">Select source...</option>
+                                    <option>Advertisement</option>
+                                    <option>Cold Call</option>
+                                    <option>Web</option>
+                                    <option>External Referral</option>
+                                    <option>Sales Email Alias</option>
+                                    <option>Employee Referral</option>
+                                    <option>Online Store</option>
+                                    <option>Partner</option>
+                                    <option>Public Relations</option>
+                                    <option>Seminar Partner</option>
+                                    <option>Internal Seminar</option>
+                                    <option>Trade Show</option>
+                                    <option>Chat</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">How soon do you need this funding?</label>
+                                <input type="text" id="field-fundingTimeline" placeholder="e.g. Within 2 weeks"
+                                    class="form-input-premium" disabled>
+                            </div>
+                            <div>
+                                <label class="label-premium">Have you taken any loans before from Alpha Funding?  <span
+                                        class="text-red-500">*</span></label>
+                                <select id="field-previousAlphaFundingLoan" class="form-input-premium" disabled>
+                                    <option>No</option>
+                                    <option>Yes</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">Credit Search Consent  <span class="text-red-500">*</span></label>
+                                <p class="text-[7px] text-gray-500 italic mb-1">Does the client consent to a credit search being carried out?</p>
+                                <select id="field-creditConsent" class="form-input-premium" disabled>
+                                    <option>Yes</option>
+                                    <option>No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- PACKED BOTTOM: DOCS & REMINDERS -->
+                    <div class="registration-grid">
+                        <section class="col-span-1">
+                            <h3 class="section-header" style="margin-bottom:6px; padding-bottom:4px;">Supporting
+                                Documents</h3>
+                            <div onclick="document.getElementById('doc-upload-input').click()"
+                                class="p-2 border-2 border-dashed border-gray-100 rounded-lg bg-gray-50/10 text-center mb-1 cursor-pointer hover:bg-blue-50/20 transition-all">
+                                <p class="text-[7.5px] font-black text-gray-300 uppercase tracking-tighter">Drop Docs
+                                </p>
+                                <input type="file" id="doc-upload-input" class="hidden" multiple
+                                    onchange="handleDocUpload(this)">
+                            </div>
+                            <div id="doc-list-container" class="space-y-1"></div>
+                        </section>
+
+                        <section class="col-span-2">
+                            <h3 class="section-header" style="margin-bottom:6px; padding-bottom:4px;">Additional
+                                Comments</h3>
+                            <textarea id="field-additionalComments" rows="2" placeholder="Enter context/notes..."
+                                class="form-input-premium resize-none h-20" disabled></textarea>
+                        </section>
+                    </div>
+
+                    <!-- 6. TASK & FOLLOW-UP -->
+                    <section id="followup-section"
+                        class="hidden bg-[#f0f4ff] rounded-xl border border-[#dbeafe] p-4 shadow-sm">
+                        <div class="flex items-center justify-between mb-4 border-b border-blue-100 pb-2">
+                            <h4 class="text-[10px] font-black text-[#2447d7] uppercase tracking-widest">Schedule
+                                Follow-up</h4>
+                            <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                        </div>
+
+                        <div class="registration-grid">
+                            <div class="col-span-2">
+                                <label class="label-premium">Task Description</label>
+                                <input type="text" id="task-desc" placeholder="Title..."
+                                    class="form-input-premium bg-white">
+                            </div>
+                            <div>
+                                <label class="label-premium">Assignee</label>
+                                <select id="task-assignee" class="form-input-premium bg-white">
+                                    <option>Thanushika</option>
+                                    <option>Admin</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">Client</label>
+                                <input type="text" id="task-client" placeholder="Client Name"
+                                    class="form-input-premium bg-white">
+                            </div>
+                            <div>
+                                <label class="label-premium">Phone</label>
+                                <input type="tel" id="task-phone" placeholder="077..."
+                                    class="form-input-premium bg-white">
+                            </div>
+                            <div>
+                                <label class="label-premium">Task Type</label>
+                                <select id="task-type" class="form-input-premium bg-white">
+                                    <option>Call</option>
+                                    <option>Meeting</option>
+                                    <option>Follow-up</option>
+                                    <option>Email</option>
+                                    <option>Document</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">Task Status</label>
+                                <select id="task-status" class="form-input-premium bg-white">
+                                    <option>Warm</option>
+                                    <option>Hot</option>
+                                    <option>Cold</option>
+                                </select>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="label-premium">Email Address</label>
+                                <input type="email" id="task-email" placeholder="mail@lead.com"
+                                    class="form-input-premium bg-white">
+                            </div>
+                            <div class="flex gap-2 col-span-1">
+                                <div class="flex-1">
+                                    <label class="label-premium">Date</label>
+                                    <input type="date" id="task-date" class="form-input-premium bg-white">
+                                </div>
+                                <div class="flex-1">
+                                    <label class="label-premium">Time</label>
+                                    <input type="time" id="task-time" class="form-input-premium bg-white">
+                                </div>
+                            </div>
+                            <div class="col-span-2">
+                                <label class="label-premium">Notes / Instructions</label>
+                                <textarea id="task-notes" rows="1" placeholder="..."
+                                    class="form-input-premium resize-none bg-white"></textarea>
+                            </div>
+                            <div class="flex items-end">
+                                <button type="button"
+                                    class="w-full py-2 bg-[#2447d7] text-white text-[9px] font-black uppercase tracking-widest rounded-lg hover:bg-[#1a38b1] transition-all">
+                                    Create Task
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div id="panel-footer-metrics" class="pt-6 border-t border-gray-100 mt-6">
+                        <button
+                            class="w-full py-2.5 border border-red-100 text-red-400 text-[8px] font-bold uppercase tracking-widest rounded-lg hover:border-red-300 hover:text-red-600 transition-all"><i
+                                class="fa-solid fa-trash text-[7px] mr-1.5"></i>Delete Lead</button>
+                    </div>
+                </div><!-- end lead-form-container (Details tab) -->
+
+                <!-- ── Tasks Tab Panel ── -->
+                <div id="lead-tab-tasks" class="hidden p-4 space-y-3">
+                    <div id="task-feed-container" class="space-y-2"></div>
+                    <p id="tasks-empty-msg" class="text-[8px] text-gray-300 text-center py-6 italic hidden">No tasks scheduled for this lead</p>
+                </div>
+
+                <!-- ── AI Agent Tab Panel ── -->
+                <div id="lead-tab-ai" class="hidden p-4">
+                    <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #ddd6fe;border-radius:14px;padding:16px 18px;">
+                        <div style="display:flex;align-items:flex-start;gap:12px;">
+                            <div style="width:34px;height:34px;border-radius:10px;background:#7c3aed;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="fa-solid fa-robot" style="color:#fff;font-size:14px;"></i>
+                            </div>
+                            <div>
+                                <p style="font-size:7px;font-weight:900;color:#7c3aed;text-transform:uppercase;letter-spacing:.1em;margin:0 0 8px;">AI Lead Analysis</p>
+                                <p id="ai-summary-text" style="font-size:10px;color:#4c1d95;line-height:1.7;margin:0;font-style:italic;"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Notes Tab Panel ── -->
+                <div id="lead-tab-notes" class="hidden p-4">
+                    <div id="notes-container"></div>
+                </div>
+
+                
+            </div>
+
+            <!-- ── TASKS TAB PANEL ── -->
+            <div id="panel-tasks" class="flex-1 overflow-y-auto custom-scrollbar" style="display:none;flex-direction:column;background:#fcfcfd;">
+                <div class="p-4 space-y-3">
+                    <div id="tasks-list" class="space-y-2"></div>
+                    <div class="pt-3 border-t border-gray-100">
+                        <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Add Follow-up</p>
+                        <div class="grid grid-cols-2 gap-2 mb-2">
+                            <div>
+                                <label class="label-premium">Type</label>
+                                <select id="pt-type" class="form-input-premium bg-white">
+                                    <option>Call</option><option>Meeting</option><option>Follow-up</option><option>Email</option><option>Document</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="label-premium">Date</label>
+                                <input id="pt-date" type="date" class="form-input-premium bg-white">
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="label-premium">Description</label>
+                            <input id="pt-desc" type="text" placeholder="Task description..." class="form-input-premium bg-white">
+                        </div>
+                        <button onclick="addPanelTask()" class="w-full py-2 bg-gray-900 text-white text-[8px] font-black uppercase tracking-widest rounded-lg hover:bg-black transition-all">
+                            <i class="fa-solid fa-plus mr-1"></i>Add Task
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── AI SUMMARY TAB PANEL ── -->
+            <div id="panel-ai" class="flex-1 overflow-y-auto custom-scrollbar" style="display:none;flex-direction:column;background:#fcfcfd;">
+                <div class="p-4 space-y-3">
+                    <div style="background:linear-gradient(135deg,#eef2ff,#f5f3ff);border:1px solid #e0e7ff;border-radius:12px;padding:16px;">
+                        <div class="flex items-center gap-2.5 mb-3">
+                            <div style="width:32px;height:32px;background:#4f46e5;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="font-size:13px;color:#fff;"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p style="font-size:11px;font-weight:800;color:#3730a3;">AI Lead Summary</p>
+                                <p style="font-size:8px;color:#6366f1;font-weight:600;">Powered by lead data</p>
+                            </div>
+                            <button id="ai-generate-btn" onclick="generateAIPanel()"
+                                style="display:flex;align-items:center;gap:5px;padding:6px 12px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;transition:all .2s;flex-shrink:0;">
+                                <i class="fa-solid fa-wand-magic-sparkles" style="font-size:8px;"></i> Generate
+                            </button>
+                        </div>
+                        <!-- Empty state -->
+                        <div id="ai-empty-state" style="text-align:center;padding:16px 0;">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="font-size:22px;color:#c7d2fe;margin-bottom:8px;display:block;"></i>
+                            <p style="font-size:9px;color:#a5b4fc;font-weight:600;">Click Generate to create an AI summary for this lead</p>
+                        </div>
+                        <!-- Summary output -->
+                        <div id="ai-result-state" style="display:none;">
+                            <p id="panel-ai-text" style="font-size:11px;color:#1e1b4b;line-height:1.8;font-style:italic;"></p>
+                        </div>
+                    </div>
+                    <div class="bg-white border border-gray-100 rounded-xl p-3">
+                        <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Key Data Points</p>
+                        <div id="panel-ai-points" class="grid grid-cols-2 gap-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── NOTES TAB PANEL ── -->
+            <div id="panel-notes" class="flex-1 overflow-y-auto custom-scrollbar" style="display:none;flex-direction:column;background:#fcfcfd;">
+                <div class="p-4 space-y-3">
+                    <div id="notes-list" class="space-y-2"></div>
+                    <div class="pt-3 border-t border-gray-100">
+                        <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Add Note</p>
+                        <textarea id="pn-text" rows="4" placeholder="Write a note..." class="form-input-premium bg-white resize-none mb-2"></textarea>
+                        <button onclick="addPanelNote()" class="w-full py-2 bg-gray-900 text-white text-[8px] font-black uppercase tracking-widest rounded-lg hover:bg-black transition-all">
+                            <i class="fa-solid fa-plus mr-1"></i>Save Note
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- ── DOCUMENTS TAB PANEL ── -->
+            <div id="panel-docs" class="flex-1 overflow-y-auto custom-scrollbar" style="display:none;flex-direction:column;background:#fcfcfd;">
+                <div class="p-4 space-y-3">
+                    <!-- Upload area -->
+                    <div id="doc-upload-zone" onclick="document.getElementById('doc-file-input').click()"
+                        style="border:2px dashed #e2e8f0;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#f8fafc;transition:all .2s;"
+                        ondragover="event.preventDefault();this.style.borderColor='#2447d7';"
+                        ondragleave="this.style.borderColor='#e2e8f0';"
+                        ondrop="handleDocDrop(event)">
+                        <i class="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 mb-2 block"></i>
+                        <p class="text-[10px] font-bold text-gray-500">Click or drag files to upload</p>
+                        <p class="text-[8px] text-gray-400 mt-1">PDF, JPG, PNG, XLSX accepted</p>
+                        <input type="file" id="doc-file-input" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.doc,.docx" class="hidden" onchange="handleDocFileInput(this)">
+                    </div>
+
+                    <!-- Document list -->
+                    <div id="panel-docs-list" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <!-- Document Preview Modal -->
+            <div id="doc-preview-modal" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+                <div style="background:#fff;border-radius:20px;width:560px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 25px 60px rgba(0,0,0,0.2);">
+                    <div style="padding:16px 20px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                            <i id="preview-icon" class="fa-solid fa-file text-indigo-500" style="font-size:18px;"></i>
+                            <div>
+                                <p id="preview-filename" style="font-size:11px;font-weight:800;color:#0f172a;"></p>
+                                <p id="preview-meta" style="font-size:8px;color:#94a3b8;margin-top:2px;"></p>
+                            </div>
+                        </div>
+                        <button onclick="closeDocPreview()" style="width:28px;height:28px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-xmark text-gray-500 text-xs"></i></button>
+                    </div>
+                    <div id="preview-body" style="flex:1;overflow:auto;padding:20px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border-radius:0 0 20px 20px;min-height:300px;">
+                        <div style="text-align:center;">
+                            <i id="preview-file-icon" class="fa-solid fa-file-lines text-indigo-200" style="font-size:64px;"></i>
+                            <p id="preview-file-label" style="font-size:11px;color:#94a3b8;margin-top:12px;font-weight:600;"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const leadsDB = {
+            'L-1004': { id: 'AF-CASE-1004', fullName: 'John Perera', title: 'Mr', dob: '1985-06-12', companyName: 'ABC Solutions Ltd', jobTitle: 'Managing Director', companyHouseNumber: '12345678', businessAnnualTurnover: '£250,000', emailAddress: 'john@abc.com', phoneNumber: '+44 7700 900000', residentialAddress: '99 Halbutt Street, Dagenham, RM9 5AR', previousAddress: '', timeAtCurrentAddress: '3 Years', homeOwner: 'Yes', preferredContactMethod: 'Email', loanAmount: '£45,000', fundingTimeline: 'Within 2 weeks', loanPurpose: 'Business Expansion', companyBank: 'Santander', industry: 'Software', leadSource: 'Web', creditConsent: 'Yes', existingLoan: 'No', overdraftFacility: 'No', previousAlphaFundingLoan: 'No', additionalComments: 'Client interested in quick repayment terms.', noteBy: 'Sarah White', leadStatus: 'Warm', createdAt: '14 Apr 2026', documents: ['Bank Statement Jan.pdf', 'ID Verification.jpg'], tasks: [{ time: '14:30', type: 'Initial Call', desc: 'Discuss loan purpose' }], timeline: [{icon:'fa-headset',bg:'#dbeafe',color:'#2563eb',label:'Tele Agent',sub:'Sarah White',date:'2026-03-18',time:'09:12',done:true},{icon:'fa-user-tie',bg:'#e0e7ff',color:'#4f46e5',label:'Team Leader',sub:'Michael Chen',date:'2026-03-18',time:'10:30',done:true},{icon:'fa-briefcase',bg:'#f1f5f9',color:'#94a3b8',label:'Account Manager',sub:'Pending',date:null,time:null,done:false}] },
+            'L-1005': { id: 'AF-CASE-1005', fullName: 'Sarah Silva', title: 'Ms', dob: '1992-11-20', companyName: 'XYZ Logistics', jobTitle: 'CFO', companyHouseNumber: '87654321', businessAnnualTurnover: '£1,200,000', emailAddress: 'sarah@xyz.com', phoneNumber: '+44 7700 111222', residentialAddress: '24 Riverside Gardens, Reading, RG1 2AB', previousAddress: '', timeAtCurrentAddress: '5 Years', homeOwner: 'No', preferredContactMethod: 'Phone', loanAmount: '£120,000', fundingTimeline: 'ASAP', loanPurpose: 'Warehouse Scaling', companyBank: 'HSBC', industry: 'Logistics', leadSource: 'Referral', creditConsent: 'Yes', existingLoan: 'Yes', existingLender: 'MarketFinance', existingAmount: '50000', existingRate: '8.5', existingRepayment: '1200', existingTerm: '12 Months', overdraftFacility: 'Yes', previousAlphaFundingLoan: 'Yes', additionalComments: 'Urgent funding needed for peak season.', noteBy: 'Cody Lane', leadStatus: 'Hot', createdAt: '15 Apr 2026', documents: ['Incorporation Cert.pdf', 'VAT Returns.xlsx'], tasks: [{ time: '10:00', type: 'Site Visit', desc: 'Inspect Reading warehouse' }], timeline: [{icon:'fa-headset',bg:'#dbeafe',color:'#2563eb',label:'Tele Agent',sub:'Cody Lane',date:'2026-04-15',time:'10:00',done:true},{icon:'fa-user-tie',bg:'#e0e7ff',color:'#4f46e5',label:'Team Leader',sub:'Jennifer Lopez',date:'2026-04-15',time:'11:15',done:true},{icon:'fa-briefcase',bg:'#dcfce7',color:'#16a34a',label:'Account Manager',sub:'David Kumar',date:'2026-04-16',time:'09:00',done:true}] },
+            'L-1006': { id: 'AF-CASE-1006', fullName: 'David Thompson', title: 'Mr', dob: '1978-03-05', companyName: 'Thompson Construction', jobTitle: 'Director', companyHouseNumber: '44556677', businessAnnualTurnover: '£850,000', emailAddress: 'david@thompson-build.co.uk', phoneNumber: '+44 7888 222333', residentialAddress: '12 Bluebell Lane, Bromley, BR1 3EF', previousAddress: '5 Oak Road, Kent', timeAtCurrentAddress: '8 Years', homeOwner: 'Yes', preferredContactMethod: 'Phone', loanAmount: '£75,000', fundingTimeline: '1 Month', loanPurpose: 'Equipment Purchase', companyBank: 'Barclays', industry: 'Construction', leadSource: 'PPC', creditConsent: 'Yes', existingLoan: 'No', overdraftFacility: 'Yes', previousAlphaFundingLoan: 'No', additionalComments: 'Looking for a competitive rate for heavy machinery lease.', noteBy: 'Admin', leadStatus: 'Warm', createdAt: '16 Apr 2026', documents: ['Plant Quote.pdf'], tasks: [{ time: '09:00', type: 'Follow-up', desc: 'Check quote status' }], timeline: [{icon:'fa-headset',bg:'#dbeafe',color:'#2563eb',label:'Tele Agent',sub:'Emma Wilson',date:'2026-04-16',time:'09:00',done:true},{icon:'fa-user-tie',bg:'#f1f5f9',color:'#94a3b8',label:'Team Leader',sub:'Pending',date:null,time:null,done:false},{icon:'fa-briefcase',bg:'#f1f5f9',color:'#94a3b8',label:'Account Manager',sub:'Pending',date:null,time:null,done:false}] },
+            'L-1007': { id: 'AF-CASE-1007', fullName: 'Elena Rodriguez', title: 'Mrs', dob: '1989-09-14', companyName: 'Sol Coffee Roasters', jobTitle: 'Owner', companyHouseNumber: '11223344', businessAnnualTurnover: '£400,000', emailAddress: 'elena@solroasters.com', phoneNumber: '+44 7444 555666', residentialAddress: 'Apartment 4, Skyline Plaza, Manchester, M1 5BD', previousAddress: '', timeAtCurrentAddress: '2 Years', homeOwner: 'No', preferredContactMethod: 'WhatsApp', loanAmount: '£25,000', fundingTimeline: 'Next week', loanPurpose: 'Stock Purchase', companyBank: 'NatWest', industry: 'Retail', leadSource: 'Social Media', creditConsent: 'Yes', existingLoan: 'No', overdraftFacility: 'No', previousAlphaFundingLoan: 'No', additionalComments: 'Buying green coffee beans in bulk.', noteBy: 'Sarah White', leadStatus: 'Hot', createdAt: '16 Apr 2026', documents: ['Supplier Invoice.pdf'], tasks: [{ time: '11:15', type: 'Doc Request', desc: 'Request 3 months bank statements' }], timeline: [{icon:'fa-headset',bg:'#dbeafe',color:'#2563eb',label:'Tele Agent',sub:'Sarah White',date:'2026-04-16',time:'11:15',done:true},{icon:'fa-user-tie',bg:'#e0e7ff',color:'#4f46e5',label:'Team Leader',sub:'Michael Chen',date:'2026-04-16',time:'14:00',done:true},{icon:'fa-briefcase',bg:'#f1f5f9',color:'#94a3b8',label:'Account Manager',sub:'Pending',date:null,time:null,done:false}] },
+            'L-1008': { id: 'AF-CASE-1008', fullName: 'Mark Walberg', title: 'Mr', dob: '1982-01-30', companyName: 'Prime Fitness Hub', jobTitle: 'Gym Manager', companyHouseNumber: '99887766', businessAnnualTurnover: '£150,000', emailAddress: 'mark@primefit.com', phoneNumber: '+44 7111 222333', residentialAddress: '77 Gym Lane, London, SE1 0AA', previousAddress: '', timeAtCurrentAddress: '4 Years', homeOwner: 'No', preferredContactMethod: 'Email', loanAmount: '£15,000', fundingTimeline: 'Flexible', loanPurpose: 'Marketing', companyBank: 'Lloyds', industry: 'Leisure', leadSource: 'Organic Search', creditConsent: 'No', existingLoan: 'No', overdraftFacility: 'No', previousAlphaFundingLoan: 'No', additionalComments: 'Client very cautious about credit search.', noteBy: 'Admin', leadStatus: 'Cool', createdAt: '17 Apr 2026', documents: [], tasks: [], timeline: [{icon:'fa-headset',bg:'#dbeafe',color:'#2563eb',label:'Tele Agent',sub:'Cody Lane',date:'2026-04-17',time:'08:00',done:true},{icon:'fa-user-tie',bg:'#f1f5f9',color:'#94a3b8',label:'Team Leader',sub:'Pending',date:null,time:null,done:false},{icon:'fa-briefcase',bg:'#f1f5f9',color:'#94a3b8',label:'Account Manager',sub:'Pending',date:null,time:null,done:false}] }
+        };
+
+        function generateAISummary(lead) {
+            const status = lead.leadStatus || 'Warm';
+            const amount = lead.loanAmount || 'an undisclosed amount';
+            const purpose = lead.loanPurpose || 'business needs';
+            const company = lead.companyName || 'the business';
+            const industry = lead.industry || '';
+            const bank = lead.companyBank || '';
+            const turnover = lead.businessAnnualTurnover || '';
+            const homeOwner = lead.homeOwner === 'Yes' ? 'a homeowner' : 'non-homeowner';
+            const existing = lead.existingLoan === 'Yes' ? ' with existing finance in place' : '';
+            const urgency = lead.fundingTimeline ? ` Funding required ${lead.fundingTimeline.toLowerCase()}.` : '';
+            const creditNote = lead.creditConsent === 'No' ? ' Client has not consented to credit search.' : '';
+            const turnoverNote = turnover ? ` Annual turnover ${turnover}.` : '';
+            const bankNote = bank ? ` Banks with ${bank}.` : '';
+
+            const statusMap = {
+                'Hot': 'High-priority lead requiring immediate attention.',
+                'Warm': 'Engaged lead showing strong interest.',
+                'Cool': 'Early-stage lead, nurturing recommended.'
+            };
+            const opener = statusMap[status] || 'Active lead.';
+
+            return `${opener} ${company}${industry ? ` (${industry})` : ''} seeking ${amount} for ${purpose}, ${homeOwner}${existing}.${turnoverNote}${bankNote}${urgency}${creditNote}`;
+        }
+
+        let currentLeadKey = 'L-1004';
+        let expandedLeadId = 'L-1004';
+        let isEditMode = false;
+
+        function getStatusBadgeClass(status) { return status === 'Hot' ? 'badge-hot' : status === 'Warm' ? 'badge-warm' : 'badge-cool'; }
+
+        function getFilteredLeads() {
+            const q = (document.getElementById('lead-search')?.value || '').toLowerCase().trim();
+            const status = document.getElementById('status-filter')?.value || 'All';
+            return Object.entries(leadsDB).filter(([, lead]) => {
+                const haystack = [lead.fullName, lead.companyName, lead.loanAmount, lead.id, lead.industry, lead.emailAddress].filter(Boolean).join(' ').toLowerCase();
+                return (!q || haystack.includes(q)) && (status === 'All' || lead.leadStatus === status);
+            });
+        }
+
+        function updateLeadStats() {
+            const leads = Object.values(leadsDB);
+            const total = leads.length;
+            const hot = leads.filter(lead => lead.leadStatus === 'Hot').length;
+            const warm = leads.filter(lead => lead.leadStatus === 'Warm').length;
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-hot').textContent = hot;
+            document.getElementById('stat-warm').textContent = warm;
+        }
+
+        function renderLeadTable() {
+            const filtered = getFilteredLeads();
+            const tbody = document.getElementById('lead-tbody');
+            const empty = document.getElementById('lead-empty-state');
+            document.getElementById('result-count').textContent = `${filtered.length} results`;
+            document.getElementById('footer-count').textContent = `${filtered.length} lead records`;
+            if (!filtered.length) {
+                tbody.innerHTML = '';
+                empty.classList.remove('hidden');
+                empty.classList.add('flex');
+                return;
+            }
+            empty.classList.add('hidden');
+            empty.classList.remove('flex');
+            tbody.innerHTML = filtered.map(([key, lead]) => {
+                const open = expandedLeadId === key;
+                return `
+                    <tr class="lead-row ${open ? 'expanded' : ''}" onclick="toggleLeadRow('${key}')">
+                        <td class="px-3 py-2"><div class="flex items-center gap-2.5"><div class="w-7 h-7 rounded-lg bg-gray-900 text-white text-[9px] font-black flex items-center justify-center flex-shrink-0">${lead.fullName.split(' ').map(part => part[0]).join('').slice(0, 2)}</div><div><p class="text-[10px] font-bold text-gray-900">${lead.fullName}</p><p class="text-[7px] text-gray-400 mt-0.5">${lead.id}</p></div></div></td>
+                        <td class="px-3 py-2"><p class="text-[10px] font-semibold text-gray-800">${lead.companyName}</p><p class="text-[7px] text-gray-400 mt-0.5">${lead.industry || 'General'}</p></td>
+                        <td class="px-3 py-2"><p class="text-[10px] font-semibold text-gray-800">${lead.loanAmount}</p><p class="text-[7px] text-gray-400 mt-0.5">${lead.fundingTimeline || 'Pending timeline'}</p></td>
+                        <td class="px-3 py-2"><span class="status-badge ${getStatusBadgeClass(lead.leadStatus)}">${lead.leadStatus}</span></td>
+                        <td class="px-2 py-2 text-center"><i class="fa-solid fa-chevron-right text-[10px] text-gray-300 row-chevron ${open ? 'open' : ''}"></i></td>
+                    </tr>
+                    ${open ? `<tr class="detail-expand-row" id="detail-${key}"><td colspan="5"><div class="detail-expand-inner px-6 py-4"><div class="grid gap-4" style="grid-template-columns: 1fr 1fr 1fr 1.8fr 1.4fr;"><div><p class="label-text mb-2"><i class="fa-solid fa-building mr-1"></i>Company</p><div class="space-y-1.5"><div><p class="text-[7px] text-gray-400 uppercase font-bold">Business</p><p class="text-[10px] font-semibold text-gray-800">${lead.companyName}</p></div><div><p class="text-[7px] text-gray-400 uppercase font-bold">Job Title</p><p class="text-[10px] font-semibold text-gray-800">${lead.jobTitle || 'N/A'}</p></div></div></div><div><p class="label-text mb-2"><i class="fa-solid fa-address-card mr-1"></i>Contact</p><div class="space-y-1.5"><div><p class="text-[7px] text-gray-400 uppercase font-bold">Email</p><p class="text-[9px] font-semibold text-blue-600 break-all">${lead.emailAddress}</p></div><div><p class="text-[7px] text-gray-400 uppercase font-bold">Phone</p><p class="text-[10px] font-semibold text-gray-800">${lead.phoneNumber}</p></div></div></div><div><p class="label-text mb-2"><i class="fa-solid fa-sack-dollar mr-1"></i>Funding</p><div class="space-y-1.5"><div><p class="text-[7px] text-gray-400 uppercase font-bold">Amount</p><p class="text-[10px] font-semibold text-gray-800">${lead.loanAmount}</p></div><div><p class="text-[7px] text-gray-400 uppercase font-bold">Purpose</p><p class="text-[9px] font-semibold text-gray-700">${lead.loanPurpose || 'N/A'}</p></div></div></div><div><p class="label-text mb-2"><i class="fa-solid fa-note-sticky mr-1"></i>Note</p><p class="text-[8px] text-gray-500 mt-1.5 leading-relaxed italic">${generateAISummary(lead)}</p><div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-gray-100"><div class="w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center flex-shrink-0"><span class="text-[7px] font-black text-indigo-600">${(lead.noteBy || 'Admin').split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</span></div><div><p class="text-[7px] font-black text-gray-700 leading-none">${lead.noteBy || 'Admin'}</p><p class="text-[6.5px] text-gray-400 mt-0.5">Added note · ${lead.createdAt || 'N/A'}</p></div></div></div><div><p class="label-text mb-2"><i class="fa-solid fa-users mr-1 text-[#2447d7]"></i>Assigned Agents</p><div class="space-y-0 rounded-lg overflow-hidden border border-gray-100">${(lead.timeline || []).map(t => `<div class="flex items-center gap-1.5 px-2 py-1 ${t.done ? 'bg-white' : 'bg-gray-50/60'} border-b border-gray-50 last:border-0"><div class="w-4 h-4 rounded flex items-center justify-center flex-shrink-0" style="background:${t.done ? t.bg : '#f1f5f9'}"><i class="fa-solid ${t.icon} text-[7px]" style="color:${t.done ? t.color : '#cbd5e1'}"></i></div><div class="flex-1 min-w-0 leading-none"><p class="text-[8px] font-bold text-gray-500 uppercase tracking-wide">${t.label}</p><p class="text-[9px] font-bold mt-0.5 ${t.sub === 'Pending' ? 'text-gray-300 italic' : 'text-gray-900'}">${t.sub}</p></div><span class="text-[7px] font-mono ${t.done ? 'text-gray-400' : 'text-gray-300'} flex-shrink-0">${t.date ? t.date.substring(5).replace('-','/') + ' ' + (t.time||'') : '—'}</span></div>`).join('')}</div></div></div></div></td></tr>` : ''}
+                `;
+            }).join('');
+        }
+
+        function toggleLeadRow(id) { 
+            const isClosing = expandedLeadId === id;
+            expandedLeadId = isClosing ? null : id; 
+            renderLeadTable(); 
+            if (!isClosing) {
+                selectLead(id);
+                // Smooth scroll to the top of detail panel for better visibility
+                document.getElementById('lead-form-scroll-outer').scrollTo({ top: 0, behavior: 'smooth' });
+                // Optional: Trigger a subtle fade-in animation
+                const panel = document.getElementById('lead-form-container');
+                panel.style.opacity = '0';
+                panel.style.transform = 'translateY(5px)';
+                panel.style.transition = 'none';
+                setTimeout(() => {
+                    panel.style.transition = 'all 0.3s ease-out';
+                    panel.style.opacity = '1';
+                    panel.style.transform = 'translateY(0)';
+                }, 10);
+            }
+        }
+        function selectLead(id, startInEditMode = false) {
+            switchLeadTab('tasks');
+            switchLeadTab('tasks');
+            const lead = leadsDB[id];
+            if (!lead || !lead.fullName) return;
+            currentLeadKey = id;
+            expandedLeadId = id;
+            switchLeadTab('details');
+            document.getElementById('panel-title').innerText = lead.fullName.toUpperCase();
+            document.getElementById('panel-subtitle').innerText = lead.id;
+            ['title', 'fullName', 'dob', 'companyName', 'jobTitle', 'companyHouseNumber', 'businessAnnualTurnover', 'emailAddress', 'phoneNumber', 'homeOwner', 'timeAtCurrentAddress', 'residentialAddress', 'previousAddress', 'loanAmount', 'fundingTimeline', 'loanPurpose', 'leadSource', 'creditConsent', 'existingLoan', 'overdraftFacility', 'previousAlphaFundingLoan', 'companyBank', 'industry', 'additionalComments', 'leadStatus', 'id'].forEach(key => { const el = document.getElementById('field-' + key); if (el) el.value = lead[key] !== undefined ? lead[key] : ''; });
+
+            // Handle Radio Buttons
+            document.querySelectorAll('.radio-btn').forEach(btn => btn.classList.remove('active'));
+            if (lead.preferredContactMethod) {
+                const methodBtn = document.getElementById('contact-' + lead.preferredContactMethod.toLowerCase());
+                if (methodBtn) methodBtn.classList.add('active');
+            }
+
+            // Handle Existing Loan Details
+            if (lead.existingLoan === 'Yes') {
+                document.getElementById('existing-loan-details').classList.remove('hidden');
+                document.getElementById('field-existingLender').value = lead.existingLender || '';
+                document.getElementById('field-existingAmount').value = lead.existingAmount || '';
+                document.getElementById('field-existingRate').value = lead.existingRate || '';
+                document.getElementById('field-existingRepayment').value = lead.existingRepayment || '';
+                document.getElementById('field-existingTerm').value = lead.existingTerm || '';
+            } else {
+                document.getElementById('existing-loan-details').classList.add('hidden');
+            }
+            document.getElementById('doc-list-container').innerHTML = (lead.documents || []).map(doc => `<div class="doc-item"><div class="flex items-center gap-3"><i class="fa-solid fa-file-lines text-blue-500"></i><span class="text-[10px] font-bold text-gray-700">${doc}</span></div></div>`).join('');
+
+            // Tasks & Follow-ups
+            const tasks = lead.tasks || [];
+            document.getElementById('task-feed-container').innerHTML = tasks.map(task =>
+                `<div class="followup-card"><p class="text-[8px] font-extrabold text-blue-600 uppercase">${task.time} &bull; ${task.type}</p><p class="text-[10px] font-bold text-gray-800">${task.desc}</p></div>`
+            ).join('');
+            const tasksEmpty = document.getElementById('tasks-empty-msg');
+            if (tasksEmpty) tasksEmpty.classList.toggle('hidden', tasks.length > 0);
+
+            // AI Agent Summary
+            const aiEl = document.getElementById('ai-summary-text');
+            if (aiEl) aiEl.textContent = generateAISummary(lead);
+
+            // Notes
+            const notesEl = document.getElementById('notes-container');
+            if (notesEl) {
+                const noteText = lead.additionalComments || '';
+                const noteBy = lead.noteBy || 'Agent';
+                const noteDate = lead.createdAt || '';
+                notesEl.innerHTML = noteText
+                    ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px 12px;">
+                           <p style="font-size:9px;color:#92400e;line-height:1.6;margin:0 0 8px;">${noteText}</p>
+                           <div style="display:flex;align-items:center;gap:6px;border-top:1px solid #fde68a;padding-top:6px;">
+                               <div style="width:18px;height:18px;border-radius:50%;background:#f59e0b;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                   <span style="font-size:7px;font-weight:900;color:#fff;">${noteBy.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)}</span>
+                               </div>
+                               <span style="font-size:8px;font-weight:700;color:#78350f;">${noteBy}</span>
+                               <span style="font-size:7px;color:#d97706;margin-left:auto;">${noteDate}</span>
+                           </div>
+                       </div>`
+                    : `<p style="font-size:8px;color:#d1d5db;text-align:center;padding:12px 0;font-style:italic;">No notes added</p>`;
+            }
+
+            // Render Activity Timeline
+            const tlContainer = document.getElementById('activity-timeline-container');
+            if (tlContainer) {
+                const tl = lead.timeline || [];
+                tlContainer.innerHTML = tl.length ? tl.map(t => {
+                    const dateStr = t.date ? t.date.substring(5).replace('-', '/') + ' ' + (t.time || '') : '\u2014';
+                    return `<div class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50/60 transition-all">
+                        <div class="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style="background:`+t.bg+`">
+                            <i class="fa-solid `+t.icon+` text-[9px]" style="color:`+t.color+`"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <span class="text-[8px] font-bold text-gray-400 uppercase tracking-wide">`+t.label+`</span>
+                            <span class="text-[10px] font-bold `+(t.sub==='Pending' ? 'text-gray-300' : 'text-gray-900')+` ml-1.5">`+t.sub+`</span>
+                        </div>
+                        <span class="text-[8px] font-mono `+(t.done?'text-gray-500':'text-gray-300')+` flex-shrink-0">`+dateStr+`</span>
+                    </div>`;
+                }).join('') : `<div class="px-4 py-5 text-center text-[9px] text-gray-400">No activity yet</div>`;
+            }
+
+            isEditMode = startInEditMode;
+            applyEditModeUI();
+            renderLeadTable();
+        }
+
+        function applyEditModeUI() {
+            const inputs = document.querySelectorAll('#lead-form-container input, #lead-form-container select, #lead-form-container textarea');
+            const btn = document.getElementById('edit-toggle-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const followup = document.getElementById('followup-section');
+            
+            inputs.forEach(input => {
+                input.disabled = !isEditMode;
+                input.classList.toggle('bg-white', isEditMode);
+            });
+
+            btn.innerText = isEditMode ? 'Cancel Edit' : 'Edit Lead';
+            btn.classList.toggle('bg-red-500', isEditMode);
+            btn.classList.toggle('bg-gray-900', !isEditMode);
+            
+            saveBtn.style.display = isEditMode ? 'block' : 'none';
+            followup.classList.toggle('hidden', !isEditMode);
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            applyEditModeUI();
+        }
+
+        function createNewLead() {
+            document.querySelector('.dashboard-container').classList.add('create-mode');
+            const backBtn = document.getElementById('detail-back-btn');
+            const createTitle = document.getElementById('creation-header-title');
+            const detailTitle = document.querySelector('.detail-header-info');
+            const dot = document.getElementById('panel-dot');
+
+            if (backBtn) backBtn.classList.remove('hidden');
+            if (createTitle) createTitle.classList.remove('hidden');
+            if (detailTitle) detailTitle.classList.add('hidden');
+            if (dot) dot.classList.add('bg-amber-500');
+            if (dot) dot.classList.remove('bg-blue-500');
+
+            const inputs = document.querySelectorAll('#lead-form-container input, #lead-form-container select, #lead-form-container textarea');
+            inputs.forEach(input => {
+                input.value = '';
+                input.disabled = false;
+                input.classList.add('bg-white');
+            });
+
+            // Auto-generate Case ID
+            const randomID = 'AF-CASE-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('field-id').value = randomID;
+
+            // Reset Radio Buttons
+            document.querySelectorAll('.radio-btn').forEach(btn => btn.classList.remove('active'));
+            const emailBtn = document.getElementById('contact-email');
+            if (emailBtn) emailBtn.classList.add('active');
+
+            const loanDetails = document.getElementById('existing-loan-details');
+            if (loanDetails) loanDetails.classList.add('hidden');
+
+            isEditMode = true;
+            const editBtn = document.getElementById('edit-toggle-btn');
+            if (editBtn) editBtn.innerText = 'Discard';
+
+            const followup = document.getElementById('followup-section');
+            if (followup) followup.classList.remove('hidden');
+
+            const metrics = document.getElementById('panel-footer-metrics');
+            if (metrics) metrics.classList.add('hidden');
+
+            document.getElementById('doc-list-container').innerHTML = '';
+            document.getElementById('task-feed-container').innerHTML = '';
+
+            switchLeadTab('details');
+            initSyncListeners();
+        }
+
+        // Supporting Documents Handler
+        function handleDocUpload(input) {
+            const container = document.getElementById('doc-list-container');
+            if (!input.files || input.files.length === 0) return;
+
+            Array.from(input.files).forEach(file => {
+                const docItem = document.createElement('div');
+                docItem.className = 'flex items-center justify-between p-1.5 bg-white border border-gray-50 rounded-lg shadow-sm';
+                docItem.innerHTML = `
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <i class="fa-solid fa-file-pdf text-[10px] text-red-500"></i>
+                        <span class="text-[9px] font-bold text-gray-700 truncate">${file.name}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-gray-300 hover:text-red-500 transition-colors">
+                        <i class="fa-solid fa-xmark text-[9px]"></i>
+                    </button>
+                `;
+                container.appendChild(docItem);
+            });
+            input.value = ''; // Reset for next selection
+        }
+
+        // Initialize synchronization listeners
+        function initSyncListeners() {
+            const sync = () => {
+                if (isEditMode) {
+                    document.getElementById('task-client').value = document.getElementById('field-fullName').value;
+                    document.getElementById('task-phone').value = document.getElementById('field-phoneNumber').value;
+                    document.getElementById('task-email').value = document.getElementById('field-emailAddress').value;
+                }
+            };
+            document.getElementById('field-fullName').addEventListener('input', sync);
+            document.getElementById('field-phoneNumber').addEventListener('input', sync);
+            document.getElementById('field-emailAddress').addEventListener('input', sync);
+        }
+
+        function exitCreateMode() {
+            document.querySelector('.dashboard-container').classList.remove('create-mode');
+            const backBtn = document.getElementById('detail-back-btn');
+            const createTitle = document.getElementById('creation-header-title');
+            const detailTitle = document.querySelector('.detail-header-info');
+            const dot = document.getElementById('panel-dot');
+
+            if (backBtn) backBtn.classList.add('hidden');
+            if (createTitle) createTitle.classList.add('hidden');
+            if (detailTitle) detailTitle.classList.remove('hidden');
+            if (dot) dot.classList.remove('bg-amber-500');
+            if (dot) dot.classList.add('bg-blue-500');
+
+            selectLead(currentLeadKey);
+        }
+
+        function saveLead() {
+            const fullName = document.getElementById('field-fullName').value;
+            if (!fullName) { alert('Full Name is required'); return; }
+
+            const newKey = 'L-' + (Object.keys(leadsDB).length + 1004);
+            const newLead = {
+                id: document.getElementById('field-id').value || ('AF-CASE-' + (Object.keys(leadsDB).length + 1004)),
+                fullName,
+                title: document.getElementById('field-title').value,
+                dob: document.getElementById('field-dob').value,
+                companyName: document.getElementById('field-companyName').value,
+                jobTitle: document.getElementById('field-jobTitle').value,
+                companyHouseNumber: document.getElementById('field-companyHouseNumber').value,
+                businessAnnualTurnover: document.getElementById('field-businessAnnualTurnover').value,
+                emailAddress: document.getElementById('field-emailAddress').value,
+                phoneNumber: document.getElementById('field-phoneNumber').value,
+                residentialAddress: document.getElementById('field-residentialAddress').value,
+                previousAddress: document.getElementById('field-previousAddress').value,
+                timeAtCurrentAddress: document.getElementById('field-timeAtCurrentAddress').value,
+                homeOwner: document.getElementById('field-homeOwner').value,
+                loanAmount: document.getElementById('field-loanAmount').value,
+                fundingTimeline: document.getElementById('field-fundingTimeline').value,
+                loanPurpose: document.getElementById('field-loanPurpose').value,
+                companyBank: document.getElementById('field-companyBank').value,
+                industry: document.getElementById('field-industry').value,
+                leadSource: document.getElementById('field-leadSource').value,
+                creditConsent: document.getElementById('field-creditConsent').value,
+                existingLoan: document.getElementById('field-existingLoan').value,
+                leadStatus: document.getElementById('field-leadStatus').value || 'Warm',
+                additionalComments: document.getElementById('field-additionalComments').value,
+                createdAt: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                documents: [],
+                tasks: []
+            };
+
+            if (document.querySelector('.dashboard-container').classList.contains('create-mode')) {
+                leadsDB[newKey] = newLead;
+                currentLeadKey = newKey;
+            } else {
+                leadsDB[currentLeadKey] = { ...leadsDB[currentLeadKey], ...newLead };
+            }
+
+            updateLeadStats();
+            renderLeadTable();
+            exitCreateMode();
+            alert('Lead Saved Successfully');
+        }
+
+        
+        // ── Panel render functions ──
+        let panelNotes = {};
+        let panelTasks = {};
+
+        function renderPanelTasks() {
+            const lead = leadsDB[currentLeadKey];
+            const tasks = (panelTasks[currentLeadKey] || []).concat(lead ? (lead.tasks || []) : []);
+            const el = document.getElementById('tasks-list');
+            if (!el) return;
+            if (!tasks.length) { el.innerHTML = '<p style="font-size:9px;color:#94a3b8;text-align:center;padding:24px 0;">No tasks yet</p>'; return; }
+            var html = '';
+            var icons = { Call: 'fa-phone', Meeting: 'fa-calendar', Email: 'fa-envelope', Document: 'fa-file', 'Follow-up': 'fa-rotate-right' };
+            for (var i = 0; i < tasks.length; i++) {
+                var t = tasks[i];
+                var icon = icons[t.type] || 'fa-phone';
+                html += '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:12px;margin-bottom:8px;">';
+                html += '<div style="width:32px;height:32px;background:#f1f5f9;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">';
+                html += '<i class="fa-solid ' + icon + '" style="font-size:11px;color:#64748b;"></i></div>';
+                html += '<div style="flex:1;min-width:0;">';
+                html += '<p style="font-size:11px;font-weight:700;color:#0f172a;margin:0;">' + (t.desc || t.type) + '</p>';
+                html += '<p style="font-size:9px;color:#94a3b8;margin:2px 0 0;">' + t.type + (t.time ? ' · ' + t.time : '') + (t.date ? ' · ' + t.date : '') + '</p>';
+                html += '</div></div>';
+            }
+            el.innerHTML = html;
+        }
+
+        function addPanelTask() {
+            var type = document.getElementById('pt-type').value;
+            var date = document.getElementById('pt-date').value;
+            var desc = document.getElementById('pt-desc').value.trim();
+            if (!desc) return;
+            if (!panelTasks[currentLeadKey]) panelTasks[currentLeadKey] = [];
+            panelTasks[currentLeadKey].unshift({ type: type, date: date, desc: desc });
+            document.getElementById('pt-desc').value = '';
+            document.getElementById('pt-date').value = '';
+            renderPanelTasks();
+        }
+
+        function renderPanelAI() {
+            var lead = leadsDB[currentLeadKey];
+            if (!lead) return;
+            var emptyEl = document.getElementById('ai-empty-state');
+            var resultEl = document.getElementById('ai-result-state');
+            var btn = document.getElementById('ai-generate-btn');
+            if (emptyEl) emptyEl.style.display = 'block';
+            if (resultEl) resultEl.style.display = 'none';
+            if (btn) { btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles" style="font-size:8px;"></i> Generate'; btn.disabled = false; }
+            document.getElementById('panel-ai-points').innerHTML = '';
+        }
+
+        function generateAIPanel() {
+            var lead = leadsDB[currentLeadKey];
+            if (!lead) return;
+            var btn = document.getElementById('ai-generate-btn');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="font-size:8px;"></i> Generating...';
+            btn.disabled = true;
+            setTimeout(function() {
+                var textEl = document.getElementById('panel-ai-text');
+                if (textEl) textEl.textContent = generateAISummary(lead);
+                var emptyEl = document.getElementById('ai-empty-state');
+                var resultEl = document.getElementById('ai-result-state');
+                if (emptyEl) emptyEl.style.display = 'none';
+                if (resultEl) resultEl.style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-rotate-right" style="font-size:8px;"></i> Regenerate';
+                btn.disabled = false;
+                renderAIPoints(lead);
+            }, 800);
+        }
+
+        function renderAIPoints(lead) {
+            var points = [['Status',lead.leadStatus],['Amount',lead.loanAmount],['Purpose',lead.loanPurpose],['Bank',lead.companyBank],['Industry',lead.industry],['Source',lead.leadSource],['Home Owner',lead.homeOwner],['Credit',lead.creditConsent]];
+            var html = '';
+            for (var i = 0; i < points.length; i++) {
+                if (!points[i][1]) continue;
+                html += '<div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:8px;padding:8px 10px;">';
+                html += '<p style="font-size:7px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin:0;">' + points[i][0] + '</p>';
+                html += '<p style="font-size:10px;font-weight:700;color:#0f172a;margin:2px 0 0;">' + points[i][1] + '</p>';
+                html += '</div>';
+            }
+            var el = document.getElementById('panel-ai-points');
+            if (el) el.innerHTML = html;
+        }
+
+        function renderPanelNotes() {
+            var lead = leadsDB[currentLeadKey];
+            var notes = panelNotes[currentLeadKey] || [];
+            var existing = (lead && lead.additionalComments) ? [{ text: lead.additionalComments, by: lead.noteBy || 'Admin', date: lead.createdAt || '' }] : [];
+            var all = existing.concat(notes);
+            var el = document.getElementById('notes-list');
+            if (!el) return;
+            if (!all.length) { el.innerHTML = '<p style="font-size:9px;color:#94a3b8;text-align:center;padding:24px 0;">No notes yet</p>'; return; }
+            var html = '';
+            for (var i = 0; i < all.length; i++) {
+                var n = all[i];
+                var initials = (n.by || 'A').split(' ').map(function(w){return w[0];}).join('').toUpperCase().slice(0,2);
+                html += '<div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-bottom:8px;">';
+                html += '<p style="font-size:11px;color:#334155;line-height:1.6;margin:0 0 10px;">' + n.text + '</p>';
+                html += '<div style="display:flex;align-items:center;gap:8px;">';
+                html += '<div style="width:22px;height:22px;background:#e0e7ff;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">';
+                html += '<span style="font-size:7px;font-weight:900;color:#4f46e5;">' + initials + '</span></div>';
+                html += '<p style="font-size:9px;font-weight:600;color:#64748b;margin:0;">' + (n.by || 'Admin') + (n.date ? ' · ' + n.date : '') + '</p>';
+                html += '</div></div>';
+            }
+            el.innerHTML = html;
+        }
+
+        function addPanelNote() {
+            var text = document.getElementById('pn-text').value.trim();
+            if (!text) return;
+            if (!panelNotes[currentLeadKey]) panelNotes[currentLeadKey] = [];
+            var s = JSON.parse(sessionStorage.getItem('crm_session') || '{}');
+            panelNotes[currentLeadKey].unshift({ text: text, by: s.name || 'Admin', date: new Date().toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) });
+            document.getElementById('pn-text').value = '';
+            renderPanelNotes();
+        }
+window.onload = () => {
+            updateLeadStats();
+            renderLeadTable();
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('action') === 'new') {
+                selectLead('L-1004');
+                setTimeout(() => createNewLead(), 100);
+            } else {
+                selectLead('L-1004');
+            }
+            switchLeadTab('tasks');
+        };
+
+        function switchLeadTab(tab) {
+            var map = { details: 'lead-form-scroll-outer', tasks: 'panel-tasks', ai: 'panel-ai', notes: 'panel-notes', docs: 'panel-docs' };
+            Object.keys(map).forEach(function(t) {
+                var panel = document.getElementById(map[t]);
+                var btn = document.getElementById('tab-btn-' + t);
+                if (panel) panel.style.display = (t === tab) ? (t === 'details' ? 'block' : 'flex') : 'none';
+                if (btn) { btn.classList.toggle('active', t === tab); }
+            });
+            if (tab === 'tasks') renderPanelTasks();
+            if (tab === 'ai') renderPanelAI();
+            if (tab === 'notes') renderPanelNotes();
+            if (tab === 'docs') renderPanelDocs();
+        }
+
+        // ── Documents ────────────────────────────────────────────────────
+        const leadDocs = {}; // key: leadKey, value: [{name, size, type, status, dataUrl, uploadedAt}]
+
+        function getLeadDocs() {
+            if (!currentLeadKey) return [];
+            if (!leadDocs[currentLeadKey]) {
+                // Seed from leadsDB.documents
+                const lead = leadsDB[currentLeadKey];
+                leadDocs[currentLeadKey] = (lead && lead.documents || []).map(name => ({
+                    id: Date.now() + Math.random(),
+                    name, size: null, type: name.split('.').pop().toUpperCase(),
+                    status: 'Pending', dataUrl: null, uploadedAt: lead.createdAt || ''
+                }));
+            }
+            return leadDocs[currentLeadKey];
+        }
+
+        function handleDocFileInput(input) {
+            Array.from(input.files).forEach(addDocFile);
+            input.value = '';
+        }
+        function handleDocDrop(e) {
+            e.preventDefault();
+            document.getElementById('doc-upload-zone').style.borderColor = '#e2e8f0';
+            Array.from(e.dataTransfer.files).forEach(addDocFile);
+        }
+        function addDocFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                const docs = getLeadDocs();
+                docs.push({
+                    id: Date.now() + Math.random(),
+                    name: file.name,
+                    size: (file.size / 1024).toFixed(1) + ' KB',
+                    type: file.name.split('.').pop().toUpperCase(),
+                    status: 'Pending',
+                    dataUrl: ev.target.result,
+                    uploadedAt: new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'})
+                });
+                renderPanelDocs();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function setDocStatus(id, status) {
+            const docs = getLeadDocs();
+            const doc = docs.find(d => d.id === id);
+            if (doc) { doc.status = status; renderPanelDocs(); }
+        }
+        function deleteDoc(id) {
+            if (!currentLeadKey) return;
+            leadDocs[currentLeadKey] = getLeadDocs().filter(d => d.id !== id);
+            renderPanelDocs();
+        }
+        function startEditDocName(id) {
+            const el = document.getElementById('doc-name-' + id);
+            if (!el) return;
+            const old = el.textContent;
+            el.innerHTML = `<input id="doc-name-input-${id}" value="${old}" style="font-size:10px;font-weight:700;border:1px solid #6366f1;border-radius:4px;padding:2px 6px;outline:none;width:160px;" onblur="saveDocName(${id})" onkeydown="if(event.key==='Enter')saveDocName(${id})">`;
+            document.getElementById('doc-name-input-' + id).focus();
+        }
+        function saveDocName(id) {
+            const input = document.getElementById('doc-name-input-' + id);
+            if (!input) return;
+            const newName = input.value.trim();
+            const doc = getLeadDocs().find(d => d.id === id);
+            if (doc && newName) doc.name = newName;
+            renderPanelDocs();
+        }
+        function previewDoc(id) {
+            const doc = getLeadDocs().find(d => d.id === id);
+            if (!doc) return;
+            const modal = document.getElementById('doc-preview-modal');
+            const icons = { PDF:'fa-file-pdf', JPG:'fa-file-image', JPEG:'fa-file-image', PNG:'fa-file-image', XLSX:'fa-file-excel', XLS:'fa-file-excel', DOC:'fa-file-word', DOCX:'fa-file-word' };
+            const iconClass = icons[doc.type] || 'fa-file-lines';
+            document.getElementById('preview-icon').className = `fa-solid ${iconClass} text-indigo-500`;
+            document.getElementById('preview-filename').textContent = doc.name;
+            document.getElementById('preview-meta').textContent = (doc.size || '') + (doc.uploadedAt ? '  ·  ' + doc.uploadedAt : '');
+            const body = document.getElementById('preview-body');
+            if (doc.dataUrl && doc.type === 'PDF') {
+                body.innerHTML = `<iframe src="${doc.dataUrl}" style="width:100%;height:400px;border:none;border-radius:8px;"></iframe>`;
+            } else if (doc.dataUrl && ['JPG','JPEG','PNG'].includes(doc.type)) {
+                body.innerHTML = `<img src="${doc.dataUrl}" style="max-width:100%;max-height:400px;border-radius:8px;object-fit:contain;">`;
+            } else {
+                document.getElementById('preview-file-icon').className = `fa-solid ${iconClass} text-indigo-200`;
+                document.getElementById('preview-file-label').textContent = doc.name;
+                body.innerHTML = `<div style="text-align:center;"><i class="fa-solid ${iconClass}" style="font-size:64px;color:#c7d2fe;"></i><p style="font-size:11px;color:#94a3b8;margin-top:12px;font-weight:600;">${doc.name}</p><p style="font-size:9px;color:#cbd5e1;margin-top:4px;">Preview not available for this file type</p></div>`;
+            }
+            modal.style.display = 'flex';
+        }
+        function closeDocPreview() { document.getElementById('doc-preview-modal').style.display = 'none'; }
+
+        function renderPanelDocs() {
+            const docs = getLeadDocs();
+            const list = document.getElementById('panel-docs-list');
+            if (!list) return;
+            const statusCfg = {
+                Pending:  { bg:'#f1f5f9', color:'#475569', label:'Pending'   },
+                Approved: { bg:'#dcfce7', color:'#15803d', label:'Approved'  },
+                Rejected: { bg:'#fee2e2', color:'#b91c1c', label:'Rejected'  },
+                Reupload: { bg:'#fef3c7', color:'#b45309', label:'Re-upload' },
+            };
+            if (!docs.length) {
+                list.innerHTML = `<div style="text-align:center;padding:40px 20px;color:#cbd5e1;"><i class="fa-solid fa-folder-open text-4xl mb-3 block"></i><p style="font-size:10px;font-weight:700;">No documents uploaded yet</p></div>`;
+                return;
+            }
+            const icons = { PDF:'fa-file-pdf text-red-400', JPG:'fa-file-image text-blue-400', JPEG:'fa-file-image text-blue-400', PNG:'fa-file-image text-blue-400', XLSX:'fa-file-excel text-green-500', XLS:'fa-file-excel text-green-500', DOC:'fa-file-word text-blue-500', DOCX:'fa-file-word text-blue-500' };
+            list.innerHTML = docs.map(doc => {
+                const st = statusCfg[doc.status] || statusCfg.Pending;
+                const iconCls = icons[doc.type] || 'fa-file text-gray-400';
+                const actionBtns = doc.status === 'Rejected'
+                    ? `<button onclick="setDocStatus(${doc.id},'Reupload')" style="padding:3px 8px;font-size:8px;font-weight:700;background:#fef3c7;color:#b45309;border:none;border-radius:5px;cursor:pointer;"><i class="fa-solid fa-rotate-right mr-1"></i>Re-upload</button>`
+                    : `<button onclick="setDocStatus(${doc.id},'Approved')" title="Approve" style="padding:3px 8px;font-size:8px;font-weight:700;background:#dcfce7;color:#15803d;border:none;border-radius:5px;cursor:pointer;"><i class="fa-solid fa-check"></i></button>
+                       <button onclick="setDocStatus(${doc.id},'Rejected')" title="Reject" style="padding:3px 8px;font-size:8px;font-weight:700;background:#fee2e2;color:#b91c1c;border:none;border-radius:5px;cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>`;
+                return `<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid #f1f5f9;border-radius:12px;transition:box-shadow .15s;" onmouseover="this.style.boxShadow='0 2px 12px rgba(0,0,0,0.06)'" onmouseout="this.style.boxShadow='none'">
+                    <i class="fa-solid ${iconCls}" style="font-size:20px;flex-shrink:0;"></i>
+                    <div style="flex:1;min-width:0;">
+                        <p id="doc-name-${doc.id}" style="font-size:10px;font-weight:700;color:#0f172a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${doc.name}</p>
+                        <p style="font-size:8px;color:#94a3b8;margin-top:1px;">${doc.type}${doc.size ? '  ·  ' + doc.size : ''}${doc.uploadedAt ? '  ·  ' + doc.uploadedAt : ''}</p>
+                    </div>
+                    <span style="font-size:7px;font-weight:800;padding:3px 8px;border-radius:99px;background:${st.bg};color:${st.color};text-transform:uppercase;flex-shrink:0;">${st.label}</span>
+                    <div style="display:flex;gap:4px;flex-shrink:0;">
+                        <button onclick="previewDoc(${doc.id})" title="Preview" style="width:26px;height:26px;border-radius:6px;background:#f1f5f9;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-eye text-gray-400" style="font-size:9px;"></i></button>
+                        <button onclick="startEditDocName(${doc.id})" title="Rename" style="width:26px;height:26px;border-radius:6px;background:#f1f5f9;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-pencil text-gray-400" style="font-size:9px;"></i></button>
+                        ${actionBtns}
+                        <button onclick="deleteDoc(${doc.id})" title="Delete" style="width:26px;height:26px;border-radius:6px;background:#fee2e2;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-trash text-red-400" style="font-size:9px;"></i></button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // Add event listeners to radio buttons
+        document.querySelectorAll('.radio-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                if (isEditMode) {
+                    const parent = this.parentElement;
+                    parent.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+    </script>
+
+    <script src="../profile/profile_drawer.js"></script>
+</body>
+
+</html>

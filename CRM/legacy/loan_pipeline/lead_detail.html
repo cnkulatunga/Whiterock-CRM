@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script>
+        function logout() { sessionStorage.removeItem('crm_session'); window.location.replace('../login/login.html'); } (function () { const s = sessionStorage.getItem('crm_session'); if (!s) { window.location.replace('../login/login.html'); } })();</script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Detail - Alpha Funding CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            background: #fff;
+            margin: 0;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .main-wrap {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            background: #fafafa;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 11px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow: hidden;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        /* Grid layout — no outer scroll */
+        #master-table {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-template-rows: 3fr 2fr;
+            gap: 10px;
+        }
+
+        /* Panels */
+        .detail-panel {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .panel-ai       { grid-column: 1 / 5; }
+        .panel-notes    { grid-column: 5 / 9; }
+        .panel-reminders{ grid-column: 9 / 13; }
+        .panel-quarter  { grid-column: span 3; }
+
+        .panel-hdr {
+            padding: 7px 12px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            color: #64748b;
+            border-bottom: 1px solid #f1f5f9;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px;
+            min-height: 0;
+        }
+
+        .panel-footer {
+            padding: 8px;
+            border-top: 1px solid #f1f5f9;
+            background: #fafafa;
+            flex-shrink: 0;
+        }
+
+        .note-item, .reminder-item {
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: #f8fafc;
+            margin-bottom: 5px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .note-input-field {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 10px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+            resize: none;
+        }
+
+        .note-input-field:focus { border-color: #a5b4fc; }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+
+        .info-lbl {
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #94a3b8;
+            width: 58px;
+            flex-shrink: 0;
+        }
+
+        .info-val {
+            font-size: 10px;
+            font-weight: 600;
+            color: #0f172a;
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 14px;
+            border-radius: 7px;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            cursor: pointer;
+            border: none;
+            transition: all .15s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-ghost {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .btn-ghost:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-indigo {
+            background: #eef2ff;
+            color: #4338ca;
+        }
+
+        .btn-indigo:hover {
+            background: #e0e7ff;
+        }
+
+        .btn-dark {
+            background: #0f172a;
+            color: #fff;
+        }
+
+        .btn-dark:hover {
+            background: #000;
+        }
+
+        .btn-red {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .btn-red:hover {
+            background: #fee2e2;
+        }
+
+        .side-nav {
+            width: 70px;
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 4px;
+            border-right: 1px solid #1e293b;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #94a3b8;
+            transition: all .2s;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 6px 4px;
+            border-radius: 8px;
+            width: 54px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #fff;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .nav-item i {
+            font-size: 14px;
+        }
+
+        .nav-text {
+            font-size: 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            text-align: center;
+            line-height: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="side-nav" id="side-nav">
+        <!-- Sidebar items injected via JS -->
+    </nav>
+
+    <div class="main-wrap">
+
+        <div class="top-bar">
+            <div class="flex items-center gap-3">
+                <button onclick="history.back()" class="btn btn-ghost">
+                    <i class="fa-solid fa-arrow-left text-[9px]"></i> Back
+                </button>
+                <div class="w-px h-5 bg-gray-200"></div>
+                <div>
+                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest" id="hdr-id"></p>
+                    <h1 class="text-sm font-black text-gray-900 tracking-tight leading-tight" id="hdr-name"></h1>
+                </div>
+                <div id="hdr-badges" class="flex items-center gap-2"></div>
+            </div>
+            <div class="flex items-center gap-2" id="hdr-actions"></div>
+        </div>
+
+        <div class="content-area">
+            <div id="master-table">
+                <!-- Content injected via JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function logout() { sessionStorage.removeItem('crm_session'); window.location.replace('../login/login.html'); }
+        const leads = [
+            { id: 'AF-028', name: 'Minosh Example', business: 'ex ABC', amount: '£3,456', agent: 'Sarah White', bank: 'Starling', stage: 'verified', priority: 'High', days: 3, lender: 'NAB', notes: 'Awaiting final sign-off.', payoutStatus: 'Yes' },
+            { id: 'AF-027', name: 'ABC Corp', business: 'ABCD Ltd', amount: '£2,345', agent: 'Cody Lane', bank: '—', stage: 'verified', priority: 'Medium', days: 5, lender: 'Commonwealth Bank', notes: 'Docs reviewed, all clear.', payoutStatus: 'No' },
+            { id: 'AF-026', name: 'Kavi', business: 'No Company', amount: '£34,567', agent: 'Sarah White', bank: '—', stage: 'collecting', priority: 'Low', days: 8, lender: '—', notes: 'Waiting on bank statements.', payoutStatus: 'No' },
+            { id: 'AF-029', name: 'Priya', business: 'No Company', amount: '£456.90', agent: 'Sarah White', bank: '—', stage: 'collecting', priority: 'Medium', days: 2, lender: '—', notes: 'ID docs pending.', payoutStatus: 'No' },
+            { id: 'AF-025', name: 'John', business: 'ex Company', amount: '£456.90', agent: 'Jane Doe', bank: '—', stage: 'verified', priority: 'Low', days: 6, lender: '—', notes: 'All documents verified.', payoutStatus: 'No' },
+            { id: 'AF-001', name: 'Robert Miller', business: 'Miller Logistics', amount: '£250,000', agent: 'Cody Lane', bank: 'Barclays', stage: 'collecting', priority: 'High', days: 12, lender: '—', notes: 'Missing payslips x3.', payoutStatus: 'No' },
+            { id: 'AF-002', name: 'Alice Huang', business: 'Huang Tech', amount: '£1,200,000', agent: 'Leo Kumar', bank: 'HSBC', stage: 'lender', priority: 'High', days: 4, lender: 'ANZ', notes: 'Shortlisting lenders.', payoutStatus: 'No' },
+            { id: 'AF-011', name: 'Bruce Wayne', business: 'Wayne Enterprises', amount: '£50,000,000', agent: 'Priya Sharma', bank: 'HSBC', stage: 'lender', priority: 'High', days: 7, lender: '—', notes: 'Multiple lenders contacted.', payoutStatus: 'No' },
+            { id: 'AF-003', name: 'David Rivera', business: 'Rivera Designs', amount: '£85,000', agent: 'Priya Sharma', bank: '—', stage: 'approved', priority: 'Medium', days: 1, lender: 'Westpac', notes: 'Approval letter received.', payoutStatus: 'Yes' },
+            { id: 'AF-004', name: 'Sarah Connor', business: 'Connor Security', amount: '£120,000', agent: 'Jane Doe', bank: '—', stage: 'rejected', priority: 'Low', days: 20, lender: '—', notes: 'Credit score insufficient.', payoutStatus: 'No' },
+            { id: 'AF-005', name: 'Michael Scott', business: 'Dunder Mifflin', amount: '£18,500', agent: 'Leo Kumar', bank: 'Barclays', stage: 'completed', priority: 'Low', days: 0, lender: 'ANZ', notes: 'Funds disbursed. Case closed.', payoutStatus: 'Yes' },
+            { id: 'AF-006', name: 'James Carter', business: 'Carter Holdings', amount: '£500,000', agent: 'Jane Doe', bank: 'HSBC', stage: 'approved', priority: 'High', days: 2, lender: 'NAB', notes: 'Awaiting drawdown date.', payoutStatus: 'No' },
+        ];
+
+        const lendersDB = {
+            'NAB': { contact: 'Mark Sterling', email: 'm.sterling@nab-business.com', terms: 'Next Day Payout', phone: '+44 20 7123 4567' },
+            'Commonwealth Bank': { contact: 'Sarah Jenkins', email: 's.jenkins@cba.com', terms: '3-Day Settlement', phone: '+44 20 7987 6543' },
+            'ANZ': { contact: 'David Low', email: 'd.low@anz.bank', terms: 'Standard Terms', phone: '+44 20 8888 7777' },
+            'Westpac': { contact: 'Emily Thorne', email: 'e.thorne@westpac.com', terms: 'Instant Payout', phone: '+44 20 6666 5555' },
+            'Lloyds Bank': { contact: 'Robert Vance', email: 'r.vance@lloyds.com', terms: '2-Day Payout', phone: '+44 20 4444 3333' }
+        };
+
+        const STAGE_ORDER = ['collecting', 'verified', 'lender', 'approved', 'completed'];
+        const STAGE_LABELS = { collecting: 'Doc Collection', verified: 'Doc Verified', lender: 'Lender Selection', approved: 'Loan Approved', completed: 'Completed', rejected: 'Rejected' };
+        const stageAccent = { collecting: '#64748b', verified: '#3b82f6', lender: '#8b5cf6', approved: '#22c55e', completed: '#0f172a', rejected: '#ef4444' };
+        const stageBg = { collecting: '#f1f5f9', verified: '#eff6ff', lender: '#f5f3ff', approved: '#f0fdf4', completed: '#f1f5f9', rejected: '#fef2f2' };
+        const prioStyle = { High: 'background:#fee2e2;color:#b91c1c;border:1px solid #fecaca', Medium: 'background:#fffbeb;color:#92400e;border:1px solid #fde68a', Low: 'background:#f0fdf4;color:#166534;border:1px solid #bbf7d0' };
+
+        const params = new URLSearchParams(window.location.search);
+        const stored = sessionStorage.getItem('crm_lead_detail');
+        let lead;
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (parsed.id === params.get('id')) {
+                lead = parsed;
+                sessionStorage.removeItem('crm_lead_detail');
+            }
+        }
+        if (!lead) lead = leads.find(l => l.id === params.get('id')) || leads[0];
+        document.title = lead.name + ' — Alpha Funding CRM';
+
+        let isEditing = false;
+        let aiSummary = null;
+        let aiGenerating = false;
+
+        function generateAISummary() {
+            if (aiGenerating) return;
+            aiGenerating = true;
+            updateMasterTable();
+            setTimeout(() => {
+                aiSummary = `${lead.priority}-priority lead requiring ${lead.priority === 'High' ? 'immediate' : 'timely'} attention. ${lead.name} (${lead.business}) seeking ${lead.amount} for business funding${lead.bank !== '—' ? ', banking with ' + lead.bank : ''}. Currently at <strong>${STAGE_LABELS[lead.stage]}</strong> stage with ${lead.days} day${lead.days !== 1 ? 's' : ''} elapsed. ${lead.payoutStatus === 'Yes' ? 'Payout confirmed via ' + (lead.lender || 'lender') + '.' : 'Payout pending — account manager action required.'}`;
+                aiGenerating = false;
+                updateMasterTable();
+            }, 1400);
+        }
+
+        function renderHeader() {
+            document.getElementById('hdr-id').textContent = '#' + lead.id;
+            document.getElementById('hdr-name').textContent = lead.name;
+            document.getElementById('hdr-badges').innerHTML = `
+                <span style="${prioStyle[lead.priority]};padding:2px 9px;border-radius:20px;font-size:8px;font-weight:700">${lead.priority} Priority</span>
+                <span style="background:${stageBg[lead.stage]};color:${stageAccent[lead.stage]};border:1px solid ${stageAccent[lead.stage]}33;padding:2px 9px;border-radius:20px;font-size:8px;font-weight:700">${STAGE_LABELS[lead.stage]}</span>`;
+            
+            if (isEditing) {
+                document.getElementById('hdr-actions').innerHTML = `
+                    <button onclick="saveChanges()" class="btn btn-indigo"><i class="fa-solid fa-check"></i> Save Changes</button>
+                    <button onclick="toggleEdit()" class="btn btn-ghost"><i class="fa-solid fa-xmark"></i> Cancel</button>`;
+            } else {
+                document.getElementById('hdr-actions').innerHTML = `
+                    <button onclick="toggleEdit()" class="btn btn-ghost"><i class="fa-solid fa-pen"></i> Edit</button>`;
+            }
+        }
+
+        function toggleEdit() {
+            isEditing = !isEditing;
+            renderHeader();
+            updateMasterTable();
+        }
+
+        function saveChanges() {
+            // Basic data update
+            lead.name = document.getElementById('edit-name')?.value || lead.name;
+            lead.business = document.getElementById('edit-business')?.value || lead.business;
+            lead.agent = document.getElementById('edit-agent')?.value || lead.agent;
+            lead.priority = document.getElementById('edit-priority')?.value || lead.priority;
+            lead.bank = document.getElementById('edit-bank')?.value || lead.bank;
+            lead.lender = document.getElementById('edit-lender')?.value || lead.lender;
+            lead.stage = document.getElementById('edit-stage')?.value || lead.stage;
+            
+            const amt = document.getElementById('edit-amount')?.value;
+            if (amt !== undefined) lead.amount = '£' + amt.replace('£', '').trim();
+
+            isEditing = false;
+            renderHeader();
+            updateMasterTable();
+        }
+
+        function editField(key, value, type = 'text') {
+            if (!isEditing) return value;
+            const common = `class="w-full border border-indigo-200 rounded px-2 py-1 text-[10px] font-bold outline-none focus:ring-1 ring-indigo-500"`;
+            
+            if (key === 'priority') {
+                return `<select id="edit-priority" ${common}>
+                    <option ${value === 'High' ? 'selected' : ''}>High</option>
+                    <option ${value === 'Medium' ? 'selected' : ''}>Medium</option>
+                    <option ${value === 'Low' ? 'selected' : ''}>Low</option>
+                </select>`;
+            }
+            if (key === 'stage') {
+                return `<select id="edit-stage" ${common}>
+                    ${Object.entries(STAGE_LABELS).map(([k, v]) => `<option value="${k}" ${lead.stage === k ? 'selected' : ''}>${v}</option>`).join('')}
+                </select>`;
+            }
+            if (key === 'amount') {
+                return `<input id="edit-amount" type="text" value="${value.toString().replace('£','')}" ${common}>`;
+            }
+            return `<input id="edit-${key}" type="${type}" value="${value}" ${common}>`;
+        }
+
+        // Initial Header Render
+        renderHeader();
+
+        // Documents
+        const docs = [
+            { name: 'Passport_ID.pdf', type: 'Identity', by: lead.agent, date: '2026-03-11', status: 'Verified' },
+            { name: 'Bank_Statement_3mo.pdf', type: 'Financial', by: lead.agent, date: '2026-03-12', status: 'Verified' },
+            { name: 'Payslips_x3.pdf', type: 'Income', by: lead.agent, date: '2026-03-14', status: lead.stage === 'collecting' ? 'Pending' : 'Verified' },
+            { name: 'Employment_Letter.pdf', type: 'Employment', by: lead.agent, date: '2026-03-15', status: lead.stage === 'collecting' ? 'Missing' : 'Verified' },
+            { name: 'Credit_Report.pdf', type: 'Credit', by: 'System', date: '2026-03-16', status: lead.stage === 'rejected' ? 'Failed' : 'Verified' },
+        ];
+
+        // Timeline
+        const stageStep = STAGE_ORDER.indexOf(lead.stage);
+        const isRejected = lead.stage === 'rejected';
+        const tlSteps = [
+            { icon: 'fa-plus', color: '#6366f1', label: 'Lead Created', sub: 'By ' + lead.agent, time: '2026-03-10 09:12', minStage: 0 },
+            { icon: 'fa-file-arrow-up', color: '#3b82f6', label: 'Documents Collected', sub: 'All files submitted', time: '2026-03-14 14:05', minStage: 1 },
+            { icon: 'fa-file-circle-check', color: '#10b981', label: 'Documents Verified', sub: 'Reviewed & approved', time: '2026-03-17 11:20', minStage: 2 },
+            { icon: 'fa-building-columns', color: '#8b5cf6', label: 'Lender Selected', sub: 'Shortlist confirmed', time: '2026-03-25 10:00', minStage: 3 },
+            isRejected
+                ? { icon: 'fa-circle-xmark', color: '#ef4444', label: 'Loan Rejected', sub: 'Application declined', time: '2026-04-01 09:00', minStage: 4 }
+                : { icon: 'fa-circle-check', color: '#22c55e', label: 'Loan Confirmed', sub: 'Funds approved', time: '2026-04-01 09:00', minStage: 4 },
+        ];
+        const timeline = tlSteps.map(t => ({
+            ...t,
+            done: isRejected ? (t.minStage < 4) : (t.minStage <= stageStep),
+        }));
+
+        // Reminders
+        const reminders = [
+            { type: 'Call', title: 'Follow up on bank statements', assignee: lead.agent, due: '2026-04-18', status: 'Pending' },
+            { type: 'Meeting', title: 'Lender introduction call', assignee: lead.agent, due: '2026-04-20', status: 'Pending' },
+            { type: 'Follow-up', title: 'Check document verification', assignee: lead.agent, due: '2026-04-12', status: 'Overdue' },
+            { type: 'Document', title: 'Request updated payslips', assignee: 'Sarah White', due: '2026-04-15', status: 'Completed' },
+        ];
+
+        // Notes
+        const notes = [
+            { author: 'Sarah White', time: '2026-04-10 10:22', text: lead.notes },
+            { author: 'Cody Lane', time: '2026-04-08 15:40', text: 'Client confirmed availability for lender call next week.' },
+            { author: 'System', time: '2026-04-07 09:00', text: 'Automated reminder sent to client for outstanding documents.' },
+        ];
+
+        function updateMasterTable() {
+            // Sidebar Role Based Logic
+            const SESSION = JSON.parse(sessionStorage.getItem('crm_session') || '{}');
+            const role = SESSION.role || 'Tele Agent';
+            const nav = document.getElementById('side-nav');
+            if (nav) {
+                let navHtml = `
+                    <div class="mb-6">
+                        <img src="../logo/alpha.png" alt="Alpha Funding" style="width:38px;height:38px;object-fit:contain;border-radius:8px;">
+                    </div>
+                    <a href="${SESSION.landing || '../dashboard/tele_agent_dashboard.html'}" class="nav-item"><i class="fa-solid fa-house"></i><span class="nav-text">Dashboard</span></a>
+                    <a href="../task_and_followups/task_management.html" class="nav-item"><i class="fa-solid fa-tasks"></i><span class="nav-text">Tasks</span></a>
+                    <a href="../lead_management/lead_management.html" class="nav-item"><i class="fa-solid fa-user-group"></i><span class="nav-text">Leads</span></a>`;
+
+                if (role === 'Accounts Manager') {
+                    navHtml += `<a href="../lenders/lender_management.html" class="nav-item"><i class="fa-solid fa-hand-holding-dollar"></i><span class="nav-text">Lenders</span></a>`;
+                } else if (role === 'Admin') {
+                    navHtml += `
+                    <a href="loan_pipeline.html" class="nav-item active"><i class="fa-solid fa-diagram-project"></i><span class="nav-text">Pipeline</span></a>
+                    <a href="../lenders/lender_management.html" class="nav-item"><i class="fa-solid fa-hand-holding-dollar"></i><span class="nav-text">Lenders</span></a>
+                    <a href="../documents/document_vault.html" class="nav-item"><i class="fa-solid fa-folder-open"></i><span class="nav-text">Documents</span></a>
+                    <a href="../user_management/user_management.html" class="nav-item"><i class="fa-solid fa-user-gear"></i><span class="nav-text">Users</span></a>
+                    <a href="../reporting/reporting_logs.html" class="nav-item"><i class="fa-solid fa-chart-line"></i><span class="nav-text">Reports</span></a>`;
+                }
+
+                navHtml += `
+                    <div style="flex:1;"></div>
+                    <div class="nav-item" onclick="openProfileDrawer()" title="Profile" style="cursor:pointer;"><i class="fa-solid fa-circle-user"></i><span class="nav-text">Profile</span></div>
+                    <div class="nav-item" onclick="logout()" title="Logout"><i class="fa-solid fa-right-from-bracket"></i><span class="nav-text">Logout</span></div>`;
+                nav.innerHTML = navHtml;
+            }
+
+            const TC = { Call:'#3b82f6', Meeting:'#8b5cf6', 'Follow-up':'#f59e0b', Document:'#10b981' };
+            const TI = { Call:'fa-phone', Meeting:'fa-users', 'Follow-up':'fa-rotate-right', Document:'fa-file' };
+            const SC = { Pending:'#f59e0b', Completed:'#10b981', Overdue:'#ef4444' };
+
+            const html = `
+            <div class="detail-panel panel-ai">
+                <div class="panel-hdr" style="padding:10px 14px;background:#fff;border-bottom:1px solid #eef2ff">
+                    <div style="display:flex;align-items:center;gap:10px">
+                        <div style="width:34px;height:34px;background:#4f46e5;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px #4f46e540">
+                            <i class="fa-solid fa-wand-magic-sparkles" style="color:#fff;font-size:14px"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:12px;font-weight:800;color:#0f172a;letter-spacing:-.01em">AI Lead Summary</div>
+                            <div style="font-size:8px;font-weight:500;color:#94a3b8;margin-top:1px">Powered by lead data</div>
+                        </div>
+                    </div>
+                    <button onclick="generateAISummary()" style="background:#4f46e5;color:#fff;border:none;border-radius:7px;padding:6px 13px;font-size:8px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:5px;font-family:Inter,sans-serif;letter-spacing:.04em;opacity:${aiGenerating?'.6':'1'}">
+                        ${aiGenerating ? '<i class="fa-solid fa-spinner fa-spin"></i> GENERATING...' : aiSummary ? '<i class="fa-solid fa-rotate"></i> REGENERATE' : '<i class="fa-solid fa-wand-magic-sparkles"></i> GENERATE'}
+                    </button>
+                </div>
+                <div class="panel-body" style="padding:10px 14px">
+                    ${aiSummary ? `
+                    <div style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:8px;padding:10px 12px;margin-bottom:12px">
+                        <p style="font-size:10px;color:#312e81;font-style:italic;line-height:1.7;margin:0">${aiSummary}</p>
+                    </div>
+                    <div style="font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin-bottom:8px">Key Data Points</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+                        ${[['Status', lead.priority + ' Priority'],['Amount', lead.amount],['Stage', STAGE_LABELS[lead.stage]],['Bank', lead.bank !== '—' ? lead.bank : 'N/A'],['Agent', lead.agent],['Days', lead.days + 'd in stage'],['Payout', lead.payoutStatus === 'Yes' ? 'Confirmed' : 'Pending'],['Lender', lead.lender !== '—' ? lead.lender : 'N/A']].map(([l,v]) => `
+                        <div style="background:#f8fafc;border:1px solid #f1f5f9;border-radius:7px;padding:7px 10px">
+                            <div style="font-size:7px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#94a3b8">${l}</div>
+                            <div style="font-size:11px;font-weight:700;color:#0f172a;margin-top:2px">${v}</div>
+                        </div>`).join('')}
+                    </div>` : `
+                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;color:#c7d2fe">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="font-size:26px"></i>
+                        <span style="font-size:10px;color:#94a3b8;text-align:center">Click Generate to create an AI summary for this lead</span>
+                    </div>`}
+                </div>
+            </div>
+
+            <div class="detail-panel panel-notes">
+                <div class="panel-hdr">
+                    <span><i class="fa-solid fa-note-sticky mr-1.5" style="color:#f59e0b"></i>Notes <span style="font-weight:400;opacity:.6">${notes.length}</span></span>
+                </div>
+                <div class="panel-body">
+                    ${notes.map(n => `<div class="note-item">
+                        <div class="flex items-start justify-between gap-2">
+                            <span style="font-size:10px;color:#475569;line-height:1.5">${n.text}</span>
+                            <span style="font-size:8px;color:#94a3b8;font-family:monospace;white-space:nowrap">${n.time}</span>
+                        </div>
+                        <div style="font-size:8px;font-weight:700;color:#94a3b8;margin-top:3px">${n.author}</div>
+                    </div>`).join('')}
+                </div>
+                <div class="panel-footer" style="padding:6px 8px">
+                    <div style="position:relative">
+                        <textarea id="new-note-text" class="note-input-field" rows="3" placeholder="Write a note…" style="padding-bottom:28px"></textarea>
+                        <button onclick="saveNote()" style="position:absolute;bottom:6px;right:6px;background:#0f172a;color:#fff;border:none;border-radius:5px;padding:3px 10px;font-size:8px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;letter-spacing:.03em">Save Note</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-panel panel-reminders">
+                <div class="panel-hdr">
+                    <span><i class="fa-solid fa-bell mr-1.5" style="color:#6366f1"></i>Followups &amp; Reminders <span style="font-weight:400;opacity:.6">${reminders.length}</span></span>
+                    <a href="../task_and_followups/task_management.html" style="font-size:8px;color:#6366f1;font-weight:700;text-decoration:none">Task Hub →</a>
+                </div>
+                <div class="panel-body">
+                    ${reminders.map(r => `<div class="reminder-item">
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px">
+                            <div style="display:flex;align-items:center;gap:6px;min-width:0">
+                                <div style="width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:${TC[r.type]}18;border:1px solid ${TC[r.type]}33">
+                                    <i class="fa-solid ${TI[r.type]}" style="font-size:7px;color:${TC[r.type]}"></i>
+                                </div>
+                                <span style="font-size:10px;font-weight:700;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.title}</span>
+                            </div>
+                            <span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap;background:${SC[r.status]}18;color:${SC[r.status]};border:1px solid ${SC[r.status]}33">${r.status}</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+                            <span style="font-size:8px;font-weight:700;text-transform:uppercase;color:${TC[r.type]}">${r.type}</span>
+                            <span style="font-size:8px;color:#94a3b8">${r.assignee}</span>
+                            <span style="font-size:8px;font-family:monospace;color:#94a3b8;margin-left:auto">${r.due}</span>
+                        </div>
+                        ${r.note ? `<div style="font-size:9px;color:#64748b;margin-top:5px;padding-top:5px;border-top:1px solid #f1f5f9;line-height:1.5">${r.note}</div>` : ''}
+                    </div>`).join('')}
+                </div>
+                <div class="panel-footer" style="padding:6px 8px">
+                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                        <select id="new-rem-type" style="flex:1;min-width:0;border:1px solid #e2e8f0;border-radius:6px;padding:4px 6px;font-size:10px;font-weight:700;outline:none"><option>Call</option><option>Meeting</option><option>Follow-up</option><option>Document</option></select>
+                        <input id="new-rem-title" style="flex:2;min-width:0;border:1px solid #e2e8f0;border-radius:6px;padding:4px 8px;font-size:10px;outline:none" placeholder="Task title…">
+                        <input id="new-rem-date" type="date" style="flex:1;min-width:0;border:1px solid #e2e8f0;border-radius:6px;padding:4px 6px;font-size:10px;outline:none">
+                    </div>
+                    <div style="position:relative;margin-top:5px">
+                        <textarea id="new-rem-note" rows="2" style="width:100%;border:1px solid #e2e8f0;border-radius:6px;padding:5px 8px;padding-bottom:26px;font-size:10px;outline:none;font-family:Inter,sans-serif;resize:none;box-sizing:border-box" placeholder="Add a description or note…"></textarea>
+                        <button onclick="addReminder()" style="position:absolute;bottom:6px;right:6px;background:#0f172a;color:#fff;border:none;border-radius:5px;padding:3px 10px;font-size:8px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif;letter-spacing:.03em">Add Reminder</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-panel panel-quarter">
+                <div class="panel-hdr"><i class="fa-solid fa-user mr-1.5"></i>Lead Info ${isEditing ? `<button onclick="saveChanges()" class="btn btn-indigo" style="padding:2px 8px;font-size:8px">Save</button>` : `<button onclick="toggleEdit()" class="btn btn-ghost" style="padding:2px 8px;font-size:8px"><i class="fa-solid fa-pen"></i></button>`}</div>
+                <div class="panel-body" style="padding:10px 12px">
+                    <div class="info-row"><span class="info-lbl">ID</span><span class="info-val" style="font-family:monospace;font-weight:900">#${lead.id}</span></div>
+                    <div class="info-row"><span class="info-lbl">Name</span><span class="info-val">${editField('name', lead.name)}</span></div>
+                    <div class="info-row"><span class="info-lbl">Business</span><span class="info-val">${editField('business', lead.business)}</span></div>
+                    <div class="info-row"><span class="info-lbl">Agent</span><span class="info-val">${editField('agent', lead.agent)}</span></div>
+                    <div class="info-row"><span class="info-lbl">Priority</span><span class="info-val">${editField('priority', lead.priority)}</span></div>
+                    <div class="info-row"><span class="info-lbl">Stage</span><span class="info-val">${isEditing ? editField('stage', lead.stage) : `<span style="background:${stageBg[lead.stage]};color:${stageAccent[lead.stage]};padding:1px 8px;border-radius:8px;font-size:8px;font-weight:700">${STAGE_LABELS[lead.stage]}</span>`}</span></div>
+                    <div class="info-row"><span class="info-lbl">Days</span><span class="info-val">${lead.days}d in stage</span></div>
+                </div>
+            </div>
+
+            <div class="detail-panel panel-quarter">
+                <div class="panel-hdr"><i class="fa-solid fa-coins mr-1.5"></i>Loan Details</div>
+                <div class="panel-body" style="padding:10px 12px">
+                    <div class="info-row"><span class="info-lbl">Amount</span><span class="info-val" style="font-weight:900;font-size:12px">${isEditing ? editField('amount', lead.amount) : lead.amount}</span></div>
+                    <div class="info-row"><span class="info-lbl">Bank</span><span class="info-val">${editField('bank', lead.bank)}</span></div>
+                    <div class="info-row"><span class="info-lbl">Lender</span><span class="info-val">${editField('lender', lead.lender)}</span></div>
+                    <div class="info-row"><span class="info-lbl">Payout</span><span class="info-val">${lead.payoutStatus === 'Yes' ? '<span style="color:#10b981;font-weight:900;font-size:9px">✓ CONFIRMED</span>' : '<span style="color:#f59e0b;font-weight:900;font-size:9px">⏳ PENDING</span>'}</span></div>
+                    ${lead.payoutStatus !== 'Yes' ? `<div class="info-row" style="margin-top:4px"><button onclick="notifyAccountManager()" class="btn btn-indigo" style="font-size:8px;padding:4px 10px;width:100%"><i class="fa-solid fa-paper-plane mr-1"></i>Notify Account Manager</button></div>` : `
+                    <div class="info-row"><span class="info-lbl">Contact</span><span class="info-val" style="font-size:9px">${lendersDB[lead.lender]?.contact || 'N/A'}</span></div>
+                    <div class="info-row"><span class="info-lbl">Terms</span><span class="info-val" style="font-size:9px">${lendersDB[lead.lender]?.terms || 'N/A'}</span></div>`}
+                </div>
+            </div>
+
+            <div class="detail-panel panel-quarter">
+                <div class="panel-hdr"><i class="fa-solid fa-timeline mr-1.5"></i>Activity Timeline</div>
+                <div class="panel-body" style="padding:8px 12px">
+                    ${timeline.map((t, i) => `<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;${i < timeline.length-1 ? 'border-bottom:1px solid #f1f5f9' : ''}">
+                        <div style="width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;background:${t.done ? t.color+'22' : '#f1f5f9'};border:1px solid ${t.done ? t.color+'44' : '#e2e8f0'}">
+                            <i class="fa-solid ${t.icon}" style="font-size:7px;color:${t.done ? t.color : '#cbd5e1'}"></i>
+                        </div>
+                        <div style="flex:1;min-width:0">
+                            <div style="font-size:9px;font-weight:700;color:${t.done ? '#0f172a' : '#cbd5e1'};line-height:1.3">${t.label}</div>
+                            <div style="font-size:8px;color:${t.done ? '#94a3b8' : '#e2e8f0'};font-family:monospace">${t.done ? t.time : '—'}</div>
+                        </div>
+                    </div>`).join('')}
+                </div>
+            </div>
+
+            <div class="detail-panel panel-quarter">
+                <div class="panel-hdr"><i class="fa-solid fa-folder-open mr-1.5"></i>Documents <span style="font-weight:400;opacity:.6">${docs.length}</span></div>
+                <div class="panel-body" style="padding:8px 12px">
+                    ${docs.map(d => {
+                        const sc = d.status === 'Verified' ? '#10b981' : d.status === 'Missing' ? '#ef4444' : d.status === 'Failed' ? '#ef4444' : '#f59e0b';
+                        return `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid #f8fafc">
+                        <div style="width:18px;height:18px;background:#f1f5f9;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                            <i class="fa-regular fa-file-pdf" style="font-size:8px;color:#94a3b8"></i>
+                        </div>
+                        <div style="flex:1;min-width:0">
+                            <div style="font-size:9px;font-weight:700;color:#0f172a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.name}</div>
+                            <div style="font-size:8px;color:#94a3b8;font-family:monospace">${d.date} · <span style="color:${sc}">${d.status}</span></div>
+                        </div>
+                        <button onclick="previewDoc('${d.name}')" style="flex-shrink:0;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:4px;padding:2px 6px;font-size:7px;font-weight:700;color:#64748b;cursor:pointer"><i class="fa-solid fa-eye"></i></button>
+                    </div>`;}).join('')}
+                </div>
+            </div>`;
+
+            document.getElementById('master-table').innerHTML = html;
+        }
+
+        updateMasterTable();
+
+        function previewDoc(name) {
+            document.getElementById('previewFileName').innerText = name;
+            document.getElementById('previewModal').style.display = 'flex';
+        }
+        function closePreview() { document.getElementById('previewModal').style.display = 'none'; }
+
+        function getCurrentTimestamp() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        }
+
+        function saveNote() {
+            const el = document.getElementById('new-note-text');
+            if(!el.value.trim()) return;
+            notes.unshift({ author: 'You', time: getCurrentTimestamp(), text: el.value.trim() });
+            el.value = '';
+            updateMasterTable();
+        }
+
+        function addReminder() {
+            const type = document.getElementById('new-rem-type').value;
+            const title = document.getElementById('new-rem-title').value.trim();
+            const date = document.getElementById('new-rem-date').value;
+            const note = document.getElementById('new-rem-note').value.trim();
+            if(!title || !date) return;
+            reminders.unshift({ type, title, assignee: 'You', due: date, status: 'Pending', note });
+            updateMasterTable();
+        }
+
+        function notifyAccountManager() {
+            const ts = getCurrentTimestamp();
+            const today = ts.split(' ')[0];
+            const msg = `SYSTEM ALERT: Admin requested an immediate payout update for this file from Account Manager (${lead.agent}).`;
+            
+            notes.unshift({ author: 'System', time: ts, text: msg });
+            reminders.unshift({ type: 'Follow-up', title: 'URGENT: Payout Update Requested', assignee: lead.agent, due: today, status: 'Pending' });
+            
+            updateMasterTable();
+            alert('Notification sent to Account Manager. A follow-up task and internal note have been created.');
+        }
+    </script>
+
+    <!-- Preview Modal -->
+    <div id="previewModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center z-[1000]" onclick="if(event.target===this)closePreview()">
+        <div class="bg-white rounded-2xl w-[500px] max-w-[95vw] shadow-2xl overflow-hidden">
+            <div class="p-4 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-[10px] font-black text-slate-900 uppercase tracking-widest">Document Preview</h3>
+                <button onclick="closePreview()" class="text-slate-400 hover:text-rose-500"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-12 text-center">
+                <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-300">
+                    <i class="fa-solid fa-file-pdf text-3xl"></i>
+                </div>
+                <p class="text-xs font-bold text-slate-600">Preview not available in demo mode.</p>
+                <p class="text-[9px] text-slate-400 mt-1 font-mono">File: <span id="previewFileName"></span></p>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button onclick="closePreview()" class="btn btn-dark !text-[8px]">Close</button>
+            </div>
+        </div>
+    </div>
+<script src="../profile/profile_drawer.js"></script>
+</body>
+</html>

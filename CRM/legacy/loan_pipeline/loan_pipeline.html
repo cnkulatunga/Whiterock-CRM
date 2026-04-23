@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Pipeline - Alpha Funding CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            background: #fff;
+            margin: 0;
+            display: flex;
+        }
+
+        ::-webkit-scrollbar { width: 3px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .side-nav {
+            width: 70px;
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 4px;
+            border-right: 1px solid #1e293b;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #94a3b8;
+            transition: all .2s;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 6px 4px;
+            border-radius: 8px;
+            width: 54px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #fff;
+            background: rgba(255,255,255,.08);
+        }
+
+        .nav-item i { font-size: 14px; }
+
+        .nav-text {
+            font-size: 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .main-wrap {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-width: 0;
+            background: #fafafa;
+        }
+
+        .top-bar {
+            background: #fff;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .pipeline-scroll {
+            flex: 1;
+            overflow-x: hidden; /* Remove horizontal scrollbar */
+            overflow-y: hidden;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .stage-col {
+            flex: 1; /* Allow columns to scale equally */
+            min-width: 0; /* Allow shrinking below content width */
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 100%;
+            position: relative;
+        }
+        
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            right: -6px;
+            bottom: 0;
+            width: 12px;
+            cursor: col-resize;
+            z-index: 10;
+            transition: background .2s;
+        }
+        .resize-handle:hover {
+            background: rgba(99,102,241, 0.2);
+        }
+        .stage-col.resizing {
+            user-select: none;
+        }
+
+        /* Document Row Styles */
+        .doc-row {
+            background: #fff;
+            border: 1px solid #f1f5f9;
+            border-radius: 12px;
+            padding: 10px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            transition: all .2s;
+        }
+        .doc-row:hover { border-color: #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .doc-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+        .doc-status-badge { font-size: 8px; font-weight: 800; padding: 3px 8px; border-radius: 99px; background: #f1f5f9; color: #64748b; text-transform: uppercase; letter-spacing: .05em; }
+        .doc-btn { width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer; transition: all .15s; border: none; }
+        .doc-btn.btn-view, .doc-btn.btn-edit { background: #f8fafc; color: #94a3b8; }
+        .doc-btn.btn-verify { background: #f0fdf4; color: #166534; }
+        .doc-btn.btn-reject { background: #fef2f2; color: #b91c1c; }
+        .doc-btn.btn-delete { background: #fee2e2; color: #dc2626; }
+        .doc-btn:hover { transform: scale(1.05); }
+
+        .doc-btn:hover { transform: scale(1.05); }
+
+        /* Multi-Select Dropdown Styles */
+        .custom-dropdown { position: relative; width: 100%; margin-bottom: 15px; }
+        .dropdown-header { 
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 14px; background: #fff; border: 1px solid #e2e8f0; border-radius: 10px;
+            cursor: pointer; font-size: 11px; font-weight: 700; color: #1e293b;
+        }
+        .dropdown-options {
+            position: absolute; top: calc(100% + 5px); left: 0; right: 0;
+            background: #fff; border: 1px solid #e2e8f0; border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            z-index: 100; display: none; padding: 10px;
+            max-height: 250px; overflow-y: auto;
+        }
+        .custom-dropdown.open .dropdown-options { display: block; }
+        .lender-option {
+            display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+            border-radius: 8px; cursor: pointer; transition: all .15s; margin-bottom: 2px;
+        }
+        .lender-option:hover { background: #f8fafc; }
+        .lender-option input { width: 14px; height: 14px; accent-color: #6366f1; cursor: pointer; }
+        .lender-option label { font-size: 10px; font-weight: 700; color: #475569; cursor: pointer; flex: 1; }
+        .lender-option.selected { background: #eef2ff; }
+        .lender-option.selected label { color: #6366f1; }
+
+        .email-preview-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px; margin-top: 10px; }
+        .email-preview-header { font-size: 8px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; display: flex; align-items: center; gap: 5px; }
+        .email-preview-content { font-size: 10px; color: #475569; line-height: 1.5; font-family: monospace; white-space: pre-wrap; }
+        .stage-header {
+            border-radius: 10px 10px 0 0;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .stage-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .stage-count {
+            font-size: 10px;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(255,255,255,.55);
+        }
+
+        .stage-body {
+            flex: 1;
+            border-radius: 0 0 10px 10px;
+            padding: 8px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-height: 200px;
+            transition: background .15s;
+        }
+
+        .stage-body.drag-over {
+            background: rgba(99,102,241,.07) !important;
+            outline: 2px dashed #6366f1;
+            outline-offset: -3px;
+        }
+
+        .stage-collecting  .stage-header { background: #f1f5f9; color: #475569; }
+        .stage-collecting  .stage-body   { background: #f8fafc; }
+        .stage-collecting  .stage-count  { color: #475569; }
+
+        .stage-verified    .stage-header { background: #eff6ff; color: #1d4ed8; }
+        .stage-verified    .stage-body   { background: #f0f7ff; }
+        .stage-verified    .stage-count  { color: #1d4ed8; }
+
+        .stage-lender      .stage-header { background: #f5f3ff; color: #6d28d9; }
+        .stage-lender      .stage-body   { background: #f6f4ff; }
+        .stage-lender      .stage-count  { color: #6d28d9; }
+
+        .stage-approved    .stage-header { background: #f0fdf4; color: #166534; }
+        .stage-approved    .stage-body   { background: #f2fdf5; }
+        .stage-approved    .stage-count  { color: #166534; }
+
+        .stage-completed   .stage-header { background: #0f172a; color: #e2e8f0; }
+        .stage-completed   .stage-body   { background: #f8fafc; }
+        .stage-completed   .stage-count  { color: #94a3b8; background: rgba(255,255,255,.12); }
+
+        .stage-rejected    .stage-header { background: #fef2f2; color: #b91c1c; }
+        .stage-rejected    .stage-body   { background: #fff5f5; }
+        .stage-rejected    .stage-count  { color: #b91c1c; }
+
+        .lead-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 9px;
+            padding: 8px 9px;
+            cursor: grab;
+            transition: box-shadow .15s, transform .15s, opacity .15s;
+            user-select: none;
+            position: relative;
+        }
+
+        .lead-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,.08); transform: translateY(-1px); }
+        .lead-card.dragging { opacity: .45; transform: rotate(1.5deg) scale(.97); cursor: grabbing; }
+
+        .card-priority-bar { position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 0 2px 2px 0; }
+        .priority-hot { background: #fee2e2; color: #ef4444; }
+        .priority-warm { background: #fef3c7; color: #f59e0b; }
+        .priority-cool { background: #dcfce7; color: #22c55e; }
+
+        .card-id { font-size: 8px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; }
+        .card-name { font-size: 10px; font-weight: 800; color: #0f172a; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-amount { font-size: 11px; font-weight: 800; color: #0f172a; margin-top: 2px; }
+        .card-meta { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+        .card-agent { font-size: 8px; font-weight: 600; color: #64748b; display: flex; align-items: center; gap: 4px; }
+        .card-days { font-size: 8px; font-weight: 700; color: #94a3b8; display: flex; align-items: center; gap: 3px; }
+        .card-bank { font-size: 8px; color: #94a3b8; font-weight: 600; margin-top: 4px; display: flex; align-items: center; gap: 3px; }
+        .card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 5px; margin-top: 7px; padding-top: 7px; border-top: 1px solid #f1f5f9; }
+        .card-btn { font-size: 8px; font-weight: 700; padding: 3px 8px; border-radius: 5px; cursor: pointer; border: none; transition: all .15s; text-transform: uppercase; letter-spacing: .04em; }
+        .btn-view { background: #f1f5f9; color: #475569; }
+        .btn-view:hover { background: #e2e8f0; }
+
+        .input-clean { background: #fff; border: 1px solid #cbd5e1; border-radius: 7px; padding: 6px 12px; font-size: 10px; font-weight: 600; color: #1e293b; outline: none; font-family: 'Inter', sans-serif; }
+        .input-clean:focus { border-color: #6366f1; box-shadow: 0 0 0 2px #e0e7ff; }
+
+        /* Modal Styles */
+        .modal-backdrop, .confirm-backdrop, .update-backdrop { position: fixed; inset: 0; background: rgba(15,23,42,.45); display: flex; align-items: center; justify-content: center; z-index: 100; backdrop-filter: blur(2px); animation: fadeIn .15s ease; }
+        .hidden { display: none; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .modal-box, .confirm-box, .update-box { background: #fff; border-radius: 14px; width: 520px; max-height: 88vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.18); animation: slideUp .18s ease; }
+        .confirm-box { width: 420px; overflow: hidden; }
+        .update-box { width: 480px; }
+
+        .modal-header, .confirm-header, .update-header { padding: 18px 20px 14px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: flex-start; justify-content: space-between; }
+        .confirm-header { background: #0f172a; border-bottom: none; }
+
+        .modal-close { width: 28px; height: 28px; border-radius: 7px; border: none; background: #f1f5f9; color: #64748b; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 11px; transition: all .15s; }
+        .modal-close:hover { background: #e2e8f0; color: #0f172a; }
+
+        /* Update Fields */
+        .update-section { padding: 16px 20px; border-bottom: 1px solid #f8fafc; }
+        .update-section-title { font-size: 8px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: #94a3b8; margin-bottom: 12px; }
+        .update-label { display: block; font-size: 9px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+        .update-input { width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 11px; font-size: 11px; font-weight: 500; color: #0f172a; outline: none; transition: border-color .15s; }
+        .update-input:focus { border-color: #6366f1; background: #fff; box-shadow: 0 0 0 2px #e0e7ff; }
+
+        .checklist-item { display: flex; align-items: center; gap: 8px; padding: 7px 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 7px; cursor: pointer; margin-bottom: 6px; }
+        .checklist-item input[type="checkbox"] { width: 14px; height: 14px; accent-color: #4f46e5; }
+        .checklist-item label { font-size: 10px; font-weight: 600; color: #374151; flex: 1; cursor: pointer; }
+
+        .confirm-footer, .update-footer { padding: 14px 20px; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; justify-content: flex-end; }
+        .btn-cancel-move { padding: 8px 18px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; color: #64748b; font-size: 10px; font-weight: 700; cursor: pointer; text-transform: uppercase; }
+        .btn-confirm-move, .btn-save-move { padding: 8px 20px; border-radius: 8px; border: none; background: #0f172a; color: #fff; font-size: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+        .btn-save-move { background: #4f46e5; }
+
+        /* Drawer */
+        #drawer-overlay { position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:900; opacity:0; pointer-events:none; transition:opacity .25s; }
+        #drawer-overlay.open { opacity:1; pointer-events:all; }
+        #create-lead-drawer { position:fixed; top:0; right:-520px; width:500px; height:100vh; background:#fff; z-index:901; display:flex; flex-direction:column; box-shadow:-8px 0 40px rgba(0,0,0,.15); transition:right .3s cubic-bezier(.4,0,.2,1); }
+        #create-lead-drawer.open { right:0; }
+    </style>
+</head>
+
+<body>
+
+    <nav class="side-nav">
+        <div class="mb-6">
+            <img src="../logo/alpha.png" alt="Alpha Funding" style="width:38px;height:38px;object-fit:contain;border-radius:8px;">
+        </div>
+
+        <a href="../dashboard/super_admin_dashboard.html" id="nav-dashboard" class="nav-item">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+
+        <a href="../task_and_followups/task_management.html" id="nav-tasks" class="nav-item">
+            <i class="fa-solid fa-tasks"></i>
+            <span class="nav-text">Tasks</span>
+        </a>
+
+        <a href="../lead_management/lead_management.html" id="nav-leads" class="nav-item">
+            <i class="fa-solid fa-user-group"></i>
+            <span class="nav-text">Leads</span>
+        </a>
+
+        <a href="../loan_pipeline/loan_pipeline.html" class="nav-item active">
+            <i class="fa-solid fa-diagram-project"></i>
+            <span class="nav-text">Pipeline</span>
+        </a>
+
+        <a href="../lenders/lender_management.html" id="nav-lenders" class="nav-item">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+            <span class="nav-text">Lenders</span>
+        </a>
+
+        <a href="../documents/document_vault.html" id="nav-docs" class="nav-item">
+            <i class="fa-solid fa-folder-open"></i>
+            <span class="nav-text">Docs</span>
+        </a>
+
+        <a href="../user_management/user_management.html" id="nav-users" class="nav-item">
+            <i class="fa-solid fa-user-gear"></i>
+            <span class="nav-text">Users</span>
+        </a>
+
+        <a href="../reporting/reporting_logs.html" id="nav-reports" class="nav-item">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Reports</span>
+        </a>
+        <div style="flex:1;"></div>
+                    <div class="nav-item" onclick="openProfileDrawer()" title="Profile" style="cursor:pointer;">
+                <i class="fa-solid fa-circle-user"></i>
+                <span class="nav-text">Profile</span>
+            </div>
+<div class="nav-item" onclick="logout()" style="margin-bottom:8px;" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="nav-text">Logout</span>
+        </div>
+    </nav>
+
+    <script>
+        (function () {
+            const s = JSON.parse(sessionStorage.getItem('crm_session') || 'null');
+            if (!s) { window.location.replace('../login/login.html'); return; }
+            if (s.role !== 'Admin') { window.location.replace(s.landing || '../login/login.html'); return; }
+        })();
+        function logout() { sessionStorage.removeItem('crm_session'); window.location.replace('../login/login.html'); }
+    </script>
+
+    <div class="main-wrap">
+        <div class="top-bar">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-diagram-project text-indigo-500"></i>
+                <h1 class="text-[11px] font-black uppercase tracking-widest text-gray-900">Loan Pipeline Board</h1>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="relative">
+                    <input id="pipeline-search" type="text" placeholder="Search case or client..." class="input-clean pl-8 w-48" oninput="filterCards()">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-400"></i>
+                </div>
+                <select id="pipeline-agent" class="input-clean w-32" onchange="filterCards()">
+                    <option value="">All Agents</option>
+                    <option>Sarah White</option>
+                    <option>Cody Lane</option>
+                    <option>Jane Doe</option>
+                    <option>Leo Kumar</option>
+                    <option>Priya Sharma</option>
+                </select>
+                <select id="pipeline-priority" class="input-clean w-28" onchange="filterCards()">
+                    <option value="">All Lead Temp</option>
+                    <option value="hot">Hot</option>
+                    <option value="warm">Warm</option>
+                    <option value="cool">Cool</option>
+                </select>
+                <a href="../lead_management/register_lead.html" class="bg-gray-900 hover:bg-black text-white px-4 py-2 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all flex items-center gap-2" style="text-decoration:none;">
+                    <i class="fa-solid fa-plus text-[10px]"></i> Add Lead
+                </a>
+            </div>
+        </div>
+
+        <div class="pipeline-scroll" id="kanban-board">
+            <!-- Stages will be populated here by JS -->
+            <div class="stage-col stage-collecting">
+                <div class="stage-header"><span class="stage-title"><i class="fa-solid fa-file-arrow-up"></i> Doc Collection</span><span class="stage-count" id="count-collecting">0</span></div>
+                <div class="stage-body" id="col-collecting" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'collecting')"></div>
+            </div>
+            <div class="stage-col stage-verified">
+                <div class="stage-header"><span class="stage-title"><i class="fa-solid fa-file-circle-check"></i> Doc Verified</span><span class="stage-count" id="count-verified">0</span></div>
+                <div class="stage-body" id="col-verified" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'verified')"></div>
+            </div>
+            <div class="stage-col stage-lender">
+                <div class="stage-header"><span class="stage-title"><i class="fa-solid fa-building-columns"></i> Lender Selection</span><span class="stage-count" id="count-lender">0</span></div>
+                <div class="stage-body" id="col-lender" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'lender')"></div>
+            </div>
+            <div class="stage-col stage-approved">
+                <div class="stage-header"><span class="stage-title"><i class="fa-solid fa-circle-check"></i> Loan Approved</span><span class="stage-count" id="count-approved">0</span></div>
+                <div class="stage-body" id="col-approved" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'approved')"></div>
+            </div>
+            <div class="stage-col stage-rejected">
+                <div class="stage-header"><span class="stage-title"><i class="fa-solid fa-circle-xmark"></i> Rejected</span><span class="stage-count" id="count-rejected">0</span></div>
+                <div class="stage-body" id="col-rejected" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'rejected')"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Document Viewer Modal -->
+    <div class="confirm-backdrop hidden" id="doc-viewer-backdrop" style="z-index: 2200;">
+        <div class="modal-box" style="width: 800px; height: 85vh; display: flex; flex-direction: column;">
+            <div class="modal-header bg-slate-900 text-white">
+                <h3 class="text-[10px] font-black uppercase tracking-widest"><i class="fa-solid fa-file-lines mr-2"></i> Document Viewer - <span id="viewing-doc-name" class="text-indigo-300"></span></h3>
+                <button class="modal-close bg-slate-800 text-white hover:bg-slate-700 hover:text-white" onclick="closeDocViewer()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="flex-1 bg-slate-200 p-10 overflow-auto flex items-center justify-center custom-scrollbar">
+                <!-- PDF Mock -->
+                <div id="pdf-mock" class="bg-white shadow-2xl p-16 w-full max-w-2xl min-h-[1000px] hidden rounded-lg">
+                    <div class="border-b-2 border-slate-900 pb-4 mb-8 flex justify-between items-end">
+                        <div class="text-2xl font-black text-slate-900">STARLING BANK</div>
+                        <div class="text-right">
+                           <div class="text-[10px] font-black text-slate-400">STATEMENT OF ACCOUNT</div>
+                           <div class="text-[14px] font-bold text-slate-900 uppercase">January 2026</div>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <div class="flex justify-between border-b border-slate-100 pb-4">
+                            <div><div class="text-[8px] font-black text-slate-400 uppercase">Customer Name</div><div class="text-[12px] font-bold text-slate-800">Robert Miller</div></div>
+                            <div class="text-right"><div class="text-[8px] font-black text-slate-400 uppercase">Account Number</div><div class="text-[12px] font-bold text-slate-800">XXXX - 5678</div></div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-8 py-4">
+                            <div class="p-4 bg-slate-50 rounded-lg"><div class="text-[8px] font-black text-slate-400 uppercase">Total Inbound</div><div class="text-xl font-black text-green-600">£12,450.00</div></div>
+                            <div class="p-4 bg-slate-50 rounded-lg"><div class="text-[8px] font-black text-slate-400 uppercase">Total Outbound</div><div class="text-xl font-black text-red-600">£8,120.45</div></div>
+                        </div>
+                        <div class="h-64 bg-slate-50 border border-dashed border-slate-200 flex flex-col items-center justify-center gap-2">
+                             <i class="fa-solid fa-table text-slate-300 text-3xl"></i>
+                             <div class="text-[10px] font-bold text-slate-300 uppercase">Detailed Transaction Log</div>
+                        </div>
+                        <div class="space-y-3 pt-6 border-t border-slate-100">
+                            <div class="h-3 bg-slate-100 rounded w-full"></div>
+                            <div class="h-3 bg-slate-100 rounded w-5/6"></div>
+                            <div class="h-3 bg-slate-100 rounded w-4/6"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Image Mock -->
+                <div id="img-mock" class="hidden flex flex-col items-center gap-4">
+                    <div class="text-[11px] font-black text-slate-500 uppercase tracking-widest bg-white/80 px-4 py-2 rounded-full shadow-sm"><i class="fa-solid fa-fingerprint mr-2 text-indigo-500"></i> Identity Verification Source</div>
+                    <img id="mock-img-element" src="https://via.placeholder.com/600x400?text=PASSPORT+OR+ID+DOCUMENT+PREVIEW" class="rounded-xl shadow-2xl border-8 border-white max-w-lg">
+                </div>
+            </div>
+            <div class="p-4 bg-white border-t flex justify-center gap-3">
+                 <button class="px-8 py-2.5 bg-indigo-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest transition-all hover:bg-black hover:transform hover:scale-105" onclick="closeDocViewer()">BACK TO AUDIT</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Full Email Preview Modal -->
+    <div class="confirm-backdrop hidden" id="preview-backdrop" style="z-index: 2100;">
+        <div class="modal-box" style="width: 750px;">
+            <div class="modal-header bg-slate-900 text-white">
+                <h3 class="text-[10px] font-black uppercase tracking-widest"><i class="fa-solid fa-envelope-open-text mr-2"></i> Submission Email Preview</h3>
+                <button class="modal-close bg-slate-800 text-white hover:bg-slate-700 hover:text-white" onclick="closeFullPreview()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-8 bg-slate-50">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="px-6 py-4 border-b bg-slate-50 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-black text-slate-400 uppercase w-16">From:</span>
+                            <span class="text-[10px] font-bold text-slate-600">Whiterock Submission Team &lt;deal-flow@whiterock.com&gt;</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[9px] font-black text-slate-400 uppercase w-16">To:</span>
+                            <span id="preview-to-lenders" class="text-[10px] font-bold text-indigo-600"></span>
+                        </div>
+                        <div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+                            <span class="text-[9px] font-black text-slate-400 uppercase w-16">Subject:</span>
+                            <span id="preview-subject" class="text-[11px] font-black text-slate-900"></span>
+                        </div>
+                    </div>
+                    <div class="p-10 min-h-[350px] text-[12px] text-slate-700 leading-relaxed font-medium whitespace-pre-line" id="preview-body-content"></div>
+                    <div class="px-6 py-4 bg-slate-50 border-t">
+                        <div class="text-[9px] font-black text-slate-400 uppercase mb-3"><i class="fa-solid fa-paperclip mr-1 text-[10px]"></i> Case Documents Attached</div>
+                        <div class="flex gap-2">
+                            <div class="px-3 py-2 bg-white border rounded-lg flex items-center gap-2">
+                                <i class="fa-solid fa-file-pdf text-red-500"></i>
+                                <span class="text-[9px] font-bold text-slate-600">Bank_Statements_AF.pdf</span>
+                            </div>
+                            <div class="px-3 py-2 bg-white border rounded-lg flex items-center gap-2">
+                                <i class="fa-solid fa-file-image text-blue-500"></i>
+                                <span class="text-[9px] font-bold text-slate-600">DirectorID_Verification.jpg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4 border-t flex justify-center bg-white">
+                <button class="bg-indigo-600 text-white px-10 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all" onclick="closeFullPreview()">CLOSE PREVIEW</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reassign Modal -->
+    <div id="reassign-modal" class="modal-overlay hidden flex items-center justify-center" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index: 10000; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px);">
+        <div class="bg-white rounded-3xl p-6 w-[400px] shadow-2xl scale-in ring-1 ring-slate-200">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-[11px] font-black text-slate-900 uppercase tracking-widest">Reassign Agent</h2>
+                    <p id="reassign-lead-id" class="text-[8px] font-bold text-indigo-600 uppercase mt-0.5"></p>
+                </div>
+                <button onclick="closeReassignModal()" class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-all"><i class="fa-solid fa-xmark font-bold"></i></button>
+            </div>
+            <div class="mb-4">
+                <input type="text" placeholder="Search team member..." oninput="filterAgents(this.value)" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2.5 text-[10px] font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all">
+            </div>
+            <div id="agent-list" class="space-y-1 max-h-[300px] overflow-y-auto custom-scrollbar pr-2">
+                <!-- Agents dynamically rendered -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal-overlay hidden flex items-center justify-center" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index: 10000; background: rgba(15,23,42,0.6); backdrop-filter: blur(4px);">
+        <div class="bg-white rounded-3xl p-8 w-[380px] shadow-2xl scale-in ring-1 ring-slate-200 text-center">
+            <div class="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <i class="fa-solid fa-trash-can text-2xl"></i>
+            </div>
+            <h2 class="text-[14px] font-black text-slate-900 uppercase tracking-widest mb-2">Delete Lead?</h2>
+            <p id="delete-modal-msg" class="text-[10px] text-slate-500 font-bold mb-8 leading-relaxed px-2"></p>
+            
+            <div class="flex gap-3">
+                <button onclick="closeDeleteModal()" class="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">Go Back</button>
+                <button id="btn-confirm-delete" class="flex-1 py-3 bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-200">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (Confirm/Update/Detail/Add) -->
+    <div class="confirm-backdrop hidden" id="confirm-backdrop">
+        <div class="confirm-box">
+            <div class="confirm-header text-white"><h3 class="text-sm font-black">Confirm Lead Move</h3></div>
+            <div class="confirm-body p-5">
+                <div id="confirm-lead-info" class="bg-gray-50 p-3 rounded-lg mb-4 text-[11px]">
+                    <p id="confirm-lead-id" class="text-gray-400 font-bold uppercase"></p>
+                    <p id="confirm-lead-name" class="font-black text-gray-900"></p>
+                </div>
+                <p id="confirm-message" class="text-[10px] text-gray-600 mb-4 text-center"></p>
+                
+                <!-- Pipeline Path Diagram -->
+                <div id="confirm-pipeline-viz" class="relative flex items-center justify-between mb-2 px-6 py-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="absolute top-1/2 left-12 right-12 h-[2px] bg-slate-200 -translate-y-1/2 -z-0"></div>
+                    
+                    <div class="flex flex-col items-center gap-1.5 z-10" id="step-wrap-collecting">
+                        <div id="step-viz-collecting" class="w-7 h-7 rounded-full bg-white border-2 border-slate-200 text-[9px] flex items-center justify-center font-extrabold text-slate-300">1</div>
+                        <span class="text-[6px] font-black uppercase tracking-tighter text-slate-400">Collect</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1.5 z-10" id="step-wrap-verified">
+                        <div id="step-viz-verified" class="w-7 h-7 rounded-full bg-white border-2 border-slate-200 text-[9px] flex items-center justify-center font-extrabold text-slate-300">2</div>
+                        <span class="text-[6px] font-black uppercase tracking-tighter text-slate-400">Verify</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1.5 z-10" id="step-wrap-lender">
+                        <div id="step-viz-lender" class="w-7 h-7 rounded-full bg-white border-2 border-slate-200 text-[9px] flex items-center justify-center font-extrabold text-slate-300">3</div>
+                        <span class="text-[6px] font-black uppercase tracking-tighter text-slate-400">Lender</span>
+                    </div>
+                    <div class="flex flex-col items-center gap-1.5 z-10" id="step-wrap-approved">
+                        <div id="step-viz-approved" class="w-7 h-7 rounded-full bg-white border-2 border-slate-200 text-[9px] flex items-center justify-center font-extrabold text-slate-300">4</div>
+                        <span class="text-[6px] font-black uppercase tracking-tighter text-slate-400">Approve</span>
+                    </div>
+                </div>
+
+                <div id="confirm-simple-path" class="flex gap-2 hidden">
+                    <div id="confirm-from-pill" class="flex-1 p-2 rounded text-center text-[9px] font-bold uppercase border"></div>
+                    <i class="fa-solid fa-arrow-right self-center text-gray-300"></i>
+                    <div id="confirm-to-pill" class="flex-1 p-2 rounded text-center text-[9px] font-bold uppercase border"></div>
+                </div>
+            </div>
+            <div class="confirm-footer"><button class="btn-cancel-move" onclick="cancelMove()">Cancel</button><button class="btn-confirm-move" onclick="confirmMove()">Confirm & Continue</button></div>
+        </div>
+    </div>
+
+    <!-- Custom Error Alert Popup -->
+    <div class="confirm-backdrop hidden" id="error-backdrop">
+        <div class="confirm-box" style="width: 480px;">
+            <div class="confirm-header" style="background: #ef4444;"><h3 class="text-[10px] font-black uppercase tracking-widest text-white w-full text-center"><i class="fa-solid fa-circle-exclamation mr-2"></i> Action Restricted</h3></div>
+            <div class="confirm-body p-6">
+                <p id="error-message" class="text-[11px] text-gray-700 font-bold leading-relaxed text-center mb-6"></p>
+                
+                <div id="error-workflow-viz" class="hidden">
+                    <div class="update-section-title mb-3">Required Pipeline Workflow</div>
+                    <div class="flex items-center justify-between bg-slate-50 p-4 rounded-xl border border-slate-100 mb-2">
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-white border-2 border-slate-200 text-[10px] flex items-center justify-center font-black text-slate-400">1</div>
+                            <span class="text-[7px] font-black text-slate-400 uppercase tracking-tighter text-slate-400">Collection</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-right-long text-slate-200"></i>
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-white border-2 border-slate-200 text-[10px] flex items-center justify-center font-black text-slate-400">2</div>
+                            <span class="text-[7px] font-black text-slate-400 uppercase tracking-tighter text-slate-400">Verified</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-right-long text-slate-200"></i>
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-white border-2 border-slate-200 text-[10px] flex items-center justify-center font-black text-slate-400">3</div>
+                            <span class="text-[7px] font-black text-slate-400 uppercase tracking-tighter text-slate-400">Lender</span>
+                        </div>
+                        <i class="fa-solid fa-arrow-right-long text-slate-200"></i>
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="w-7 h-7 rounded-full bg-indigo-50 border-2 border-indigo-200 text-[10px] flex items-center justify-center font-black text-indigo-600">4</div>
+                            <span class="text-[7px] font-black text-indigo-600 uppercase tracking-tighter text-indigo-600">Approved</span>
+                        </div>
+                    </div>
+                    <p class="text-[9px] text-slate-400 font-bold text-center mt-2 italic">* You must reach the Lender stage before approving a loan.</p>
+                </div>
+            </div>
+            <div class="confirm-footer" style="justify-content: center; background: #f8fafc;"><button class="btn-confirm-move" style="background: #0f172a; padding: 10px 60px;" onclick="closeErrorAlert()">UNDERSTOOD</button></div>
+        </div>
+    </div>
+
+    <div class="update-backdrop hidden" id="update-backdrop">
+        <div class="update-box">
+            <div class="update-header"><h3 id="update-lead-name-title" class="text-sm font-black">Update Lead</h3><button class="modal-close" onclick="closeUpdateModal()"><i class="fa-solid fa-xmark"></i></button></div>
+            <div id="update-form-body" class="p-2"></div>
+            <div class="update-footer"><button class="btn-cancel-move" onclick="closeUpdateModal()">Cancel</button><button class="btn-save-move" onclick="saveAndMove()">Save & Move Lead</button></div>
+        </div>
+    </div>
+
+    <!-- Create Lead Drawer -->
+    <div id="drawer-overlay" onclick="closeAddModal()"></div>
+    <div id="create-lead-drawer">
+         <div style="background:#0f172a;padding:15px 20px;color:#fff;display:flex;justify-content:between;align-items:center;">
+            <h2 class="text-sm font-black uppercase">Register New Lead</h2>
+            <button onclick="closeAddModal()" class="text-white opacity-50"><i class="fa-solid fa-xmark"></i></button>
+         </div>
+         <div class="p-5 flex-1 overflow-y-auto custom-scrollbar">
+            <div class="space-y-4">
+                <div><label class="update-label">Full Name *</label><input id="clf-name" class="update-input" type="text"></div>
+                <div><label class="update-label">Company Name *</label><input id="clf-company" class="update-input" type="text"></div>
+                <div><label class="update-label">Amount Needed *</label><input id="clf-amount" class="update-input" type="text"></div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="update-label">Agent</label><select id="clf-agent" class="update-input"><option>Sarah White</option><option>Cody Lane</option></select></div>
+                    <div><label class="update-label">Priority</label><select id="clf-priority" class="update-input"><option>Medium</option><option>High</option><option>Low</option></select></div>
+                </div>
+                <div><label class="update-label">Notes</label><textarea id="clf-notes" class="update-input h-24"></textarea></div>
+            </div>
+         </div>
+         <div class="p-4 border-t flex gap-2"><button onclick="closeAddModal()" class="flex-1 py-2 border rounded font-bold text-[9px]">CANCEL</button><button onclick="saveNewLead()" class="flex-1 py-2 bg-indigo-600 text-white rounded font-bold text-[9px]">REGISTER LEAD</button></div>
+    </div>
+
+    <script>
+        const STAGES = ['collecting','verified','lender','approved','rejected'];
+        const STAGE_LABELS = { collecting:'Doc Collection', verified:'Doc Verified', lender:'Lender Selection', approved:'Loan Approved', rejected:'Rejected' };
+        
+        let leads = [
+            { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', amount: '£12,000', agent: 'Sarah Jenkins', stage: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements' },
+            { id: 'AF-550', name: 'Priya Singh', business: 'Singh Media', email: 'contact@singhmedia.com', amount: '£450,000', agent: 'James White', stage: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.' },
+            { id: 'AF-027', name: 'John Smith', business: 'ABC Corp', email: 'jsmith@abccorp.uk', amount: '£55,000', agent: 'Sarah Jenkins', stage: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.' },
+            { id: 'AL-339', name: 'Mike Johnson', business: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', amount: '£85,000', agent: 'James White', stage: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.' },
+            { id: 'AF-001', name: 'David Brown', business: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', amount: '£150,000', agent: 'Sarah Jenkins', stage: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.' },
+            { id: 'AL-209', name: 'Kevin Malone', business: 'Malone Paints', email: 'kevin@malonepaints.com', amount: '£25,000', agent: 'James White', stage: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.' }
+        ];
+
+        let dragId = null, pendingMoveId = null, pendingMoveStage = null;
+
+        function renderBoard() {
+            const q = (document.getElementById('pipeline-search').value || '').toLowerCase();
+            const agentF = document.getElementById('pipeline-agent').value;
+            const prioF = document.getElementById('pipeline-priority').value;
+
+            STAGES.forEach(s => {
+                const col = document.getElementById('col-' + s);
+                col.innerHTML = '';
+                const filtered = leads.filter(l => l.stage === s && (!q || l.name.toLowerCase().includes(q) || l.id.toLowerCase().includes(q)) && (!agentF || l.agent === agentF) && (!prioF || l.priority === prioF));
+                document.getElementById('count-' + s).textContent = filtered.length;
+                filtered.forEach(l => {
+                    const card = document.createElement('div');
+                    card.className = 'lead-card';
+                    card.draggable = true;
+                    const pClass = l.priority === 'hot' ? 'priority-hot' : l.priority === 'warm' ? 'priority-warm' : 'priority-cool';
+                    const pLabel = l.priority.charAt(0).toUpperCase() + l.priority.slice(1);
+                    card.innerHTML = `
+                        <div class="card-priority-bar ${pClass}"></div>
+                        <div class="bg-slate-50 -mx-[9px] -mt-[8px] px-3 py-1.5 mb-2 border-b border-slate-100 flex justify-between items-center rounded-t-lg">
+                            <span class="text-[12px] font-black text-slate-900">${l.amount}</span>
+                            <span class="card-id text-slate-400">${l.id}</span>
+                        </div>
+                        
+                        <div class="flex items-center gap-1.5 mb-2 truncate py-0.5">
+                            <div class="card-name leading-none flex-shrink-0">${l.name}</div>
+                            <div class="w-[3px] h-[3px] rounded-full bg-slate-200"></div>
+                            <div class="text-[9px] font-black text-indigo-600 truncate opacity-80">${l.business}</div>
+                        </div>
+                        
+                        <div class="mb-2 px-2 py-1.5 bg-slate-50/50 border-l-2 border-slate-200">
+                            <div class="text-[9px] text-slate-500 font-medium italic line-clamp-1 leading-tight">${l.notes || 'No notes.'}</div>
+                        </div>
+ 
+                        <div class="flex items-center justify-between border-t border-slate-50 pt-1.5">
+                            <span class="text-[7.5px] font-black uppercase px-2 py-0.5 rounded ${pClass}">${pLabel}</span>
+                            <div class="flex items-center gap-1">
+                                <button onclick="event.stopPropagation(); reassignLead('${l.id}')" class="w-5 h-5 flex items-center justify-center bg-white text-slate-400 rounded hover:text-indigo-600 transition-all border border-slate-100" title="Reassign"><i class="fa-solid fa-user-pen text-[7px]"></i></button>
+                                <button onclick="event.stopPropagation(); deleteLead('${l.id}')" class="w-5 h-5 flex items-center justify-center bg-white text-slate-400 rounded hover:text-red-600 transition-all border border-slate-100" title="Delete"><i class="fa-solid fa-trash text-[7px]"></i></button>
+                                <a href="lead_detail.html?id=${l.id}" class="h-5 px-3 bg-slate-50 text-indigo-600 rounded-full flex items-center gap-1.5 text-[7px] font-black uppercase tracking-widest no-underline ml-1 border border-indigo-50 hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
+                                    <i class="fa-solid fa-eye text-[8px]"></i> VIEW
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    card.addEventListener('dragstart', () => { dragId = l.id; setTimeout(()=>card.classList.add('dragging'),0); });
+                    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+                    col.appendChild(card);
+                });
+            });
+        }
+
+        let currentReassignId = null;
+        const AGENTS = [
+            { name: 'Lakshan R', role: 'Super Admin', type: 'Leader' },
+            { name: 'Sarah White', role: 'Team Leader', type: 'Leader' },
+            { name: 'Michael Chen', role: 'Team Leader', type: 'Leader' },
+            { name: 'Cody Lane', role: 'Tele Agent', type: 'Agent' },
+            { name: 'Emma Watson', role: 'Tele Agent', type: 'Agent' },
+            { name: 'Leo Kumar', role: 'Accounts Manager', type: 'Leader' }
+        ];
+
+        function reassignLead(id) {
+            currentReassignId = id;
+            const l = leads.find(x => x.id === id);
+            document.getElementById('reassign-lead-id').textContent = `ID: ${id} (Current: ${l.agent})`;
+            renderAgentSelection();
+            document.getElementById('reassign-modal').classList.remove('hidden');
+        }
+
+        function closeReassignModal() {
+            document.getElementById('reassign-modal').classList.add('hidden');
+            currentReassignId = null;
+        }
+
+        function renderAgentSelection(query = '') {
+            const container = document.getElementById('agent-list');
+            const q = query.toLowerCase();
+            const filtered = AGENTS.filter(a => a.name.toLowerCase().includes(q) || a.role.toLowerCase().includes(query));
+            
+            container.innerHTML = filtered.map(a => `
+                <div onclick="executeReassignment('${a.name}')" class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-100 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center text-white text-[10px] font-black shadow-lg">${a.name[0]}</div>
+                        <div>
+                            <p class="text-[10px] font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">${a.name}</p>
+                            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">${a.role}</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-right text-[8px] text-slate-200 group-hover:text-indigo-400 transition-all"></i>
+                </div>
+            `).join('');
+        }
+
+        function filterAgents(q) { renderAgentSelection(q); }
+
+        function executeReassignment(agentName) {
+            const l = leads.find(x => x.id === currentReassignId);
+            if (l) {
+                l.agent = agentName;
+                renderBoard();
+                closeReassignModal();
+            }
+        }
+
+        let currentDeleteId = null;
+
+        function deleteLead(id) {
+            currentDeleteId = id;
+            const l = leads.find(x => x.id === id);
+            document.getElementById('delete-modal-msg').innerHTML = `Are you sure you want to permanently delete <b>${l.name}</b> from the pipeline? This action cannot be undone.`;
+            document.getElementById('delete-modal').classList.remove('hidden');
+            
+            document.getElementById('btn-confirm-delete').onclick = () => {
+                leads = leads.filter(x => x.id !== currentDeleteId);
+                renderBoard();
+                closeDeleteModal();
+            };
+        }
+
+        function closeDeleteModal() {
+            document.getElementById('delete-modal').classList.add('hidden');
+            currentDeleteId = null;
+        }
+
+        function filterCards() { renderBoard(); }
+
+        function onDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+        function onDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+        function onDrop(e, stage) {
+            e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+            if(!dragId) return;
+            const l = leads.find(x => x.id === dragId);
+            if(l && l.stage !== stage) {
+                const fromIdx = STAGES.indexOf(l.stage);
+                const toIdx = STAGES.indexOf(stage);
+
+                // Validation: Only allow next stage, rejected stage, or moving backwards
+                const isNextStage = toIdx === fromIdx + 1;
+                const isRejected = stage === 'rejected';
+                const isMovingBack = toIdx < fromIdx;
+                const isAllowedJump = (l.stage === 'collecting' && stage === 'lender');
+
+                if (!isNextStage && !isRejected && !isMovingBack && !isAllowedJump) {
+                    showErrorAlert(`Invalid Move: You cannot skip to "${STAGE_LABELS[stage]}" from "${STAGE_LABELS[l.stage]}". Please follow the progress sequence.`, true);
+                    dragId = null;
+                    return;
+                }
+
+                pendingMoveId = dragId; pendingMoveStage = stage;
+                showConfirmMove(l, stage);
+            }
+            dragId = null;
+        }
+
+        function showErrorAlert(msg, showWorkflow = false) {
+            document.getElementById('error-message').textContent = msg;
+            const viz = document.getElementById('error-workflow-viz');
+            if(showWorkflow) viz.classList.remove('hidden'); else viz.classList.add('hidden');
+            document.getElementById('error-backdrop').classList.remove('hidden');
+        }
+        function closeErrorAlert() {
+            document.getElementById('error-backdrop').classList.add('hidden');
+        }
+
+        function showConfirmMove(l, to) {
+            document.getElementById('confirm-lead-id').textContent = l.id;
+            document.getElementById('confirm-lead-name').textContent = l.name;
+            document.getElementById('confirm-message').textContent = `Move this lead to ${STAGE_LABELS[to]}?`;
+
+            const viz = document.getElementById('confirm-pipeline-viz');
+            const simple = document.getElementById('confirm-simple-path');
+
+            if (to === 'rejected' || l.stage === 'rejected') {
+                viz.classList.add('hidden');
+                simple.classList.remove('hidden');
+                document.getElementById('confirm-from-pill').textContent = STAGE_LABELS[l.stage];
+                document.getElementById('confirm-to-pill').textContent = STAGE_LABELS[to];
+                document.getElementById('confirm-from-pill').className = 'flex-1 p-2 rounded text-center text-[9px] font-bold uppercase border bg-gray-50 text-gray-400';
+                document.getElementById('confirm-to-pill').className = 'flex-1 p-2 rounded text-center text-[9px] font-bold uppercase border bg-red-50 text-red-600 border-red-100';
+            } else {
+                viz.classList.remove('hidden');
+                simple.classList.add('hidden');
+                
+                // Reset all viz circles
+                ['collecting', 'verified', 'lender', 'approved'].forEach(s => {
+                    const circle = document.getElementById('step-viz-' + s);
+                    const label = circle.nextElementSibling;
+                    circle.className = 'w-7 h-7 rounded-full bg-white border-2 border-slate-100 text-[9px] flex items-center justify-center font-extrabold text-slate-200';
+                    label.className = 'text-[6px] font-black uppercase tracking-tighter text-slate-300';
+                });
+
+                // Style 'From'
+                const fCircle = document.getElementById('step-viz-' + l.stage);
+                if (fCircle) {
+                    fCircle.className = 'w-7 h-7 rounded-full bg-slate-100 border-2 border-slate-300 text-[9px] flex items-center justify-center font-extrabold text-slate-500';
+                    fCircle.nextElementSibling.className = 'text-[6px] font-black uppercase tracking-tighter text-slate-500';
+                }
+
+                // Style 'To'
+                const tCircle = document.getElementById('step-viz-' + to);
+                if (tCircle) {
+                    tCircle.className = 'w-7 h-7 rounded-full bg-indigo-600 border-2 border-indigo-600 text-[9px] flex items-center justify-center font-extrabold text-white';
+                    tCircle.nextElementSibling.className = 'text-[6px] font-black uppercase tracking-tighter text-indigo-700';
+                }
+            }
+            document.getElementById('confirm-backdrop').classList.remove('hidden');
+        }
+
+        function cancelMove() { document.getElementById('confirm-backdrop').classList.add('hidden'); }
+        function confirmMove() { cancelMove(); openUpdateModal(); }
+
+        function openUpdateModal() {
+            const l = leads.find(x => x.id === pendingMoveId);
+            const title = document.getElementById('update-lead-name-title');
+            const body = document.getElementById('update-form-body');
+            const from = l.stage;
+            const to = pendingMoveStage;
+            
+            title.innerHTML = `<div class="flex items-center gap-2 text-[10px]"><span class="text-gray-400 font-bold">${l.id}</span><span class="text-gray-300">|</span><span>${l.name}</span></div>`;
+
+            // Helper to generate verification section
+            const getVerificationSection = () => `
+                <div class="update-section">
+                    <div class="update-section-title text-blue-600"><i class="fa-solid fa-file-shield mr-1"></i> Audit Required Documents (Step: Verified)</div>
+                    <div class="space-y-1 mb-3">
+                        <div class="doc-row">
+                            <div class="doc-icon bg-red-50 text-red-500"><i class="fa-solid fa-file-pdf"></i></div>
+                            <div class="flex-1 min-w-0"><div class="text-[11px] font-black text-slate-900 truncate">Bank Statement Jan.pdf</div><div class="text-[8px] font-bold text-slate-400">PDF • 14 Apr 2026</div></div>
+                            <div class="doc-status-badge">PENDING</div>
+                            <div class="flex gap-1 pl-1 border-l border-slate-100 italic">
+                                <button class="doc-btn btn-view" title="View Document" onclick="viewDoc('Bank Statement Jan.pdf', 'pdf')"><i class="fa-solid fa-eye"></i></button>
+                                <button class="doc-btn hover:text-red-500" title="Delete File" onclick="this.closest('.doc-row').remove()"><i class="fa-solid fa-trash-can"></i></button>
+                                <button class="doc-btn hover:text-indigo-600" title="Re-upload"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+                                <button class="doc-btn hover:text-red-600" title="Reject Document" onclick="this.closest('.doc-row').style.borderLeft='3px solid #ef4444'"><i class="fa-solid fa-xmark"></i></button>
+                                <button class="doc-btn btn-verify" onclick="this.closest('.doc-row').style.opacity='0.5'; this.closest('.doc-row').style.borderLeft='none'"><i class="fa-solid fa-check"></i></button>
+                            </div>
+                        </div>
+                        <div class="doc-row">
+                            <div class="doc-icon bg-blue-50 text-blue-500"><i class="fa-solid fa-image"></i></div>
+                            <div class="flex-1 min-w-0"><div class="text-[11px] font-black text-slate-900 truncate">ID Verification.jpg</div><div class="text-[8px] font-bold text-slate-400">JPG • 14 Apr 2026</div></div>
+                            <div class="doc-status-badge">PENDING</div>
+                            <div class="flex gap-1 pl-1 border-l border-slate-100">
+                                <button class="doc-btn btn-view" title="View Document" onclick="viewDoc('ID Verification.jpg', 'img')"><i class="fa-solid fa-eye"></i></button>
+                                <button class="doc-btn hover:text-red-500" title="Delete File" onclick="this.closest('.doc-row').remove()"><i class="fa-solid fa-trash-can"></i></button>
+                                <button class="doc-btn hover:text-indigo-600" title="Re-upload"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+                                <button class="doc-btn hover:text-red-600" title="Reject Document" onclick="this.closest('.doc-row').style.borderLeft='3px solid #ef4444'"><i class="fa-solid fa-xmark"></i></button>
+                                <button class="doc-btn btn-verify" onclick="this.closest('.doc-row').style.opacity='0.5'; this.closest('.doc-row').style.borderLeft='none'"><i class="fa-solid fa-check"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <label class="update-label">Verification Notes</label>
+                    <textarea id="upd-audit-notes" class="update-input h-16" placeholder="Document audit findings..."></textarea>
+                </div>`;
+
+            // Helper to generate lender section
+            const getLenderSection = () => {
+                const lenderList = ['Barclays','HSBC','NAB','Starling','Lloyds','NatWest','Santander'];
+                return `
+                <div class="update-section">
+                    <div class="update-section-title text-indigo-600"><i class="fa-solid fa-building-columns mr-1"></i> Selection & Submission (Step: Lender)</div>
+                    <div class="custom-dropdown" id="lender-dropdown">
+                        <div class="dropdown-header" onclick="this.parentElement.classList.toggle('open')"><span id="dropdown-label">Select Target Lenders (Max 4)</span><i class="fa-solid fa-chevron-down text-gray-400"></i></div>
+                        <div class="dropdown-options">
+                            ${lenderList.map(name => `<div class="lender-option"><input type="checkbox" id="lender-${name}" class="lender-chk" value="${name}" onchange="updateLenderSelection(this)"><label for="lender-${name}">${name}</label></div>`).join('')}
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="update-label mb-0">Submission Email Draft</label>
+                            <button onclick="openFullPreview()" class="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"><i class="fa-solid fa-eye"></i> PREVIEW FULL DRAFT</button>
+                        </div>
+                    </div>
+                    <div class="mt-4"><label class="update-label">Lender Submission Notes</label><textarea id="upd-notes" class="update-input h-16" placeholder="Notes for lenders..."></textarea></div>
+                </div>`;
+            };
+
+            // Helper for Approved
+            const getApprovedSection = () => `
+                <div class="update-section">
+                    <div class="update-section-title text-teal-600"><i class="fa-solid fa-circle-check mr-1"></i> Loan Approval Details</div>
+                    <div class="space-y-4">
+                        <div><label class="update-label">Confirmed Lender *</label><select id="upd-final-lender" class="update-input"><option value="">-- Select Partner --</option>${['Barclays','HSBC','NAB','Starling','Lloyds','NatWest','Santander'].map(n => `<option>${n}</option>`).join('')}</select></div>
+                        <div><label class="update-label">Final Approval Notes</label><textarea id="upd-notes" class="update-input h-20" placeholder="Offer details, rates, etc..."></textarea></div>
+                    </div>
+                </div>`;
+
+            // Helper for Rejected
+            const getRejectedSection = () => `
+                <div class="update-section">
+                    <div class="update-section-title text-red-500"><i class="fa-solid fa-circle-xmark mr-1"></i> Rejection Details</div>
+                    <div class="p-3 bg-red-50 border border-red-100 rounded-lg mb-4 text-[9px] font-bold text-red-700">Please provide the specific reason for rejecting this lead.</div>
+                    <label class="update-label">Rejection Reason *</label>
+                    <textarea id="upd-notes" class="update-input h-24 border-red-200 focus:border-red-500 focus:ring-red-500" placeholder="e.g. Credit score too low..."></textarea>
+                </div>`;
+
+            // Logic to stack sections
+            let html = '';
+            if (from === 'collecting' && to === 'lender') {
+                html = getVerificationSection() + '<div class="h-2 bg-slate-50 border-y border-slate-100"></div>' + getLenderSection();
+            } else if (to === 'verified') {
+                html = getVerificationSection();
+            } else if (to === 'lender') {
+                html = getLenderSection();
+            } else if (to === 'approved') {
+                html = getApprovedSection();
+            } else if (to === 'rejected') {
+                html = getRejectedSection();
+            } else {
+                html = `<div class="p-6"><label class="update-label">Update Notes (Optional)</label><textarea id="upd-notes" class="update-input h-24" placeholder="Update details...">${l.notes}</textarea></div>`;
+            }
+
+            body.innerHTML = html;
+            document.getElementById('update-backdrop').classList.remove('hidden');
+        }
+
+        function closeUpdateModal() { document.getElementById('update-backdrop').classList.add('hidden'); }
+
+        function openFullPreview() {
+            const l = leads.find(x => x.id === pendingMoveId);
+            const selected = Array.from(document.querySelectorAll('.lender-chk:checked')).map(cb => cb.value);
+            
+            document.getElementById('preview-to-lenders').textContent = selected.length > 0 ? selected.join(', ') : '[Recipient Partner Lenders]';
+            document.getElementById('preview-subject').textContent = `OFFER SUBMISSION: ${l.id} - ${l.business || l.name}`;
+            
+            let body = `Hi Team,\n\nPlease review the following submission for ${l.name} (${l.business || 'No Company'}).\n\n[DEAL HIGHLIGHTS]\n• Funding Required: ${l.amount}\n• Purpose: General Working Capital\n• Current Status: High-Priority Lead\n\n[SUBMISSION NOTES]\n${document.getElementById('upd-notes') ? document.getElementById('upd-notes').value : 'No additional notes provided.'}\n\nPlease find the full KYC and bank audit files attached to this case. We look forward to your pricing offer.\n\nRegards,\nWhiterock CRM Deal Desk`;
+            
+            document.getElementById('preview-body-content').textContent = body;
+            document.getElementById('preview-backdrop').classList.remove('hidden');
+        }
+
+        function closeFullPreview() { document.getElementById('preview-backdrop').classList.add('hidden'); }
+
+        function viewDoc(name, type) {
+            document.getElementById('viewing-doc-name').textContent = name;
+            const pdf = document.getElementById('pdf-mock');
+            const img = document.getElementById('img-mock');
+            if(type === 'pdf') { pdf.classList.remove('hidden'); img.classList.add('hidden'); }
+            else { 
+                document.getElementById('mock-img-element').src = name.includes('ID') ? 'https://via.placeholder.com/600x400?text=ID+CARD+PREVIEW' : 'https://via.placeholder.com/600x800?text=BANK+STMT+IMAGE';
+                img.classList.remove('hidden'); pdf.classList.add('hidden'); 
+            }
+            document.getElementById('doc-viewer-backdrop').classList.remove('hidden');
+        }
+
+        function closeDocViewer() { document.getElementById('doc-viewer-backdrop').classList.add('hidden'); }
+
+        function saveAndMove() {
+            const l = leads.find(x => x.id === pendingMoveId);
+            const to = pendingMoveStage;
+            const from = l.stage;
+
+            // Handle audit notes if move involved verification
+            if (to === 'verified' || (from === 'collecting' && to === 'lender')) {
+                const auditNotes = document.getElementById('upd-audit-notes').value;
+                if (auditNotes) l.notes = `[AUDIT]: ${auditNotes}\n${l.notes}`;
+            }
+            
+            // Capture stage specific data
+            if(to === 'lender') {
+                const selected = Array.from(document.querySelectorAll('.lender-chk:checked')).map(cb => cb.value);
+                if(selected.length === 0) return showErrorAlert('Please select at least one target lender to proceed with the submission.');
+                l.lender = selected.join(', ');
+            }
+
+            if(to === 'approved') {
+                const finalLender = document.getElementById('upd-final-lender').value;
+                if(!finalLender) return showErrorAlert('A confirmed funding partner must be selected before moving to the Approved stage.');
+                l.lender = finalLender;
+            }
+
+            if (to === 'rejected') {
+                const reason = document.getElementById('upd-notes').value.trim();
+                if (!reason) return showErrorAlert('Please provide a specific rejection reason for the audit history.');
+            }
+
+            l.stage = to;
+            l.notes = (document.getElementById('upd-notes') ? document.getElementById('upd-notes').value : '') || l.notes;
+            l.days = 0; 
+            
+            renderBoard();
+            closeUpdateModal();
+        }
+
+        function openAddModal() { document.getElementById('create-lead-drawer').classList.add('open'); document.getElementById('drawer-overlay').classList.add('open'); }
+        function closeAddModal() { document.getElementById('create-lead-drawer').classList.remove('open'); document.getElementById('drawer-overlay').classList.remove('open'); }
+
+        function saveNewLead() {
+            const n = document.getElementById('clf-name').value, c = document.getElementById('clf-company').value, a = document.getElementById('clf-amount').value;
+            if(!n || !c || !a) return alert('Fill required fields');
+            leads.unshift({ id: 'AF-'+Math.floor(Math.random()*1000), name:n, business:c, amount:a, agent:document.getElementById('clf-agent').value, stage:'collecting', priority:document.getElementById('clf-priority').value, days:0, lender:'—', notes:document.getElementById('clf-notes').value });
+            renderBoard(); closeAddModal();
+        }
+
+        renderBoard();
+
+        // Lender Multi-Select Control
+        function updateLenderSelection(chk) {
+            const checked = document.querySelectorAll('.lender-chk:checked');
+            if(checked.length > 4) {
+                chk.checked = false;
+                showErrorAlert('Maximum of 4 lenders can be selected for a single bulk submission.');
+                return;
+            }
+            chk.closest('.lender-option').classList.toggle('selected', chk.checked);
+            
+            const label = document.getElementById('dropdown-label');
+            if(checked.length === 0) label.textContent = 'Select Lenders';
+            else if(checked.length === 1) label.textContent = checked[0].value;
+            else label.textContent = `${checked.length} Lenders Selected`;
+        }
+
+        // Column Resizing Logic
+        document.querySelectorAll('.stage-col').forEach(col => {
+            const handle = document.createElement('div');
+            handle.className = 'resize-handle';
+            col.appendChild(handle);
+
+            handle.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                const startX = e.pageX;
+                const startWidth = col.offsetWidth;
+                
+                col.classList.add('resizing');
+
+                function onMouseMove(e) {
+                    const newWidth = startWidth + (e.pageX - startX);
+                    if (newWidth > 150 && newWidth < 800) {
+                        col.style.width = newWidth + 'px';
+                    }
+                }
+
+                function onMouseUp() {
+                    col.classList.remove('resizing');
+                    document.removeEventListener('mousemove', onMouseMove);
+                    document.removeEventListener('mouseup', onMouseUp);
+                }
+
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+        });
+    </script>
+<script src="../profile/profile_drawer.js"></script>
+</body>
+</html>

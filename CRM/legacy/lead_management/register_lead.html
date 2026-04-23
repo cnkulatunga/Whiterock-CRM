@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register New Lead - TaskFlow CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            background: #fff;
+            margin: 0;
+            display: flex;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        /* ── Sidebar ── */
+        .side-nav {
+            width: 70px;
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 4px;
+            border-right: 1px solid #1e293b;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #94a3b8;
+            transition: all .2s;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 6px 4px;
+            border-radius: 8px;
+            width: 54px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #fff;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .nav-item i { font-size: 14px; }
+
+        .nav-text {
+            font-size: 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            text-align: center;
+            line-height: 1;
+        }
+
+        /* ── Main Content ── */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: #f8fafc;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Page Header ── */
+        .page-header {
+            background: #fff;
+            border-bottom: 1px solid #f1f5f9;
+            box-shadow: 0 1px 8px rgba(0,0,0,.04);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 20px;
+            height: 52px;
+            flex-shrink: 0;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            color: #64748b;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            transition: color .2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+        .back-btn:hover { color: #2447d7; }
+        .back-btn:hover .back-icon { background: #2447d7; border-color: #2447d7; }
+        .back-btn:hover .back-icon i { color: #fff; }
+        .back-icon {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s;
+        }
+
+        /* ── Form Styles ── */
+        .section-header {
+            font-size: 9px;
+            font-weight: 800;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-input-premium {
+            width: 100%;
+            background: #fdfdfd;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-input-premium:focus {
+            border-color: #2447d7;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(36, 71, 215, 0.05);
+        }
+
+        .label-premium {
+            font-size: 9px;
+            font-weight: 700;
+            color: #475569;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .radio-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            background: white;
+            color: #64748b;
+        }
+        .radio-btn.active {
+            border-color: #2447d7;
+            background: #ebf0ff;
+            color: #2447d7;
+        }
+
+        /* 3-column registration grid for create mode */
+        .registration-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem 1.5rem;
+        }
+
+        .col-span-full { grid-column: span 3 / span 3; }
+        .col-span-2-of-3 { grid-column: span 2 / span 2; }
+
+        .doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+
+        .panel-card {
+            background: #fff;
+            border-radius: 20px;
+            border: 1px solid #f1f5f9;
+            padding: 18px 22px;
+            box-shadow: 0 2px 12px rgba(0,0,0,.03);
+        }
+
+        .status-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            display: inline-block;
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.4} }
+    </style>
+</head>
+<body>
+
+<!-- ══ Session Check ══ -->
+<script>
+(function(){
+    const s = JSON.parse(sessionStorage.getItem('crm_session') || 'null');
+    if (!s) { window.location.replace('../login/login.html'); return; }
+    window._crmSession = s;
+})();
+function logout(){ sessionStorage.removeItem('crm_session'); window.location.replace('../login/login.html'); }
+</script>
+
+<!-- ══ Sidebar ══ -->
+<nav class="side-nav">
+    <div class="mb-4">
+        <div class="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center text-white">
+            <i class="fa-solid fa-bolt text-sm"></i>
+        </div>
+    </div>
+
+    <a href="../dashboard/super_admin_dashboard.html" id="nav-dashboard" class="nav-item">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span class="nav-text">Dashboard</span>
+    </a>
+    <a href="../task_and_followups/task_management.html" id="nav-tasks" class="nav-item">
+        <i class="fa-solid fa-tasks"></i>
+        <span class="nav-text">Tasks</span>
+    </a>
+    <a href="../lead_management/lead_management.html" id="nav-leads" class="nav-item active">
+        <i class="fa-solid fa-user-group"></i>
+        <span class="nav-text">Leads</span>
+    </a>
+    <a href="../loan_pipeline/loan_pipeline.html" id="nav-pipeline" class="nav-item">
+        <i class="fa-solid fa-diagram-project"></i>
+        <span class="nav-text">Pipeline</span>
+    </a>
+    <a href="../lenders/lender_management.html" id="nav-lenders" class="nav-item">
+        <i class="fa-solid fa-hand-holding-dollar"></i>
+        <span class="nav-text">Lenders</span>
+    </a>
+    <a href="../documents/document_vault.html" id="nav-docs" class="nav-item">
+        <i class="fa-solid fa-folder-open"></i>
+        <span class="nav-text">Docs</span>
+    </a>
+    <a href="../user_management/user_management.html" id="nav-users" class="nav-item">
+        <i class="fa-solid fa-user-gear"></i>
+        <span class="nav-text">Users</span>
+    </a>
+    <a href="../reporting/reporting_logs.html" id="nav-reports" class="nav-item">
+        <i class="fa-solid fa-chart-line"></i>
+        <span class="nav-text">Reports</span>
+    </a>
+
+    <div style="flex:1;"></div>
+    <div class="nav-item" onclick="logout()" style="margin-bottom:8px;" title="Logout">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span class="nav-text">Logout</span>
+    </div>
+</nav>
+
+<script>
+// Role-based nav + dashboard link
+(function(){
+    const s = window._crmSession;
+    if (!s) return;
+    const el = document.getElementById('nav-dashboard');
+    if (el && s.landing) el.href = '../dashboard/' + s.landing.split('/').pop();
+    const ROLE_NAV = {
+        'Admin':            ['nav-tasks','nav-leads','nav-pipeline','nav-lenders','nav-docs','nav-users','nav-reports'],
+        'Team Leader':      ['nav-tasks','nav-leads'],
+        'Tele Agent':       ['nav-tasks','nav-leads'],
+        'Accounts Manager': ['nav-tasks','nav-leads','nav-lenders']
+    };
+    const allowed = ROLE_NAV[s.role] || ROLE_NAV['Admin'];
+    ['nav-tasks','nav-leads','nav-pipeline','nav-lenders','nav-docs','nav-users','nav-reports'].forEach(id => {
+        const node = document.getElementById(id);
+        if (node && !allowed.includes(id)) node.style.display = 'none';
+    });
+})();
+</script>
+
+<!-- ══ Main Content ══ -->
+<div class="main-content">
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <button class="back-btn" onclick="goBack()">
+            <div class="back-icon"><i class="fa-solid fa-arrow-left text-[9px] text-gray-400"></i></div>
+            <span>Back</span>
+        </button>
+
+        <div style="width:1px;height:24px;background:#f1f5f9;flex-shrink:0;"></div>
+
+        <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:30px;height:30px;border-radius:10px;background:#ebf0ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fa-solid fa-user-plus" style="color:#2447d7;font-size:13px;"></i>
+            </div>
+            <div>
+                <h1 style="font-size:12px;font-weight:900;color:#0f172a;margin:0;text-transform:uppercase;letter-spacing:.08em;">Register New Lead</h1>
+                <p style="font-size:8px;color:#94a3b8;font-weight:600;margin:0;letter-spacing:.04em;">Complete all required fields marked with *</p>
+            </div>
+        </div>
+
+        <div style="flex:1;"></div>
+
+        <div style="display:flex;align-items:center;gap:6px;">
+            <span class="status-dot"></span>
+            <span id="case-id-display" style="font-size:9px;font-weight:800;color:#2447d7;font-family:monospace;letter-spacing:.04em;"></span>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:8px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+                <label style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;">Status</label>
+                <select id="field-leadStatus" style="height:28px;padding:0 8px;font-size:9px;font-weight:700;border:1px solid #e2e8f0;border-radius:8px;background:#f8fafc;outline:none;color:#1e293b;font-family:'Inter',sans-serif;">
+                    <option value="Warm">Warm</option>
+                    <option value="Hot">Hot</option>
+                    <option value="Cool">Cool</option>
+                </select>
+            </div>
+            <button onclick="saveLead()" style="height:34px;padding:0 20px;background:#2447d7;color:#fff;border:none;border-radius:10px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;">
+                <i class="fa-solid fa-check text-[8px]"></i> Save Lead
+            </button>
+        </div>
+    </header>
+
+    <!-- Scrollable Form Body -->
+    <div class="flex-1 overflow-y-auto custom-scrollbar" style="padding:16px 20px;display:flex;flex-direction:column;gap:16px;">
+
+        <!-- 1. Contact Information -->
+        <div class="panel-card">
+            <h3 class="section-header"><i class="fa-solid fa-address-card" style="color:#2447d7;"></i> Contact Information</h3>
+            <div class="registration-grid">
+                <div>
+                    <label class="label-premium">Title <span class="text-red-500">*</span></label>
+                    <input type="text" id="field-title" placeholder="e.g. Mr, Mrs, Dr..." class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Full Name <span class="text-red-500">*</span></label>
+                    <input type="text" id="field-fullName" placeholder="e.g. Jonathan Doe" class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Date of Birth <span class="text-red-500">*</span></label>
+                    <input type="date" id="field-dob" class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Company / Organization Name <span class="text-red-500">*</span></label>
+                    <input type="text" id="field-companyName" placeholder="Registered name..." class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Company House Number <span class="text-red-500">*</span></label>
+                    <input type="text" id="field-companyHouseNumber" placeholder="e.g. 12345678" class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Business Annual Turnover <span class="text-red-500">*</span></label>
+                    <input type="text" id="field-businessAnnualTurnover" placeholder="£0.00" class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Job Title / Position</label>
+                    <input type="text" id="field-jobTitle" placeholder="Managing Director" class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Industry</label>
+                    <select id="field-industry" class="form-input-premium">
+                        <option value="">Select industry...</option>
+                        <option>Software</option>
+                        <option>Hardware</option>
+                        <option>IT Services</option>
+                        <option>Telecommunications</option>
+                        <option>E-commerce </option>
+                        <option>Digital Media</option>
+                        <option>Robotics</option>
+                        <option>Pharmaceuticals</option>
+                        <option>Medical Devices</option>
+                        <option>Hospitals </option>
+                        <option>Health Insurance</option>
+                        <option>BioTechnology</option>
+                        <option>Wellness</option>
+                        <option>Banking</option>
+                        <option>Insurance</option>
+                        <option>Investment Banking</option>
+                        <option>Venture Capital</option>
+                        <option>Accounting</option>
+                        <option>Aerospace</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-premium">Email Address <span class="text-red-500">*</span></label>
+                    <input type="email" id="field-emailAddress" placeholder="client@example.com" class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Phone Number <span class="text-red-500">*</span></label>
+                    <input type="tel" id="field-phoneNumber" placeholder="+44 77..." class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Preferred Method</label>
+                    <div class="flex gap-2">
+                        <div class="radio-btn active px-2.5 py-1.5" id="contact-email" onclick="setContact('email')">Email</div>
+                        <div class="radio-btn px-2.5 py-1.5" id="contact-phone" onclick="setContact('phone')">Phone</div>
+                        <div class="radio-btn px-2.5 py-1.5" id="contact-whatsapp" onclick="setContact('whatsapp')">WhatsApp</div>
+                        <div class="radio-btn px-2.5 py-1.5" id="contact-other" onclick="setContact('other')">Other</div>
+                    </div>
+                </div>
+                <div>
+                    <label class="label-premium">Home Owner <span class="text-red-500">*</span></label>
+                    <select id="field-homeOwner" class="form-input-premium">
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-premium">Time at Current Address</label>
+                    <input type="text" id="field-timeAtCurrentAddress" placeholder="e.g. 3 years" class="form-input-premium">
+                </div>
+                <div class="col-span-full">
+                    <label class="label-premium">Residential Address <span class="text-red-500">*</span></label>
+                    <input type="text" id="field-residentialAddress" placeholder="Full address..." class="form-input-premium">
+                </div>
+                <div class="col-span-full">
+                    <label class="label-premium">Previous Address</label>
+                    <input type="text" id="field-previousAddress" placeholder="Previous if &lt; 3 years..." class="form-input-premium">
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. Loan Details -->
+        <div class="panel-card">
+            <h3 class="section-header"><i class="fa-solid fa-sack-dollar" style="color:#2447d7;"></i> Loan Details</h3>
+            <div class="registration-grid">
+                <div>
+                    <label class="label-premium">Amount Needed <span class="text-red-500">*</span></label>
+                    <input type="text" id="field-loanAmount" placeholder="£0.00" class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Loan Purpose</label>
+                    <input type="text" id="field-loanPurpose" placeholder="Business expansion..." class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Existing Loan</label>
+                    <select id="field-existingLoan" class="form-input-premium" onchange="toggleExistingLoanSection(this.value)">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+
+                <!-- Conditional Existing Loan Section -->
+                <div id="existing-loan-details" class="hidden col-span-full" style="background:#f8fafc;padding:20px;border-radius:16px;border:1px solid #e2e8f0;">
+                    <p style="font-size:10px;font-weight:800;color:#2447d7;text-transform:uppercase;letter-spacing:.08em;margin:0 0 12px;">Existing Indebtedness</p>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+                        <input type="text" id="field-existingLender" placeholder="Lender Name" class="form-input-premium" style="background:#fff;">
+                        <input type="text" id="field-existingAmount" placeholder="Amount Taken (£)" class="form-input-premium" style="background:#fff;">
+                        <input type="text" id="field-existingRate" placeholder="Interest Rate (%)" class="form-input-premium" style="background:#fff;">
+                        <input type="text" id="field-existingRepayment" placeholder="Monthly Repayment(£)" class="form-input-premium" style="background:#fff;">
+                        <input type="text" id="field-existingTerm" placeholder="Loan Term" class="form-input-premium" style="background:#fff;grid-column:span 2;">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="label-premium">Overdraft Facility</label>
+                    <select id="field-overdraftFacility" class="form-input-premium">
+                        <option>No</option>
+                        <option>Yes</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-premium">Which Bank is your Company with</label>
+                    <select id="field-companyBank" class="form-input-premium">
+                        <option value="">Select a bank...</option>
+                        <option>Santander</option>
+                        <option>HSBC</option>
+                        <option>Lloyds Bank</option>
+                        <option>Starling</option>
+                        <option>NatWest</option>
+                        <option>Barclays</option>
+                        <option>Metro Bank</option>
+                        <option>Royal Bank of Scotland</option>
+                        <option>The Co-operative Bank</option>
+                        <option>The Cumberland</option>
+                        <option>Tide</option>
+                        <option>TSB</option>
+                        <option>Ulster Bank</option>
+                        <option>Unity Trust Bank</option>
+                        <option>Zempler</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-premium">Lead Source</label>
+                    <select id="field-leadSource" class="form-input-premium">
+                        <option value="">Select source...</option>
+                        <option>Advertisement</option>
+                        <option>Cold Call</option>
+                        <option>Web</option>
+                        <option>External Referral</option>
+                        <option>Instagram</option>
+                        <option>Organic Search</option>
+                        <option>Sales Email Alias</option>
+                        <option>Employee Referral</option>
+                        <option>Online Store</option>
+                        <option>Partner</option>
+                        <option>Public Relations</option>
+                        <option>Seminar Partner</option>
+                        <option>Internal Seminar</option>
+                        <option>Trade Show</option>
+                        <option>Chat</option>
+                        
+                    </select>
+                </div>
+                <div>
+                    <label class="label-premium">How soon do you need this funding?</label>
+                    <input type="text" id="field-fundingTimeline" placeholder="e.g. Within 2 weeks" class="form-input-premium">
+                </div>
+                <div>
+                    <label class="label-premium">Have you taken any loans before from Alpha Funding? <span class="text-red-500">*</span></label>
+                    <select id="field-previousAlphaFundingLoan" class="form-input-premium">
+                        <option>No</option>
+                        <option>Yes</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-premium">Credit Search Consent  <span class="text-red-500">*</span></label>
+                    <p class="text-[7px] text-gray-500 italic mb-1">Does the client consent to a credit search being carried out?</p>
+                    <select id="field-creditConsent" class="form-input-premium">
+                        <option>Yes</option>
+                        <option>No</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. Docs & Comments -->
+        <div class="panel-card">
+            <div class="registration-grid">
+                <div>
+                    <h3 class="section-header" style="margin-bottom:8px;padding-bottom:6px;"><i class="fa-solid fa-paperclip" style="color:#2447d7;"></i> Supporting Documents</h3>
+                    <div onclick="document.getElementById('doc-upload-input').click()"
+                        style="padding:14px;border:2px dashed #e2e8f0;border-radius:12px;background:#f8fafc;text-align:center;cursor:pointer;transition:all .2s;"
+                        onmouseover="this.style.borderColor='#2447d7';this.style.background='#ebf0ff';"
+                        onmouseout="this.style.borderColor='#e2e8f0';this.style.background='#f8fafc';">
+                        <i class="fa-solid fa-cloud-arrow-up" style="font-size:18px;color:#cbd5e1;margin-bottom:4px;display:block;"></i>
+                        <p style="font-size:8px;font-weight:800;color:#94a3b8;text-transform:uppercase;margin:0;">Drop Docs / Click to Upload</p>
+                        <input type="file" id="doc-upload-input" class="hidden" multiple onchange="handleDocUpload(this)">
+                    </div>
+                    <div id="doc-list-container" class="mt-2"></div>
+                </div>
+
+                <div class="col-span-2-of-3">
+                    <h3 class="section-header" style="margin-bottom:8px;padding-bottom:6px;"><i class="fa-solid fa-comment-dots" style="color:#2447d7;"></i> Additional Comments</h3>
+                    <textarea id="field-additionalComments" rows="4" placeholder="Enter context/notes..."
+                        class="form-input-premium resize-none" style="height:100px;"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. Schedule Follow-up -->
+        <div class="panel-card" style="background:#f0f4ff;border-color:#dbeafe;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;border-bottom:1px solid #dbeafe;padding-bottom:10px;">
+                <h4 style="font-size:10px;font-weight:900;color:#2447d7;text-transform:uppercase;letter-spacing:.1em;margin:0;display:flex;align-items:center;gap:6px;">
+                    <i class="fa-solid fa-calendar-plus"></i> Schedule Follow-up
+                </h4>
+                <div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+            </div>
+
+            <div class="registration-grid">
+                <div class="col-span-2-of-3">
+                    <label class="label-premium">Task Description</label>
+                    <input type="text" id="task-desc" placeholder="Title..." class="form-input-premium" style="background:#fff;">
+                </div>
+                <div>
+                    <label class="label-premium">Assignee</label>
+                    <select id="task-assignee" class="form-input-premium" style="background:#fff;">
+                        <option>Thanushika</option>
+                        <option>Admin</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-premium">Client</label>
+                    <input type="text" id="task-client" placeholder="Client Name" class="form-input-premium" style="background:#fff;">
+                </div>
+                <div>
+                    <label class="label-premium">Phone</label>
+                    <input type="tel" id="task-phone" placeholder="077..." class="form-input-premium" style="background:#fff;">
+                </div>
+                <div>
+                    <label class="label-premium">Task Type</label>
+                    <select id="task-type" class="form-input-premium" style="background:#fff;">
+                        <option>Call</option>
+                        <option>Meeting</option>
+                        <option>Follow-up</option>
+                        <option>Email</option>
+                        <option>Document</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="label-premium">Task Status</label>
+                    <select id="task-status" class="form-input-premium" style="background:#fff;">
+                        <option>Warm</option>
+                        <option>Hot</option>
+                        <option>Cold</option>
+                    </select>
+                </div>
+                <div class="col-span-2-of-3">
+                    <label class="label-premium">Email Address</label>
+                    <input type="email" id="task-email" placeholder="mail@lead.com" class="form-input-premium" style="background:#fff;">
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <div style="flex:1;">
+                        <label class="label-premium">Date</label>
+                        <input type="date" id="task-date" class="form-input-premium" style="background:#fff;">
+                    </div>
+                    <div style="flex:1;">
+                        <label class="label-premium">Time</label>
+                        <input type="time" id="task-time" class="form-input-premium" style="background:#fff;">
+                    </div>
+                </div>
+                <div class="col-span-2-of-3">
+                    <label class="label-premium">Notes / Instructions</label>
+                    <textarea id="task-notes" rows="2" placeholder="..." class="form-input-premium resize-none" style="background:#fff;"></textarea>
+                </div>
+                <div style="display:flex;align-items:flex-end;">
+                    <button type="button" onclick="createTask()"
+                        style="width:100%;padding:10px;background:#2447d7;color:#fff;border:none;border-radius:10px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;font-family:'Inter',sans-serif;"
+                        onmouseover="this.style.background='#1a38b1'" onmouseout="this.style.background='#2447d7'">
+                        Create Task
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding-bottom:24px;">
+            <button onclick="goBack()" style="height:36px;padding:0 22px;background:#f1f5f9;border:none;border-radius:10px;font-size:9px;font-weight:800;color:#64748b;cursor:pointer;text-transform:uppercase;letter-spacing:.06em;font-family:'Inter',sans-serif;">
+                Cancel
+            </button>
+            <button onclick="saveLead()" style="height:36px;padding:0 26px;background:#2447d7;color:#fff;border:none;border-radius:10px;font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;">
+                <i class="fa-solid fa-check text-[8px]"></i> Save Lead
+            </button>
+        </div>
+
+    </div><!-- end scrollable body -->
+</div><!-- end main-content -->
+
+<script>
+    // Auto-generate Case ID on load
+    const caseId = 'AF-CASE-' + Math.floor(1000 + Math.random() * 9000);
+    document.getElementById('case-id-display').textContent = caseId;
+
+    function goBack() {
+        if (document.referrer) {
+            history.back();
+        } else {
+            const s = window._crmSession;
+            if (s && s.landing) {
+                window.location.href = '../dashboard/' + s.landing.split('/').pop();
+            } else {
+                window.location.href = '../lead_management/lead_management.html';
+            }
+        }
+    }
+
+    function setContact(method) {
+        document.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.getElementById('contact-' + method);
+        if (btn) btn.classList.add('active');
+    }
+
+    function toggleExistingLoanSection(value) {
+        const section = document.getElementById('existing-loan-details');
+        if (value === 'Yes') {
+            section.classList.remove('hidden');
+        } else {
+            section.classList.add('hidden');
+        }
+    }
+
+    function handleDocUpload(input) {
+        const container = document.getElementById('doc-list-container');
+        if (!input.files || input.files.length === 0) return;
+        Array.from(input.files).forEach(file => {
+            const docItem = document.createElement('div');
+            docItem.className = 'flex items-center justify-between p-1.5 bg-white border border-gray-50 rounded-lg shadow-sm mb-1';
+            docItem.innerHTML = `
+                <div class="flex items-center gap-2 overflow-hidden">
+                    <i class="fa-solid fa-file-pdf text-[10px] text-red-500"></i>
+                    <span class="text-[9px] font-bold text-gray-700 truncate">${file.name}</span>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-gray-300 hover:text-red-500 transition-colors ml-2 flex-shrink-0">
+                    <i class="fa-solid fa-xmark text-[9px]"></i>
+                </button>
+            `;
+            container.appendChild(docItem);
+        });
+        input.value = '';
+    }
+
+    // Sync contact info into follow-up fields
+    function initSyncListeners() {
+        const sync = () => {
+            document.getElementById('task-client').value = document.getElementById('field-fullName').value;
+            document.getElementById('task-phone').value = document.getElementById('field-phoneNumber').value;
+            document.getElementById('task-email').value = document.getElementById('field-emailAddress').value;
+        };
+        document.getElementById('field-fullName').addEventListener('input', sync);
+        document.getElementById('field-phoneNumber').addEventListener('input', sync);
+        document.getElementById('field-emailAddress').addEventListener('input', sync);
+    }
+
+    function createTask() {
+        const desc = document.getElementById('task-desc').value.trim();
+        if (!desc) { alert('Please enter a task description'); return; }
+        alert('Task scheduled successfully!');
+    }
+
+    function saveLead() {
+        const fullName = document.getElementById('field-fullName').value.trim();
+        if (!fullName) { alert('Full Name is required'); document.getElementById('field-fullName').focus(); return; }
+
+        const loanAmount = document.getElementById('field-loanAmount').value.trim();
+        if (!loanAmount) { alert('Amount Needed is required'); document.getElementById('field-loanAmount').focus(); return; }
+
+        const newLead = {
+            id: caseId,
+            fullName,
+            title: document.getElementById('field-title').value,
+            dob: document.getElementById('field-dob').value,
+            companyName: document.getElementById('field-companyName').value,
+            jobTitle: document.getElementById('field-jobTitle').value,
+            companyHouseNumber: document.getElementById('field-companyHouseNumber').value,
+            businessAnnualTurnover: document.getElementById('field-businessAnnualTurnover').value,
+            emailAddress: document.getElementById('field-emailAddress').value,
+            phoneNumber: document.getElementById('field-phoneNumber').value,
+            residentialAddress: document.getElementById('field-residentialAddress').value,
+            previousAddress: document.getElementById('field-previousAddress').value,
+            timeAtCurrentAddress: document.getElementById('field-timeAtCurrentAddress').value,
+            homeOwner: document.getElementById('field-homeOwner').value,
+            loanAmount,
+            fundingTimeline: document.getElementById('field-fundingTimeline').value,
+            loanPurpose: document.getElementById('field-loanPurpose').value,
+            companyBank: document.getElementById('field-companyBank').value,
+            industry: document.getElementById('field-industry').value,
+            leadSource: document.getElementById('field-leadSource').value,
+            creditConsent: document.getElementById('field-creditConsent').value,
+            existingLoan: document.getElementById('field-existingLoan').value,
+            overdraftFacility: document.getElementById('field-overdraftFacility').value,
+            previousAlphaFundingLoan: document.getElementById('field-previousAlphaFundingLoan').value,
+            leadStatus: document.getElementById('field-leadStatus').value || 'Warm',
+            preferredContactMethod: (document.querySelector('.radio-btn.active') || {}).textContent?.trim() || 'Email',
+            additionalComments: document.getElementById('field-additionalComments').value,
+            createdAt: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+            documents: [],
+            tasks: []
+        };
+
+        // Pass to lead_management via sessionStorage
+        sessionStorage.setItem('new_lead_data', JSON.stringify(newLead));
+
+        alert('Lead saved successfully!');
+        window.location.href = '../lead_management/lead_management.html';
+    }
+
+    initSyncListeners();
+</script>
+</body>
+</html>

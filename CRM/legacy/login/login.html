@@ -1,0 +1,410 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — Alpha Funding CRM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ── LEFT BRANDING ── */
+        .brand-panel {
+            width: 420px;
+            flex-shrink: 0;
+            background: #0f172a;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+        .brand-panel::before {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99,102,241,.18) 0%, transparent 70%);
+            top: -80px; left: -80px;
+            pointer-events: none;
+        }
+        .brand-panel::after {
+            content: '';
+            position: absolute;
+            width: 300px; height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16,185,129,.12) 0%, transparent 70%);
+            bottom: -60px; right: -60px;
+            pointer-events: none;
+        }
+        .brand-logo {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .brand-logo-icon {
+            width: 36px; height: 36px; background: rgba(255,255,255,.1);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+        }
+        .brand-logo-text {
+            font-size: 15px; font-weight: 800; color: #fff; letter-spacing: -.02em;
+        }
+        .brand-logo-sub {
+            font-size: 10px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: .08em;
+        }
+        .brand-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 32px 0; }
+        .brand-body h1 { font-size: 32px; font-weight: 900; color: #fff; line-height: 1.2; letter-spacing: -.03em; margin-bottom: 12px; }
+        .brand-body p { font-size: 13px; color: #64748b; font-weight: 500; line-height: 1.6; }
+        .brand-features { list-style: none; margin-top: 36px; display: flex; flex-direction: column; gap: 12px; }
+        .brand-feature {
+            display: flex; align-items: center; gap: 10px;
+            font-size: 12px; font-weight: 600; color: #94a3b8;
+        }
+        .brand-feature-dot {
+            width: 6px; height: 6px; border-radius: 50%; background: #6366f1; flex-shrink: 0;
+        }
+        .brand-footer { font-size: 10px; color: #334155; font-weight: 600; }
+
+        /* ── RIGHT FORM ── */
+        .form-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .form-panel::-webkit-scrollbar { width: 3px; }
+        .form-panel::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+
+        .form-inner {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 32px;
+        }
+        .form-card { width: 100%; max-width: 400px; }
+
+        .form-title { font-size: 26px; font-weight: 900; color: #0f172a; letter-spacing: -.03em; margin-bottom: 4px; }
+        .form-sub   { font-size: 12px; color: #94a3b8; font-weight: 500; margin-bottom: 28px; }
+
+        /* Error banner */
+        .error-banner {
+            background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px;
+            padding: 10px 12px; font-size: 11px; font-weight: 700; color: #b91c1c;
+            display: none; align-items: center; gap: 7px; margin-bottom: 16px;
+        }
+        .error-banner.show { display: flex; }
+
+        /* Fields */
+        .field { margin-bottom: 16px; }
+        .field-label {
+            display: block; font-size: 10px; font-weight: 800; color: #475569;
+            text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px;
+        }
+        .field-wrap { position: relative; }
+        .field-icon {
+            position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+            color: #94a3b8; font-size: 11px; pointer-events: none;
+        }
+        .field-input {
+            width: 100%; padding: 10px 12px 10px 34px;
+            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 9px;
+            font-size: 13px; font-weight: 500; color: #0f172a; outline: none;
+            transition: all .15s; font-family: inherit;
+        }
+        .field-input:focus { background: #fff; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.1); }
+        .field-input.error { border-color: #fca5a5; background: #fff; }
+
+        /* Submit */
+        .btn-login {
+            width: 100%; padding: 12px; margin-top: 8px;
+            background: #0f172a; color: #fff; border: none; border-radius: 10px;
+            font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em;
+            cursor: pointer; transition: all .15s; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-login:hover { background: #1e293b; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,23,42,.2); }
+        .btn-login:active { transform: none; }
+        .btn-login.loading { opacity: .7; pointer-events: none; }
+
+        /* Divider */
+        .divider {
+            display: flex; align-items: center; gap: 10px;
+            margin: 24px 0 16px;
+        }
+        .divider::before,.divider::after { content:''; flex:1; height:1px; background:#f1f5f9; }
+        .divider-text { font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; }
+
+        /* Quick Login Role Cards */
+        .roles-label { font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: .09em; margin-bottom: 10px; }
+        .roles-grid { display: flex; flex-direction: column; gap: 6px; }
+        .role-card {
+            display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+            background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px;
+            cursor: pointer; transition: all .15s; user-select: none;
+        }
+        .role-card:hover { background: #f1f5f9; border-color: #e2e8f0; transform: translateX(2px); }
+        .role-card:active { transform: none; }
+        .role-avatar {
+            width: 32px; height: 32px; border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 900; color: #fff; flex-shrink: 0;
+        }
+        .role-info { flex: 1; min-width: 0; }
+        .role-name { font-size: 11px; font-weight: 800; color: #0f172a; }
+        .role-email { font-size: 9px; font-weight: 600; color: #94a3b8; margin-top: 1px; }
+        .role-badge {
+            font-size: 8px; font-weight: 800; padding: 2px 7px; border-radius: 99px;
+            text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; flex-shrink: 0;
+        }
+        .role-arrow { color: #cbd5e1; font-size: 9px; flex-shrink: 0; }
+
+        /* Credentials hint */
+        .cred-hint { font-size: 9px; font-weight: 600; color: #94a3b8; margin-top: 4px; }
+        .cred-pass { font-family: monospace; font-size: 9px; background: #f1f5f9; padding: 1px 5px; border-radius: 4px; color: #475569; }
+
+        @media (max-width: 768px) {
+            .brand-panel { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- LEFT: BRANDING -->
+<div class="brand-panel">
+    <div class="brand-logo">
+        <div class="brand-logo-icon" style="background:transparent;padding:2px;"><img src="../logo/alpha.png" alt="Alpha Funding" style="width:32px;height:32px;object-fit:contain;"></div>
+        <div>
+            <div class="brand-logo-text">Alpha Funding CRM</div>
+            <div class="brand-logo-sub">Enterprise Edition</div>
+        </div>
+    </div>
+
+    <div class="brand-body">
+        <h1>Precision Lending, Simplified.</h1>
+        <p>The all-in-one platform for managing leads, loans, teams and documents — built for modern mortgage brokers.</p>
+        <ul class="brand-features">
+            <li class="brand-feature"><div class="brand-feature-dot"></div>Real-time Pipeline Intelligence</li>
+            <li class="brand-feature"><div class="brand-feature-dot" style="background:#10b981;"></div>Role-Based Access Control</li>
+            <li class="brand-feature"><div class="brand-feature-dot" style="background:#f59e0b;"></div>Automated Document Vault</li>
+            <li class="brand-feature"><div class="brand-feature-dot" style="background:#ec4899;"></div>Live Team Activity Monitor</li>
+        </ul>
+    </div>
+
+    <div class="brand-footer">© 2026 Alpha Funding CRM. Secure Enterprise Access.</div>
+</div>
+
+<!-- RIGHT: FORM -->
+<div class="form-panel">
+    <div class="form-inner">
+        <div class="form-card">
+
+            <div class="form-title">Welcome back</div>
+            <div class="form-sub">Sign in to your account to continue</div>
+
+            <!-- Error banner -->
+            <div class="error-banner" id="error-banner">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <span id="error-msg">Invalid email or password.</span>
+            </div>
+
+            <!-- Form -->
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="field">
+                    <label class="field-label">Email Address</label>
+                    <div class="field-wrap">
+                        <i class="fa-solid fa-envelope field-icon"></i>
+                        <input type="email" id="inp-email" class="field-input" placeholder="you@taskflow.com" autocomplete="email">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="field-label">Password</label>
+                    <div class="field-wrap">
+                        <i class="fa-solid fa-lock field-icon"></i>
+                        <input type="password" id="inp-pass" class="field-input" placeholder="••••••••" autocomplete="current-password">
+                        <i class="fa-solid fa-eye" id="toggle-pass" onclick="togglePassword()"
+                            style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#94a3b8;font-size:11px;cursor:pointer;"></i>
+                    </div>
+                    <div class="cred-hint" style="margin-top:5px;">Demo password for all roles: <span class="cred-pass">Pass@123</span></div>
+                </div>
+                <button type="submit" class="btn-login" id="login-btn">
+                    <i class="fa-solid fa-right-to-bracket text-[10px]"></i> Sign In
+                </button>
+            </form>
+
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════
+   DEMO USERS
+═══════════════════════════════════ */
+const DEMO_USERS = [
+    {
+        name: 'Super Admin',
+        email: 'admin@taskflow.com',
+        password: 'Pass@123',
+        role: 'Admin',
+        roleColor: '#6366f1',
+        roleBg: '#eef2ff',
+        roleText: '#4f46e5',
+        avatar: 'SA',
+        avatarBg: '#6366f1',
+        landing: '../dashboard/super_admin_dashboard.html',
+        access: 'Full System Access',
+    },
+    {
+        name: 'Amal Jayasekera',
+        email: 'amal@taskflow.com',
+        password: 'Pass@123',
+        role: 'Team Leader',
+        roleColor: '#0891b2',
+        roleBg: '#ecfeff',
+        roleText: '#0e7490',
+        avatar: 'AJ',
+        avatarBg: '#0891b2',
+        landing: '../dashboard/team_lead_dashboard.html',
+        access: 'Leads · Pipeline · Team Reports',
+    },
+    {
+        name: 'Thanushika R.',
+        email: 'thanushika@taskflow.com',
+        password: 'Pass@123',
+        role: 'Tele Agent',
+        roleColor: '#16a34a',
+        roleBg: '#f0fdf4',
+        roleText: '#15803d',
+        avatar: 'TR',
+        avatarBg: '#16a34a',
+        landing: '../dashboard/tele_agent_dashboard.html',
+        access: 'Leads · Tasks · Follow-ups',
+    },
+    {
+        name: 'Nirosha K.',
+        email: 'nirosha@taskflow.com',
+        password: 'Pass@123',
+        role: 'Accounts Manager',
+        roleColor: '#b45309',
+        roleBg: '#fef3c7',
+        roleText: '#92400e',
+        avatar: 'NK',
+        avatarBg: '#d97706',
+        landing: '../dashboard/accounts_manager_dashboard.html',
+        access: 'Payouts · Lenders · Documents',
+    },
+];
+
+/* ═══════════════════════════════════
+   RENDER ROLE CARDS (removed)
+═══════════════════════════════════ */
+
+/* ═══════════════════════════════════
+   AUTH HELPERS
+═══════════════════════════════════ */
+function createSession(user) {
+    sessionStorage.setItem('crm_session', JSON.stringify({
+        name:    user.name,
+        email:   user.email,
+        role:    user.role,
+        avatar:  user.avatar,
+        avatarBg: user.avatarBg,
+        access:  user.access,
+        landing: user.landing,
+    }));
+}
+
+function showError(msg) {
+    const banner = document.getElementById('error-banner');
+    document.getElementById('error-msg').textContent = msg;
+    banner.classList.add('show');
+    document.getElementById('inp-email').classList.add('error');
+    document.getElementById('inp-pass').classList.add('error');
+}
+
+function clearError() {
+    document.getElementById('error-banner').classList.remove('show');
+    document.getElementById('inp-email').classList.remove('error');
+    document.getElementById('inp-pass').classList.remove('error');
+}
+
+function setLoading(on) {
+    const btn = document.getElementById('login-btn');
+    btn.classList.toggle('loading', on);
+    btn.innerHTML = on
+        ? '<i class="fa-solid fa-circle-notch fa-spin text-[10px]"></i> Authenticating…'
+        : '<i class="fa-solid fa-right-to-bracket text-[10px]"></i> Sign In';
+}
+
+/* ═══════════════════════════════════
+   FORM LOGIN
+═══════════════════════════════════ */
+function handleLogin(e) {
+    e.preventDefault();
+    clearError();
+    const email = document.getElementById('inp-email').value.trim().toLowerCase();
+    const pass  = document.getElementById('inp-pass').value;
+
+    const user = DEMO_USERS.find(u => u.email.toLowerCase() === email && u.password === pass);
+    if (!user) { showError('Invalid email or password. Try a demo account below.'); return; }
+
+    setLoading(true);
+    createSession(user);
+    setTimeout(() => { window.location.href = user.landing; }, 700);
+}
+
+/* ═══════════════════════════════════
+   QUICK LOGIN
+═══════════════════════════════════ */
+function quickLogin(idx) {
+    const user = DEMO_USERS[idx];
+    clearError();
+    // Animate card
+    const cards = document.querySelectorAll('.role-card');
+    cards[idx].style.background = '#eef2ff';
+    cards[idx].style.borderColor = '#c7d2fe';
+    createSession(user);
+    setTimeout(() => { window.location.href = user.landing; }, 500);
+}
+
+/* ═══════════════════════════════════
+   PASSWORD TOGGLE
+═══════════════════════════════════ */
+function togglePassword() {
+    const inp = document.getElementById('inp-pass');
+    const icon = document.getElementById('toggle-pass');
+    if (inp.type === 'password') {
+        inp.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        inp.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+
+/* ═══════════════════════════════════
+   AUTO-REDIRECT IF ALREADY LOGGED IN
+═══════════════════════════════════ */
+(function() {
+    const s = sessionStorage.getItem('crm_session');
+    if (s) {
+        try {
+            const sess = JSON.parse(s);
+            if (sess && sess.landing) window.location.replace(sess.landing);
+        } catch(e) {}
+    }
+})();
+</script>
+</body>
+</html>

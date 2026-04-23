@@ -1,0 +1,846 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporting & Logs - Alpha Funding CRM</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            background: #fff;
+            margin: 0;
+            display: flex;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .dashboard-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            height: 100vh;
+            padding: 0.75rem;
+            flex-grow: 1;
+            min-width: 0;
+            background: #fafafa;
+        }
+
+        /* Cards */
+        .panel-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card {
+            background: #fff;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Donut Chart (CSS Only) */
+        .donut-chart-container {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(#3b82f6 0% 40%, #10b981 40% 70%, #f59e0b 70% 85%, #8b5cf6 85% 95%, #ef4444 95% 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .05);
+        }
+
+        .donut-hole {
+            width: 90px;
+            height: 90px;
+            background: #fff;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, .06);
+        }
+
+        /* Bar Chart (CSS Flex) */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 180px;
+            padding-bottom: 25px;
+            position: relative;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40px;
+        }
+
+        .bar {
+            width: 32px;
+            background: #6366f1;
+            border-radius: 4px 4px 0 0;
+            transition: background .2s, height .5s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .bar:hover {
+            background: #4f46e5;
+        }
+
+        .bar-label {
+            position: absolute;
+            bottom: -20px;
+            font-size: 8px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .bar-value {
+            position: absolute;
+            top: -18px;
+            font-size: 9px;
+            font-weight: 800;
+            color: #1e293b;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Tabs */
+        .tab-btn {
+            padding: 8px 16px;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: #64748b;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .tab-btn.active {
+            color: #0f172a;
+            border-color: #0f172a;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: #334155;
+        }
+
+        /* Tables */
+        th {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 8px;
+            font-weight: 800;
+            color: #94a3b8;
+            padding: 10px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 10px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .log-row {
+            cursor: pointer;
+        }
+
+        .log-grid {
+            display: grid;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            animation: slidedown 0.2s ease;
+        }
+
+        @keyframes slidedown {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .badge-critical {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .badge-normal {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .badge-system {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .input-clean {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 10px;
+            font-weight: 600;
+            color: #1e293b;
+            outline: none;
+        }
+
+        .input-clean:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px #e0e7ff;
+        }
+
+        .lead-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #e0e7ff;
+            color: #4338ca;
+            font-size: 9px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stage-badge {
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .stage-completed { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+        .stage-docs-verified { background: #f0f9ff; color: #075985; border: 1px solid #bae6fd; }
+        .stage-collecting { background: #f8fafc; color: #475569; border: 1px solid #cbd5e1; }
+        .stage-selecting { background: #f5f3ff; color: #4c1d95; border: 1px solid #ddd6fe; }
+        .stage-rejected { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+        .status-warm {
+            background: #fffbeb;
+            color: #92400e;
+            border: 1px solid #fde68a;
+            padding: 3px 6px;
+            border-radius: 20px;
+            font-size: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+            width: fit-content;
+        }
+
+        .li-th {
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 8px;
+            font-weight: 800;
+            color: #94a3b8;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        .li-td {
+            padding: 10px 12px;
+            font-size: 10px;
+            color: #334155;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+
+        .li-tr:hover .li-td {
+            background: #f8fafc;
+        }
+
+        .side-nav {
+            width: 70px;
+            background: #0f172a;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 0;
+            gap: 4px;
+            border-right: 1px solid #1e293b;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #94a3b8;
+            transition: all .2s;
+            cursor: pointer;
+            text-decoration: none;
+            padding: 6px 4px;
+            border-radius: 8px;
+            width: 54px;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            color: #fff;
+            background: rgba(255, 255, 255, .08);
+        }
+
+        .nav-item i {
+            font-size: 14px;
+        }
+
+        .nav-text {
+            font-size: 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            text-align: center;
+            line-height: 1;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="side-nav">
+        <div class="mb-6">
+            <img src="../logo/alpha.png" alt="Alpha Funding" style="width:38px;height:38px;object-fit:contain;border-radius:8px;">
+        </div>
+
+        <a href="../dashboard/super_admin_dashboard.html" id="nav-dashboard" class="nav-item">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span class="nav-text">Dashboard</span>
+        </a>
+
+        <a href="../task_and_followups/task_management.html" id="nav-tasks" class="nav-item">
+            <i class="fa-solid fa-tasks"></i>
+            <span class="nav-text">Tasks</span>
+        </a>
+
+        <a href="../lead_management/lead_management.html" id="nav-leads" class="nav-item">
+            <i class="fa-solid fa-user-group"></i>
+            <span class="nav-text">Leads</span>
+        </a>
+
+        <a href="../loan_pipeline/loan_pipeline.html" id="nav-pipeline" class="nav-item">
+            <i class="fa-solid fa-diagram-project"></i>
+            <span class="nav-text">Pipeline</span>
+        </a>
+
+        <a href="../lenders/lender_management.html" id="nav-lenders" class="nav-item">
+            <i class="fa-solid fa-hand-holding-dollar"></i>
+            <span class="nav-text">Lenders</span>
+        </a>
+
+        <a href="../documents/document_vault.html" id="nav-docs" class="nav-item">
+            <i class="fa-solid fa-folder-open"></i>
+            <span class="nav-text">Docs</span>
+        </a>
+
+        <a href="../user_management/user_management.html" id="nav-users" class="nav-item">
+            <i class="fa-solid fa-user-gear"></i>
+            <span class="nav-text">Users</span>
+        </a>
+
+        <a href="../reporting/reporting_logs.html" class="nav-item active">
+            <i class="fa-solid fa-chart-line"></i>
+            <span class="nav-text">Reports</span>
+        </a>
+        <div style="flex:1;"></div>
+                    <div class="nav-item" onclick="openProfileDrawer()" title="Profile" style="cursor:pointer;">
+                <i class="fa-solid fa-circle-user"></i>
+                <span class="nav-text">Profile</span>
+            </div>
+<div class="nav-item" onclick="logout()" style="margin-bottom:8px;" title="Logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="nav-text">Logout</span>
+        </div>
+    </nav>
+
+    <script>
+        (function () {
+            const s = JSON.parse(sessionStorage.getItem('crm_session') || 'null');
+            if (!s) { window.location.replace('../login/login.html'); return; }
+            if (s.role !== 'Admin') { window.location.replace(s.landing || '../login/login.html'); return; }
+            const el = document.getElementById('nav-dashboard');
+            if (el && s.landing) { el.href = '../dashboard/' + s.landing.split('/').pop(); }
+        })();
+        function logout() { sessionStorage.removeItem('crm_session'); window.location.replace('../login/login.html'); }
+    </script>
+
+    <main class="dashboard-container">
+        <div class="panel-card flex-shrink-0">
+            <div class="px-6 py-4 flex items-center justify-between border-b border-gray-100 bg-white">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                        <i class="fa-solid fa-chart-line text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-sm font-black text-gray-900 tracking-tight">System Intelligence</h1>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">Performance & Operations Audit</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Period:</span>
+                    <select class="input-clean bg-gray-50 text-[10px]">
+                        <option>Last 30 Days</option>
+                        <option>This Quarter</option>
+                        <option>Year to Date</option>
+                        <option>Custom Range</option>
+                    </select>
+                    <button class="bg-gray-900 hover:bg-black text-white px-4 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all">Apply</button>
+                </div>
+            </div>
+            <div class="flex px-4 pt-2 gap-2 bg-gray-50/50">
+                <button class="tab-btn active" id="tab-btn-analytics" onclick="switchTab('analytics')"><i class="fa-solid fa-chart-bar mr-1.5"></i>Analytics</button>
+                <button class="tab-btn" id="tab-btn-logs" onclick="switchTab('logs')"><i class="fa-solid fa-shield-halved mr-1.5"></i>Audit Logs</button>
+                <button class="tab-btn" id="tab-btn-leads" onclick="switchTab('leads')"><i class="fa-solid fa-table mr-1.5"></i>Lead Intelligence</button>
+            </div>
+        </div>
+
+        <div id="tab-analytics" class="flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-4">
+            <div class="panel-card flex-1">
+                <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div id="perf-icon" class="w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all" style="background:#eef2ff;color:#4338ca">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <h3 id="perf-title" class="text-[11px] font-bold text-gray-800 uppercase tracking-widest">Tele Agent Performance</h3>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">View:</span>
+                        <select id="perf-role-select" class="input-clean text-[10px]" onchange="switchPerfRole(this.value)">
+                            <option value="agent">Tele Agent</option>
+                            <option value="account_manager">Account Manager</option>
+                            <option value="team_leader">Team Leader</option>
+                        </select>
+                        <span class="text-[9px] text-gray-400"><i class="fa-solid fa-sort mr-1"></i><span id="perf-sort-label">Sorted by Total Leads</span></span>
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-400"></i>
+                            <input type="text" id="perf-search" class="input-clean pl-8 w-40 text-[10px]" placeholder="Quick find..." oninput="switchPerfRole(currentPerfRole)">
+                        </div>
+                        <button onclick="exportPerfCSV()" class="flex items-center gap-1.5 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-gray-50 transition-all">
+                            <i class="fa-solid fa-file-csv text-[10px]"></i> CSV
+                        </button>
+                        <button class="flex items-center gap-1.5 bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all">
+                            <i class="fa-solid fa-file-pdf text-[10px]"></i> PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left">
+                        <thead id="perf-thead"></thead>
+                        <tbody id="perf-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-leads" class="hidden flex-1 overflow-hidden flex flex-col gap-3">
+            <div class="panel-card flex-1 flex flex-col overflow-hidden">
+                <div class="px-5 py-3 border-b border-gray-100 flex items-center justify-between bg-white flex-shrink-0">
+                    <div>
+                        <h3 class="text-[11px] font-black text-gray-900 tracking-tight">Lead Intelligence</h3>
+                        <p class="text-[9px] text-gray-400 font-semibold mt-0.5" id="li-record-count">26 records found</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <div class="relative">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[9px] text-gray-400"></i>
+                            <input type="text" id="li-search" class="input-clean pl-8 w-44 text-[10px]" placeholder="Quick find lead..." oninput="filterLeads()">
+                        </div>
+                        <button onclick="exportLeadsCSV()" class="flex items-center gap-1.5 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest hover:bg-gray-50 transition-all">
+                            <i class="fa-solid fa-file-csv text-[10px]"></i> CSV
+                        </button>
+                        <button class="flex items-center gap-1.5 bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all">
+                            <i class="fa-solid fa-file-pdf text-[10px]"></i> PDF
+                        </button>
+                    </div>
+                </div>
+                <div class="flex-1 overflow-auto custom-scrollbar">
+                    <table class="w-full text-left" style="border-collapse:collapse">
+                        <thead>
+                            <tr>
+                                <th class="li-th w-40">Lead Entity</th>
+                                <th class="li-th w-36">Business Name</th>
+                                <th class="li-th w-44">Personnel Flow</th>
+                                <th class="li-th w-36">Application Stage</th>
+                                <th class="li-th w-28">Lead Status</th>
+                                <th class="li-th w-28">Amount</th>
+                                <th class="li-th w-24">Bank</th>
+                                <th class="li-th w-36">Lender Partner</th>
+                            </tr>
+                        </thead>
+                        <tbody id="li-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-logs" class="hidden flex-1 overflow-hidden flex flex-col gap-4">
+            <div class="panel-card flex-1">
+                <div class="px-5 py-3 border-b border-gray-100 flex items-center gap-3 bg-gray-50/50">
+                    <div class="relative flex-1">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400"></i>
+                        <input type="text" id="log-search" class="input-clean w-full pl-8" placeholder="Search by user or action..." oninput="renderLogs()">
+                    </div>
+                    <select id="log-role" class="input-clean w-40" onchange="renderLogs()">
+                        <option value="">All Users</option>
+                        <option value="admin">Admin</option>
+                        <option value="tele_agent">Tele Agent</option>
+                        <option value="account_manager">Account Manager</option>
+                        <option value="team_leader">Team Leader</option>
+                    </select>
+                    <select id="log-action" class="input-clean w-32" onchange="renderLogs()">
+                        <option value="">All Actions</option>
+                        <option>Login</option>
+                        <option>Create</option>
+                        <option>Update</option>
+                        <option>Delete</option>
+                        <option>View</option>
+                    </select>
+                    <select id="log-status" class="input-clean w-32" onchange="renderLogs()">
+                        <option value="">All</option>
+                        <option value="Audit">Audit</option>
+                        <option value="Operational">Operational</option>
+                    </select>
+                </div>
+                <div class="flex-1 overflow-y-auto custom-scrollbar">
+                    <table class="w-full text-left">
+                        <thead class="sticky top-0 bg-white shadow-[0_1px_2px_rgba(0,0,0,0.05)] z-10">
+                            <tr>
+                                <th class="w-8"></th>
+                                <th class="w-32">Timestamp</th>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Category</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function switchTab(tabId) {
+            ['analytics', 'logs', 'leads'].forEach(t => {
+                document.getElementById('tab-' + t).classList.add('hidden');
+                document.getElementById('tab-' + t).classList.remove('flex');
+                document.getElementById('tab-btn-' + t).classList.remove('active');
+            });
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+            document.getElementById('tab-' + tabId).classList.add('flex');
+            document.getElementById('tab-btn-' + tabId).classList.add('active');
+        }
+
+        const logs = [
+            { id: 1, ts: "2026-04-16 13:14:02", user: "system_admin", role: "admin",          category: "Auth",     action: "Failed Login Attempt", status: "Audit",       details: "Five consecutive failed attempts for user: sarah_j. Lockout triggered." },
+            { id: 2, ts: "2026-04-16 13:05:44", user: "sarah_j",      role: "tele_agent",     category: "Lead",     action: "Update",               status: "Operational", details: "Changed lead #8452 status from 'Contacted' to 'Processing'" },
+            { id: 3, ts: "2026-04-16 12:54:10", user: "m_thorne",     role: "account_manager",category: "Document", action: "Delete",               status: "Audit",       details: "Deleted document 'AML_Policy_Old.pdf' from Vault." },
+            { id: 4, ts: "2026-04-16 12:22:05", user: "e_chen",       role: "tele_agent",     category: "Auth",     action: "Login",                status: "Operational", details: "Successful authentication via Single Sign-On." },
+            { id: 5, ts: "2026-04-16 11:45:00", user: "system_admin", role: "admin",          category: "System",   action: "Update",               status: "Operational", details: "System configuration updated. SMTP mail handler tweaked." },
+            { id: 6, ts: "2026-04-16 09:30:15", user: "d_wallace",    role: "team_leader",    category: "Lead",     action: "Create",               status: "Operational", details: "Created new lead #8453 (Tom Haverford via direct entry)" },
+            { id: 7, ts: "2026-04-15 16:40:22", user: "sarah_j",      role: "tele_agent",     category: "Document", action: "View",                 status: "Operational", details: "Viewed and downloaded 'P12_Q4_Summary.pdf' (3.2 MB)" },
+            { id: 8, ts: "2026-04-15 14:15:33", user: "unknown",      role: "admin",          category: "System",   action: "Login",                status: "Audit",       details: "Unauthenticated access attempt to internal endpoint /api/v1/users (Blocked)" }
+        ];
+
+        const roleLabels = {
+            admin:           { label: 'Admin',           style: 'background:#f1f5f9;color:#334155;border:1px solid #cbd5e1' },
+            tele_agent:      { label: 'Tele Agent',      style: 'background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe' },
+            account_manager: { label: 'Account Manager', style: 'background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0' },
+            team_leader:     { label: 'Team Leader',     style: 'background:#f5f3ff;color:#4c1d95;border:1px solid #ddd6fe' },
+        };
+
+        function getRoleBadge(role) {
+            const r = roleLabels[role] || { label: role, style: 'background:#f1f5f9;color:#64748b' };
+            return `<span style="${r.style};padding:2px 7px;border-radius:4px;font-size:8px;font-weight:700;white-space:nowrap">${r.label}</span>`;
+        }
+
+        function getStatusBadge(status) {
+            if (status === 'Audit') return '<span class="badge-critical"><i class="fa-solid fa-magnifying-glass mr-1"></i>Audit</span>';
+            return '<span class="badge-normal"><i class="fa-solid fa-gear mr-1"></i>Operational</span>';
+        }
+
+        function toggleLog(id) {
+            const dRow = document.getElementById("log-detail-" + id);
+            const icon = document.getElementById("log-icon-" + id);
+            if (dRow.classList.contains("hidden")) {
+                dRow.classList.remove("hidden");
+                icon.classList.replace("fa-chevron-right", "fa-chevron-down");
+            } else {
+                dRow.classList.add("hidden");
+                icon.classList.replace("fa-chevron-down", "fa-chevron-right");
+            }
+        }
+
+        function renderLogs() {
+            const q      = (document.getElementById('log-search').value || '').toLowerCase();
+            const role   = document.getElementById('log-role').value;
+            const action = document.getElementById('log-action').value;
+            const status = document.getElementById('log-status').value;
+
+            const filtered = logs.filter(d =>
+                (!q      || d.user.toLowerCase().includes(q) || d.action.toLowerCase().includes(q)) &&
+                (!role   || d.role === role) &&
+                (!action || d.action === action) &&
+                (!status || d.status === status)
+            );
+
+            document.getElementById('logs-tbody').innerHTML = filtered.map(d => `
+                <tr class="log-row" onclick="toggleLog(${d.id})">
+                    <td class="text-center"><i id="log-icon-${d.id}" class="fa-solid fa-chevron-right text-[8px] text-gray-400"></i></td>
+                    <td class="font-mono text-gray-500">${d.ts}</td>
+                    <td class="font-bold text-gray-800">@${d.user}</td>
+                    <td>${getRoleBadge(d.role)}</td>
+                    <td><span class="badge-system">${d.category}</span></td>
+                    <td class="font-medium max-w-[200px] truncate text-gray-700">${d.action}</td>
+                    <td>${getStatusBadge(d.status)}</td>
+                </tr>
+                <tr id="log-detail-${d.id}" class="hidden bg-gray-50/50 relative">
+                    <td colspan="7" class="p-0 border-b border-gray-200">
+                        <div class="log-grid text-[10px]">
+                            <div class="flex flex-col gap-1">
+                                <span class="font-bold text-gray-400 uppercase tracking-widest text-[8px]">Detailed Event Data</span>
+                                <p class="text-gray-800 font-mono bg-gray-100 p-2 rounded border border-gray-200 shadow-inner">${d.details}</p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        renderLogs();
+
+        const perfRoles = {
+            agent: {
+                title: 'Tele Agent Performance',
+                sortLabel: 'Sorted by Total Leads',
+                icon: '<i class="fa-solid fa-headset"></i>',
+                iconStyle: 'background:#eef2ff;color:#4338ca',
+                headers: ['Rank', 'Agent Name', 'Total Leads', 'Converted', 'Conv. Rate', 'Total Value'],
+                data: [
+                    { rank: 1, name: 'Sarah Jenkins',  role: 'Senior Broker',  leads: 458, col3: 142, conv: 31, value: '$54.2M' },
+                    { rank: 2, name: 'Marcus Thorne',  role: 'Broker',         leads: 412, col3: 115, conv: 27, value: '$41.8M' },
+                    { rank: 3, name: 'Emily Chen',     role: 'Broker',         leads: 389, col3: 102, conv: 26, value: '$36.5M' },
+                    { rank: 4, name: 'David Wallace',  role: 'Junior Broker',  leads: 310, col3: 78,  conv: 25, value: '$29.1M' },
+                ],
+                col3Class: 'text-green-600 font-bold',
+                barColor: '#6366f1',
+            },
+            account_manager: {
+                title: 'Account Manager Performance',
+                sortLabel: 'Sorted by Total Leads',
+                icon: '<i class="fa-solid fa-user-tie"></i>',
+                iconStyle: 'background:#ecfdf5;color:#065f46',
+                headers: ['Rank', 'Account Manager', 'Total Leads', 'Active', 'Closed', 'Conv. Rate', 'Total Value'],
+                data: [
+                    { rank: 1, name: 'Rachel Kim',    role: 'Senior AM',       leads: 312, col3: 88,  col4: 224, conv: 34, value: '$42.1M' },
+                    { rank: 2, name: 'Tom Hadley',    role: 'Account Manager', leads: 278, col3: 71,  col4: 207, conv: 29, value: '$33.6M' },
+                    { rank: 3, name: 'Nina Patel',    role: 'Account Manager', leads: 245, col3: 60,  col4: 185, conv: 27, value: '$28.4M' },
+                    { rank: 4, name: 'Chris Mendez',  role: 'Junior AM',       leads: 198, col3: 52,  col4: 146, conv: 24, value: '$19.7M' },
+                ],
+                col3Class: 'text-indigo-600 font-bold',
+                col4Class: 'text-green-600 font-bold',
+                barColor: '#10b981',
+            },
+            team_leader: {
+                title: 'Team Leader Performance',
+                sortLabel: 'Sorted by Team Value',
+                icon: '<i class="fa-solid fa-people-group"></i>',
+                iconStyle: 'background:#f5f3ff;color:#4c1d95',
+                headers: ['Rank', 'Team Leader', 'Team Size', 'Team Leads', 'Converted', 'Avg. Rate', 'Team Value'],
+                data: [
+                    { rank: 1, name: 'James Okafor',  role: 'Team Lead – East',  leads: 8,  col3: 1240, col4: 320, conv: 29, value: '$148.3M' },
+                    { rank: 2, name: 'Linda Zhao',    role: 'Team Lead – West',  leads: 7,  col3: 1085, col4: 271, conv: 27, value: '$124.7M' },
+                    { rank: 3, name: 'Ben Hartley',   role: 'Team Lead – North', leads: 6,  col3: 894,  col4: 214, conv: 24, value: '$98.2M' },
+                    { rank: 4, name: 'Amara Diallo',  role: 'Team Lead – South', leads: 5,  col3: 710,  col4: 156, conv: 22, value: '$71.5M' },
+                ],
+                col3Class: 'font-bold text-gray-700',
+                col4Class: 'text-green-600 font-bold',
+                barColor: '#8b5cf6',
+            },
+        };
+
+        let currentPerfRole = 'agent';
+
+        function switchPerfRole(role) {
+            currentPerfRole = role;
+            const cfg = perfRoles[role];
+            document.getElementById('perf-title').textContent = cfg.title;
+            document.getElementById('perf-sort-label').textContent = cfg.sortLabel;
+            document.getElementById('perf-icon').innerHTML = cfg.icon;
+            document.getElementById('perf-icon').style.cssText = cfg.iconStyle;
+            document.getElementById('perf-thead').innerHTML = `<tr>${cfg.headers.map(h => `<th class="${h === 'Rank' ? 'w-12 text-center' : ''}">${h}</th>`).join('')}</tr>`;
+            const q = (document.getElementById('perf-search')?.value || '').toLowerCase();
+            const hasCol4 = cfg.data[0].col4 !== undefined;
+            const filtered = cfg.data.filter(d => !q || d.name.toLowerCase().includes(q) || d.role.toLowerCase().includes(q));
+            document.getElementById('perf-tbody').innerHTML = filtered.length ? filtered.map(d => `
+                <tr>
+                    <td class="text-center">${rankLabel(d.rank)}</td>
+                    <td class="font-bold" style="display:table-cell"><div style="display:flex;flex-direction:column;gap:2px"><span>${d.name}</span><span style="font-size:8px;color:#94a3b8;font-weight:400;text-transform:uppercase">${d.role}</span></div></td>
+                    <td class="${cfg.col3Class || ''}">${d.leads}</td>
+                    <td class="${cfg.col3Class || ''}">${d.col3}</td>
+                    ${hasCol4 ? `<td class="${cfg.col4Class || 'text-green-600 font-bold'}">${d.col4}</td>` : ''}
+                    <td>${convBar(d.conv, cfg.barColor)}</td>
+                    <td class="font-bold text-gray-900">${d.value}</td>
+                </tr>
+            `).join('') : `<tr><td colspan="7" class="text-center text-gray-400 py-6 text-[10px]">No results found</td></tr>`;
+        }
+
+        function rankLabel(r) {
+            if (r === 1) return '<span class="font-black text-amber-500 text-sm">1</span>';
+            if (r === 2) return '<span class="font-black text-gray-400 text-sm">2</span>';
+            if (r === 3) return '<span class="font-black text-amber-700 text-sm">3</span>';
+            return `<span class="font-bold text-gray-300">${r}</span>`;
+        }
+
+        function convBar(pct, color) {
+            return `<div class="flex items-center gap-2"><div class="w-16 h-1.5 bg-gray-100 rounded-full overflow-hidden"><div class="h-full rounded-full" style="width:${pct}%;background:${color}"></div></div>${pct}%</div>`;
+        }
+
+        switchPerfRole('agent');
+
+        const leadsData = [
+            { id: 'AF-028', name: 'Minosh Example', initials: 'ME', business: 'ex ABC', personnel: 'Sarah White', personnelTs: '2026-04-09 05:58', stage: 'Completed', status: 'Warm', amount: '3,456', bank: 'Starling', lender: 'NAB' },
+            { id: 'AF-027', name: 'ABC', initials: 'A', business: 'ABCD', personnel: 'Cody Lane', personnelTs: '2026-04-08 06:13', stage: 'Completed', status: 'Warm', amount: '2,345', bank: '—', lender: 'Commonwealth Bank' },
+            { id: 'AF-026', name: 'Kavi', initials: 'K', business: 'no company', personnel: 'Sarah White', personnelTs: '2026-04-07 05:32', stage: 'Docs Verified', status: 'Warm', amount: '£34,567', bank: '—', lender: '—' },
+            { id: 'AF-029', name: 'Priya', initials: 'P', business: 'no company', personnel: 'Sarah White', personnelTs: '2026-04-07 05:24', stage: 'Collecting Docs', status: 'Warm', amount: '456.90', bank: '—', lender: '—' },
+            { id: 'AF-025', name: 'John', initials: 'J', business: 'ex company', personnel: 'Jane Doe', personnelTs: '2026-04-07 05:16', stage: 'Docs Verified', status: 'Warm', amount: '456.90', bank: '—', lender: '—' },
+            { id: 'AF-001', name: 'Robert Miller', initials: 'RM', business: 'Miller Logistics Co.', personnel: 'Cody Lane', personnelTs: '2026-03-15', stage: 'Collecting Docs', status: 'Warm', amount: '£250,000', bank: 'Barclays', lender: '—' },
+            { id: 'AF-002', name: 'Alice Huang', initials: 'AH', business: 'Huang Tech Solutions', personnel: 'Leo Kumar', personnelTs: '2026-03-16', stage: 'Docs Verified', status: 'Warm', amount: '£1,200,000', bank: 'HSBC', lender: '—' },
+            { id: 'AF-011', name: 'Bruce Wayne', initials: 'BW', business: 'Wayne Enterprises', personnel: 'Priya Sharma', personnelTs: '2026-03-19', stage: 'Collecting Docs', status: 'Warm', amount: '£50,000,000', bank: 'HSBC', lender: '—' },
+            { id: 'AF-003', name: 'David Rivera', initials: 'DR', business: 'Rivera Designs', personnel: 'Priya Sharma', personnelTs: '2026-03-14', stage: 'Selecting Lender', status: 'Warm', amount: '—', bank: '—', lender: '—' },
+            { id: 'AF-004', name: 'Sarah Connor', initials: 'SC', business: 'Connor Security Group', personnel: 'Jake Morrison', personnelTs: '2026-03-13', stage: 'Rejected', status: 'Warm', amount: '—', bank: '—', lender: '—' },
+            { id: 'AF-005', name: 'Michael Scott', initials: 'MS', business: 'Dunder Mifflin', personnel: 'Leo Kumar', personnelTs: '2026-03-12', stage: 'Completed', status: 'Warm', amount: '£18,500', bank: 'Barclays', lender: 'ANZ' },
+            { id: 'AF-006', name: 'James Carter', initials: 'JC', business: 'Carter Holdings', personnel: 'Jane Doe', personnelTs: '2026-03-10', stage: 'Collecting Docs', status: 'Warm', amount: '£500,000', bank: 'HSBC', lender: '—' },
+        ];
+
+        function getStageBadge(stage) {
+            const map = { 'Completed': 'stage-completed', 'Docs Verified': 'stage-docs-verified', 'Collecting Docs': 'stage-collecting', 'Selecting Lender': 'stage-selecting', 'Rejected': 'stage-rejected' };
+            return `<span class="stage-badge ${map[stage] || 'stage-collecting'}">${stage}</span>`;
+        }
+
+        function getInitialsColor(initials) {
+            const colors = ['#e0e7ff', '#f0fdf4', '#fef9c3', '#fce7f3', '#f0f9ff', '#f5f3ff'];
+            const textColors = ['#4338ca', '#166534', '#713f12', '#9d174d', '#075985', '#4c1d95'];
+            const idx = (initials.charCodeAt(0) + (initials.charCodeAt(1) || 0)) % colors.length;
+            return `background:${colors[idx]};color:${textColors[idx]}`;
+        }
+
+        function renderLeads(data) {
+            const tbody = document.getElementById('li-tbody');
+            document.getElementById('li-record-count').textContent = `${data.length} records found`;
+            tbody.innerHTML = data.map(d => `
+                <tr class="li-tr">
+                    <td class="li-td">
+                        <div class="flex items-center gap-2">
+                            <div class="lead-avatar" style="${getInitialsColor(d.initials)}">${d.initials}</div>
+                            <div>
+                                <div class="font-bold text-gray-900 text-[11px]">${d.name}</div>
+                                <div class="text-[8px] text-gray-400 font-mono">#${d.id}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="li-td text-[10px] ${d.business === 'no company' ? 'text-gray-400 italic' : 'text-gray-700 font-medium'}">${d.business}</td>
+                    <td class="li-td">
+                        <div class="font-semibold text-gray-800 text-[10px]">${d.personnel}</div>
+                        <div class="text-[8px] text-gray-400 font-mono mt-0.5">${d.personnelTs}</div>
+                    </td>
+                    <td class="li-td">${getStageBadge(d.stage)}</td>
+                    <td class="li-td">
+                        <span class="status-warm">
+                            <span style="width:6px;height:6px;border-radius:50%;background:#d97706;display:inline-block;flex-shrink:0"></span>
+                            ${d.status}
+                        </span>
+                    </td>
+                    <td class="li-td font-bold text-gray-900 text-[11px]">${d.amount}</td>
+                    <td class="li-td text-[10px] text-gray-600">${d.bank}</td>
+                    <td class="li-td font-bold text-[10px] text-gray-800 uppercase tracking-wide">${d.lender}</td>
+                </tr>
+            `).join('');
+        }
+
+        function filterLeads() {
+            const q = document.getElementById('li-search').value.toLowerCase();
+            const filtered = leadsData.filter(d => d.name.toLowerCase().includes(q) || d.id.toLowerCase().includes(q) || d.business.toLowerCase().includes(q) || d.personnel.toLowerCase().includes(q) || d.stage.toLowerCase().includes(q));
+            renderLeads(filtered);
+        }
+
+        renderLeads(leadsData);
+    </script>
+<script src="../profile/profile_drawer.js"></script>
+</body>
+</html>
