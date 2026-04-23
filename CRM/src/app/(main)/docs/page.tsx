@@ -2,334 +2,564 @@
 
 import { useState, useRef } from 'react';
 
-// --- Constants & Types ---
-const PRESET_CATS = ["KNOWLEDGE BASE", "GUIDES", "FAQs", "PRODUCTS", "POLICIES", "SCRIPTS"];
+// ── Types & Constants ─────────────────────────────────────────────────────────
 
-const CAT_STYLES: Record<string, { icon: string, color: string }> = {
-    "KNOWLEDGE BASE": { icon: "fa-solid fa-square", color: "text-blue-500" },
-    "GUIDES": { icon: "fa-solid fa-lines-leaning", color: "text-purple-500" },
-    "FAQs": { icon: "fa-solid fa-circle", color: "text-amber-500" },
-    "PRODUCTS": { icon: "fa-solid fa-square", color: "text-emerald-500" },
-    "POLICIES": { icon: "fa-solid fa-circle", color: "text-rose-500" },
-    "SCRIPTS": { icon: "fa-solid fa-terminal", color: "text-slate-500" },
-    "_default": { icon: "fa-solid fa-tag", color: "text-indigo-500" }
+interface Doc {
+    id: number;
+    title: string;
+    category: string;
+    status: string;
+    version: string;
+    filename: string;
+    fileType: string;
+    fileSize: string;
+    desc: string;
+    uploaded: string;
+}
+
+const PRESET_CATS = ['Knowledge Base', 'Guides', 'FAQs', 'Products', 'Policies', 'Scripts'];
+
+const CAT_STYLE: Record<string, { icon: string; bg: string; color: string }> = {
+    'Knowledge Base': { icon: 'fa-solid fa-book-open',      bg: '#dbeafe', color: '#1d4ed8' },
+    'Guides':         { icon: 'fa-solid fa-map',             bg: '#f3e8ff', color: '#7e22ce' },
+    'FAQs':           { icon: 'fa-solid fa-circle-question', bg: '#fef3c7', color: '#b45309' },
+    'Products':       { icon: 'fa-solid fa-box',             bg: '#d1fae5', color: '#065f46' },
+    'Policies':       { icon: 'fa-solid fa-shield-halved',   bg: '#fee2e2', color: '#b91c1c' },
+    'Scripts':        { icon: 'fa-solid fa-terminal',        bg: '#f1f5f9', color: '#334155' },
+    '_custom':        { icon: 'fa-solid fa-tag',             bg: '#fdf4ff', color: '#86198f' },
 };
 
-const FILE_FORMAT_INFO: Record<string, { icon: string, bg: string, color: string }> = {
-    pdf: { icon: "fa-solid fa-file-pdf", bg: "bg-rose-50", color: "text-rose-500" },
-    docx: { icon: "fa-solid fa-file-word", bg: "bg-blue-50", color: "text-blue-500" },
-    doc: { icon: "fa-solid fa-file-word", bg: "bg-blue-50", color: "text-blue-500" },
-    xlsx: { icon: "fa-solid fa-file-excel", bg: "bg-emerald-50", color: "text-emerald-500" },
-    xls: { icon: "fa-solid fa-file-excel", bg: "bg-emerald-50", color: "text-emerald-500" },
+const FILE_ICONS: Record<string, { icon: string; bg: string; color: string }> = {
+    pdf:  { icon: 'fa-solid fa-file-pdf',        bg: '#fee2e2', color: '#dc2626' },
+    docx: { icon: 'fa-solid fa-file-word',        bg: '#dbeafe', color: '#1d4ed8' },
+    doc:  { icon: 'fa-solid fa-file-word',        bg: '#dbeafe', color: '#1d4ed8' },
+    xlsx: { icon: 'fa-solid fa-file-excel',       bg: '#d1fae5', color: '#059669' },
+    xls:  { icon: 'fa-solid fa-file-excel',       bg: '#d1fae5', color: '#059669' },
+    png:  { icon: 'fa-solid fa-file-image',       bg: '#f3e8ff', color: '#7e22ce' },
+    jpg:  { icon: 'fa-solid fa-file-image',       bg: '#f3e8ff', color: '#7e22ce' },
+    pptx: { icon: 'fa-solid fa-file-powerpoint',  bg: '#fff7ed', color: '#c2410c' },
 };
 
-const INITIAL_DOCS = [
-    { id: 1, title: "Home Loan Product Guide 2026", category: "PRODUCTS", filename: "home_loan_guide_2026.pdf", fileType: "pdf", fileSize: "3.4 MB", desc: "Comprehensive guide covering all home loan products, rates, and eligibility criteria for 2026.", date: "10 Apr 26" },
-    { id: 2, title: "AML & KYC Compliance Policy", category: "POLICIES", filename: "aml_kyc_policy.pdf", fileType: "pdf", fileSize: "1.2 MB", desc: "Updated anti-money laundering and know-your-customer policy document.", date: "8 Apr 26" },
-    { id: 3, title: "Broker Onboarding FAQ", category: "FAQs", filename: "broker_onboarding_faq.docx", fileType: "docx", fileSize: "420 KB", desc: "Frequently asked questions for new brokers.", date: "12 Apr 26" },
-    { id: 4, title: "Cold Call Script — Refinance", category: "SCRIPTS", filename: "cold_call_refi_script.docx", fileType: "docx", fileSize: "190 KB", desc: "Structured outbound call script for refinance conversations.", date: "14 Apr 26" },
-    { id: 5, title: "Lender Panel Overview Guide", category: "GUIDES", filename: "lender_panel_guide.pdf", fileType: "pdf", fileSize: "5.1 MB", desc: "Full overview of all lenders on the Alpha Funding panel.", date: "5 Apr 26" },
-    { id: 6, title: "CRM Usage Knowledge Base", category: "KNOWLEDGE BASE", filename: "crm_knowledge_base.pdf", fileType: "pdf", fileSize: "2.8 MB", desc: "Internal knowledge base for using the Alpha Funding CRM platform.", date: "15 Apr 26" },
-    { id: 7, title: "Commercial Loan Product Sheet", category: "PRODUCTS", filename: "commercial_loan_sheet.xlsx", fileType: "xlsx", fileSize: "680 KB", desc: "Rate and product comparison sheet.", date: "13 Apr 26" },
-    { id: 8, title: "Privacy Policy 2026", category: "POLICIES", filename: "privacy_policy_2026.pdf", fileType: "pdf", fileSize: "890 KB", desc: "Client privacy and data handling policy.", date: "1 Mar 26" },
-    { id: 9, title: "Settlement Checklist Guide", category: "GUIDES", filename: "settlement_checklist.docx", fileType: "docx", fileSize: "310 KB", desc: "Standard operating procedure for settlements.", date: "7 Apr 26" },
-    { id: 10, title: "Product FAQ — Investment Loans", category: "FAQs", filename: "investment_faq.pdf", fileType: "pdf", fileSize: "840 KB", desc: "Specific FAQs for investor clients.", date: "11 Apr 26" },
-    { id: 11, title: "Inbound Lead Response Script", category: "SCRIPTS", filename: "inbound_lead_script.docx", fileType: "docx", fileSize: "220 KB", desc: "Script for handling inbound inquiries.", date: "9 Apr 26" },
+const INITIAL_DOCS: Doc[] = [
+    { id: 1,  title: 'Home Loan Product Guide 2026',  category: 'Products',       status: 'New',      version: 'v2.1', filename: 'home_loan_guide_2026.pdf',      fileType: 'pdf',  fileSize: '3.4 MB', desc: 'Comprehensive guide covering all home loan products, rates, and eligibility criteria for 2026.', uploaded: '2026-04-10' },
+    { id: 2,  title: 'AML & KYC Compliance Policy',   category: 'Policies',       status: 'Updated',  version: 'v4.0', filename: 'aml_kyc_policy.pdf',            fileType: 'pdf',  fileSize: '1.2 MB', desc: 'Updated anti-money laundering and know-your-customer policy document aligned with AUSTRAC 2026 guidelines.', uploaded: '2026-04-08' },
+    { id: 3,  title: 'Broker Onboarding FAQ',          category: 'FAQs',           status: 'New',      version: 'v1.3', filename: 'broker_onboarding_faq.docx',    fileType: 'docx', fileSize: '420 KB', desc: 'Frequently asked questions for new brokers joining the Alpha Funding panel.', uploaded: '2026-04-12' },
+    { id: 4,  title: 'Cold Call Script — Refinance',   category: 'Scripts',        status: 'New',      version: 'v1.0', filename: 'cold_call_refi_script.docx',    fileType: 'docx', fileSize: '190 KB', desc: 'Structured outbound call script for refinance lead conversations.', uploaded: '2026-04-14' },
+    { id: 5,  title: 'Lender Panel Overview Guide',    category: 'Guides',         status: 'Updated',  version: 'v3.2', filename: 'lender_panel_guide.pdf',        fileType: 'pdf',  fileSize: '5.1 MB', desc: 'Full overview of all lenders on the Alpha Funding panel including products, BDMs, and turnaround times.', uploaded: '2026-04-05' },
+    { id: 6,  title: 'CRM Usage Knowledge Base',       category: 'Knowledge Base', status: 'New',      version: 'v1.1', filename: 'crm_knowledge_base.pdf',        fileType: 'pdf',  fileSize: '2.8 MB', desc: 'Internal knowledge base for using the Alpha Funding CRM platform.', uploaded: '2026-04-15' },
+    { id: 7,  title: 'Commercial Loan Product Sheet',  category: 'Products',       status: 'New',      version: 'v1.0', filename: 'commercial_loan_sheet.xlsx',    fileType: 'xlsx', fileSize: '680 KB', desc: 'Rate and product comparison sheet for commercial lending solutions.', uploaded: '2026-04-13' },
+    { id: 8,  title: 'Privacy Policy 2026',            category: 'Policies',       status: 'Archived', version: 'v2.9', filename: 'privacy_policy_2026.pdf',       fileType: 'pdf',  fileSize: '890 KB', desc: 'Client privacy and data handling policy. Superseded by v3.0.', uploaded: '2026-03-01' },
+    { id: 9,  title: 'Settlement Checklist Guide',     category: 'Guides',         status: 'Updated',  version: 'v2.0', filename: 'settlement_checklist.docx',     fileType: 'docx', fileSize: '310 KB', desc: 'Step-by-step settlement checklist for brokers to share with clients.', uploaded: '2026-04-07' },
+    { id: 10, title: 'Product FAQ — Investment Loans', category: 'FAQs',           status: 'New',      version: 'v1.0', filename: 'investment_faq.pdf',            fileType: 'pdf',  fileSize: '540 KB', desc: 'Common questions and answers for investment property loan enquiries.', uploaded: '2026-04-11' },
+    { id: 11, title: 'Inbound Lead Response Script',   category: 'Scripts',        status: 'Updated',  version: 'v2.3', filename: 'inbound_lead_script.docx',      fileType: 'docx', fileSize: '220 KB', desc: 'Script for handling inbound lead calls from various marketing channels.', uploaded: '2026-04-09' },
 ];
 
-export default function DocsPage() {
-    const [documents, setDocuments] = useState(INITIAL_DOCS);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [filterCategory, setFilterCategory] = useState('All');
-    const [selectedDocId, setSelectedDocId] = useState<number | null>(1); // Default select first for UI parity
+// ── Helpers ───────────────────────────────────────────────────────────────────
 
-    // Form State
-    const [formTitle, setFormTitle] = useState(INITIAL_DOCS[0].title);
-    const [formDesc, setFormDesc] = useState(INITIAL_DOCS[0].desc);
-    const [formCat, setFormCat] = useState(INITIAL_DOCS[0].category);
-    const [categories, setCategories] = useState(PRESET_CATS);
+function getFileIcon(type: string) {
+    return FILE_ICONS[type?.toLowerCase()] || { icon: 'fa-solid fa-file', bg: '#f1f5f9', color: '#475569' };
+}
+function getCatStyle(cat: string) {
+    return CAT_STYLE[cat] || CAT_STYLE['_custom'];
+}
+function formatDate(d: string) {
+    return new Date(d + 'T00:00:00').toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: '2-digit' });
+}
+
+// ── Main Page ─────────────────────────────────────────────────────────────────
+
+export default function DocsPage() {
+    const [documents, setDocuments]     = useState<Doc[]>(INITIAL_DOCS);
+    const [formCats, setFormCats]       = useState<string[]>([...PRESET_CATS]);
+    const [selectedCat, setSelectedCat] = useState('');
     const [customCatInput, setCustomCatInput] = useState('');
 
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    // Upload / edit state
+    const [mode, setMode]               = useState<'upload' | 'edit'>('upload');
+    const [activeDocId, setActiveDocId] = useState<number | null>(null);
+    const [formTitle, setFormTitle]     = useState('');
+    const [formDesc, setFormDesc]       = useState('');
+    const [dragOver, setDragOver]       = useState(false);
+    const [uploadQueue, setUploadQueue] = useState<{ name: string; size: string; ext: string; pct: number }[]>([]);
+    const fileInputRef                  = useRef<HTMLInputElement>(null);
+    const nextId                        = useRef(12);
 
-    // --- Computed ---
-    const filteredDocs = documents.filter(d => {
-        const matchesCategory = filterCategory === 'All' || d.category === filterCategory;
-        const matchesSearch = d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            d.category.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesCategory && matchesSearch;
+    // Vault state
+    const [search, setSearch]           = useState('');
+    const [catFilter, setCatFilter]     = useState('All');
+    const [viewMode, setViewMode]       = useState<'list' | 'grid'>('list');
+
+    // ── Computed ──
+    const allCats = [...new Set([...PRESET_CATS, ...documents.map(d => d.category), ...formCats])];
+
+    const filtered = documents.filter(d => {
+        if (catFilter !== 'All' && d.category !== catFilter) return false;
+        if (search) {
+            const hay = [d.title, d.category, d.desc, d.filename].join(' ').toLowerCase();
+            if (!hay.includes(search.toLowerCase())) return false;
+        }
+        return true;
     });
 
-    const selectedDoc = documents.find(d => d.id === selectedDocId);
-
-    // --- Actions ---
-    const handleUpdate = () => {
-        if (!selectedDocId) return;
-        setDocuments(documents.map(d => d.id === selectedDocId ? {
-            ...d,
-            title: formTitle,
-            desc: formDesc,
-            category: formCat
-        } : d));
-    };
-
-    const handleDelete = (id: number) => {
-        if (!confirm('Delete this document?')) return;
-        setDocuments(documents.filter(d => d.id !== id));
-        if (selectedDocId === id) resetForm();
-    };
-
-    const resetForm = () => {
-        setSelectedDocId(null);
-        setFormTitle('');
-        setFormDesc('');
-        setFormCat('');
-    };
-
-    const selectDoc = (doc: typeof INITIAL_DOCS[0]) => {
-        setSelectedDocId(doc.id);
+    // ── Left panel actions ──
+    const openEdit = (doc: Doc) => {
+        setMode('edit');
+        setActiveDocId(doc.id);
         setFormTitle(doc.title);
         setFormDesc(doc.desc);
-        setFormCat(doc.category);
+        setSelectedCat(doc.category);
+        if (!formCats.includes(doc.category)) setFormCats(prev => [...prev, doc.category]);
     };
 
-    const addCustomCategory = () => {
-        if (!customCatInput.trim()) return;
-        const norm = customCatInput.toUpperCase();
-        if (!categories.includes(norm)) setCategories([...categories, norm]);
-        setFormCat(norm);
+    const cancelEdit = () => {
+        setMode('upload');
+        setActiveDocId(null);
+        setFormTitle('');
+        setFormDesc('');
+        setSelectedCat('');
+        setUploadQueue([]);
+    };
+
+    const updateDocument = () => {
+        if (!activeDocId || !formTitle.trim()) return;
+        setDocuments(prev => prev.map(d => d.id === activeDocId
+            ? { ...d, title: formTitle, desc: formDesc, category: selectedCat || d.category }
+            : d
+        ));
+        cancelEdit();
+    };
+
+    const deleteDocument = (id: number) => {
+        if (!confirm('Delete this document? This cannot be undone.')) return;
+        setDocuments(prev => prev.filter(d => d.id !== id));
+        if (activeDocId === id) cancelEdit();
+    };
+
+    const uploadDocument = () => {
+        if (!formTitle.trim()) return;
+        const lastFile = uploadQueue[uploadQueue.length - 1];
+        const filename = lastFile
+            ? lastFile.name
+            : formTitle.toLowerCase().replace(/\s+/g, '_') + '.pdf';
+        const ext = filename.split('.').pop()?.toLowerCase() || 'pdf';
+        const newDoc: Doc = {
+            id: nextId.current++,
+            title: formTitle,
+            category: selectedCat || 'Knowledge Base',
+            status: 'New',
+            version: 'v1.0',
+            filename,
+            fileType: ext,
+            fileSize: lastFile?.size || '—',
+            desc: formDesc,
+            uploaded: new Date().toISOString().slice(0, 10),
+        };
+        setDocuments(prev => [newDoc, ...prev]);
+        cancelEdit();
+    };
+
+    const addCustomCat = () => {
+        const val = customCatInput.trim();
+        if (!val) return;
+        const norm = val.charAt(0).toUpperCase() + val.slice(1);
+        if (!formCats.includes(norm)) setFormCats(prev => [...prev, norm]);
+        setSelectedCat(norm);
         setCustomCatInput('');
     };
 
-    const getFileInfo = (ext: string) => FILE_FORMAT_INFO[ext.toLowerCase()] || { icon: "fa-solid fa-file", bg: "bg-slate-50", color: "text-slate-400" };
-    const getCatInfo = (cat: string) => CAT_STYLES[cat] || CAT_STYLES["_default"];
+    const removeCustomCat = (cat: string) => {
+        setFormCats(prev => prev.filter(c => c !== cat));
+        if (selectedCat === cat) setSelectedCat('');
+    };
+
+    const processFiles = (files: File[]) => {
+        const items = files.map(f => {
+            const ext = f.name.split('.').pop()?.toLowerCase() || '';
+            const size = f.size > 1048576
+                ? (f.size / 1048576).toFixed(1) + ' MB'
+                : (f.size / 1024).toFixed(0) + ' KB';
+            return { name: f.name, size, ext, pct: 0 };
+        });
+        setUploadQueue(items);
+        if (!formTitle && items[0]) {
+            setFormTitle(items[0].name.replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+        }
+        // Simulate progress
+        items.forEach((_, i) => {
+            let pct = 0;
+            const iv = setInterval(() => {
+                pct = Math.min(100, pct + Math.random() * 30 + 10);
+                setUploadQueue(prev => prev.map((it, idx) => idx === i ? { ...it, pct: Math.round(pct) } : it));
+                if (pct >= 100) clearInterval(iv);
+            }, 160);
+        });
+    };
 
     return (
-        <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#eff3f6]">
+        <div className="flex-1 flex h-full overflow-hidden bg-white">
+            <style>{`
+                .upload-zone { border:2px dashed #e2e8f0; border-radius:10px; padding:40px 16px; text-align:center; cursor:pointer; transition:all .2s; background:#f8fafc; position:relative; }
+                .upload-zone:hover, .upload-zone.drag-over { border-color:#6366f1; background:#eef2ff; }
+                .upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+                .cat-tag { display:inline-flex; align-items:center; gap:4px; padding:3px 8px; background:#f1f5f9; border-radius:6px; font-size:9px; font-weight:700; color:#475569; text-transform:uppercase; letter-spacing:.03em; border:1px solid #e2e8f0; cursor:pointer; transition:all .15s; }
+                .cat-tag.selected { background:#0f172a; color:#fff; border-color:#0f172a; }
+                .doc-row { transition:background .1s; cursor:pointer; }
+                .doc-row:hover { background:#f8fafc; }
+                .doc-card { background:#fff; border:1px solid #f1f5f9; border-radius:10px; padding:14px; cursor:pointer; transition:all .15s; }
+                .doc-card:hover { border-color:#e2e8f0; box-shadow:0 4px 14px rgba(0,0,0,.07); transform:translateY(-1px); }
+                .progress-bar-bg { background:#f1f5f9; border-radius:99px; height:3px; overflow:hidden; margin-top:5px; }
+                .progress-bar { height:100%; border-radius:99px; background:#6366f1; transition:width .35s ease; }
+                .dark-select { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:7px; padding:5px 22px 5px 9px; font-size:9px; font-weight:700; color:#d1d5db; outline:none; cursor:pointer; appearance:none; }
+                .dark-select option { background:#1e293b; color:#fff; }
+                .view-btn { padding:5px 8px; border-radius:6px; font-size:10px; color:#94a3b8; cursor:pointer; border:none; background:transparent; transition:all .15s; }
+                .view-btn.active { background:rgba(255,255,255,.12); color:#fff; }
+            `}</style>
 
-            <main className="flex-1 h-full min-h-0 overflow-hidden grid grid-cols-[450px_1fr] p-6 gap-6">
+            {/* ── LEFT: Upload / Edit Panel ── */}
+            <section className="w-[420px] flex-shrink-0 border-r border-slate-100 flex flex-col overflow-hidden bg-white">
+                {/* Panel header */}
+                <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
+                    <h2 className="text-[9px] font-bold text-slate-900 uppercase tracking-widest">
+                        {mode === 'edit' ? 'Document Details' : 'Upload Document'}
+                    </h2>
+                    <div className="w-1.5 h-1.5 rounded-full" style={{ background: mode === 'edit' ? '#eab308' : '#6366f1' }}></div>
+                </div>
 
-                {/* LEFT PANEL: DOCUMENT DETAILS */}
-                <aside className="bg-white rounded-[24px] border border-slate-200 shadow-sm flex flex-col min-h-0 overflow-hidden">
-                    <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between shrink-0">
-                        <span className="text-[12px] font-black uppercase tracking-[0.15em] text-slate-800">
-                            DOCUMENT DETAILS
-                        </span>
-                        <div className="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]"></div>
-                    </div>
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    <div className="p-4 space-y-3">
 
-                    <div className="flex-1 flex flex-col p-6 pt-4 space-y-3 overflow-hidden min-h-0">
-                        {/* File Preview Card - Highly Dynamic for small heights */}
-                        <div className="bg-[#f4f7ff] rounded-[24px] border border-slate-100 p-4 min-h-[100px] flex flex-col items-center justify-center text-center shrink-0">
-                            <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center mb-2 shadow-sm ${getFileInfo(selectedDoc?.fileType || '').bg}`}>
-                                <i className={`${getFileInfo(selectedDoc?.fileType || '').icon} text-xl ${getFileInfo(selectedDoc?.fileType || '').color}`}></i>
-                            </div>
-                            <h4 className="text-[11px] font-black text-slate-900 mb-0.5 uppercase tracking-tighter truncate w-full px-2">
-                                {selectedDoc?.filename || 'No File Selected'}
-                            </h4>
-                            <p className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
-                                {selectedDoc?.fileSize} • {selectedDoc?.fileType?.toUpperCase()}
-                            </p>
-                        </div>
-
-                        {/* Form Fields - Compressed for small screens */}
-                        <div className="space-y-3 min-h-0 flex-1 overflow-y-auto no-scrollbar">
-                            <div className="space-y-1">
-                                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">TITLE *</label>
-                                <input
-                                    value={formTitle}
-                                    onChange={e => setFormTitle(e.target.value)}
-                                    type="text"
-                                    className="w-full h-[40px] bg-[#f8fafc] border border-slate-200 rounded-[12px] px-4 text-[11px] font-bold text-slate-800 outline-none focus:bg-white focus:border-indigo-400 transition-all shadow-sm"
-                                />
-                            </div>
-
-                            <div className="space-y-1">
-                                <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest">DESCRIPTION</label>
-                                <textarea
-                                    value={formDesc}
-                                    onChange={e => setFormDesc(e.target.value)}
-                                    rows={2}
-                                    className="w-full bg-[#f8fafc] border border-slate-200 rounded-[12px] p-4 text-[10px] font-bold text-slate-800 outline-none focus:bg-white focus:border-indigo-400 transition-all shadow-sm resize-none leading-tight"
-                                ></textarea>
-                            </div>
-
-                            <div className="space-y-3">
-                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <i className="fa-solid fa-tags text-[8px] opacity-40"></i> CATEGORY
-                                </label>
-                                <div className="flex flex-wrap gap-1.5 max-h-[80px] overflow-y-auto custom-scrollbar pr-1">
-                                    {categories.map(cat => (
-                                        <button
-                                            key={cat}
-                                            onClick={() => setFormCat(cat)}
-                                            className={`px-3 py-1.5 rounded-[8px] text-[9px] font-black uppercase tracking-widest transition-all border ${formCat === cat ? 'bg-[#1a1f2c] text-white border-[#1a1f2c] shadow-lg' : 'bg-[#f4f7ff] text-[#4a5568] border-slate-100 hover:bg-slate-100'}`}
-                                        >
-                                            {cat}
-                                        </button>
-                                    ))}
-                                </div>
-                                <div className="flex gap-2">
-                                    <input
-                                        value={customCatInput}
-                                        onChange={e => setCustomCatInput(e.target.value)}
-                                        onKeyDown={e => e.key === 'Enter' && addCustomCategory()}
-                                        type="text" placeholder="Add..."
-                                        className="flex-1 h-[36px] bg-[#f8fafc] border border-slate-200 rounded-[10px] px-4 text-[10px] font-bold outline-none"
-                                    />
-                                    <button onClick={addCustomCategory} className="w-[36px] h-[36px] bg-[#1a1f2c] text-white rounded-[10px] flex items-center justify-center">
-                                        <i className="fa-solid fa-plus text-xs"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Action Buttons - Compact heights for small screens */}
-                        <div className="pt-2 space-y-2 shrink-0">
-                            <button
-                                onClick={handleUpdate}
-                                className="w-full h-[50px] bg-[#5a56e9] text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-[14px] shadow-lg flex items-center justify-center gap-2"
-                            >
-                                <i className="fa-solid fa-floppy-disk text-xs"></i>
-                                UPDATE DETAILS
-                            </button>
-
-                            <div className="grid grid-cols-3 gap-2">
-                                <button className="h-[42px] bg-[#f0f3ff] rounded-[11px] text-[9px] font-black text-indigo-600 uppercase tracking-widest flex items-center justify-center gap-1.5">
-                                    <i className="fa-solid fa-eye text-[10px]"></i> VIEW
-                                </button>
-                                <button className="h-[42px] bg-[#1a1f2c] rounded-[11px] text-[9px] font-black text-white uppercase tracking-widest flex items-center justify-center gap-1.5">
-                                    <i className="fa-solid fa-download text-[10px]"></i> DOWN
-                                </button>
-                                <button
-                                    onClick={() => selectedDocId && handleDelete(selectedDocId)}
-                                    className="h-[42px] bg-white border border-rose-100 rounded-[11px] text-[9px] font-black text-rose-500 uppercase tracking-widest flex items-center justify-center gap-1.5"
+                        {/* Upload zone OR file display */}
+                        {mode === 'upload' ? (
+                            <>
+                                <div
+                                    className={`upload-zone${dragOver ? ' drag-over' : ''}`}
+                                    onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+                                    onDragLeave={() => setDragOver(false)}
+                                    onDrop={e => { e.preventDefault(); setDragOver(false); processFiles(Array.from(e.dataTransfer.files)); }}
                                 >
-                                    <i className="fa-solid fa-trash text-[10px]"></i> DEL
-                                </button>
-                            </div>
-
-                            <button onClick={resetForm} className="w-full h-[38px] border border-slate-100 rounded-[12px] text-[9px] font-black text-slate-500 uppercase tracking-widest hover:bg-slate-50 transition-all flex items-center justify-center">
-                                CANCEL / NEW UPLOAD
-                            </button>
-                        </div>
-                    </div>
-                </aside>
-
-                {/* RIGHT PANEL: DOCUMENT VAULT */}
-                <div className="flex flex-col gap-6 overflow-hidden min-h-0">
-                    <section className="bg-white rounded-[32px] border border-slate-200 shadow-sm flex flex-col flex-1 overflow-hidden min-h-0">
-                        {/* Header */}
-                        <div className="h-[72px] px-8 bg-[#1e2330] flex items-center justify-between shrink-0">
-                            <div className="flex items-center gap-4">
-                                <div className="w-9 h-9 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-                                    <i className="fa-solid fa-vault text-indigo-400 text-sm"></i>
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        multiple
+                                        onChange={e => e.target.files && processFiles(Array.from(e.target.files))}
+                                    />
+                                    <i className="fa-solid fa-cloud-arrow-up text-2xl text-indigo-300 mb-2 block"></i>
+                                    <p className="text-[10px] font-bold text-slate-600 mb-0.5">Drop files here or <span className="text-indigo-500">browse</span></p>
+                                    <p className="text-[8px] text-slate-400">PDF, DOCX, XLSX, PNG — Max 20 MB each</p>
                                 </div>
-                                <span className="text-[12px] font-black uppercase tracking-[0.2em] text-white">DOCUMENT VAULT</span>
-                            </div>
 
-                            <div className="flex items-center gap-6">
-                                <div className="relative w-[320px]">
-                                    <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-[11px]"></i>
+                                {/* Upload queue */}
+                                {uploadQueue.length > 0 && (
+                                    <div className="space-y-1.5">
+                                        {uploadQueue.map((f, i) => {
+                                            const fi = getFileIcon(f.ext);
+                                            return (
+                                                <div key={i} className="bg-slate-50 border border-slate-100 rounded-lg p-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-6 h-6 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: fi.bg }}>
+                                                            <i className={`${fi.icon} text-[9px]`} style={{ color: fi.color }}></i>
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-[9px] font-bold text-slate-700 truncate">{f.name}</p>
+                                                            <p className="text-[7px] text-slate-400">{f.size}</p>
+                                                        </div>
+                                                        <span className={`text-[7px] font-bold flex-shrink-0 ${f.pct >= 100 ? 'text-emerald-600' : 'text-indigo-500'}`}>
+                                                            {f.pct >= 100 ? 'Ready' : 'Uploading...'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="progress-bar-bg">
+                                                        <div className="progress-bar" style={{ width: `${f.pct}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            /* Edit mode: show file icon display */
+                            (() => {
+                                const doc = documents.find(d => d.id === activeDocId);
+                                const fi = doc ? getFileIcon(doc.fileType) : getFileIcon('');
+                                return (
+                                    <div className="border-2 border-slate-200 rounded-lg bg-white text-center py-8 px-4">
+                                        <div className="w-10 h-10 mx-auto rounded-xl flex items-center justify-center mb-3" style={{ background: fi.bg }}>
+                                            <i className={`${fi.icon} text-xl`} style={{ color: fi.color }}></i>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-slate-900 mb-1 truncate">{doc?.filename}</p>
+                                        <p className="text-[8px] font-mono text-slate-400 uppercase tracking-widest">{doc?.fileSize} • {doc?.fileType?.toUpperCase()}</p>
+                                    </div>
+                                );
+                            })()
+                        )}
+
+                        {/* Document Details form */}
+                        <div className="border-t border-slate-100 pt-3">
+                            <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                                <i className="fa-solid fa-tag text-[8px]"></i> Document Details
+                            </p>
+                            <div className="space-y-2.5">
+                                <div>
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Title *</label>
                                     <input
                                         type="text"
-                                        placeholder="Search documents..."
-                                        value={searchQuery}
-                                        onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="w-full h-10 pl-11 pr-4 bg-[#2a3040] border border-transparent rounded-[12px] text-[11px] font-bold text-white outline-none focus:bg-[#32394a] transition-all placeholder:text-slate-500"
+                                        value={formTitle}
+                                        onChange={e => setFormTitle(e.target.value)}
+                                        placeholder="e.g. Home Loan Product Guide 2026"
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-1.5 text-[10.5px] font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all"
                                     />
                                 </div>
-
-                                <select
-                                    value={filterCategory}
-                                    onChange={e => setFilterCategory(e.target.value)}
-                                    className="bg-[#2a3040] border border-transparent rounded-[12px] h-10 px-6 text-[10px] font-black text-white outline-none cursor-pointer focus:bg-[#32394a] uppercase tracking-widest"
-                                >
-                                    <option value="All">All Categories</option>
-                                    {categories.map(c => <option key={c} value={c}>{c}</option>)}
-                                </select>
-
-                                <div className="flex items-center gap-1.5 p-1 bg-[#2a3040] rounded-[14px]">
-                                    <button className="w-8 h-8 rounded-[11px] bg-slate-900 flex items-center justify-center text-white"><i className="fa-solid fa-grip text-[11px]"></i></button>
-                                    <button className="w-8 h-8 rounded-[11px] flex items-center justify-center text-slate-500 hover:text-white"><i className="fa-solid fa-list text-[11px]"></i></button>
-                                </div>
-
-                                <div className="h-10 px-5 bg-black rounded-[14px] flex items-center justify-center gap-3">
-                                    <span className="text-[13px] font-black text-white">{documents.length}</span>
-                                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">TOTAL</span>
+                                <div>
+                                    <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest block mb-1">Description</label>
+                                    <textarea
+                                        rows={4}
+                                        value={formDesc}
+                                        onChange={e => setFormDesc(e.target.value)}
+                                        placeholder="Brief description..."
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-[10.5px] font-medium text-slate-900 outline-none focus:border-slate-400 focus:bg-white transition-all resize-none"
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        {/* Document List */}
-                        <div className="flex-1 overflow-y-auto custom-scrollbar">
-                            <table className="w-full text-left border-collapse">
-                                <thead className="sticky top-0 bg-[#f8fafc]/90 backdrop-blur-md z-10">
-                                    <tr>
-                                        <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">DOCUMENT</th>
-                                        <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">CATEGORY</th>
-                                        <th className="px-10 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">DATE</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-50">
-                                    {filteredDocs.map((doc) => {
-                                        const fileInfo = getFileInfo(doc.fileType);
-                                        const catInfo = getCatInfo(doc.category);
-                                        const isSelected = selectedDocId === doc.id;
-                                        return (
-                                            <tr
-                                                key={doc.id}
-                                                onClick={() => selectDoc(doc)}
-                                                className={`group cursor-pointer transition-all ${isSelected ? 'bg-indigo-50/40' : 'hover:bg-slate-50/60'}`}
-                                            >
-                                                <td className="px-10 py-6">
-                                                    <div className="flex items-center gap-6">
-                                                        <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 shadow-sm border border-white ${fileInfo.bg}`}>
-                                                            <i className={`${fileInfo.icon} text-lg ${fileInfo.color}`}></i>
-                                                        </div>
-                                                        <div className="min-w-0">
-                                                            <p className="text-[12px] font-black text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors uppercase tracking-tight">
-                                                                {doc.title}
-                                                            </p>
-                                                            <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-widest">
-                                                                {doc.filename} · <span className="opacity-70 italic">{doc.fileSize}</span>
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-10 py-6 text-center">
-                                                    <div className="inline-flex items-center gap-2.5">
-                                                        <i className={`${catInfo.icon} text-[9px] ${catInfo.color}`}></i>
-                                                        <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{doc.category}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-10 py-6 text-right">
-                                                    <span className="text-[11px] font-black text-slate-400 font-mono italic tracking-tighter uppercase">{doc.date}</span>
-                                                </td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
+                        {/* Category tags */}
+                        <div className="border-t border-slate-100 pt-3">
+                            <p className="text-[8px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+                                <i className="fa-solid fa-tags text-[8px]"></i> Category
+                            </p>
+                            <div className="flex flex-wrap gap-1.5 mb-2">
+                                {formCats.map(cat => {
+                                    const isCustom = !PRESET_CATS.includes(cat);
+                                    return (
+                                        <span
+                                            key={cat}
+                                            onClick={() => setSelectedCat(selectedCat === cat ? '' : cat)}
+                                            className={`cat-tag${selectedCat === cat ? ' selected' : ''}`}
+                                        >
+                                            {cat}
+                                            {isCustom && (
+                                                <i
+                                                    className="fa-solid fa-xmark text-[8px] ml-0.5"
+                                                    onClick={e => { e.stopPropagation(); removeCustomCat(cat); }}
+                                                ></i>
+                                            )}
+                                        </span>
+                                    );
+                                })}
+                            </div>
+                            <div className="flex gap-1.5">
+                                <input
+                                    type="text"
+                                    value={customCatInput}
+                                    onChange={e => setCustomCatInput(e.target.value)}
+                                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomCat(); } }}
+                                    placeholder="Add category..."
+                                    className="flex-1 bg-slate-50 border border-slate-100 rounded-lg px-3 py-1.5 text-[9px] font-medium text-slate-900 outline-none focus:border-slate-400"
+                                />
+                                <button
+                                    onClick={addCustomCat}
+                                    className="px-2.5 py-1.5 bg-slate-900 text-white rounded-lg text-[9px] font-bold hover:bg-black transition-all flex-shrink-0"
+                                >
+                                    <i className="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
 
-                            {filteredDocs.length === 0 && (
-                                <div className="flex flex-col items-center justify-center py-32 text-center opacity-40">
-                                    <i className="fa-solid fa-folder-open text-5xl mb-6"></i>
-                                    <p className="text-[13px] font-black uppercase tracking-[0.2em]">Zero Records Found</p>
+                        {/* Action buttons */}
+                        <div className="pt-1">
+                            {mode === 'upload' ? (
+                                <button
+                                    onClick={uploadDocument}
+                                    className="w-full py-2.5 bg-slate-900 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg hover:bg-black transition-all flex items-center justify-center gap-2"
+                                >
+                                    <i className="fa-solid fa-cloud-arrow-up text-[10px]"></i>
+                                    Upload Document
+                                </button>
+                            ) : (
+                                <div className="space-y-2">
+                                    <button
+                                        onClick={updateDocument}
+                                        className="w-full py-2.5 bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-widest rounded-lg hover:bg-indigo-700 transition-all flex items-center justify-center gap-2"
+                                    >
+                                        <i className="fa-solid fa-floppy-disk text-[10px]"></i>
+                                        Update Details
+                                    </button>
+                                    <div className="flex gap-2">
+                                        <button className="flex-1 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-100 text-[8px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-1.5">
+                                            <i className="fa-solid fa-eye"></i> View
+                                        </button>
+                                        <button className="flex-1 py-1.5 bg-slate-900 hover:bg-black text-white text-[8px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-1.5">
+                                            <i className="fa-solid fa-download"></i> Download
+                                        </button>
+                                        <button
+                                            onClick={() => activeDocId && deleteDocument(activeDocId)}
+                                            className="flex-1 py-1.5 border border-red-100 text-red-500 hover:bg-red-50 text-[8px] font-bold uppercase tracking-widest rounded-lg transition-all flex items-center justify-center gap-1.5"
+                                        >
+                                            <i className="fa-solid fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                    <button
+                                        onClick={cancelEdit}
+                                        className="w-full py-2 border border-slate-200 text-slate-500 hover:bg-slate-50 text-[8px] font-bold uppercase tracking-widest rounded-lg transition-all"
+                                    >
+                                        Cancel / New Upload
+                                    </button>
                                 </div>
                             )}
                         </div>
-
-                        {/* Footer */}
-                        <div className="h-[64px] px-10 border-t border-slate-100 flex items-center justify-between shrink-0 bg-white/50 backdrop-blur-sm mt-auto">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">SHOWING {filteredDocs.length} DOCUMENTS</span>
-                            <button onClick={() => alert('Exporting to CSV...')} className="text-[10px] font-black text-slate-600 uppercase tracking-[0.15em] hover:text-indigo-600 transition-all flex items-center gap-2">
-                                <i className="fa-solid fa-file-export opacity-50"></i> EXPORT CSV
-                            </button>
-                        </div>
-                    </section>
+                    </div>
                 </div>
-            </main>
+            </section>
+
+            {/* ── RIGHT: Document Vault ── */}
+            <section className="flex-1 flex flex-col overflow-hidden min-w-0">
+                {/* Dark header */}
+                <div className="bg-slate-900 px-4 flex items-center gap-3 flex-shrink-0" style={{ minHeight: 48 }}>
+                    <i className="fa-solid fa-vault text-indigo-400 text-[13px] flex-shrink-0"></i>
+                    <h2 className="text-[9px] font-bold uppercase tracking-widest text-white flex-shrink-0">Document Vault</h2>
+                    <span className="text-[8px] font-bold text-slate-500 font-mono flex-shrink-0">
+                        {filtered.length !== documents.length ? `(${filtered.length} of ${documents.length})` : ''}
+                    </span>
+
+                    {/* Search */}
+                    <div className="relative flex-1 min-w-[100px]">
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Search documents..."
+                            className="w-full rounded-lg px-3 py-1.5 pl-7 text-[9px] font-semibold text-white outline-none"
+                            style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)' }}
+                        />
+                        <i className="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[8px]" style={{ color: 'rgba(255,255,255,.3)' }}></i>
+                    </div>
+
+                    {/* Category filter */}
+                    <select
+                        value={catFilter}
+                        onChange={e => setCatFilter(e.target.value)}
+                        className="dark-select"
+                    >
+                        <option value="All">All Categories</option>
+                        {allCats.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+
+                    {/* View toggle */}
+                    <div className="flex items-center gap-0.5 rounded-lg p-0.5 flex-shrink-0" style={{ background: 'rgba(255,255,255,.05)' }}>
+                        <button className={`view-btn${viewMode === 'grid' ? ' active' : ''}`} onClick={() => setViewMode('grid')} title="Grid">
+                            <i className="fa-solid fa-grip"></i>
+                        </button>
+                        <button className={`view-btn${viewMode === 'list' ? ' active' : ''}`} onClick={() => setViewMode('list')} title="List">
+                            <i className="fa-solid fa-list"></i>
+                        </button>
+                    </div>
+
+                    {/* Clear */}
+                    {(search || catFilter !== 'All') && (
+                        <button
+                            onClick={() => { setSearch(''); setCatFilter('All'); }}
+                            className="flex-shrink-0 text-[8px] font-bold text-slate-400 hover:text-white uppercase tracking-widest transition-colors"
+                        >
+                            <i className="fa-solid fa-xmark mr-0.5"></i>Clear
+                        </button>
+                    )}
+
+                    {/* Total count */}
+                    <div className="flex items-center gap-1.5 px-2.5 py-2 border-l border-white/10 ml-1 flex-shrink-0">
+                        <span className="text-[13px] font-black text-white">{documents.length}</span>
+                        <span className="text-[7px] font-bold text-slate-500 uppercase tracking-widest">Total</span>
+                    </div>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    {filtered.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-20 text-center">
+                            <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-4">
+                                <i className="fa-solid fa-folder-open text-2xl text-slate-200"></i>
+                            </div>
+                            <p className="text-[11px] font-bold text-slate-400">No documents found</p>
+                            <p className="text-[9px] text-slate-300 mt-1">Adjust filters or upload your first document</p>
+                            <button onClick={() => { setSearch(''); setCatFilter('All'); }} className="mt-3 text-[9px] font-bold text-slate-900 underline">Clear filters</button>
+                        </div>
+                    ) : viewMode === 'grid' ? (
+                        /* Grid view */
+                        <div className="p-4 grid grid-cols-3 gap-3" style={{ alignContent: 'start' }}>
+                            {filtered.map(d => {
+                                const cs = getCatStyle(d.category);
+                                return (
+                                    <div key={d.id} className="doc-card" onClick={() => openEdit(d)}>
+                                        <div className="flex items-start justify-between mb-3">
+                                            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: cs.bg }}>
+                                                <i className={`${cs.icon} text-sm`} style={{ color: cs.color }}></i>
+                                            </div>
+                                        </div>
+                                        <p className="text-[11px] font-bold text-slate-900 leading-tight mb-1 line-clamp-2">{d.title}</p>
+                                        <p className="text-[8px] text-slate-400 mb-3 truncate">{d.filename}</p>
+                                        <div className="flex items-center justify-between pt-2.5 border-t border-slate-50">
+                                            <span className="text-[8px] font-bold" style={{ color: cs.color }}>{d.category}</span>
+                                            <span className="text-[7px] font-mono text-slate-400">{formatDate(d.uploaded)}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    ) : (
+                        /* List view */
+                        <table className="w-full text-left">
+                            <thead className="sticky top-0 bg-slate-50 border-b border-slate-100 z-10">
+                                <tr>
+                                    <th className="px-4 py-2 text-[8px] font-bold text-slate-400 uppercase tracking-widest">Document</th>
+                                    <th className="px-3 py-2 text-[8px] font-bold text-slate-400 uppercase tracking-widest">Category</th>
+                                    <th className="px-3 py-2 text-[8px] font-bold text-slate-400 uppercase tracking-widest">Date</th>
+                                    <th className="px-3 py-2 w-6"></th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {filtered.map(d => {
+                                    const fi = getFileIcon(d.fileType);
+                                    const cs = getCatStyle(d.category);
+                                    return (
+                                        <tr key={d.id} className="doc-row" onClick={() => openEdit(d)}>
+                                            <td className="px-4 py-2.5">
+                                                <div className="flex items-center gap-2.5">
+                                                    <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: fi.bg }}>
+                                                        <i className={`${fi.icon} text-[11px]`} style={{ color: fi.color }}></i>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-bold text-slate-900">{d.title}</p>
+                                                        <p className="text-[7px] text-slate-400 mt-0.5">{d.filename} · {d.fileSize}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-2.5">
+                                                <div className="flex items-center gap-1.5">
+                                                    <i className={`${cs.icon} text-[9px]`} style={{ color: cs.color }}></i>
+                                                    <span className="text-[9px] font-semibold text-slate-600">{d.category}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-3 py-2.5">
+                                                <span className="text-[9px] font-mono text-slate-400">{formatDate(d.uploaded)}</span>
+                                            </td>
+                                            <td className="px-3 py-2.5 text-center"></td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+
+                {/* Footer */}
+                <div className="p-3 border-t border-slate-50 bg-slate-50/30 flex items-center justify-between flex-shrink-0">
+                    <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">
+                        Showing {filtered.length} document{filtered.length !== 1 ? 's' : ''}
+                    </span>
+                    <button className="text-[8px] font-bold text-slate-400 uppercase tracking-widest hover:text-slate-900 transition-all">
+                        <i className="fa-solid fa-download mr-1"></i>Export CSV
+                    </button>
+                </div>
+            </section>
         </div>
     );
 }
