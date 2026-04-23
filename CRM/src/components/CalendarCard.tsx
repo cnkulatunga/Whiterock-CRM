@@ -68,8 +68,8 @@ export default function CalendarCard() {
             </div>
             <div className="flex-1 px-3 pt-2 pb-1">
                 <div className="grid grid-cols-7 gap-0.5 mb-1">
-                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                        <div key={d} className="text-center text-[7px] font-black text-slate-400 uppercase">{d}</div>
+                    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
+                        <div key={i} className="text-center text-[7px] font-black text-slate-400 uppercase">{d}</div>
                     ))}
                 </div>
                 <div className="grid grid-cols-7 gap-1">

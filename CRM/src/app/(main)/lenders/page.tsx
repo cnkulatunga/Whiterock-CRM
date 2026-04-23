@@ -1,8 +1,21 @@
 'use client';
 
+import { useState } from 'react';
+import Link from 'next/link';
 import { lenders } from '@/data/dummy';
+import DetailDrawer from '@/components/DetailDrawer';
 
 export default function LendersPage() {
+    const [selectedEntity, setSelectedEntity] = useState<any>(null);
+    const [drawerType, setDrawerType] = useState<'task' | 'lead' | 'agent' | 'promotion' | 'lender' | null>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const handleSelect = (entity: any, type: any) => {
+        setSelectedEntity(entity);
+        setDrawerType(type);
+        setIsDrawerOpen(true);
+    };
+
     return (
         <div className="flex-1 flex flex-col p-6 bg-[#fafafa] overflow-hidden">
             <div className="flex items-center justify-between mb-8">
@@ -10,14 +23,18 @@ export default function LendersPage() {
                     <h1 className="text-2xl font-black text-slate-900 tracking-tight">Lender Management</h1>
                     <p className="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-1">Manage lending partners and their criteria</p>
                 </div>
-                <button className="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-200">
+                <Link href="/lenders/add" className="px-6 py-3 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-xl shadow-slate-200 flex items-center">
                     <i className="fa-solid fa-plus mr-2"></i> Add Lender
-                </button>
+                </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 overflow-y-auto custom-scrollbar pr-2 pb-6">
                 {lenders.map((lender) => (
-                    <div key={lender.id} className="glass-card bg-white p-6 hover:border-indigo-500/30 transition-all cursor-pointer group">
+                    <div
+                        key={lender.id}
+                        onClick={() => handleSelect(lender, 'lender')}
+                        className="glass-card bg-white p-6 hover:border-indigo-500/30 transition-all cursor-pointer group"
+                    >
                         <div className="flex justify-between items-start mb-4">
                             <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-900 text-xl shadow-sm border border-slate-100 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
                                 {lender.name[0]}
@@ -55,6 +72,13 @@ export default function LendersPage() {
                     </div>
                 ))}
             </div>
+
+            <DetailDrawer
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                entity={selectedEntity}
+                type={drawerType}
+            />
         </div>
     );
 }

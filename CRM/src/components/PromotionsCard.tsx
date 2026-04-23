@@ -2,7 +2,11 @@
 
 import { promotions } from '@/data/dummy';
 
-export default function PromotionsCard() {
+interface PromotionsCardProps {
+    onSelect?: (entity: any, type: 'promotion') => void;
+}
+
+export default function PromotionsCard({ onSelect }: PromotionsCardProps) {
     return (
         <div className="glass-card flex flex-col h-[280px] overflow-hidden">
             <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between bg-white/50">
@@ -21,7 +25,8 @@ export default function PromotionsCard() {
                 {promotions.map((p) => (
                     <div
                         key={p.id}
-                        className={`p-2 border rounded-xl hover:border-indigo-200 transition-all group flex flex-col gap-1 ${p.type === 'Exclusive' ? 'bg-indigo-50/30 border-indigo-100' : 'bg-white border-slate-100'
+                        onClick={() => onSelect?.(p, 'promotion')}
+                        className={`p-2 border rounded-xl hover:border-indigo-200 transition-all group flex flex-col gap-1 cursor-pointer ${p.type === 'Exclusive' ? 'bg-indigo-50/30 border-indigo-100' : 'bg-white border-slate-100'
                             }`}
                     >
                         <div className="flex justify-between items-center">

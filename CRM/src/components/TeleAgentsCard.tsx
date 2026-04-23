@@ -2,7 +2,11 @@
 
 import { teleAgents } from '@/data/dummy';
 
-export default function TeleAgentsCard() {
+interface TeleAgentsCardProps {
+    onSelect?: (entity: any, type: 'agent') => void;
+}
+
+export default function TeleAgentsCard({ onSelect }: TeleAgentsCardProps) {
     return (
         <div className="glass-card flex flex-col h-[280px]">
             <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between">
@@ -16,6 +20,7 @@ export default function TeleAgentsCard() {
                 {teleAgents.map((agent) => (
                     <div
                         key={agent.id}
+                        onClick={() => onSelect?.(agent, 'agent')}
                         className={`px-3 py-2 cursor-pointer bg-white border border-slate-100 rounded-xl hover:border-indigo-200 transition-all group flex items-center justify-between ${agent.status === 'OFFLINE' ? 'opacity-80 grayscale' : ''
                             }`}
                     >

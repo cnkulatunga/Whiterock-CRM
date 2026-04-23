@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { leads } from '@/data/dummy';
+import DetailDrawer from '@/components/DetailDrawer';
 
 const STAGES = [
     { id: 'collecting', label: 'Doc Collection', icon: 'fa-file-arrow-up', color: 'slate' },
@@ -14,6 +16,15 @@ const STAGES = [
 export default function PipelinePage() {
     const [search, setSearch] = useState('');
     const [activeLeads, setActiveLeads] = useState(leads);
+    const [selectedEntity, setSelectedEntity] = useState<any>(null);
+    const [drawerType, setDrawerType] = useState<'task' | 'lead' | 'agent' | 'promotion' | 'lender' | null>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const handleSelect = (entity: any, type: any) => {
+        setSelectedEntity(entity);
+        setDrawerType(type);
+        setIsDrawerOpen(true);
+    };
 
     const filteredLeads = (stage: string) =>
         activeLeads.filter(l =>
@@ -41,9 +52,9 @@ export default function PipelinePage() {
                         />
                         <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[9px] text-slate-400"></i>
                     </div>
-                    <button className="bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-slate-200">
+                    <Link href="/leads/add" className="bg-slate-900 hover:bg-black text-white px-5 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg shadow-slate-200">
                         <i className="fa-solid fa-plus text-[10px]"></i> Add Lead
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -61,7 +72,11 @@ export default function PipelinePage() {
 
                         <div className={`flex-1 bg-${stage.color}-50/30 rounded-b-2xl p-3 overflow-y-auto custom-scrollbar flex flex-col gap-3 min-h-[200px]`}>
                             {filteredLeads(stage.id).map((lead) => (
-                                <div key={lead.id} className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-grab active:cursor-grabbing group">
+                                <div
+                                    key={lead.id}
+                                    onClick={() => handleSelect(lead, 'lead')}
+                                    className="bg-white border border-slate-200 rounded-xl p-3 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all cursor-grab active:cursor-grabbing group"
+                                >
                                     <div className="flex justify-between items-center mb-2">
                                         <span className="text-[11px] font-black text-slate-900">{lead.amount}</span>
                                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">{lead.id}</span>
@@ -78,7 +93,10 @@ export default function PipelinePage() {
                                             {lead.quality}
                                         </span>
                                         <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="w-5 h-5 rounded bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleSelect(lead, 'lead'); }}
+                                                className="w-5 h-5 rounded bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-all"
+                                            >
                                                 <i className="fa-solid fa-eye text-[7px]"></i>
                                             </button>
                                             <button className="w-5 h-5 rounded bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-red-600 transition-all">
@@ -99,6 +117,13 @@ export default function PipelinePage() {
                     </div>
                 ))}
             </div>
+
+            <DetailDrawer
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                entity={selectedEntity}
+                type={drawerType}
+            />
         </div>
     );
 }

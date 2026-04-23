@@ -1,8 +1,21 @@
 'use client';
 
+import { useState } from 'react';
+import Link from 'next/link';
 import { teleAgents } from '@/data/dummy';
+import DetailDrawer from '@/components/DetailDrawer';
 
 export default function UsersPage() {
+    const [selectedEntity, setSelectedEntity] = useState<any>(null);
+    const [drawerType, setDrawerType] = useState<'task' | 'lead' | 'agent' | 'promotion' | 'lender' | null>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const handleSelect = (entity: any, type: any) => {
+        setSelectedEntity(entity);
+        setDrawerType(type);
+        setIsDrawerOpen(true);
+    };
+
     return (
         <div className="flex-1 flex flex-col p-6 bg-[#fafafa] overflow-hidden">
             <div className="flex items-center justify-between mb-8">
@@ -14,9 +27,9 @@ export default function UsersPage() {
                     <button className="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all">
                         <i className="fa-solid fa-download mr-2"></i> Export
                     </button>
-                    <button className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-slate-200">
+                    <Link href="/users/add" className="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-slate-200 flex items-center">
                         <i className="fa-solid fa-user-plus mr-2"></i> Add Member
-                    </button>
+                    </Link>
                 </div>
             </div>
 
@@ -35,7 +48,11 @@ export default function UsersPage() {
                         </thead>
                         <tbody className="divide-y divide-slate-50">
                             {teleAgents.map((user) => (
-                                <tr key={user.id} className="hover:bg-slate-50/50 transition-colors cursor-pointer group">
+                                <tr
+                                    key={user.id}
+                                    onClick={() => handleSelect(user, 'agent')}
+                                    className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
+                                >
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <div className={`w-9 h-9 rounded-xl ${user.color} flex items-center justify-center text-white text-[10px] font-black shadow-md`}>
@@ -65,7 +82,7 @@ export default function UsersPage() {
                                         <span className="text-[10px] font-bold text-slate-500">2 hours ago</span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <button className="w-8 h-8 rounded-lg border border-slate-100 bg-white text-slate-400 flex items-center justify-center hover:bg-slate-50 hover:text-indigo-600 transition-all">
+                                        <button className="w-8 h-8 rounded-lg border border-slate-100 bg-white text-slate-400 flex items-center justify-center hover:bg-slate-50 hover:text-indigo-600 transition-all opacity-0 group-hover:opacity-100">
                                             <i className="fa-solid fa-ellipsis-vertical text-[10px]"></i>
                                         </button>
                                     </td>
@@ -75,6 +92,13 @@ export default function UsersPage() {
                     </table>
                 </div>
             </div>
+
+            <DetailDrawer
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                entity={selectedEntity}
+                type={drawerType}
+            />
         </div>
     );
 }

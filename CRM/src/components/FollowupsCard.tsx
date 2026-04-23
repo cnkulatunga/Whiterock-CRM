@@ -2,7 +2,11 @@
 
 import { followups } from '@/data/dummy';
 
-export default function FollowupsCard() {
+interface FollowupsCardProps {
+    onSelect?: (entity: any, type: 'task') => void;
+}
+
+export default function FollowupsCard({ onSelect }: FollowupsCardProps) {
     return (
         <div className="glass-card flex flex-col h-[280px] overflow-hidden">
             <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between bg-white/50">
@@ -24,11 +28,12 @@ export default function FollowupsCard() {
                 {followups.map((f) => (
                     <div
                         key={f.id}
+                        onClick={() => onSelect?.(f, 'task')}
                         className={`p-3 rounded-xl border group hover:shadow-sm transition-all cursor-pointer ${f.priority === 'Hot'
-                                ? 'bg-red-50/50 border-red-100 hover:bg-red-50'
-                                : f.priority === 'Warm'
-                                    ? 'bg-amber-50/50 border-amber-100 hover:bg-amber-50'
-                                    : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
+                            ? 'bg-red-50/50 border-red-100 hover:bg-red-50'
+                            : f.priority === 'Warm'
+                                ? 'bg-amber-50/50 border-amber-100 hover:bg-amber-50'
+                                : 'bg-slate-50 border-slate-100 hover:bg-slate-100'
                             }`}
                     >
                         <div className="flex items-center justify-between mb-1">

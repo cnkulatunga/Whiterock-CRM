@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { leads } from '@/data/dummy';
 
 export default function LeadsPage() {
@@ -30,9 +31,9 @@ export default function LeadsPage() {
                         />
                         <i className="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30 text-[8px]"></i>
                     </div>
-                    <button className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all">
+                    <Link href="/leads/add" className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-black uppercase tracking-widest transition-all">
                         <i className="fa-solid fa-plus text-[7px]"></i> Add Lead
-                    </button>
+                    </Link>
                     <select
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -77,10 +78,10 @@ export default function LeadsPage() {
                                     <td className="px-4 py-3">
                                         <span
                                             className={`text-[7px] font-black px-2 py-0.5 rounded-full uppercase ${lead.quality === 'hot'
-                                                    ? 'bg-red-50 text-red-600'
-                                                    : lead.quality === 'warm'
-                                                        ? 'bg-amber-50 text-amber-600'
-                                                        : 'bg-blue-50 text-blue-600'
+                                                ? 'bg-red-50 text-red-600'
+                                                : lead.quality === 'warm'
+                                                    ? 'bg-amber-50 text-amber-600'
+                                                    : 'bg-blue-50 text-blue-600'
                                                 }`}
                                         >
                                             {lead.status}

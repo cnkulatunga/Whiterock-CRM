@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import TopActionRow from "@/components/TopActionRow";
 import FollowupsCard from "@/components/FollowupsCard";
 import NotesCard from "@/components/NotesCard";
@@ -7,21 +10,32 @@ import PortfolioCard from "@/components/PortfolioCard";
 import PayoutsCard from "@/components/PayoutsCard";
 import PromotionsCard from "@/components/PromotionsCard";
 import CalendarCard from "@/components/CalendarCard";
+import DetailDrawer from "@/components/DetailDrawer";
 
 export default function SuperAdminDashboard() {
+    const [selectedEntity, setSelectedEntity] = useState<any>(null);
+    const [drawerType, setDrawerType] = useState<'task' | 'lead' | 'agent' | 'promotion' | 'lender' | null>(null);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const handleSelect = (entity: any, type: any) => {
+        setSelectedEntity(entity);
+        setDrawerType(type);
+        setIsDrawerOpen(true);
+    };
+
     return (
         <div className="flex flex-col flex-1 h-full overflow-hidden">
             <TopActionRow />
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6 max-w-[2000px] mx-auto">
-                    <FollowupsCard />
+                    <FollowupsCard onSelect={handleSelect} />
                     <NotesCard />
                     <LicensesCard />
-                    <TeleAgentsCard />
+                    <TeleAgentsCard onSelect={handleSelect} />
                     <PortfolioCard />
                     <PayoutsCard />
-                    <PromotionsCard />
+                    <PromotionsCard onSelect={handleSelect} />
                     <CalendarCard />
 
                     {/* Quick Stats Summary Card */}
@@ -53,7 +67,13 @@ export default function SuperAdminDashboard() {
                 <i className="fa-solid fa-robot text-xl group-hover:rotate-12 transition-transform"></i>
                 <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white animate-pulse"></div>
             </div>
+
+            <DetailDrawer
+                isOpen={isDrawerOpen}
+                onClose={() => setIsDrawerOpen(false)}
+                entity={selectedEntity}
+                type={drawerType}
+            />
         </div>
     );
 }
-
