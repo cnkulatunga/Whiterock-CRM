@@ -1,693 +1,662 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { leads, teleAgents } from '@/data/dummy';
-
-interface Lead {
-    id: string;
-    name: string;
-    company: string;
-    status: string;
-    type: string;
-    amount: string;
-    quality: 'hot' | 'warm' | 'cool';
-    phone: string;
-    email: string;
-}
+import React, { useState } from 'react';
+import Link from 'next/link';
+import { leads, followups } from '@/data/dummy';
 
 const INDUSTRIES = [
-    "Software", "Hardware", "IT Services", "Telecommunications", "E-commerce ",
-    "Digital Media", "Robotics", "Pharmaceuticals", "Medical Devices", "Hospitals ",
-    "Health Insurance", "BioTechnology", "Wellness", "Banking", "Insurance",
-    "Investment Banking", "Venture Capital", "Accounting", "Aerospace"
+  'Software','Hardware','IT Services','Telecommunications','E-commerce','Digital Media',
+  'Robotics','Pharmaceuticals','Medical Devices','Hospitals','Health Insurance',
+  'BioTechnology','Wellness','Banking','Insurance','Investment Banking',
+  'Venture Capital','Accounting','Aerospace',
 ];
-
 const BANKS = [
-    "Santander", "HSBC", "Lloyds Bank", "Starling", "NatWest", "Barclays",
-    "Metro Bank", "Royal Bank of Scotland", "The Co-operative Bank", "The Cumberland",
-    "Tide", "TSB", "Ulster Bank", "Unity Trust Bank", "Zempler"
+  'Santander','HSBC','Lloyds Bank','Starling','NatWest','Barclays','Metro Bank',
+  'Royal Bank of Scotland','The Co-operative Bank','The Cumberland','Tide','TSB',
+  'Ulster Bank','Unity Trust Bank','Zempler',
+];
+const SOURCES = [
+  'Advertisement','Cold Call','Web','External Referral','Instagram','Organic Search',
+  'Sales Email Alias','Employee Referral','Online Store','Partner','Public Relations',
+  'Seminar Partner','Internal Seminar','Trade Show','Chat',
 ];
 
-const SOURCES = [
-    "Advertisement", "Cold Call", "Web", "External Referral", "Instagram", "Organic Search", "Sales Email Alias",
-    "Employee Referral", "Online Store", "Partner", "Public Relations",
-    "Seminar Partner", "Internal Seminar", "Trade Show", "Chat"
-];
+type Lead = {
+  id: string; name: string; company: string; status: string; type: string;
+  amount: string; quality: 'hot' | 'warm' | 'cool'; phone: string; email: string;
+  [key: string]: any;
+};
+
+const qualityBadge = (q: string) => {
+  if (q === 'hot') return 'bg-red-50 text-red-700';
+  if (q === 'warm') return 'bg-amber-50 text-amber-700';
+  return 'bg-blue-50 text-blue-700';
+};
+
+const inputCls = (disabled: boolean) =>
+  `w-full bg-[#fdfdfd] border border-[#e2e8f0] rounded-lg px-3 py-2 text-[10px] font-semibold text-[#1e293b] outline-none transition-all ${
+    disabled
+      ? 'bg-[#f8fafc] border-[#f1f5f9] text-[#64748b] cursor-not-allowed'
+      : 'focus:border-[#2447d7] focus:bg-white focus:shadow-[0_0_0_4px_rgba(36,71,215,0.05)]'
+  }`;
+
+const labelCls = 'text-[9px] font-bold text-[#475569] mb-1 block';
 
 export default function LeadsPage() {
-    const [leadList, setLeadList] = useState<any[]>(leads);
-    const [search, setSearch] = useState('');
-    const [statusFilter, setStatusFilter] = useState('All');
-    const [selectedLeadId, setSelectedLeadId] = useState<string | null>(leads[0]?.id || null);
-    const [activeTab, setActiveTab] = useState('details');
-    const [isEditing, setIsEditing] = useState(false);
-    const [isCreateMode, setIsCreateMode] = useState(false);
-    const [expandedRows, setExpandedRows] = useState<string[]>([]);
+  const [leadList, setLeadList] = useState<Lead[]>(leads as Lead[]);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [selectedId, setSelectedId] = useState<string | null>(leads[0]?.id || null);
+  const [activeTab, setActiveTab] = useState('details');
+  const [isEditing, setIsEditing] = useState(false);
+  const [expandedRows, setExpandedRows] = useState<string[]>([]);
+  const [formData, setFormData] = useState<any>({});
+  const [panelNotes, setPanelNotes] = useState<{ id: number; text: string; date: string }[]>([
+    { id: 1, text: 'Client interested in expansion loan. Needs follow-up by end of week.', date: '2026-04-10 | 10:30 AM' },
+  ]);
+  const [noteInput, setNoteInput] = useState('');
+  const [panelTasks] = useState(followups.slice(0, 3));
+  const [aiGenerated, setAiGenerated] = useState(false);
 
-    // Form State
-    const [formData, setFormData] = useState<any>({});
+  const selectedLead = leadList.find(l => l.id === selectedId) || null;
 
-    const selectedLead = leadList.find(l => l.id === selectedLeadId);
+  const filtered = leadList.filter(l => {
+    const q = search.toLowerCase();
+    const matchSearch = l.name.toLowerCase().includes(q) || l.company.toLowerCase().includes(q) || l.id.toLowerCase().includes(q);
+    const matchStatus = statusFilter === 'All' || l.quality.toLowerCase() === statusFilter.toLowerCase();
+    return matchSearch && matchStatus;
+  });
 
-    const filteredLeads = leadList.filter((l) => {
-        const matchesSearch = l.name.toLowerCase().includes(search.toLowerCase()) ||
-            l.company.toLowerCase().includes(search.toLowerCase()) ||
-            l.id.toLowerCase().includes(search.toLowerCase());
-        const matchesStatus = statusFilter === 'All' || l.quality.toLowerCase() === statusFilter.toLowerCase();
-        return matchesSearch && matchesStatus;
-    });
+  const stats = {
+    total: leadList.length,
+    hot: leadList.filter(l => l.quality === 'hot').length,
+    warm: leadList.filter(l => l.quality === 'warm').length,
+  };
 
-    const stats = {
-        total: leadList.length,
-        hot: leadList.filter(l => l.quality === 'hot').length,
-        warm: leadList.filter(l => l.quality === 'warm').length
-    };
+  const toggleRow = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedRows(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
+  };
 
-    const toggleRow = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setExpandedRows(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-    };
+  const selectLead = (lead: Lead) => {
+    setSelectedId(lead.id);
+    setIsEditing(false);
+    setFormData({ ...lead });
+    setActiveTab('details');
+    setAiGenerated(false);
+  };
 
-    const handleCreateNew = () => {
-        setIsCreateMode(true);
-        setIsEditing(true);
-        setFormData({
-            id: `AF-CASE-${Math.floor(1000 + Math.random() * 9000)}`,
-            quality: 'warm',
-            status: 'Initial'
-        });
-    };
+  const startEdit = () => { if (selectedLead) setFormData({ ...selectedLead }); setIsEditing(true); };
 
-    const handleEditLead = (lead: any) => {
-        setIsCreateMode(true); // Reuse creation view for full-page edit
-        setIsEditing(true);
-        setFormData({ ...lead });
-    };
+  const saveChanges = () => {
+    if (!formData.name) return;
+    setLeadList(prev => prev.map(l => l.id === formData.id ? { ...l, ...formData } : l));
+    setIsEditing(false);
+  };
 
-    const handleCancel = () => {
-        setIsCreateMode(false);
-        setIsEditing(false);
-        setFormData({});
-    };
+  const deleteLead = () => {
+    if (!selectedLead || !confirm('Delete this lead?')) return;
+    setLeadList(prev => prev.filter(l => l.id !== selectedId));
+    setSelectedId(null);
+  };
 
-    const saveLead = () => {
-        if (!formData.name && !formData.fullName) {
-            alert('Full Name is required');
-            return;
-        }
-        const finalLead = {
-            ...formData,
-            name: formData.fullName || formData.name,
-            amount: formData.loanAmount || formData.amount || '£0'
-        };
+  const fd = (key: string) => formData[key] ?? selectedLead?.[key] ?? '';
+  const setFd = (key: string, val: string) => setFormData((p: any) => ({ ...p, [key]: val }));
 
-        if (leadList.find(l => l.id === finalLead.id)) {
-            setLeadList(prev => prev.map(l => l.id === finalLead.id ? finalLead : l));
-        } else {
-            setLeadList(prev => [finalLead, ...prev]);
-        }
-        handleCancel();
-    };
+  return (
+    <div className="flex flex-1 overflow-hidden" style={{ height: '100%' }}>
 
-    if (isCreateMode) {
-        return (
-            <div className="flex-1 flex flex-col bg-[#f8fafc] h-screen overflow-hidden animate-in fade-in duration-300">
-                {/* Registration Header */}
-                <header className="h-[52px] bg-white border-b border-slate-100 flex items-center px-5 shrink-0 shadow-sm z-10">
-                    <button onClick={handleCancel} className="flex items-center gap-2 group mr-6 text-left">
-                        <div className="w-7 h-7 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center group-hover:bg-[#2447d7] group-hover:border-[#2447d7] transition-all">
-                            <i className="fa-solid fa-arrow-left text-[10px] text-slate-400 group-hover:text-white"></i>
-                        </div>
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest group-hover:text-[#2447d7]">Back</span>
-                    </button>
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-xl bg-indigo-50 flex items-center justify-center text-[#2447d7]">
-                            <i className="fa-solid fa-user-plus text-[14px]"></i>
-                        </div>
-                        <div>
-                            <h1 className="text-[12px] font-black text-slate-900 uppercase tracking-widest leading-none">
-                                {formData.id ? 'Modify Lead Context' : 'Register New Lead'}
-                            </h1>
-                            <p className="text-[8px] text-slate-400 font-bold mt-0.5 uppercase tracking-tighter">Secure Registry Protocol Active</p>
-                        </div>
-                    </div>
-                    <div className="flex-1"></div>
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                            <span className="text-[10px] font-mono font-black text-[#2447d7] tracking-widest uppercase">{formData.id}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <label className="text-[9px] font-black text-slate-400 uppercase tracking-tighter">Priority</label>
-                            <select
-                                value={formData.quality}
-                                onChange={e => setFormData({ ...formData, quality: e.target.value })}
-                                className="h-8 px-3 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-black text-slate-900 outline-none cursor-pointer"
-                            >
-                                <option value="hot">HOT</option>
-                                <option value="warm">WARM</option>
-                                <option value="cool">COOL</option>
-                            </select>
-                        </div>
-                        <button onClick={saveLead} className="h-9 px-6 bg-[#2447d7] text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-lg flex items-center gap-2">
-                            <i className="fa-solid fa-check text-[9px]"></i> Save Commitment
-                        </button>
-                    </div>
-                </header>
+      {/* ── LEFT: Lead Database ── */}
+      <section className="flex-1 flex flex-col overflow-hidden bg-white border-r border-slate-100">
+        {/* Dark header */}
+        <header className="bg-[#0f172a] px-4 flex items-center gap-3 shrink-0" style={{ minHeight: 48 }}>
+          <div className="shrink-0">
+            <h2 className="text-[9px] font-bold uppercase tracking-widest text-white leading-none">Lead Database</h2>
+            <span className="text-[8px] font-bold text-gray-500 font-mono">{filtered.length} records</span>
+          </div>
 
-                {/* Registration Form Body */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
-                    <div className="max-w-6xl mx-auto space-y-6">
-                        {/* 1. Contact Information */}
-                        <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
-                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-6 flex items-center gap-3 border-b-2 border-indigo-600 pb-3 w-fit">
-                                <i className="fa-solid fa-address-card"></i> Contact Information
-                            </h3>
-                            <div className="grid grid-cols-3 gap-6">
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Title *</label>
-                                    <input value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Mr, Mrs, Dr..." className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Full Name *</label>
-                                    <input value={formData.fullName || formData.name || ''} onChange={e => setFormData({ ...formData, fullName: e.target.value })} placeholder="e.g. Jonathan Doe" className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Date of Birth *</label>
-                                    <input type="date" value={formData.dob || ''} onChange={e => setFormData({ ...formData, dob: e.target.value })} className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Company / Organization *</label>
-                                    <input value={formData.company || ''} onChange={e => setFormData({ ...formData, company: e.target.value })} placeholder="Registered name..." className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Company House Number *</label>
-                                    <input value={formData.companyHouseNumber || ''} onChange={e => setFormData({ ...formData, companyHouseNumber: e.target.value })} placeholder="e.g. 12345678" className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Annual Turnover *</label>
-                                    <input value={formData.businessAnnualTurnover || ''} onChange={e => setFormData({ ...formData, businessAnnualTurnover: e.target.value })} placeholder="£0.00" className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all font-mono" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Job Title</label>
-                                    <input value={formData.jobTitle || ''} onChange={e => setFormData({ ...formData, jobTitle: e.target.value })} placeholder="Managing Director" className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Industry</label>
-                                    <select value={formData.industry || ''} onChange={e => setFormData({ ...formData, industry: e.target.value })} className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all cursor-pointer">
-                                        <option value="">Select industry...</option>
-                                        {INDUSTRIES.map(i => <option key={i} value={i}>{i}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Email *</label>
-                                    <input type="email" value={formData.email || ''} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="client@example.com" className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Phone Number *</label>
-                                    <input type="tel" value={formData.phone || ''} onChange={e => setFormData({ ...formData, phone: e.target.value })} placeholder="+44 77..." className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all font-mono" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Preferred Method</label>
-                                    <div className="flex gap-2 h-10">
-                                        {['Email', 'Phone', 'WhatsApp', 'Other'].map(m => (
-                                            <button
-                                                key={m}
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, preferredMethod: m })}
-                                                className={`flex-1 rounded-xl text-[9px] font-black transition-all border ${formData.preferredMethod === m ? 'bg-indigo-600 text-white border-indigo-600 shadow-md translate-y-[-1px]' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'}`}
-                                            >
-                                                {m}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Home Owner</label>
-                                    <select value={formData.homeOwner || 'Yes'} onChange={e => setFormData({ ...formData, homeOwner: e.target.value })} className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all">
-                                        <option>Yes</option><option>No</option>
-                                    </select>
-                                </div>
-                                <div className="col-span-3 text-left">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Residential Address *</label>
-                                    <input value={formData.residentialAddress || ''} onChange={e => setFormData({ ...formData, residentialAddress: e.target.value })} placeholder="Full address..." className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                            </div>
-                        </div>
+          <div className="relative flex-1 min-w-0">
+            <i className="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[8px]" style={{ color: 'rgba(255,255,255,.3)' }}></i>
+            <input
+              type="text" placeholder="Search leads..." value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full h-[30px] pl-7 pr-3 text-[9px] font-semibold text-white outline-none rounded-lg"
+              style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)' }}
+            />
+          </div>
 
-                        {/* 2. Loan Details */}
-                        <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
-                            <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-6 flex items-center gap-3 border-b-2 border-indigo-600 pb-3 w-fit">
-                                <i className="fa-solid fa-sack-dollar"></i> Operational Finance Details
-                            </h3>
-                            <div className="grid grid-cols-3 gap-6">
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Amount Needed *</label>
-                                    <input value={formData.loanAmount || formData.amount || ''} onChange={e => setFormData({ ...formData, loanAmount: e.target.value })} placeholder="£0.00" className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all font-mono" />
-                                </div>
-                                <div>
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Loan Purpose</label>
-                                    <input value={formData.loanPurpose || ''} onChange={e => setFormData({ ...formData, loanPurpose: e.target.value })} placeholder="Business expansion..." className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all" />
-                                </div>
-                                <div className="text-left">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Existing Indebtedness</label>
-                                    <select value={formData.existingLoan || 'No'} onChange={e => setFormData({ ...formData, existingLoan: e.target.value })} className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all">
-                                        <option>No</option><option>Yes</option>
-                                    </select>
-                                </div>
-                                <div className="text-left">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Bank Institution</label>
-                                    <select value={formData.companyBank || ''} onChange={e => setFormData({ ...formData, companyBank: e.target.value })} className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all">
-                                        <option value="">Select a bank...</option>
-                                        {BANKS.map(b => <option key={b} value={b}>{b}</option>)}
-                                    </select>
-                                </div>
-                                <div className="text-left">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Lead Source</label>
-                                    <select value={formData.leadSource || ''} onChange={e => setFormData({ ...formData, leadSource: e.target.value })} className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all">
-                                        <option value="">Select source...</option>
-                                        {SOURCES.map(s => <option key={s} value={s}>{s}</option>)}
-                                    </select>
-                                </div>
-                                <div className="text-left">
-                                    <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Credit Search Consent *</label>
-                                    <select value={formData.creditConsent || 'Yes'} onChange={e => setFormData({ ...formData, creditConsent: e.target.value })} className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all">
-                                        <option>Yes</option><option>No</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+          <Link href="/leads/add" className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all shrink-0">
+            <i className="fa-solid fa-plus text-[7px]"></i> Add Lead
+          </Link>
 
-                        {/* 3. Follow-up & Comments */}
-                        <div className="grid grid-cols-2 gap-6">
-                            <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm">
-                                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-6 flex items-center gap-3 border-b-2 border-amber-500 pb-3 w-fit">
-                                    <i className="fa-solid fa-calendar-plus text-amber-500"></i> Schedule Initial Action
-                                </h3>
-                                <div className="space-y-4">
-                                    <div className="text-left">
-                                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1">Action Type</label>
-                                        <select className="w-full h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all">
-                                            <option>Call</option><option>Meeting</option><option>Follow-up</option><option>Email</option>
-                                        </select>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-3">
-                                        <input type="date" className="h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black outline-none" />
-                                        <input type="time" className="h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black outline-none" />
-                                    </div>
-                                    <textarea placeholder="Quick instructions for team leader..." rows={3} className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black outline-none focus:bg-white resize-none"></textarea>
-                                </div>
-                            </div>
-                            <div className="bg-white rounded-3xl border border-slate-100 p-6 shadow-sm flex flex-col">
-                                <h3 className="text-[10px] font-black text-slate-900 uppercase tracking-[.2em] mb-6 flex items-center gap-3 border-b-2 border-indigo-600 pb-3 w-fit">
-                                    <i className="fa-solid fa-comment-dots"></i> Additional Context
-                                </h3>
-                                <textarea
-                                    value={formData.additionalComments || ''}
-                                    onChange={e => setFormData({ ...formData, additionalComments: e.target.value })}
-                                    placeholder="Enter persistent context/notes for this client record..."
-                                    className="flex-1 w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-black outline-none focus:bg-white resize-none min-h-[160px]"
-                                ></textarea>
-                            </div>
-                        </div>
+          <select
+            value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+            className="h-[30px] px-2 text-[9px] font-bold text-gray-300 outline-none cursor-pointer rounded-lg shrink-0"
+            style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)', appearance: 'none' }}
+          >
+            <option value="All" className="bg-[#1e293b]">All Status</option>
+            <option value="hot" className="bg-[#1e293b]">Hot</option>
+            <option value="warm" className="bg-[#1e293b]">Warm</option>
+            <option value="cool" className="bg-[#1e293b]">Cool</option>
+          </select>
 
-                        <div className="pt-6 flex justify-end gap-3 pb-12">
-                            <button onClick={handleCancel} className="h-11 px-8 bg-slate-100 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-slate-200 transition-all">Abandon Protocol</button>
-                            <button onClick={saveLead} className="h-11 px-10 bg-[#2447d7] text-white text-[10px] font-black uppercase tracking-widest rounded-2xl hover:bg-black transition-all shadow-xl shadow-indigo-100">Synchronize Registry</button>
-                        </div>
-                    </div>
-                </div>
+          <div className="flex items-center gap-0 shrink-0 border-l border-white/10 pl-3">
+            <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
+              <span className="text-[13px] font-black text-white font-mono">{stats.total}</span>
+              <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Total</span>
             </div>
-        );
-    }
+            <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
+              <span className="text-[13px] font-black text-red-100 font-mono">{stats.hot}</span>
+              <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Hot</span>
+            </div>
+            <div className="flex items-center gap-1.5 px-2.5 py-2">
+              <span className="text-[13px] font-black text-amber-100 font-mono">{stats.warm}</span>
+              <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Warm</span>
+            </div>
+          </div>
+        </header>
 
-    return (
-        <div className="flex-1 flex overflow-hidden bg-slate-50 p-3 gap-3 h-screen">
-            {/* LEFT PANEL: Database & List */}
-            <section className="flex-1 bg-white rounded-3xl border border-slate-200 flex flex-col overflow-hidden shadow-sm relative">
-                {/* Dark Header */}
-                <header className="h-[52px] bg-[#0f172a] px-5 flex items-center gap-4 shrink-0 shadow-lg z-10">
-                    <div className="flex flex-col shrink-0 text-left">
-                        <h2 className="text-[10px] font-black uppercase tracking-widest text-white leading-none">Lead Database</h2>
-                        <span className="text-[7px] font-bold text-slate-500 uppercase mt-1 tracking-tighter">{filteredLeads.length} RECORDS ACCESSIBLE</span>
-                    </div>
-
-                    <div className="relative flex-1 max-w-sm ml-4">
-                        <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[9px] text-slate-500"></i>
-                        <input
-                            type="text"
-                            placeholder="Search by identity, company or registry ID..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="w-full h-8 bg-white/5 border border-white/10 rounded-xl pl-9 pr-4 text-[10px] font-bold text-white outline-none focus:bg-white/12 focus:border-white/20 transition-all placeholder:text-slate-600"
-                        />
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <select
-                            value={statusFilter}
-                            onChange={e => setStatusFilter(e.target.value)}
-                            className="h-8 bg-white/5 border border-white/10 rounded-xl px-3 text-[9px] font-black text-slate-300 outline-none cursor-pointer focus:bg-white/12 uppercase tracking-widest"
+        {/* Table */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          <style>{`@keyframes expandDown{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}`}</style>
+          <table className="w-full text-left">
+            <thead className="sticky top-0 bg-slate-50 border-b border-gray-100 z-10">
+              <tr>
+                <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Lead</th>
+                <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Company</th>
+                <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Need</th>
+                <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                <th className="px-2 py-1.5 w-6"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {filtered.map(lead => {
+                const expanded = expandedRows.includes(lead.id);
+                const selected = selectedId === lead.id;
+                return (
+                  <React.Fragment key={lead.id}>
+                    <tr
+                      onClick={() => selectLead(lead)}
+                      className={`cursor-pointer transition-colors ${selected ? 'bg-slate-50' : 'hover:bg-[#f8fafc]'}`}
+                    >
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[8px] font-black text-indigo-600 shrink-0">
+                            {lead.name.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-800 leading-none">{lead.name}</p>
+                            <p className="text-[8px] text-slate-400 font-mono mt-0.5">{lead.id}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-3 py-2 text-[10px] text-slate-600 font-medium">{lead.company}</td>
+                      <td className="px-3 py-2">
+                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-bold uppercase ${qualityBadge(lead.quality)}`}>
+                          {lead.quality}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2 text-[9px] text-slate-500 font-medium">{lead.status}</td>
+                      <td className="px-2 py-2">
+                        <button
+                          onClick={e => toggleRow(lead.id, e)}
+                          className="w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-gray-600 transition-all"
                         >
-                            <option value="All" className="bg-[#1e293b]">ALL STATUS</option>
-                            <option value="hot" className="bg-[#1e293b]">HOT</option>
-                            <option value="warm" className="bg-[#1e293b]">WARM</option>
-                            <option value="cool" className="bg-[#1e293b]">COOL</option>
-                        </select>
-                    </div>
-
-                    <div className="flex items-center h-[52px] border-l border-white/5 pl-4 gap-0 shrink-0">
-                        <div className="flex items-center gap-2 px-3 h-[52px] border-r border-white/5">
-                            <span className="text-[14px] font-black text-white leading-none font-mono">{stats.total}</span>
-                            <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest leading-none">TOTAL</span>
-                        </div>
-                        <div className="flex items-center gap-2 px-3 h-[52px] border-r border-white/5">
-                            <span className="text-[14px] font-black text-rose-400 leading-none font-mono">{stats.hot}</span>
-                            <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest leading-none">HOT</span>
-                        </div>
-                        <div className="flex items-center gap-2 px-3 h-[52px]">
-                            <span className="text-[14px] font-black text-amber-400 leading-none font-mono">{stats.warm}</span>
-                            <span className="text-[7px] font-black text-slate-500 uppercase tracking-widest leading-none">WARM</span>
-                        </div>
-                    </div>
-
-                    <button onClick={handleCreateNew} className="h-8 px-4 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all flex items-center gap-2 ml-2">
-                        <i className="fa-solid fa-plus-circle text-[10px]"></i> Add Lead
-                    </button>
-                </header>
-
-                {/* Table Registry */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar">
-                    <table className="w-full text-left border-collapse">
-                        <thead className="sticky top-0 bg-slate-50/95 backdrop-blur-sm border-b border-slate-100 z-10">
-                            <tr>
-                                <th className="px-6 py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest">LEAD IDENTITY</th>
-                                <th className="px-6 py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest">COMPANY ENTITY</th>
-                                <th className="px-6 py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest">FUNDING NEED</th>
-                                <th className="px-6 py-3 text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">STATUS</th>
-                                <th className="px-2 py-3 w-10"></th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-50">
-                            {filteredLeads.map(lead => {
-                                const isSelected = selectedLeadId === lead.id;
-                                const isExpanded = expandedRows.includes(lead.id);
-
-                                return (
-                                    <React.Fragment key={lead.id}>
-                                        <tr
-                                            onClick={() => setSelectedLeadId(lead.id)}
-                                            className={`group cursor-pointer transition-all border-l-4 ${isSelected ? 'bg-indigo-50/50 border-indigo-600' : 'hover:bg-slate-50/50 border-transparent'}`}
-                                        >
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-4">
-                                                    <div onClick={(e) => toggleRow(lead.id, e)} className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${isExpanded ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-white'}`}>
-                                                        <span className="text-[10px] font-black">{lead.name.split(' ')[0][0]}{lead.name.split(' ')[1]?.[0] || 'L'}</span>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[11px] font-black text-slate-900 leading-tight group-hover:text-indigo-600 transition-colors uppercase">{lead.name}</p>
-                                                        <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter font-mono">{lead.id}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <p className="text-[11px] font-black text-slate-700 leading-tight uppercase">{lead.company}</p>
-                                                <p className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter mt-1 leading-none">{lead.type || 'SME Finance'}</p>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <p className="text-[13px] font-black text-slate-900 leading-none font-mono tracking-tighter">{lead.amount}</p>
-                                                <p className="text-[8px] font-black text-indigo-500 uppercase tracking-widest mt-1 leading-none">Operational</p>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex justify-center">
-                                                    <span className={`px-4 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm ${lead.quality === 'hot' ? 'bg-rose-50 text-rose-600 border-rose-100' :
-                                                            lead.quality === 'warm' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                                'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                                        }`}>
-                                                        {lead.quality}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="px-2 py-4 text-center">
-                                                <i className={`fa-solid fa-chevron-right text-[8px] transition-all duration-300 ${isSelected ? 'translate-x-1 text-indigo-600' : 'text-slate-100 group-hover:text-slate-300'}`}></i>
-                                            </td>
-                                        </tr>
-                                        {isExpanded && (
-                                            <tr className="bg-slate-50/50">
-                                                <td colSpan={5} className="p-0">
-                                                    <div className="p-6 grid grid-cols-4 gap-8 animate-in slide-in-from-top-2 duration-300 border-b border-slate-100 shadow-inner">
-                                                        <div className="text-left">
-                                                            <h4 className="text-[9px] font-black text-slate-900 uppercase tracking-[.2em] mb-4 flex items-center gap-2 border-b-2 border-indigo-600 pb-2 w-fit">
-                                                                <i className="fa-solid fa-building"></i> Entity Detail
-                                                            </h4>
-                                                            <div className="space-y-4">
-                                                                <div>
-                                                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Corporate Email</p>
-                                                                    <p className="text-[10px] font-black text-indigo-600 underline decoration-indigo-200 underline-offset-2 uppercase">{lead.email}</p>
-                                                                </div>
-                                                                <div>
-                                                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Secure Line</p>
-                                                                    <p className="text-[10px] font-black text-slate-800">{lead.phone}</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-left">
-                                                            <h4 className="text-[9px] font-black text-slate-900 uppercase tracking-[.2em] mb-4 flex items-center gap-2 border-b-2 border-indigo-600 pb-2 w-fit">
-                                                                <i className="fa-solid fa-sack-dollar"></i> Loan Context
-                                                            </h4>
-                                                            <div className="space-y-4">
-                                                                <div>
-                                                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Exp. Timeline</p>
-                                                                    <p className="text-[10px] font-black text-slate-800">Within 2 Weeks</p>
-                                                                </div>
-                                                                <div>
-                                                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1 leading-none">Req. Purpose</p>
-                                                                    <p className="text-[10px] font-black text-slate-800 uppercase">Asset Procurement</p>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div className="col-span-2 text-left">
-                                                            <h4 className="text-[9px] font-black text-slate-900 uppercase tracking-[.2em] mb-4 flex items-center gap-2 border-b-2 border-indigo-600 pb-2 w-fit">
-                                                                <i className="fa-solid fa-users-gear"></i> Internal Assignment
-                                                            </h4>
-                                                            <div className="flex gap-4">
-                                                                <div className="p-3 bg-white rounded-2xl border border-slate-100 flex-1 shadow-sm">
-                                                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-2 leading-none text-center">Primary Agent</p>
-                                                                    <div className="flex items-center gap-3 justify-center">
-                                                                        <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-[10px] font-black shadow-lg shadow-indigo-100">TM</div>
-                                                                        <span className="text-[10px] font-black text-slate-900 uppercase">Thanushika M</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div className="p-3 bg-white rounded-2xl border border-slate-100 flex-1 shadow-sm">
-                                                                    <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-2 leading-none text-center">Protocol Status</p>
-                                                                    <div className="flex items-center gap-3 justify-center">
-                                                                        <div className="w-2 h-2 rounded-full bg-emerald-500 pulse-dot"></div>
-                                                                        <span className="text-[10px] font-black text-emerald-600 uppercase">Active Engagement</span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </React.Fragment>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Footer Status */}
-                <footer className="h-10 bg-slate-50 border-t border-slate-100 px-6 flex items-center justify-between shrink-0">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">End of Lead Registry • Managed by Alpha OS</span>
-                    <button onClick={handleCreateNew} className="text-[8px] font-black text-indigo-600 hover:text-indigo-800 uppercase tracking-widest flex items-center gap-2 transition-all">
-                        <i className="fa-solid fa-plus-circle"></i> Initialize New Registry Record
-                    </button>
-                </footer>
-            </section>
-
-            {/* RIGHT PANEL: Context Detail */}
-            <aside className="w-[480px] bg-white rounded-3xl border border-slate-200 flex flex-col overflow-hidden shadow-sm">
-                {!selectedLead ? (
-                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center">
-                        <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center mb-6 text-slate-200 border-4 border-slate-50/50 border-dashed">
-                            <i className="fa-solid fa-user-group text-4xl"></i>
-                        </div>
-                        <h3 className="text-[12px] font-black text-slate-300 uppercase tracking-widest">Protocol Stalled</h3>
-                        <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-tighter max-w-[200px]">Select a lead record from the database to engage detailed context...</p>
-                    </div>
-                ) : (
-                    <>
-                        {/* Header */}
-                        <header className="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0 bg-white">
-                            <div className="flex items-center gap-4 text-left">
-                                <div className="w-12 h-12 rounded-2xl bg-slate-900 flex items-center justify-center text-white text-[16px] font-black shadow-xl shadow-slate-200 shrink-0">
-                                    {selectedLead.name.split(' ')[0][0]}{selectedLead.name.split(' ')[1]?.[0] || 'L'}
+                          <i className={`fa-solid fa-chevron-right text-[8px] transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}></i>
+                        </button>
+                      </td>
+                    </tr>
+                    {expanded && (
+                      <tr>
+                        <td colSpan={5} className="p-0">
+                          <div className="bg-slate-50 border-t border-b-2 border-slate-200 px-4 py-3" style={{ animation: 'expandDown .18s ease' }}>
+                            <div className="grid grid-cols-4 gap-3">
+                              {[
+                                { label: 'Phone', value: lead.phone },
+                                { label: 'Email', value: lead.email },
+                                { label: 'Amount', value: lead.amount },
+                                { label: 'Type', value: lead.type },
+                              ].map(p => (
+                                <div key={p.label}>
+                                  <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{p.label}</p>
+                                  <p className="text-[10px] font-semibold text-slate-700 truncate">{p.value}</p>
                                 </div>
-                                <div>
-                                    <h2 className="text-[14px] font-black text-slate-900 leading-none uppercase tracking-tight">{selectedLead.name}</h2>
-                                    <div className="flex items-center gap-2 mt-2">
-                                        <span className={`px-2 py-0.5 rounded-md text-[8px] font-black uppercase tracking-widest ${selectedLead.quality === 'hot' ? 'bg-rose-50 text-rose-600' : 'bg-amber-50 text-amber-600'
-                                            }`}>{selectedLead.quality}</span>
-                                        <span className="text-[9px] font-mono font-black text-[#2447d7] uppercase tracking-tighter">{selectedLead.id}</span>
-                                    </div>
-                                </div>
+                              ))}
                             </div>
-                            <button onClick={() => handleEditLead(selectedLead)} className="h-9 px-5 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-md flex items-center gap-2">
-                                <i className="fa-solid fa-pen-to-square"></i> Modify
-                            </button>
-                        </header>
-
-                        {/* Navigation Tabs */}
-                        <nav className="flex px-4 pt-4 border-b border-slate-100 bg-slate-50/30 gap-1 shrink-0">
-                            {[
-                                { id: 'details', label: 'Identity', icon: 'fa-id-card' },
-                                { id: 'tasks', label: 'Follow-ups', icon: 'fa-calendar-check' },
-                                { id: 'ai', label: 'Alpha Insight', icon: 'fa-bolt' },
-                                { id: 'notes', label: 'Context', icon: 'fa-note-sticky' },
-                                { id: 'docs', label: 'Vault', icon: 'fa-folder-open' }
-                            ].map(tab => (
-                                <button
-                                    key={tab.id}
-                                    type="button"
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-t-xl transition-all ${activeTab === tab.id ? 'bg-white text-indigo-600 shadow-[0_-4px_10px_rgba(0,0,0,0.02)]' : 'text-slate-400 hover:text-slate-600 hover:bg-white/50'}`}
-                                >
-                                    <i className={`fa-solid ${tab.icon} text-[11px]`}></i>
-                                    <span className="text-[8px] font-black uppercase tracking-widest leading-none">{tab.label}</span>
-                                </button>
-                            ))}
-                        </nav>
-
-                        {/* Scrollable Content Container */}
-                        <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
-                            {activeTab === 'details' && (
-                                <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-300">
-                                    <section className="text-left">
-                                        <h4 className="text-[9px] font-black text-slate-300 uppercase tracking-[.2em] mb-4 flex items-center gap-2">
-                                            <i className="fa-solid fa-address-book"></i> Communication Matrix
-                                        </h4>
-                                        <div className="space-y-4">
-                                            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 group transition-all hover:bg-white hover:border-indigo-200">
-                                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Corporate Email Protocol</p>
-                                                <p className="text-[11px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase">{selectedLead.email}</p>
-                                            </div>
-                                            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 group transition-all hover:bg-white hover:border-indigo-200">
-                                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Secure Communication Line</p>
-                                                <p className="text-[11px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors uppercase font-mono">{selectedLead.phone}</p>
-                                            </div>
-                                        </div>
-                                    </section>
-
-                                    <section className="text-left">
-                                        <h4 className="text-[9px] font-black text-slate-300 uppercase tracking-[.2em] mb-4 flex items-center gap-2">
-                                            <i className="fa-solid fa-briefcase"></i> Entity Information
-                                        </h4>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Business House</p>
-                                                <p className="text-[11px] font-black text-slate-900 uppercase leading-tight">{selectedLead.company}</p>
-                                            </div>
-                                            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                                                <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 leading-none">Sector Integration</p>
-                                                <p className="text-[11px] font-black text-slate-900 uppercase">{selectedLead.type || 'SME Finance'}</p>
-                                            </div>
-                                        </div>
-                                    </section>
-                                </div>
-                            )}
-
-                            {activeTab === 'tasks' && (
-                                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300 text-left">
-                                    <div className="p-4 bg-indigo-50 border border-indigo-100 rounded-3xl flex items-center justify-between mb-2">
-                                        <div>
-                                            <h4 className="text-[11px] font-black text-indigo-900 uppercase tracking-tight leading-none">Discuss Loan Purpose</h4>
-                                            <p className="text-[8px] font-black text-indigo-600 mt-2 uppercase tracking-widest font-mono">Initial Call • 14:30 Today</p>
-                                        </div>
-                                        <div className="w-10 h-10 rounded-2xl bg-white border border-indigo-200 flex items-center justify-center text-indigo-600 shadow-sm shrink-0">
-                                            <i className="fa-solid fa-phone"></i>
-                                        </div>
-                                    </div>
-
-                                    <div className="pt-4 border-t border-slate-100">
-                                        <h5 className="text-[9px] font-black text-slate-900 uppercase tracking-widest mb-4">Initialize Next Action</h5>
-                                        <div className="space-y-4">
-                                            <div className="grid grid-cols-2 gap-3">
-                                                <select className="h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none">
-                                                    <option>Call</option><option>Meeting</option>
-                                                </select>
-                                                <input type="date" className="h-10 px-4 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black outline-none" />
-                                            </div>
-                                            <textarea rows={3} placeholder="Action description / context..." className="w-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-[10px] font-black resize-none outline-none focus:bg-white"></textarea>
-                                            <button type="button" className="w-full h-10 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-black transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
-                                                <i className="fa-solid fa-plus-circle"></i> Add Task
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'ai' && (
-                                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300 text-left">
-                                    <div className="p-6 bg-slate-900 text-white rounded-3xl shadow-xl shadow-slate-200 relative overflow-hidden">
-                                        <i className="fa-solid fa-bolt absolute top-[-20px] right-[-10px] text-white/5 text-8xl"></i>
-                                        <p className="text-[7px] font-black text-[#2447d7] uppercase tracking-[.3em] mb-4">Alpha-01 Analysis</p>
-                                        <p className="text-[11px] font-bold text-slate-300 leading-relaxed italic">
-                                            "Lead demonstrates strong intent for {selectedLead.company}. Financial liquidity looks optimal for a {selectedLead.amount} commitment. Suggest immediate follow-up via phone to solidify engagement."
-                                        </p>
-                                        <div className="mt-6 flex items-center gap-4">
-                                            <div className="px-3 py-1 bg-white/10 rounded-lg border border-white/5">
-                                                <span className="text-[8px] font-black text-white/40 uppercase block mb-1">Health Score</span>
-                                                <span className="text-[12px] font-black text-emerald-400 leading-none">94%</span>
-                                            </div>
-                                            <div className="px-3 py-1 bg-white/10 rounded-lg border border-white/5">
-                                                <span className="text-[8px] font-black text-white/40 uppercase block mb-1">Sentiment</span>
-                                                <span className="text-[12px] font-black text-indigo-400 leading-none uppercase">POSITIVE</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {activeTab === 'notes' && (
-                                <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300 text-left">
-                                    <textarea rows={8} placeholder="Enter persistent context/notes for this client record..." className="w-full p-4 bg-slate-50 border border-slate-100 rounded-3xl text-[11px] font-black outline-none focus:bg-white resize-none shadow-inner"></textarea>
-                                    <button type="button" className="w-full h-11 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-2xl shadow-lg active:scale-95 transition-all">Persist Session Notes</button>
-                                </div>
-                            )}
-
-                            {activeTab === 'docs' && (
-                                <div className="space-y-3 animate-in fade-in slide-in-from-right-4 duration-300 text-left">
-                                    {[1, 2].map(i => (
-                                        <div key={i} className="flex items-center justify-between p-4 bg-white border border-slate-100 rounded-2xl hover:border-indigo-200 transition-all group cursor-pointer shadow-sm">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-[14px] shadow-sm shrink-0"><i className="fa-solid fa-file-pdf"></i></div>
-                                                <div>
-                                                    <p className="text-[11px] font-black text-slate-800 uppercase group-hover:text-indigo-600 transition-colors">Tax_Return_FY24_{i}.pdf</p>
-                                                    <p className="text-[8px] font-black text-slate-400 mt-1 uppercase tracking-tighter leading-none">1.2 MB • Securely Stored</p>
-                                                </div>
-                                            </div>
-                                            <i className="fa-solid fa-chevron-right text-[10px] text-slate-200 group-hover:text-indigo-600 transition-colors"></i>
-                                        </div>
-                                    ))}
-                                    <div className="mt-4 border-2 border-dashed border-slate-200 rounded-3xl p-10 text-center hover:bg-slate-50 hover:border-indigo-400 cursor-pointer group transition-all">
-                                        <i className="fa-solid fa-cloud-arrow-up text-slate-200 group-hover:text-indigo-600 text-4xl block mb-4 transition-colors"></i>
-                                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-[.2em] group-hover:text-slate-600">Secure Vault Injection Point</span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </>
-                )}
-            </aside>
-            <style jsx global>{`
-                .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-                @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .3; } }
-                .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
-            `}</style>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </tbody>
+          </table>
+          {filtered.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <i className="fa-solid fa-users text-3xl text-gray-200 mb-3"></i>
+              <p className="text-[10px] font-bold text-gray-400">No leads match your filters</p>
+            </div>
+          )}
         </div>
-    );
+
+        {/* Footer */}
+        <div className="p-3 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between shrink-0">
+          <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Showing {filtered.length} leads</span>
+          <Link href="/leads/add" className="text-[8px] font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-all">
+            <i className="fa-solid fa-plus mr-1"></i>New Lead
+          </Link>
+        </div>
+      </section>
+
+      {/* ── RIGHT: Detail Panel ── */}
+      <div className="w-[480px] flex flex-col bg-white shrink-0">
+        {/* Panel header */}
+        <div className="px-3 py-2 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
+          <div>
+            {selectedLead ? (
+              <>
+                <h2 className="text-[12px] font-black text-gray-900 leading-none">{selectedLead.name}</h2>
+                <p className="text-[9px] text-[#2447d7] font-extrabold mt-0.5 tracking-wider">{selectedLead.id}</p>
+              </>
+            ) : (
+              <>
+                <h2 className="text-[12px] font-black text-gray-900 leading-none">SELECT A LEAD</h2>
+                <p className="text-[9px] text-[#2447d7] font-extrabold mt-0.5 tracking-wider">CHOOSE FROM THE LIST</p>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            {selectedLead && (
+              <div className="flex items-center gap-3 pr-3 border-r border-gray-100">
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[8px] font-bold text-gray-400 uppercase tracking-tight">Status</label>
+                  <select
+                    value={fd('quality')} onChange={e => setFd('quality', e.target.value)} disabled={!isEditing}
+                    className="w-16 h-6 px-1.5 text-[9px] font-bold border rounded bg-gray-50/50 outline-none"
+                  >
+                    <option value="hot">Hot</option>
+                    <option value="warm">Warm</option>
+                    <option value="cool">Cool</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <label className="text-[8px] font-bold text-gray-400 uppercase tracking-tight">ID</label>
+                  <input type="text" value={selectedLead.id} disabled
+                    className="w-20 h-6 px-1.5 text-[9px] font-mono font-bold border rounded bg-gray-50/50 outline-none text-blue-600" />
+                </div>
+              </div>
+            )}
+            {selectedLead && !isEditing && (
+              <button onClick={startEdit} className="h-7 px-3 bg-gray-900 text-white text-[8px] font-bold rounded-lg uppercase tracking-widest hover:bg-black transition-all">
+                Edit Lead
+              </button>
+            )}
+            {selectedLead && isEditing && (
+              <button onClick={saveChanges} className="h-7 px-3 bg-amber-600 text-white text-[8px] font-bold rounded-lg uppercase tracking-widest hover:bg-amber-700 transition-all">
+                Save Changes
+              </button>
+            )}
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
+          </div>
+        </div>
+
+        {/* Tab nav */}
+        {selectedLead && (
+          <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-gray-100 bg-white shrink-0 overflow-x-auto">
+            {[
+              { key: 'details', icon: 'fa-address-card', label: 'Contact Info' },
+              { key: 'tasks',   icon: 'fa-list-check',   label: 'Follow-ups' },
+              { key: 'ai',      icon: 'fa-robot',         label: 'AI Summary' },
+              { key: 'notes',   icon: 'fa-note-sticky',   label: 'Notes' },
+              { key: 'docs',    icon: 'fa-folder-open',   label: 'Documents' },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-[.06em] cursor-pointer transition-all whitespace-nowrap border-none ${
+                  activeTab === tab.key ? 'bg-[#ebf0ff] text-[#2447d7]' : 'bg-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
+                }`}
+              >
+                <i className={`fa-solid ${tab.icon} text-[9px]`}></i> {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Tab content */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ background: '#fcfcfd' }}>
+          {!selectedLead ? (
+            <div className="flex flex-col items-center justify-center h-full text-center p-8">
+              <i className="fa-solid fa-user-group text-4xl text-gray-200 mb-4"></i>
+              <p className="text-[11px] font-bold text-gray-400">Select a lead to view details</p>
+              <p className="text-[9px] text-gray-300 mt-1">Click any row in the table</p>
+            </div>
+          ) : activeTab === 'details' ? (
+            <DetailTab fd={fd} setFd={setFd} isEditing={isEditing} onDelete={deleteLead} />
+          ) : activeTab === 'tasks' ? (
+            <TasksTab tasks={panelTasks} />
+          ) : activeTab === 'ai' ? (
+            <AITab lead={selectedLead} generated={aiGenerated} onGenerate={() => setAiGenerated(true)} />
+          ) : activeTab === 'notes' ? (
+            <NotesTab
+              notes={panelNotes} noteInput={noteInput} setNoteInput={setNoteInput}
+              onAdd={() => {
+                if (!noteInput.trim()) return;
+                setPanelNotes(p => [...p, { id: Date.now(), text: noteInput, date: new Date().toLocaleString() }]);
+                setNoteInput('');
+              }}
+            />
+          ) : (
+            <DocsTab />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function SectionHeader({ icon, children }: { icon: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-1.5 text-[9px] font-black text-[#1e293b] uppercase tracking-[.12em] mb-3 pb-2 border-b-2 border-[#f1f5f9]">
+      <i className={`fa-solid ${icon} text-[9px]`}></i>{children}
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className={labelCls}>{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function DetailTab({ fd, setFd, isEditing, onDelete }: {
+  fd: (k: string) => any; setFd: (k: string, v: string) => void;
+  isEditing: boolean; onDelete: () => void;
+}) {
+  return (
+    <div className="p-4 space-y-5">
+      <section>
+        <SectionHeader icon="fa-address-card">Contact Information</SectionHeader>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Title">
+            <input value={fd('title')} onChange={e => setFd('title', e.target.value)} disabled={!isEditing}
+              placeholder="e.g. Mr, Mrs, Dr..." className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Full Name *">
+            <input value={fd('name')} onChange={e => setFd('name', e.target.value)} disabled={!isEditing}
+              placeholder="e.g. Jonathan Doe" className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Date of Birth">
+            <input type="date" value={fd('dob')} onChange={e => setFd('dob', e.target.value)} disabled={!isEditing}
+              className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Company Name *">
+            <input value={fd('company')} onChange={e => setFd('company', e.target.value)} disabled={!isEditing}
+              placeholder="Registered name..." className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Company House Number">
+            <input value={fd('companyHouseNumber')} onChange={e => setFd('companyHouseNumber', e.target.value)} disabled={!isEditing}
+              placeholder="e.g. 12345678" className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Annual Turnover">
+            <input value={fd('businessAnnualTurnover')} onChange={e => setFd('businessAnnualTurnover', e.target.value)} disabled={!isEditing}
+              placeholder="£0.00" className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Job Title">
+            <input value={fd('jobTitle')} onChange={e => setFd('jobTitle', e.target.value)} disabled={!isEditing}
+              placeholder="Managing Director" className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Industry">
+            <select value={fd('industry')} onChange={e => setFd('industry', e.target.value)} disabled={!isEditing}
+              className={inputCls(!isEditing)}>
+              <option value="">Select industry...</option>
+              {INDUSTRIES.map(i => <option key={i}>{i}</option>)}
+            </select>
+          </Field>
+          <Field label="Email Address *">
+            <input type="email" value={fd('email')} onChange={e => setFd('email', e.target.value)} disabled={!isEditing}
+              placeholder="client@example.com" className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Phone Number *">
+            <input type="tel" value={fd('phone')} onChange={e => setFd('phone', e.target.value)} disabled={!isEditing}
+              placeholder="+44 77..." className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Preferred Method">
+            <div className="flex gap-1.5">
+              {['Email', 'Phone', 'WhatsApp', 'Other'].map(m => (
+                <button key={m} type="button" disabled={!isEditing}
+                  onClick={() => setFd('preferredMethod', m)}
+                  className={`flex-1 py-1.5 rounded-lg text-[8px] font-bold border transition-all ${
+                    fd('preferredMethod') === m
+                      ? 'border-[#2447d7] bg-[#ebf0ff] text-[#2447d7]'
+                      : 'border-[#e2e8f0] bg-white text-[#64748b] hover:bg-slate-50'
+                  } ${!isEditing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
+                >{m}</button>
+              ))}
+            </div>
+          </Field>
+          <Field label="Home Owner">
+            <select value={fd('homeOwner') || 'Yes'} onChange={e => setFd('homeOwner', e.target.value)} disabled={!isEditing}
+              className={inputCls(!isEditing)}>
+              <option>Yes</option><option>No</option>
+            </select>
+          </Field>
+          <div className="col-span-2">
+            <Field label="Residential Address *">
+              <input value={fd('residentialAddress')} onChange={e => setFd('residentialAddress', e.target.value)} disabled={!isEditing}
+                placeholder="Full address..." className={inputCls(!isEditing)} />
+            </Field>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <SectionHeader icon="fa-sack-dollar">Loan Details</SectionHeader>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Amount Needed *">
+            <input value={fd('amount')} onChange={e => setFd('amount', e.target.value)} disabled={!isEditing}
+              placeholder="£0.00" className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Loan Purpose">
+            <input value={fd('loanPurpose')} onChange={e => setFd('loanPurpose', e.target.value)} disabled={!isEditing}
+              placeholder="Business expansion..." className={inputCls(!isEditing)} />
+          </Field>
+          <Field label="Existing Loan">
+            <select value={fd('existingLoan') || 'No'} onChange={e => setFd('existingLoan', e.target.value)} disabled={!isEditing}
+              className={inputCls(!isEditing)}>
+              <option>No</option><option>Yes</option>
+            </select>
+          </Field>
+          <Field label="Bank Institution">
+            <select value={fd('companyBank') || ''} onChange={e => setFd('companyBank', e.target.value)} disabled={!isEditing}
+              className={inputCls(!isEditing)}>
+              <option value="">Select a bank...</option>
+              {BANKS.map(b => <option key={b}>{b}</option>)}
+            </select>
+          </Field>
+          <Field label="Lead Source">
+            <select value={fd('leadSource') || ''} onChange={e => setFd('leadSource', e.target.value)} disabled={!isEditing}
+              className={inputCls(!isEditing)}>
+              <option value="">Select source...</option>
+              {SOURCES.map(s => <option key={s}>{s}</option>)}
+            </select>
+          </Field>
+          <Field label="Credit Search Consent *">
+            <select value={fd('creditConsent') || 'Yes'} onChange={e => setFd('creditConsent', e.target.value)} disabled={!isEditing}
+              className={inputCls(!isEditing)}>
+              <option>Yes</option><option>No</option>
+            </select>
+          </Field>
+        </div>
+      </section>
+
+      <div className="pt-4 border-t border-gray-100">
+        <button onClick={onDelete}
+          className="w-full py-2.5 border border-red-100 text-red-400 text-[8px] font-bold uppercase tracking-widest rounded-lg hover:border-red-300 hover:text-red-600 transition-all">
+          <i className="fa-solid fa-trash text-[7px] mr-1.5"></i>Delete Lead
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function TasksTab({ tasks }: { tasks: any[] }) {
+  const typeColor = (t: string) => {
+    if (t?.includes('Call'))     return 'bg-blue-50 text-blue-700';
+    if (t?.includes('Meeting'))  return 'bg-purple-50 text-purple-700';
+    if (t?.includes('Email'))    return 'bg-green-50 text-green-700';
+    if (t?.includes('Document')) return 'bg-amber-50 text-amber-700';
+    return 'bg-slate-50 text-slate-600';
+  };
+  return (
+    <div className="p-4 space-y-2">
+      {tasks.length === 0 && (
+        <p className="text-[9px] text-gray-300 text-center py-8 italic">No tasks scheduled for this lead</p>
+      )}
+      {tasks.map(t => (
+        <div key={t.id} className="p-3 border border-[#e2e8f0] bg-[#f8fafc] rounded-lg">
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <p className="text-[10px] font-bold text-slate-800">{t.title}</p>
+            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[7px] font-bold uppercase shrink-0 ${typeColor(t.type)}`}>
+              {t.type}
+            </span>
+          </div>
+          <p className="text-[9px] text-slate-500 mb-2 leading-relaxed">{t.desc}</p>
+          <div className="flex items-center gap-3 text-[8px] text-slate-400">
+            <span><i className="fa-solid fa-calendar mr-1"></i>{t.date}</span>
+            <span><i className="fa-solid fa-clock mr-1"></i>{t.time}</span>
+            <span className={`ml-auto px-2 py-0.5 rounded-full font-bold uppercase text-[7px] ${
+              t.priority === 'Hot' ? 'bg-red-50 text-red-600' : t.priority === 'Warm' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
+            }`}>{t.priority}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AITab({ lead, generated, onGenerate }: { lead: any; generated: boolean; onGenerate: () => void }) {
+  const summary = `${lead.name} from ${lead.company} is a ${lead.quality.toUpperCase()} priority lead at the "${lead.status}" stage, seeking ${lead.amount} for ${lead.type || 'financing'}. Contact via ${lead.email} or ${lead.phone}. Recommend prioritising follow-up within 48 hours.`;
+  return (
+    <div className="p-4 space-y-3">
+      <div style={{ background: 'linear-gradient(135deg,#eef2ff,#f5f3ff)', border: '1px solid #e0e7ff', borderRadius: 12, padding: 16 }}>
+        <div className="flex items-center gap-2.5 mb-3">
+          <div style={{ width: 32, height: 32, background: '#4f46e5', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 13, color: '#fff' }}></i>
+          </div>
+          <div className="flex-1">
+            <p style={{ fontSize: 11, fontWeight: 800, color: '#3730a3' }}>AI Lead Summary</p>
+            <p style={{ fontSize: 8, color: '#6366f1', fontWeight: 600 }}>Powered by lead data</p>
+          </div>
+          <button onClick={onGenerate}
+            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, fontSize: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer' }}>
+            <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 8 }}></i> Generate
+          </button>
+        </div>
+        {!generated ? (
+          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+            <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 22, color: '#c7d2fe', marginBottom: 8, display: 'block' }}></i>
+            <p style={{ fontSize: 9, color: '#a5b4fc', fontWeight: 600 }}>Click Generate to create an AI summary for this lead</p>
+          </div>
+        ) : (
+          <p style={{ fontSize: 11, color: '#1e1b4b', lineHeight: 1.8, fontStyle: 'italic' }}>{summary}</p>
+        )}
+      </div>
+      <div className="bg-white border border-gray-100 rounded-xl p-3">
+        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Key Data Points</p>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { label: 'Amount', value: lead.amount },
+            { label: 'Status', value: lead.status },
+            { label: 'Quality', value: lead.quality.toUpperCase() },
+            { label: 'Type', value: lead.type },
+          ].map(p => (
+            <div key={p.label} className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-2.5">
+              <p className="text-[8px] font-bold text-[#94a3b8] uppercase tracking-[.05em]">{p.label}</p>
+              <p className="text-[13px] font-black text-[#0f172a] leading-none mt-0.5">{p.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function NotesTab({ notes, noteInput, setNoteInput, onAdd }: {
+  notes: { id: number; text: string; date: string }[];
+  noteInput: string; setNoteInput: (v: string) => void; onAdd: () => void;
+}) {
+  return (
+    <div className="p-4 space-y-3">
+      <div className="space-y-2">
+        {notes.map(n => (
+          <div key={n.id} className="p-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
+            <p className="text-[10px] text-slate-700 leading-relaxed">{n.text}</p>
+            <p className="text-[8px] text-slate-400 mt-1.5 font-mono">{n.date}</p>
+          </div>
+        ))}
+      </div>
+      <div className="pt-3 border-t border-gray-100">
+        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-2">Add Note</p>
+        <textarea rows={4} value={noteInput} onChange={e => setNoteInput(e.target.value)}
+          placeholder="Write a note..."
+          className="w-full bg-white border border-[#e2e8f0] rounded-lg px-3 py-2 text-[10px] font-semibold text-[#1e293b] outline-none resize-none mb-2 focus:border-[#2447d7]" />
+        <button onClick={onAdd}
+          className="w-full py-2 bg-gray-900 text-white text-[8px] font-black uppercase tracking-widest rounded-lg hover:bg-black transition-all">
+          <i className="fa-solid fa-plus mr-1"></i>Save Note
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function DocsTab() {
+  const [docs, setDocs] = useState<{ name: string; size: string; date: string }[]>([]);
+  const handleFiles = (files: FileList | null) => {
+    if (!files) return;
+    setDocs(p => [...p, ...Array.from(files).map(f => ({
+      name: f.name,
+      size: `${(f.size / 1024).toFixed(1)} KB`,
+      date: new Date().toLocaleDateString(),
+    }))]);
+  };
+  return (
+    <div className="p-4 space-y-3">
+      <div
+        onClick={() => document.getElementById('doc-file-input')?.click()}
+        onDragOver={e => { e.preventDefault(); (e.currentTarget as HTMLElement).style.borderColor = '#2447d7'; }}
+        onDragLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'; }}
+        onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files); (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'; }}
+        style={{ border: '2px dashed #e2e8f0', borderRadius: 12, padding: 20, textAlign: 'center', cursor: 'pointer', background: '#f8fafc', transition: 'all .2s' }}
+      >
+        <i className="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 mb-2 block"></i>
+        <p className="text-[10px] font-bold text-gray-500">Click or drag files to upload</p>
+        <p className="text-[8px] text-gray-400 mt-1">PDF, JPG, PNG, XLSX accepted</p>
+        <input type="file" id="doc-file-input" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
+      </div>
+      {docs.length === 0 && (
+        <p className="text-[9px] text-gray-300 text-center py-4 italic">No documents uploaded yet</p>
+      )}
+      {docs.map((d, i) => (
+        <div key={i} className="flex items-center justify-between p-2.5 bg-[#f8fafc] rounded-lg border border-[#e2e8f0]">
+          <div className="flex items-center gap-2">
+            <i className="fa-solid fa-file-lines text-indigo-400 text-sm"></i>
+            <div>
+              <p className="text-[10px] font-semibold text-slate-700">{d.name}</p>
+              <p className="text-[8px] text-slate-400">{d.size} · {d.date}</p>
+            </div>
+          </div>
+          <button onClick={() => setDocs(p => p.filter((_, j) => j !== i))} className="text-gray-300 hover:text-red-400 transition-all">
+            <i className="fa-solid fa-xmark text-xs"></i>
+          </button>
+        </div>
+      ))}
+    </div>
+  );
 }
