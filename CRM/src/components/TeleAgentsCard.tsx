@@ -1,12 +1,19 @@
 'use client';
 
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { teleAgents } from '@/data/dummy';
+import AgentDrawer from './AgentDrawer';
 
-interface TeleAgentsCardProps {
-    onSelect?: (entity: any, type: 'agent') => void;
-}
+export default function TeleAgentsCard() {
+    const [selectedAgent, setSelectedAgent] = useState<typeof teleAgents[0] | null>(null);
+    const [drawerOpen, setDrawerOpen] = useState(false);
 
-export default function TeleAgentsCard({ onSelect }: TeleAgentsCardProps) {
+    const openAgent = (agent: typeof teleAgents[0]) => {
+        setSelectedAgent(agent);
+        setDrawerOpen(true);
+    };
+
     return (
         <div className="glass-card flex flex-col h-[280px]">
             <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between">
@@ -20,14 +27,11 @@ export default function TeleAgentsCard({ onSelect }: TeleAgentsCardProps) {
                 {teleAgents.map((agent) => (
                     <div
                         key={agent.id}
-                        onClick={() => onSelect?.(agent, 'agent')}
-                        className={`px-3 py-2 cursor-pointer bg-white border border-slate-100 rounded-xl hover:border-indigo-200 transition-all group flex items-center justify-between ${agent.status === 'OFFLINE' ? 'opacity-80 grayscale' : ''
-                            }`}
+                        onClick={() => openAgent(agent)}
+                        className={`px-3 py-2 cursor-pointer bg-white border border-slate-100 rounded-xl hover:border-indigo-200 transition-all group flex items-center justify-between ${agent.status === 'OFFLINE' ? 'opacity-80 grayscale hover:grayscale-0' : ''}`}
                     >
                         <div className="flex items-center gap-3">
-                            <div
-                                className={`w-8 h-8 rounded-lg ${agent.color} flex items-center justify-center text-white text-[9px] font-black shrink-0`}
-                            >
+                            <div className={`w-8 h-8 rounded-lg ${agent.color} flex items-center justify-center text-white text-[9px] font-black shrink-0`}>
                                 {agent.id}
                             </div>
                             <div>
@@ -41,10 +45,7 @@ export default function TeleAgentsCard({ onSelect }: TeleAgentsCardProps) {
                             </div>
                         </div>
                         <div className="text-right flex flex-col items-end justify-between h-full gap-1.5">
-                            <span
-                                className={`${agent.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'
-                                    } text-[6px] font-black px-1.5 py-0.5 rounded uppercase`}
-                            >
+                            <span className={`${agent.status === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'} text-[6px] font-black px-1.5 py-0.5 rounded uppercase`}>
                                 {agent.status}
                             </span>
                             <span className="text-[7px] font-black text-indigo-600 uppercase tracking-widest">Leads: {agent.leads}</span>
@@ -52,6 +53,15 @@ export default function TeleAgentsCard({ onSelect }: TeleAgentsCardProps) {
                     </div>
                 ))}
             </div>
+
+            {typeof window !== 'undefined' && createPortal(
+                <AgentDrawer
+                    agent={selectedAgent}
+                    isOpen={drawerOpen}
+                    onClose={() => setDrawerOpen(false)}
+                />,
+                document.body
+            )}
         </div>
     );
 }

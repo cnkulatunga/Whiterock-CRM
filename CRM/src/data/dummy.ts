@@ -1,37 +1,96 @@
 export const leads = [
-    { id: '#AF-001', name: 'James Wilson', company: 'Wilson Real Estate', status: 'In Progress', type: 'Residential Land', amount: '$450,000', quality: 'hot' },
-    { id: '#AF-002', name: 'Robert Fox', company: 'Fox Construction', status: 'Review', type: 'Commercial Build', amount: '$1,200,000', quality: 'warm' },
-    { id: '#AF-003', name: 'Darlene Robertson', company: 'Robertson & Co', status: 'Pending', type: 'Bridge Loan', amount: '$250,500', quality: 'cool' },
-    { id: '#AF-004', name: 'Courtney Henry', company: 'Henry Logistics', status: 'Closing', type: 'Asset Finance', amount: '$150,000', quality: 'hot' },
-    { id: '#AF-005', name: 'Jane Cooper', company: 'Cooper Group', status: 'Appraisal', type: 'Mortgage', amount: '$850,000', quality: 'warm' },
-    { id: '#AF-006', name: 'Arlene McCoy', company: 'McCoy Dev', status: 'Underwriting', type: 'Construction', amount: '$2,100,000', quality: 'hot' },
-    { id: '#AF-007', name: 'Eleanor Pena', company: 'Pena Holdings', status: 'Approved', type: 'Commercial', amount: '$500,000', quality: 'cool' },
+    { id: '#AF-001', name: 'James Wilson', company: 'Wilson Real Estate', status: 'In Progress', type: 'Residential Land', amount: '£450,000', quality: 'hot', phone: '+44 7700 900123', email: 'james@wilsonestate.co.uk' },
+    { id: '#AF-002', name: 'Robert Fox', company: 'Fox Construction', status: 'Review', type: 'Commercial Build', amount: '£1,200,000', quality: 'warm', phone: '+44 7700 900456', email: 'robert@foxbuild.com' },
+    { id: '#AF-003', name: 'Darlene Robertson', company: 'Robertson & Co', status: 'Pending', type: 'Bridge Loan', amount: '£250,500', quality: 'cool', phone: '+44 7700 900789', email: 'darlene@robertson.com' },
+    { id: '#AF-004', name: 'Courtney Henry', company: 'Henry Logistics', status: 'Closing', type: 'Asset Finance', amount: '£150,000', quality: 'hot', phone: '+44 7700 900111', email: 'courtney@henrylogistics.co.uk' },
+    { id: '#AF-005', name: 'Jane Cooper', company: 'Cooper Group', status: 'Appraisal', type: 'Mortgage', amount: '£850,000', quality: 'warm', phone: '+44 7700 900222', email: 'jane@coopergroup.com' },
+    { id: '#AF-006', name: 'Arlene McCoy', company: 'McCoy Dev', status: 'Underwriting', type: 'Construction', amount: '£2,100,000', quality: 'hot', phone: '+44 7700 900333', email: 'arlene@mccoydev.co.uk' },
+    { id: '#AF-007', name: 'Eleanor Pena', company: 'Pena Holdings', status: 'Approved', type: 'Commercial', amount: '£500,000', quality: 'cool', phone: '+44 7700 900444', email: 'eleanor@penaholdings.com' },
+    { id: '#AF-008', name: 'Bessie Cooper', company: 'Cooper & Sons', status: 'Initial', type: 'Mortgage', amount: '£300,000', quality: 'hot', phone: '+44 7700 900555', email: 'bessie@coopersons.co.uk' },
+    { id: '#AF-009', name: 'Annette Black', company: 'Black Capital', status: 'In Progress', type: 'Investment', amount: '£1,500,000', quality: 'warm', phone: '+44 7700 900666', email: 'annette@blackcapital.com' },
+    { id: '#AF-010', name: 'Theresa Webb', company: 'Webb Solutions', status: 'Review', type: 'SME Loan', amount: '£50,000', quality: 'cool', phone: '+44 7700 900777', email: 'theresa@webbsolutions.co.uk' },
+    { id: '#AF-011', name: 'Cody Fisher', company: 'Fisher Marine', status: 'Closing', type: 'Asset Finance', amount: '£750,000', quality: 'hot', phone: '+44 7700 900888', email: 'cody@fishermarine.com' },
+    { id: '#AF-012', name: 'Kristin Watson', company: 'Watson Wealth', status: 'Appraisal', type: 'Private', amount: '£2,000,000', quality: 'warm', phone: '+44 7700 900999', email: 'kristin@watsonwealth.co.uk' },
 ];
 
 export const followups = [
     {
-        id: '#AF-045',
-        title: 'Johnathan Doe - Contract Signature',
+        id: 1,
+        title: 'ABC Quotation Review',
         desc: 'Follow up on the pending expansion loan documentation. Client requires physical copies sent via courier.',
-        client: 'Johnathan Doe',
-        time: 'Today, 14:30',
+        client: 'James Wilson',
+        phone: '+44 7700 900123',
+        email: 'james@wilsonestate.co.uk',
+        time: '14:30',
+        date: '2026-04-23',
         priority: 'Hot',
+        type: '📞 Call',
+        assignee: 'Thanushika'
     },
     {
-        id: '#AF-022',
-        title: 'ABC Corp - Valuation Review',
+        id: 2,
+        title: 'Contract Negotiation',
         desc: 'Discuss the new asset valuation report with the client. Check if they agree with the commercial premises appraisal.',
-        client: 'ABC Corp',
-        time: 'Tmr, 09:00',
+        client: 'Robert Fox',
+        phone: '+44 7700 900456',
+        email: 'robert@foxbuild.com',
+        time: '09:00',
+        date: '2026-04-24',
         priority: 'Warm',
+        type: '🤝 Meeting',
+        assignee: 'Ravindu'
     },
     {
-        id: '#AF-018',
-        title: 'Sarah Smith - Courtesy Call',
+        id: 3,
+        title: 'KYC Document Upload',
         desc: 'Routine check-in call to ensure client is happy with the current application progress.',
-        client: 'Sarah Smith',
-        time: '21 Apr, 11:30',
+        client: 'Darlene Robertson',
+        phone: '+44 7700 900789',
+        email: 'darlene@robertson.com',
+        time: '11:30',
+        date: '2026-04-23',
         priority: 'Cool',
+        type: '📄 Document',
+        assignee: 'Priya'
+    },
+    {
+        id: 4,
+        title: 'Lender Rate Comparison',
+        desc: 'Compare rates between Barclays and HSBC for the commercial project.',
+        client: 'Courtney Henry',
+        phone: '+44 7700 900111',
+        email: 'courtney@henrylogistics.co.uk',
+        time: '14:00',
+        date: '2026-04-25',
+        priority: 'Hot',
+        type: '📊 Research',
+        assignee: 'Thanushika'
+    },
+    {
+        id: 5,
+        title: 'Send Term Sheet',
+        desc: 'Prepare and send the final terms for the bridge loan.',
+        client: 'Arlene McCoy',
+        phone: '+44 7700 900333',
+        email: 'arlene@mccoydev.co.uk',
+        time: '10:00',
+        date: '2026-04-24',
+        priority: 'Hot',
+        type: '📨 Email',
+        assignee: 'Ravindu'
+    },
+    {
+        id: 6,
+        title: 'Site Visit Confirmation',
+        desc: 'Confirm the site visit with the surveyor for the new construction site.',
+        client: 'Jane Cooper',
+        phone: '+44 7700 900222',
+        email: 'jane@coopergroup.com',
+        time: '09:30',
+        date: '2026-04-26',
+        priority: 'Warm',
+        type: '🤝 Meeting',
+        assignee: 'Thanushika'
     },
 ];
 
@@ -76,7 +135,7 @@ export const notifications = [
 
 export const stats = [
     { label: 'Leads', value: '1,284', change: '+12%', icon: 'fa-users', color: 'indigo' },
-    { label: 'Active Pipeline', value: '$4.2M', change: '+8%', icon: 'fa-chart-line', color: 'emerald' },
+    { label: 'Active Pipeline', value: '£4.2M', change: '+8%', icon: 'fa-chart-line', color: 'emerald' },
     { label: 'Applications', value: '156', change: '-3%', icon: 'fa-file-invoice', color: 'blue' },
     { label: 'Closure Rate', value: '64%', change: '+5%', icon: 'fa-percentage', color: 'amber' },
 ];
@@ -101,4 +160,3 @@ export const promotions = [
     { id: 2, lender: 'Funding Circle', title: '1% Fee Rebate', desc: 'Bonus commission on all asset finance deals...', type: 'Bonus', typeColor: 'emerald', expiry: '15 May' },
     { id: 3, lender: 'Starling Bank', title: 'Speedy Approval', desc: '48h turnaround time for Small Business Loans...', type: 'SLA', typeColor: 'amber', expiry: 'Ongoing' },
 ];
-

@@ -1,90 +1,316 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { notifications } from '@/data/dummy';
 
-export default function TopActionRow() {
+type Doc = { id: number; title: string; category: string; fileType: string; fileSize: string; version: string; uploaded: string; desc: string };
+
+const DOCS: Doc[] = [
+    { id: 1, title: 'Home Loan Product Guide 2026', category: 'Products', fileType: 'pdf', fileSize: '3.4 MB', version: 'v2.1', uploaded: '2026-04-10', desc: 'Comprehensive guide covering all home loan products, rates, and eligibility criteria.' },
+    { id: 2, title: 'AML & KYC Compliance Policy', category: 'Policies', fileType: 'pdf', fileSize: '1.2 MB', version: 'v4.0', uploaded: '2026-04-08', desc: 'Updated AML and KYC policy aligned with AUSTRAC 2026 guidelines.' },
+    { id: 3, title: 'Broker Onboarding FAQ', category: 'FAQs', fileType: 'docx', fileSize: '420 KB', version: 'v1.3', uploaded: '2026-04-12', desc: 'Frequently asked questions for new brokers joining the panel.' },
+    { id: 4, title: 'Cold Call Script - Refinance', category: 'Scripts', fileType: 'docx', fileSize: '190 KB', version: 'v1.0', uploaded: '2026-04-14', desc: 'Structured outbound call script for refinance lead conversations.' },
+    { id: 5, title: 'Lender Panel Overview Guide', category: 'Guides', fileType: 'pdf', fileSize: '5.1 MB', version: 'v3.2', uploaded: '2026-04-05', desc: 'Full overview of all lenders including products, BDMs, and turnaround times.' },
+    { id: 6, title: 'CRM Usage Knowledge Base', category: 'Knowledge Base', fileType: 'pdf', fileSize: '2.8 MB', version: 'v1.1', uploaded: '2026-04-15', desc: 'Internal knowledge base for using the CRM platform.' },
+    { id: 7, title: 'Commercial Loan Product Sheet', category: 'Products', fileType: 'xlsx', fileSize: '680 KB', version: 'v1.0', uploaded: '2026-04-13', desc: 'Rate and product comparison sheet for commercial lending solutions.' },
+    { id: 8, title: 'Privacy Policy 2026', category: 'Policies', fileType: 'pdf', fileSize: '890 KB', version: 'v2.9', uploaded: '2026-03-01', desc: 'Client privacy and data handling policy.' },
+    { id: 9, title: 'Settlement Checklist Guide', category: 'Guides', fileType: 'docx', fileSize: '310 KB', version: 'v2.0', uploaded: '2026-04-07', desc: 'Step-by-step settlement checklist for brokers to share with clients.' },
+    { id: 10, title: 'Objection Handling Scripts', category: 'Scripts', fileType: 'docx', fileSize: '240 KB', version: 'v1.2', uploaded: '2026-04-11', desc: 'Common objection handling scripts for tele agents.' },
+];
+
+const FILE_ICONS: Record<string, { icon: string; bg: string; color: string }> = {
+    pdf:  { icon: 'fa-solid fa-file-pdf',       bg: '#fee2e2', color: '#dc2626' },
+    docx: { icon: 'fa-solid fa-file-word',       bg: '#dbeafe', color: '#1d4ed8' },
+    xlsx: { icon: 'fa-solid fa-file-excel',      bg: '#d1fae5', color: '#059669' },
+    png:  { icon: 'fa-solid fa-file-image',      bg: '#f3e8ff', color: '#7e22ce' },
+    pptx: { icon: 'fa-solid fa-file-powerpoint', bg: '#fff7ed', color: '#c2410c' },
+};
+
+const CAT_COLORS: Record<string, string> = {
+    'Knowledge Base': '#1d4ed8', 'Guides': '#7e22ce', 'FAQs': '#b45309',
+    'Products': '#065f46', 'Policies': '#b91c1c', 'Scripts': '#334155',
+};
+
+interface TopActionRowProps {
+    designMode?: boolean;
+    onToggleDesignMode?: () => void;
+}
+
+export default function TopActionRow({ designMode = false, onToggleDesignMode }: TopActionRowProps) {
     const [showNotifs, setShowNotifs] = useState(false);
+    const [showCalc, setShowCalc] = useState(false);
+    const [showDocs, setShowDocs] = useState(false);
+    const [notifList, setNotifList] = useState(notifications);
+    const [calcInputs, setCalcInputs] = useState({ amount: 75000, term: 18, annual: '30', monthly: '', flat: '', factor: '', feePercent: '2', feeFixed: '' });
+    const [calcResult, setCalcResult] = useState({ monthly: 0, principal: 0, fee: 0, interest: 0, total: 0, daily: 0, yieldRate: 0, factor: 0, flatRate: 0 });
+    const [docSearch, setDocSearch] = useState('');
+    const [docCat, setDocCat] = useState('');
+    const [selectedDoc, setSelectedDoc] = useState<Doc | null>(null);
+    const notifRef = useRef<HTMLDivElement>(null);
+
+    const unreadCount = notifList.filter(n => n.unread).length;
+
+    useEffect(() => {
+        const handler = (e: MouseEvent) => {
+            if (notifRef.current && !notifRef.current.contains(e.target as Node)) setShowNotifs(false);
+        };
+        document.addEventListener('mousedown', handler);
+        return () => document.removeEventListener('mousedown', handler);
+    }, []);
+
+    useEffect(() => {
+        const a = Number(calcInputs.amount) || 0;
+        const t = Number(calcInputs.term) || 1;
+        let rate = 0;
+        if (calcInputs.annual) rate = Number(calcInputs.annual) / 100 / 12;
+        else if (calcInputs.monthly) rate = Number(calcInputs.monthly) / 100;
+        else if (calcInputs.flat) rate = Number(calcInputs.flat) / 100;
+        else if (calcInputs.factor) rate = Number(calcInputs.factor) - 1;
+        const interest = a * rate * t;
+        const feeAmt = calcInputs.feeFixed ? Number(calcInputs.feeFixed) : a * (Number(calcInputs.feePercent) / 100);
+        const total = a + interest + feeAmt;
+        const monthly = total / t;
+        setCalcResult({ monthly, principal: a, fee: feeAmt, interest, total, daily: monthly / 30, yieldRate: a ? interest / a * 100 : 0, factor: a ? total / a : 0, flatRate: a && t ? (interest / a / t) * 100 : 0 });
+    }, [calcInputs]);
+
+    const fmt = (n: number) => `£${n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const fmtPct = (n: number) => `${n.toFixed(2)}%`;
+    const markAllRead = () => setNotifList(notifList.map(n => ({ ...n, unread: false })));
+    const clearAll = () => setNotifList([]);
+
+    const filteredDocs = DOCS.filter(d => {
+        if (docCat && d.category !== docCat) return false;
+        if (docSearch && !d.title.toLowerCase().includes(docSearch.toLowerCase()) && !d.category.toLowerCase().includes(docSearch.toLowerCase())) return false;
+        return true;
+    });
 
     return (
-        <div className="flex items-center gap-2 px-6 pt-4 w-full shrink-0 min-h-[60px]">
-            <div className="flex items-center gap-2 flex-nowrap flex-1 min-w-0 overflow-x-auto pb-2 custom-scrollbar">
-                {[
-                    { label: 'Leads', value: '1,284', trend: '+12%', icon: 'fa-users', color: 'indigo' },
-                    { label: 'Connect', value: 'TEAMS', icon: 'fa-brands fa-microsoft', color: 'indigo' },
-                    { label: 'Chat', value: 'WHATSAPP', icon: 'fa-brands fa-whatsapp', color: 'emerald' },
-                    { label: 'Official', value: 'MAIL HUB', icon: 'fa-envelope', color: 'blue' },
-                    { label: 'Utility', value: 'CALCULATOR', icon: 'fa-calculator', color: 'amber' },
-                    { label: 'Layout', value: 'DESIGN MODE', icon: 'fa-wand-magic-sparkles', color: 'indigo' },
-                    { label: 'Docs', value: 'UPLOAD', icon: 'fa-folder-open', color: 'indigo' },
-                ].map((action, idx) => (
-                    <div
-                        key={idx}
-                        className="glass-card p-2.5 flex items-center gap-3 hover:border-indigo-500/50 group transition-all min-w-[130px] cursor-pointer"
-                    >
-                        <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all shrink-0 bg-${action.color}-50 text-${action.color}-600 group-hover:bg-${action.color}-600 group-hover:text-white`}
-                        >
-                            <i className={`fa-solid ${action.icon} text-sm`}></i>
-                        </div>
-                        <div className="truncate">
-                            <h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">
-                                {action.label}
-                            </h4>
-                            <p className="text-[10px] font-black text-slate-900 mt-1">
-                                {action.value} {action.trend && <span className="text-[7px] text-emerald-500 ml-0.5">{action.trend}</span>}
-                            </p>
-                        </div>
+        <>
+            {/* Top Bar */}
+            <div className="flex items-center gap-2 px-6 pt-4 w-full shrink-0 min-h-[60px]">
+                <div className="flex items-center gap-2 flex-nowrap flex-1 min-w-0 overflow-x-auto pb-2 custom-scrollbar">
+                    <a href="/leads" className="glass-card p-2.5 flex items-center gap-3 hover:border-indigo-500/50 group transition-all min-w-[140px] cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0"><i className="fa-solid fa-users text-sm"></i></div>
+                        <div className="truncate"><h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Leads</h4><p className="text-[10px] font-black text-slate-900 mt-1">1,284 <span className="text-[7px] text-emerald-500 ml-0.5">+12%</span></p></div>
+                    </a>
+                    <a href="https://teams.microsoft.com" target="_blank" rel="noreferrer" className="glass-card p-2.5 flex items-center gap-3 hover:border-indigo-400/50 group transition-all min-w-[130px] cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-indigo-500 group-hover:bg-[#464EB8] group-hover:text-white transition-all shrink-0"><i className="fa-brands fa-microsoft text-sm"></i></div>
+                        <div className="truncate"><h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Connect</h4><p className="text-[10px] font-black text-slate-900 mt-1">TEAMS</p></div>
+                    </a>
+                    <a href="https://web.whatsapp.com" target="_blank" rel="noreferrer" className="glass-card p-2.5 flex items-center gap-3 hover:border-emerald-400/50 group transition-all min-w-[130px] cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-emerald-500 group-hover:bg-[#25D366] group-hover:text-white transition-all shrink-0"><i className="fa-brands fa-whatsapp text-sm"></i></div>
+                        <div className="truncate"><h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Chat</h4><p className="text-[10px] font-black text-slate-900 mt-1">WHATSAPP</p></div>
+                    </a>
+                    <a href="mailto:admin@whiterock.com" className="glass-card p-2.5 flex items-center gap-3 hover:border-blue-400/50 group transition-all min-w-[130px] cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-sky-500 group-hover:bg-[#0EA5E9] group-hover:text-white transition-all shrink-0"><i className="fa-solid fa-envelope text-sm"></i></div>
+                        <div className="truncate"><h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Official</h4><p className="text-[10px] font-black text-slate-900 mt-1">MAIL HUB</p></div>
+                    </a>
+                    <div onClick={() => { setShowCalc(true); setShowDocs(false); }} className="glass-card p-2.5 flex items-center gap-3 hover:border-amber-400/50 group transition-all min-w-[130px] cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center text-amber-500 group-hover:bg-[#fbbf24] group-hover:text-white transition-all shrink-0"><i className="fa-solid fa-calculator text-sm"></i></div>
+                        <div className="truncate"><h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Utility</h4><p className="text-[10px] font-black text-slate-900 mt-1">CALCULATOR</p></div>
                     </div>
-                ))}
-            </div>
+                    <div onClick={onToggleDesignMode} className={`glass-card p-2.5 flex items-center gap-3 hover:border-indigo-400/50 group transition-all min-w-[130px] cursor-pointer ${designMode ? 'border-indigo-500 bg-indigo-50/30' : ''}`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all shrink-0 ${designMode ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-indigo-500 group-hover:bg-[#4f46e5] group-hover:text-white'}`}><i className="fa-solid fa-wand-magic-sparkles text-sm"></i></div>
+                        <div className="truncate"><h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Layout</h4><p className="text-[10px] font-black text-slate-900 mt-1">{designMode ? 'SAVE LAYOUT' : 'DESIGN MODE'}</p></div>
+                    </div>
+                    <div onClick={() => { setShowDocs(true); setShowCalc(false); }} className="glass-card p-2.5 flex items-center gap-3 hover:border-indigo-400/50 group transition-all min-w-[130px] cursor-pointer">
+                        <div className="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-500 group-hover:bg-indigo-600 group-hover:text-white transition-all shrink-0"><i className="fa-solid fa-folder-open text-sm"></i></div>
+                        <div className="truncate"><h4 className="text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Docs</h4><p className="text-[10px] font-black text-slate-900 mt-1">UPLOAD</p></div>
+                    </div>
+                </div>
 
-            <div className="relative shrink-0 ml-2">
-                <button
-                    onClick={() => setShowNotifs(!showNotifs)}
-                    className="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-all hover:-translate-y-0.5"
-                >
-                    <i className="fa-solid fa-bell text-slate-400 text-sm"></i>
-                    <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] bg-red-500 rounded-full text-[8px] font-black text-white flex items-center justify-center px-1 border-2 border-slate-50">
-                        3
-                    </span>
-                </button>
-
-                {showNotifs && (
-                    <div className="absolute top-[50px] right-0 w-[340px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[500] overflow-hidden animate-in fade-in zoom-in duration-200">
-                        <div className="p-4 border-b border-slate-50 flex items-center justify-between">
-                            <div>
-                                <div className="text-[11px] font-black text-slate-900">Notifications</div>
-                                <div className="text-[8px] font-bold text-slate-400">3 unread</div>
+                {/* Notification Bell */}
+                <div className="relative shrink-0 ml-2" ref={notifRef}>
+                    <button onClick={() => setShowNotifs(!showNotifs)} className="w-10 h-10 rounded-xl bg-white border border-slate-100 shadow-sm flex items-center justify-center hover:bg-slate-50 transition-all hover:-translate-y-0.5 relative">
+                        <i className="fa-solid fa-bell text-slate-400 text-sm"></i>
+                        {unreadCount > 0 && <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] bg-red-500 rounded-full text-[8px] font-black text-white flex items-center justify-center px-1 border-2 border-white">{unreadCount}</span>}
+                    </button>
+                    {showNotifs && (
+                        <div className="absolute top-[50px] right-0 w-[340px] bg-white border border-slate-100 rounded-2xl shadow-2xl z-[500] overflow-hidden">
+                            <div className="p-4 border-b border-slate-50 flex items-center justify-between">
+                                <div><div className="text-[11px] font-black text-slate-900">Notifications</div><div className="text-[8px] font-bold text-slate-400">{unreadCount} unread</div></div>
+                                <button onClick={markAllRead} className="text-[8px] font-black text-indigo-600 uppercase tracking-widest hover:underline">Mark all read</button>
                             </div>
-                            <button className="text-[8px] font-black text-indigo-600 uppercase tracking-widest hover:underline">
-                                Mark all read
-                            </button>
+                            <div className="max-h-[360px] overflow-y-auto custom-scrollbar">
+                                {notifList.map(n => (
+                                    <div key={n.id} className={`p-3 border-b border-slate-50 flex items-start gap-3 hover:bg-slate-50 cursor-pointer ${n.unread ? 'bg-indigo-50/30' : ''}`}>
+                                        <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center ${n.color}`}><i className={`fa-solid ${n.icon} text-xs`}></i></div>
+                                        <div className="flex-1"><div className="flex items-center justify-between"><span className="text-[9px] font-black text-slate-900">{n.title}</span><span className="text-[7px] text-slate-400">{n.time}</span></div><p className="text-[8px] text-slate-500 mt-0.5">{n.desc}</p></div>
+                                        {n.unread && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0 mt-1.5" />}
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="p-3 border-t border-slate-50 text-center"><button onClick={clearAll} className="text-[8px] font-black text-slate-400 uppercase tracking-widest hover:text-slate-600">Clear All</button></div>
                         </div>
-                        <div className="max-h-[360px] overflow-y-auto custom-scrollbar">
-                            {notifications.map((n) => (
-                                <div
-                                    key={n.id}
-                                    className={`p-3 border-b border-slate-50 flex items-start gap-3 hover:bg-slate-50 cursor-pointer ${n.unread ? 'bg-indigo-50/30' : ''
-                                        }`}
-                                >
-                                    <div className={`w-8 h-8 rounded-lg shrink-0 flex items-center justify-center ${n.color}`}>
-                                        <i className={`fa-solid ${n.icon} text-xs`}></i>
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-[9px] font-black text-slate-900">{n.title}</span>
-                                            <span className="text-[7px] text-slate-400">{n.time}</span>
-                                        </div>
-                                        <p className="text-[8px] text-slate-500 mt-0.5">{n.desc}</p>
-                                    </div>
-                                    {n.unread && <div className="w-1.5 h-1.5 rounded-full bg-indigo-600 shrink-0 mt-1.5" />}
+                    )}
+                </div>
+            </div>
+
+            {/* ── Calculator Drawer ── */}
+            {showCalc && (
+                <div className="fixed inset-0 z-[1100] flex justify-end overflow-hidden">
+                    <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px]" onClick={() => setShowCalc(false)} />
+                    <div className="relative w-full max-w-[520px] bg-white h-full shadow-[-20px_0_50px_rgba(0,0,0,0.1)] border-l border-slate-100 flex flex-col">
+                        <div className="px-8 py-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500"><i className="fa-solid fa-calculator text-lg"></i></div>
+                                <div><h2 className="text-xs font-black text-slate-900 uppercase tracking-widest leading-none">Business Loan</h2><p className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-tight">Calculator Hub</p></div>
+                            </div>
+                            <button onClick={() => setShowCalc(false)} className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-all"><i className="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 bg-slate-50/30">
+                            <div className="w-full bg-white rounded-2xl shadow-sm p-5 border border-slate-100">
+                                <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Loan Amount (£)</label><input type="number" value={calcInputs.amount} onChange={e => setCalcInputs({...calcInputs, amount: Number(e.target.value)})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
+                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Term (Months)</label><input type="number" value={calcInputs.term} onChange={e => setCalcInputs({...calcInputs, term: Number(e.target.value)})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
+                                    <div className="col-span-2 text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] pt-2 pb-0.5 border-t border-slate-100">Interest Rate Inputs</div>
+                                    {(['Annual (%)|annual','Monthly (%)|monthly','Flat (%)|flat','Factor (Dec)|factor'] as string[]).map(s => { const [label, key] = s.split('|'); return (<div key={key} className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{label}</label><input type="number" step="0.01" value={(calcInputs as any)[key]} onChange={e => setCalcInputs({...calcInputs, [key]: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>); })}
+                                    <div className="col-span-2 text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] pt-2 pb-0.5 border-t border-slate-100">Arrangement Fees</div>
+                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Percentage (%)</label><input type="number" step="0.1" value={calcInputs.feePercent} onChange={e => setCalcInputs({...calcInputs, feePercent: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
+                                    <div className="space-y-1"><label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Fixed Amount (£)</label><input type="number" step="1" value={calcInputs.feeFixed} onChange={e => setCalcInputs({...calcInputs, feeFixed: e.target.value})} className="w-full bg-slate-50 border border-slate-200 rounded-lg py-1.5 px-3 text-[12px] font-black text-slate-900 focus:bg-white outline-none" /></div>
                                 </div>
-                            ))}
+                                <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                                    <div className="text-center mb-4"><span className="text-[8px] font-black text-slate-400 uppercase tracking-[0.2em]">Estimated Monthly Payment</span><span className="block text-2xl font-black text-emerald-600 mt-1">{fmt(calcResult.monthly)}</span></div>
+                                    <div className="space-y-2">
+                                        {[['Loan Principal', fmt(calcResult.principal)],['Arrangement Fees', fmt(calcResult.fee)],['Total Interest', fmt(calcResult.interest)]].map(([l,v]) => (<div key={l} className="flex justify-between items-center text-[10px] font-bold border-b border-dotted border-slate-200 pb-1.5"><span className="text-slate-400 uppercase tracking-tight">{l}</span><span className="text-slate-900">{v}</span></div>))}
+                                        <div className="flex justify-between items-center text-[11px] font-black bg-indigo-50 text-indigo-700 p-2 rounded-lg"><span className="uppercase tracking-widest">Total Payable</span><span>{fmt(calcResult.total)}</span></div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-2 mt-4 pt-4 border-t border-slate-200">
+                                        {[['Daily:', fmt(calcResult.daily)],['Yield:', fmtPct(calcResult.yieldRate)],['Factor:', calcResult.factor.toFixed(4)],['Flat:', fmtPct(calcResult.flatRate)]].map(([l,v]) => (<div key={l} className="flex justify-between items-center text-[9px] font-bold"><span className="text-slate-400 uppercase">{l}</span><span className="text-slate-900">{v}</span></div>))}
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                )}
-            </div>
-        </div>
+                </div>
+            )}
+
+            {/* ── Docs Drawer ── */}
+            {showDocs && (
+                <div className="fixed inset-0 z-[1100] flex justify-end overflow-hidden">
+                    <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px]" onClick={() => setShowDocs(false)} />
+                    <div className="relative w-full max-w-[500px] bg-white h-full shadow-[-20px_0_50px_rgba(0,0,0,0.1)] border-l border-slate-100 flex flex-col">
+
+                        {/* Dark header */}
+                        <div className="px-5 py-3.5 flex items-center justify-between shrink-0" style={{ background: '#0f172a' }}>
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center shrink-0"><i className="fa-solid fa-vault text-white text-sm"></i></div>
+                                <div>
+                                    <div className="text-[11px] font-black text-white uppercase tracking-widest leading-none">Document Vault</div>
+                                    <div className="text-[8px] text-slate-500 mt-0.5">{filteredDocs.length} document{filteredDocs.length !== 1 ? 's' : ''}</div>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <a href="/docs" className="text-[8px] font-black text-indigo-400 bg-indigo-500/15 px-2.5 py-1 rounded-md uppercase tracking-widest hover:bg-indigo-500/25 transition-all">Full View</a>
+                                <button onClick={() => setShowDocs(false)} className="w-7 h-7 rounded-full flex items-center justify-center text-white hover:bg-white/10 transition-all"><i className="fa-solid fa-xmark text-xs"></i></button>
+                            </div>
+                        </div>
+
+                        {/* Search + filter */}
+                        <div className="px-4 py-2.5 border-b border-slate-100 flex gap-2 items-center shrink-0 bg-slate-50">
+                            <div className="relative flex-1">
+                                <input type="text" value={docSearch} onChange={e => setDocSearch(e.target.value)} placeholder="Search documents..."
+                                    className="w-full bg-white border border-slate-200 rounded-lg pl-7 pr-3 py-1.5 text-[9px] font-semibold text-slate-800 outline-none focus:border-indigo-400" />
+                                <i className="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[8px]"></i>
+                            </div>
+                            <select value={docCat} onChange={e => setDocCat(e.target.value)} className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[9px] font-bold text-slate-600 outline-none cursor-pointer">
+                                <option value="">All Categories</option>
+                                {['Knowledge Base','Guides','FAQs','Products','Policies','Scripts'].map(c => <option key={c}>{c}</option>)}
+                            </select>
+                        </div>
+
+                        {/* Document list */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar">
+                            {filteredDocs.length === 0 ? (
+                                <div className="flex flex-col items-center justify-center h-full text-center px-8">
+                                    <i className="fa-solid fa-folder-open text-3xl text-slate-200 mb-3"></i>
+                                    <div className="text-[10px] font-bold text-slate-400">No documents found</div>
+                                </div>
+                            ) : filteredDocs.map(d => {
+                                const fi = FILE_ICONS[d.fileType] || { icon: 'fa-solid fa-file', bg: '#f1f5f9', color: '#475569' };
+                                const cc = CAT_COLORS[d.category] || '#475569';
+                                const date = new Date(d.uploaded + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: '2-digit' });
+                                return (
+                                    <div key={d.id} onClick={() => setSelectedDoc(d)}
+                                        className="flex items-start gap-3 px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-all cursor-pointer">
+                                        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: fi.bg }}>
+                                            <i className={`${fi.icon} text-sm`} style={{ color: fi.color }}></i>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="text-[10px] font-black text-slate-900 truncate">{d.title}</div>
+                                            <div className="text-[8px] text-slate-500 mt-0.5 truncate">{d.desc}</div>
+                                            <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+                                                <span className="text-[7px] font-black px-1.5 py-0.5 rounded-full" style={{ background: cc + '22', color: cc }}>{d.category}</span>
+                                                <span className="text-[7px] font-bold text-slate-400">{d.version}</span>
+                                                <span className="text-[7px] font-bold text-slate-400">{d.fileSize}</span>
+                                                <span className="text-[7px] font-bold text-slate-400 ml-auto">{date}</span>
+                                            </div>
+                                        </div>
+                                        <button onClick={e => { e.stopPropagation(); }} className="w-7 h-7 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-500 hover:bg-indigo-600 hover:text-white hover:border-indigo-600 transition-all shrink-0 mt-0.5">
+                                            <i className="fa-solid fa-download text-[9px]"></i>
+                                        </button>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* ── Doc Detail Modal ── */}
+            {selectedDoc && (() => {
+                const d = selectedDoc;
+                const fi = FILE_ICONS[d.fileType] || { icon: 'fa-solid fa-file', bg: '#f1f5f9', color: '#475569' };
+                const cc = CAT_COLORS[d.category] || '#475569';
+                const date = new Date(d.uploaded + 'T00:00:00').toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
+                return (
+                    <div className="fixed inset-0 z-[9999] bg-slate-900/50 backdrop-blur-[4px] flex items-center justify-center" onClick={() => setSelectedDoc(null)}>
+                        <div className="bg-white rounded-3xl w-[520px] max-w-[95vw] shadow-[0_25px_60px_rgba(0,0,0,0.2)] overflow-hidden" onClick={e => e.stopPropagation()}>
+                            {/* Colored header */}
+                            <div className="px-6 py-4 flex items-center gap-3" style={{ background: cc }}>
+                                <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                                    <i className={`${fi.icon} text-white text-lg`}></i>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="text-[13px] font-black text-white leading-tight">{d.title}</div>
+                                    <div className="text-[9px] font-bold text-white/60 mt-0.5 uppercase tracking-widest">{d.category}</div>
+                                </div>
+                                <button onClick={() => setSelectedDoc(null)} className="w-8 h-8 rounded-full flex items-center justify-center text-white shrink-0" style={{ background: 'rgba(255,255,255,0.15)' }}>
+                                    <i className="fa-solid fa-xmark"></i>
+                                </button>
+                            </div>
+
+                            {/* Body */}
+                            <div className="p-6 flex flex-col gap-4">
+                                {/* Description */}
+                                <div className="bg-slate-50 rounded-xl p-4">
+                                    <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Description</div>
+                                    <div className="text-[11px] font-medium text-slate-600 leading-relaxed">{d.desc}</div>
+                                </div>
+
+                                {/* Meta grid */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    {[
+                                        { label: 'File Type', value: d.fileType.toUpperCase() },
+                                        { label: 'File Size', value: d.fileSize },
+                                        { label: 'Version',   value: d.version },
+                                        { label: 'Uploaded',  value: date },
+                                    ].map(r => (
+                                        <div key={r.label} className="bg-slate-50 rounded-xl p-3">
+                                            <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">{r.label}</div>
+                                            <div className="text-[12px] font-black text-slate-900">{r.value}</div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button onClick={() => setSelectedDoc(null)} className="w-full py-2.5 rounded-xl bg-slate-100 text-[10px] font-black text-slate-600 uppercase tracking-widest hover:bg-slate-200 transition-all">
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            })()}
+        </>
     );
 }

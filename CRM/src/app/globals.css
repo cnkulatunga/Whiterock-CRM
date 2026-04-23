@@ -65,3 +65,38 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+
+/* Module Grid */
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+  max-width: 1800px;
+  margin: 0 auto;
+}
+
+/* Design Mode */
+.module-grid.design-mode .glass-card {
+  cursor: grab;
+  border: 2px dashed #cbd5e1 !important;
+  animation: gentleShake 0.3s infinite alternate ease-in-out;
+}
+.module-grid.design-mode .glass-card:active {
+  cursor: grabbing;
+}
+@keyframes gentleShake {
+  from { transform: rotate(-0.2deg); }
+  to   { transform: rotate(0.2deg); }
+}
+.sortable-ghost {
+  opacity: 0.3;
+  background: #e2e8f0 !important;
+  border: 2px solid #4f46e5 !important;
+}
+.card-wide {
+  grid-column: span 2 !important;
+}
+@media (max-width: 768px) {
+  .card-wide { grid-column: span 1; }
+}

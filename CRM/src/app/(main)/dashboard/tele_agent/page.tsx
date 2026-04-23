@@ -31,7 +31,7 @@ export default function TeleAgentDashboard() {
                     <TeleAgentLeadsCard />
 
                     {/* Standard Cards */}
-                    <FollowupsCard onSelect={handleSelect} />
+                    <FollowupsCard />
                     <NotesCard />
                     <PromotionsCard onSelect={handleSelect} />
                     <CalendarCard />
