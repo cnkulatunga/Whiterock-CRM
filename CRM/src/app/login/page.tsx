@@ -15,24 +15,31 @@ export default function LoginPage() {
         e.preventDefault();
         setError('');
 
-        if (password === 'Pass@123') {
+        if (password === 'Whiterock@2026' || password === 'Admin@2026' || password === 'Pass@123') {
             setLoading(true);
             setTimeout(() => {
-                if (email === 'admin@taskflow.com') {
+                if (email === 'ceo@whiterock.com') {
+                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Super Admin', landing: '/dashboard/super_admin' }));
+                    router.push('/dashboard/super_admin');
+                } else if (email === 'admin.ops@whiterock.com') {
+                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Admin', landing: '/dashboard/super_admin' }));
                     router.push('/dashboard/super_admin');
                 } else if (email === 'manager@taskflow.com') {
+                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Accounts Manager', landing: '/dashboard/accounts_manager' }));
                     router.push('/dashboard/accounts_manager');
                 } else if (email === 'lead@taskflow.com') {
+                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Team Leader', landing: '/dashboard/team_lead' }));
                     router.push('/dashboard/team_lead');
                 } else if (email === 'agent@taskflow.com') {
+                    sessionStorage.setItem('crm_session', JSON.stringify({ email, role: 'Tele Agent', landing: '/dashboard/tele_agent' }));
                     router.push('/dashboard/tele_agent');
                 } else {
-                    setError('Unknown role. Please use demo emails.');
+                    setError('Access Denied. Invalid email.');
                     setLoading(false);
                 }
             }, 700);
         } else {
-            setError('Invalid password. Use demo credentials.');
+            setError('Invalid password.');
         }
     };
 
@@ -119,12 +126,9 @@ export default function LoginPage() {
                                 />
                             </div>
                             <p className="text-[9px] font-bold text-slate-400 mt-1.5 flex flex-wrap gap-x-2 gap-y-1">
-                                <span>Demo password: <span className="bg-slate-100 px-1.5 py-0.5 rounded font-mono text-slate-600">Pass@123</span></span>
+                                <span>Super Admin: <span className="text-slate-600">ceo@whiterock.com</span> (Whiterock@2026)</span>
                                 <span className="opacity-50">|</span>
-                                <span>Admin: <span className="text-slate-600">admin@taskflow.com</span></span>
-                                <span>Manager: <span className="text-slate-600">manager@taskflow.com</span></span>
-                                <span>Team Lead: <span className="text-slate-600">lead@taskflow.com</span></span>
-                                <span>Agent: <span className="text-slate-600">agent@taskflow.com</span></span>
+                                <span>Admin: <span className="text-slate-600">admin.ops@whiterock.com</span> (Admin@2026)</span>
                             </p>
                         </div>
 

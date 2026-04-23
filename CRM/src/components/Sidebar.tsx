@@ -13,12 +13,13 @@ const navItems = [
     { id: 'nav-pipeline', name: 'Pipeline', icon: 'fa-diagram-project', path: '/pipeline' },
     { id: 'nav-lenders', name: 'Lenders', icon: 'fa-hand-holding-dollar', path: '/lenders/add' },
     { id: 'nav-users', name: 'Users', icon: 'fa-user-gear', path: '/users' },
+    { id: 'nav-permissions', name: 'Matrix', icon: 'fa-shield-halved', path: '/permissions' },
     { id: 'nav-docs', name: 'Docs', icon: 'fa-folder-open', path: '/docs' },
     { id: 'nav-reports', name: 'Reports', icon: 'fa-chart-line', path: '/reports' },
 ];
 
 const ROLE_NAV: Record<string, string[]> = {
-    'Admin': ['nav-dashboard', 'nav-tasks', 'nav-leads', 'nav-pipeline', 'nav-lenders', 'nav-docs', 'nav-users', 'nav-reports'],
+    'Admin': ['nav-dashboard', 'nav-tasks', 'nav-leads', 'nav-pipeline', 'nav-lenders', 'nav-docs', 'nav-users', 'nav-permissions', 'nav-reports'],
     'Team Leader': ['nav-dashboard', 'nav-tasks', 'nav-leads'],
     'Tele Agent': ['nav-dashboard', 'nav-tasks', 'nav-leads'],
     'Accounts Manager': ['nav-dashboard', 'nav-tasks', 'nav-leads', 'nav-lenders']
