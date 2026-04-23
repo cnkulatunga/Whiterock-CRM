@@ -33,8 +33,9 @@ export default function FollowupsCard() {
 
     const loadTasks = () => {
         fetch('/api/tasks')
-            .then(res => res.json())
+            .then(res => res.ok ? res.json() : Promise.reject('API Error'))
             .then(data => {
+                if (!Array.isArray(data)) return setFollowups([]);
                 const mapped = data.map((f: any) => {
                     let normalizedPrio = f.priority || 'Warm';
                     if (normalizedPrio === 'High') normalizedPrio = 'Hot';
@@ -56,6 +57,21 @@ export default function FollowupsCard() {
                     };
                 });
                 setFollowups(mapped);
+            })
+            .catch(err => {
+                console.error('Tasks fetch error:', err);
+                // Fallback to initial followups if API fails
+                const fallbackMapped: Followup[] = (initialFollowups as any[]).map(f => ({
+                    id: String(f.id),
+                    title: f.title,
+                    desc: f.description,
+                    client: f.client,
+                    time: (f.date || 'TBD') + ' ' + (f.time || ''),
+                    rawTime: (f.date || 'TBD') + 'T' + (f.time || ''),
+                    priority: 'Hot',
+                    assignee: f.assignee
+                }));
+                setFollowups(fallbackMapped);
             });
     };
 

@@ -10,7 +10,7 @@ export default function PortfolioCard() {
 
     useEffect(() => {
         fetch('/api/leads')
-            .then(res => res.json())
+            .then(res => res.ok ? res.json() : Promise.reject('API Error'))
             .then(data => {
                 if (Array.isArray(data)) {
                     setLeads(data);
@@ -19,6 +19,7 @@ export default function PortfolioCard() {
             })
             .catch(err => {
                 console.error('Portfolio fetch error:', err);
+                setLeads(initialLeads);
                 setLoading(false);
             });
     }, []);

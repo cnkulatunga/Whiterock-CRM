@@ -22,7 +22,13 @@ export default function LicensesCard() {
     const [form, setForm] = useState({ type: 'License', name: '', desc: '', date: '', remind: '30' });
 
     useEffect(() => {
-        fetch('/api/licenses').then(res => res.json()).then(data => setLicenses(data));
+        fetch('/api/licenses')
+            .then(res => res.ok ? res.json() : Promise.reject('API Error'))
+            .then(data => setLicenses(Array.isArray(data) ? data : initialLicenses))
+            .catch(err => {
+                console.error('Licenses fetch error:', err);
+                setLicenses(initialLicenses);
+            });
     }, []);
 
     const openDetail = (l: License) => { setSelected(l); setView('detail'); };

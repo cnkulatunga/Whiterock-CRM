@@ -13,25 +13,30 @@ export default function TasksPage() {
 
     useEffect(() => {
         fetch('/api/tasks')
-            .then(res => res.json())
+            .then(res => res.ok ? res.json() : Promise.reject('API Error'))
             .then(data => {
-                const mapped = data.map((f: any) => ({
-                    id: f.id,
-                    title: f.title,
-                    type: f.type,
-                    typeColor: TYPE_META[f.type.split(' ')[1]]?.color || 'text-blue-500',
-                    client: f.client,
-                    phone: f.phone,
-                    email: f.email,
-                    date: f.date,
-                    time: f.time,
-                    taskStatus: f.status || 'To Do',
-                    leadStatus: f.priority as any,
-                    assignee: f.assignee,
-                    notes: f.description
-                }));
+                if (!Array.isArray(data)) return;
+                const mapped = data.map((f: any) => {
+                    const typeKey = f.type?.includes(' ') ? f.type.split(' ')[1] : f.type;
+                    return {
+                        id: f.id,
+                        title: f.title,
+                        type: f.type || 'General',
+                        typeColor: TYPE_META[typeKey]?.color || 'text-blue-500',
+                        client: f.client,
+                        phone: f.phone,
+                        email: f.email,
+                        date: f.date,
+                        time: f.time,
+                        taskStatus: f.status || 'To Do',
+                        leadStatus: f.priority as any,
+                        assignee: f.assignee,
+                        notes: f.description
+                    };
+                });
                 setTasks(mapped);
-            });
+            })
+            .catch(err => console.error('Tasks fetch error:', err));
     }, []);
 
     const [expandedId, setExpandedId] = useState<number | null>(null);
@@ -123,21 +128,24 @@ export default function TasksPage() {
             });
             if (res.ok) {
                 const data = await fetch('/api/tasks').then(r => r.json());
-                const mapped = data.map((f: any) => ({
-                    id: f.id,
-                    title: f.title,
-                    type: f.type,
-                    typeColor: TYPE_META[f.type.split(' ')[1]]?.color || 'text-blue-500',
-                    client: f.client,
-                    phone: f.phone,
-                    email: f.email,
-                    date: f.date,
-                    time: f.time,
-                    taskStatus: f.status || 'To Do',
-                    leadStatus: f.priority as any,
-                    assignee: f.assignee,
-                    notes: f.description
-                }));
+                const mapped = data.map((f: any) => {
+                    const typeKey = f.type?.includes(' ') ? f.type.split(' ')[1] : f.type;
+                    return {
+                        id: f.id,
+                        title: f.title,
+                        type: f.type || 'General',
+                        typeColor: TYPE_META[typeKey]?.color || 'text-blue-500',
+                        client: f.client,
+                        phone: f.phone,
+                        email: f.email,
+                        date: f.date,
+                        time: f.time,
+                        taskStatus: f.status || 'To Do',
+                        leadStatus: f.priority as any,
+                        assignee: f.assignee,
+                        notes: f.description
+                    };
+                });
                 setTasks(mapped);
                 setFormData({ ...formData, title: '', leadId: '', notes: '' });
             }

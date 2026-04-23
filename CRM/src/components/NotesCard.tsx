@@ -10,7 +10,13 @@ export default function NotesCard() {
     const [input, setInput] = useState('');
 
     useEffect(() => {
-        fetch('/api/notes').then(res => res.json()).then(data => setNotes(data));
+        fetch('/api/notes')
+            .then(res => res.ok ? res.json() : Promise.reject('API Error'))
+            .then(data => setNotes(Array.isArray(data) ? data : initialNotes))
+            .catch(err => {
+                console.error('Notes fetch error:', err);
+                setNotes(initialNotes);
+            });
     }, []);
 
     const addNote = async () => {
