@@ -47,7 +47,7 @@ const s: Record<string, React.CSSProperties> = {
     catTagSel: { background: '#0f172a', color: '#fff', borderColor: '#0f172a' },
     categoryChip: { display: 'inline-flex', alignItems: 'center', padding: '3px 8px', background: '#f1f5f9', borderRadius: 6, fontSize: 9, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: '.03em' },
     badge: { display: 'inline-flex', alignItems: 'center', padding: '2px 7px', borderRadius: 99, fontSize: 8, fontWeight: 800, letterSpacing: '.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' },
-    tabBtn: { flex: 1, padding: 8, fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', color: '#94a3b8', borderBottom: '2px solid transparent', cursor: 'pointer', textAlign: 'center', background: 'none', border: 'none' } as React.CSSProperties,
+    tabBtn: { flex: 1, padding: 8, fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', color: '#94a3b8', borderTop: 'none', borderLeft: 'none', borderRight: 'none', borderBottom: '2px solid transparent', cursor: 'pointer', textAlign: 'center', background: 'none' } as React.CSSProperties,
     tabBtnActive: { color: '#0f172a', borderBottom: '2px solid #0f172a' },
     promoCard: { background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 10, padding: 10, marginBottom: 8, cursor: 'pointer', transition: 'transform .1s' },
     dropZone: { border: '2px dashed #e2e8f0', borderRadius: 12, padding: '16px 12px', textAlign: 'center', transition: 'all .2s', background: '#fafafa', marginBottom: 8 },
@@ -627,11 +627,8 @@ export default function LenderManagementPage() {
                                         </div>
 
                                         <div style={{ display: 'flex', gap: 8, paddingBottom: 8 }}>
-                                            <button onClick={buildPreview} style={{ flex: 1, padding: '10px 0', background: '#111827', color: '#fff', border: 'none', borderRadius: 8, fontSize: 9, fontWeight: 700, textTransform: 'uppercase', cursor: 'pointer' }}>
-                                                <i className="fa-solid fa-eye" style={{ marginRight: 6 }} />Preview
-                                            </button>
                                             <button onClick={() => { buildPreview(); showToast('Application copied to clipboard'); }} style={{ flex: 1, padding: '10px 0', background: '#d97706', color: '#fff', border: 'none', borderRadius: 8, fontSize: 9, fontWeight: 700, textTransform: 'uppercase', cursor: 'pointer' }}>
-                                                <i className="fa-solid fa-paper-plane" style={{ marginRight: 6 }} />Send / Copy
+                                                <i className="fa-solid fa-paper-plane" style={{ marginRight: 6 }} />Send
                                             </button>
                                         </div>
 
@@ -764,9 +761,6 @@ export default function LenderManagementPage() {
                                                                 </div>
                                                                 <div>
                                                                     <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
-                                                                        <button onClick={e => { e.stopPropagation(); openSendApp(l.id); }} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 8, background: '#4f46e5', color: '#fff', fontSize: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                                                                            <i className="fa-solid fa-paper-plane" style={{ fontSize: 7 }} />Send App
-                                                                        </button>
                                                                         <button onClick={e => { e.stopPropagation(); loadEditForm(l.id); }} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '6px 10px', borderRadius: 8, background: '#111827', color: '#fff', fontSize: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.05em', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                                                                             <i className="fa-solid fa-pen" style={{ fontSize: 7 }} />Edit
                                                                         </button>

@@ -11,7 +11,7 @@ const navItems = [
     { id: 'nav-tasks', name: 'Tasks', icon: 'fa-tasks', path: '/tasks' },
     { id: 'nav-leads', name: 'Leads', icon: 'fa-user-group', path: '/leads' },
     { id: 'nav-pipeline', name: 'Pipeline', icon: 'fa-diagram-project', path: '/pipeline' },
-    { id: 'nav-lenders', name: 'Lenders', icon: 'fa-hand-holding-dollar', path: '/lenders' },
+    { id: 'nav-lenders', name: 'Lenders', icon: 'fa-hand-holding-dollar', path: '/lenders/add' },
     { id: 'nav-users', name: 'Users', icon: 'fa-user-gear', path: '/users' },
     { id: 'nav-docs', name: 'Docs', icon: 'fa-folder-open', path: '/docs' },
     { id: 'nav-reports', name: 'Reports', icon: 'fa-chart-line', path: '/reports' },
@@ -57,7 +57,7 @@ export default function Sidebar() {
                     if (!allowedNav.includes(item.id)) return null;
 
                     const finalPath = item.id === 'nav-dashboard' ? dashboardPath : item.path;
-                    const isActive = pathname.startsWith(item.path) || (item.id === 'nav-dashboard' && pathname.includes('/dashboard/'));
+                    const isActive = pathname === item.path || pathname.startsWith(item.path + '/') || (item.id === 'nav-dashboard' && pathname.includes('/dashboard/'));
 
                     return (
                         <Link
