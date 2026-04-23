@@ -3,7 +3,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { usePermissions } from '@/hooks/usePermissions';
-import { AGENTS, teamMembers } from '@/data/dummy';
+import { 
+    AGENTS, teamMembers, LENDERS_DB, STAGE_LABELS, STAGE_COLOR, 
+    STAGE_BG, PRIO_STYLE, REM_COLOR, REM_ICON, STATUS_COLOR 
+} from '@/data/dummy';
 
 /* ── Types ──────────────────────────────────────────────────── */
 interface Lead {
@@ -15,41 +18,7 @@ interface Lead {
 interface Note { author: string; time: string; text: string; }
 interface Reminder { type: string; title: string; assignee: string; due: string; status: string; note?: string; }
 
-/* ── Static data ─────────────────────────────────────────────── */
-const ALL_LEADS: Lead[] = [
-    { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics',      amount: '£12,000',     agent: 'Sarah Jenkins', bank: '—',       stage: 'collecting', priority: 'High',   days: 2,  lender: '—',             notes: 'Waiting for bank statements',            payoutStatus: 'No',  leadLevel: 'Level 1' },
-    { id: 'AF-550', name: 'Priya Singh',   business: 'Singh Media',            amount: '£450,000',    agent: 'James White',   bank: '—',       stage: 'collecting', priority: 'Medium', days: 1,  lender: '—',             notes: 'Large expansion loan request.',          payoutStatus: 'No',  leadLevel: 'Level 2' },
-    { id: 'AF-027', name: 'John Smith',    business: 'ABC Corp',               amount: '£55,000',     agent: 'Sarah Jenkins', bank: 'Barclays',stage: 'lender',     priority: 'High',   days: 4,  lender: 'Barclays, HSBC',notes: 'Email sent to partners, awaiting offers.',payoutStatus: 'No',  leadLevel: 'Level 1' },
-    { id: 'AL-339', name: 'Mike Johnson',  business: 'Urban Scaffolding Ltd',  amount: '£85,000',     agent: 'James White',   bank: '—',       stage: 'verified',   priority: 'Low',    days: 5,  lender: '—',             notes: 'Bank statements audited and approved.',  payoutStatus: 'No',  leadLevel: 'Level 2' },
-    { id: 'AF-001', name: 'David Brown',   business: 'Miller Logistics',       amount: '£150,000',    agent: 'Sarah Jenkins', bank: 'Starling',stage: 'approved',   priority: 'High',   days: 12, lender: 'Starling',       notes: 'Offer accepted, final checks in progress.',payoutStatus: 'Yes', leadLevel: 'Level 1' },
-    { id: 'AL-209', name: 'Kevin Malone',  business: 'Malone Paints',          amount: '£25,000',     agent: 'James White',   bank: '—',       stage: 'rejected',   priority: 'Low',    days: 1,  lender: '—',             notes: 'Low credit score and high existing debt.',payoutStatus: 'No',  leadLevel: 'Level 2' },
-    { id: 'AF-028', name: 'Minosh Example',business: 'ex ABC',                 amount: '£3,456',      agent: 'Sarah White',   bank: 'Starling',stage: 'verified',   priority: 'High',   days: 3,  lender: 'NAB',           notes: 'Awaiting final sign-off.',               payoutStatus: 'Yes', leadLevel: 'Level 1' },
-    { id: 'AF-002', name: 'Alice Huang',   business: 'Huang Tech',             amount: '£1,200,000',  agent: 'Leo Kumar',     bank: 'HSBC',    stage: 'lender',     priority: 'High',   days: 4,  lender: 'ANZ',           notes: 'Shortlisting lenders.',                  payoutStatus: 'No',  leadLevel: 'Level 2' },
-    { id: 'AF-003', name: 'David Rivera',  business: 'Rivera Designs',         amount: '£85,000',     agent: 'Priya Sharma',  bank: '—',       stage: 'approved',   priority: 'Medium', days: 1,  lender: 'Westpac',       notes: 'Approval letter received.',              payoutStatus: 'Yes', leadLevel: 'Level 1' },
-];
-
-const LENDERS_DB: Record<string, { contact: string; email: string; terms: string; phone: string }> = {
-    'NAB': { contact: 'Mark Sterling', email: 'm.sterling@nab-business.com', terms: 'Next Day Payout', phone: '+44 20 7123 4567' },
-    'ANZ': { contact: 'David Low', email: 'd.low@anz.bank', terms: 'Standard Terms', phone: '+44 20 8888 7777' },
-    'Westpac': { contact: 'Emily Thorne', email: 'e.thorne@westpac.com', terms: 'Instant Payout', phone: '+44 20 6666 5555' },
-    'Starling': { contact: 'James Cole', email: 'j.cole@starling.com', terms: '2-Day Payout', phone: '+44 20 5555 6666' },
-    'Barclays': { contact: 'Rachel Adams', email: 'r.adams@barclays.co.uk', terms: 'Standard Terms', phone: '+44 20 1234 5678' },
-    'HSBC': { contact: 'Tom Harding', email: 't.harding@hsbc.co.uk', terms: '3-Day Settlement', phone: '+44 20 9876 5432' },
-};
-
 const STAGE_ORDER = ['collecting', 'verified', 'lender', 'approved', 'completed'];
-const STAGE_LABELS: Record<string, string> = { collecting: 'Doc Collection', verified: 'Doc Verified', lender: 'Lender Selection', approved: 'Loan Approved', completed: 'Completed', rejected: 'Rejected' };
-const STAGE_COLOR: Record<string, string> = { collecting: '#64748b', verified: '#3b82f6', lender: '#8b5cf6', approved: '#22c55e', completed: '#0f172a', rejected: '#ef4444' };
-const STAGE_BG: Record<string, string> = { collecting: '#f1f5f9', verified: '#eff6ff', lender: '#f5f3ff', approved: '#f0fdf4', completed: '#f1f5f9', rejected: '#fef2f2' };
-const PRIO_STYLE: Record<string, { bg: string; color: string; border: string }> = {
-    High: { bg: '#fee2e2', color: '#b91c1c', border: '#fecaca' },
-    Medium: { bg: '#fffbeb', color: '#92400e', border: '#fde68a' },
-    Low: { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
-};
-
-const REM_COLOR: Record<string, string> = { Call: '#3b82f6', Meeting: '#8b5cf6', 'Follow-up': '#f59e0b', Document: '#10b981' };
-const REM_ICON: Record<string, string> = { Call: 'fa-phone', Meeting: 'fa-users', 'Follow-up': 'fa-rotate-right', Document: 'fa-file' };
-const STATUS_COLOR: Record<string, string> = { Pending: '#f59e0b', Completed: '#10b981', Overdue: '#ef4444' };
 
 function now() {
     const d = new Date();
@@ -65,35 +34,54 @@ export default function LeadDetailPage() {
     const { hasAction } = usePermissions();
     const canAssign = hasAction('tasks', 'assign');
 
-    const found = ALL_LEADS.find(l => l.id === id) ?? ALL_LEADS[0];
-
-    const [lead, setLead] = useState<Lead>({ ...found });
+    const [lead, setLead] = useState<Lead | null>(null);
+    const [loading, setLoading] = useState(true);
     const [editing, setEditing] = useState(false);
     const [aiState, setAiState] = useState<'idle' | 'loading' | 'done'>('idle');
     const [aiText, setAiText] = useState('');
-    const [notes, setNotes] = useState<Note[]>([
-        { author: found.agent, time: '2026-04-10 10:22', text: found.notes },
-        { author: 'Cody Lane', time: '2026-04-08 15:40', text: 'Client confirmed availability for lender call next week.' },
-        { author: 'System', time: '2026-04-07 09:00', text: 'Automated reminder sent to client for outstanding documents.' },
-    ]);
-    const [reminders, setReminders] = useState<Reminder[]>([
-        { type: 'Call', title: 'Follow up on bank statements', assignee: found.agent, due: '2026-04-18', status: 'Pending' },
-        { type: 'Meeting', title: 'Lender introduction call', assignee: found.agent, due: '2026-04-20', status: 'Pending' },
-        { type: 'Follow-up', title: 'Check document verification', assignee: found.agent, due: '2026-04-12', status: 'Overdue' },
-        { type: 'Document', title: 'Request updated payslips', assignee: 'Sarah White', due: '2026-04-15', status: 'Completed' },
-    ]);
+    const [notes, setNotes] = useState<Note[]>([]);
+
+    useEffect(() => {
+        fetch(`/api/leads/${id}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                setLead(data);
+                setEditForm(data);
+                setRemAssignee(data.agent);
+                setNotes([
+                    { author: data.agent, time: '2026-04-10 10:22', text: data.notes },
+                    { author: 'Cody Lane', time: '2026-04-08 15:40', text: 'Client confirmed availability for lender call next week.' },
+                    { author: 'System', time: '2026-04-07 09:00', text: 'Automated reminder sent to client for outstanding documents.' },
+                ]);
+                setReminders([
+                    { type: 'Call', title: 'Follow up on bank statements', assignee: data.agent, due: '2026-04-18', status: 'Pending' },
+                    { type: 'Meeting', title: 'Lender introduction call', assignee: data.agent, due: '2026-04-20', status: 'Pending' },
+                    { type: 'Document', title: 'ID Verification scan', assignee: 'Sarah White', due: '2026-04-15', status: 'Completed', note: 'Drivers license verified.' },
+                ]);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, [id]);
+
+    if (loading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
+    if (!lead) return <div className="flex-1 flex items-center justify-center">Lead not found</div>;
+    const [reminders, setReminders] = useState<Reminder[]>([]);
     const [previewDoc, setPreviewDoc] = useState<string | null>(null);
     const [notifyDone, setNotifyDone] = useState(false);
 
     /* edit form state */
-    const [editForm, setEditForm] = useState({ ...found });
+    const [editForm, setEditForm] = useState<Lead | null>(null);
 
     /* add-note / add-reminder form */
     const [noteText, setNoteText] = useState('');
     const [remType, setRemType] = useState('Call');
     const [remTitle, setRemTitle] = useState('');
     const [remDate, setRemDate] = useState('');
-    const [remAssignee, setRemAssignee] = useState(found.agent);
+    const [remAssignee, setRemAssignee] = useState('');
     const [remNote, setRemNote] = useState('');
 
     /* docs */
@@ -119,6 +107,10 @@ export default function LeadDetailPage() {
     ].map(t => ({ ...t, done: isRejected ? t.minStage < 4 : t.minStage <= stageStep }));
 
     /* ── AI Summary ─────────────────────────────────────────── */
+    const updateLead = (updates: Partial<Lead>) => {
+        setLead((p: Lead | null) => p ? ({ ...p, ...updates } as Lead) : null);
+    };
+
     const generateAI = () => {
         if (aiState === 'loading') return;
         setAiState('loading');
@@ -136,7 +128,7 @@ export default function LeadDetailPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(editForm)
             });
-            if (response.ok) {
+            if (response.ok && editForm) {
                 setLead({ ...editForm });
                 setEditing(false);
             } else {
@@ -399,23 +391,23 @@ export default function LeadDetailPage() {
                             </div>
                             <div className="custom-scroll" style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', minHeight: 0 }}>
                                 <InfoRow label="ID" value={<span style={{ fontFamily: 'monospace', fontWeight: 900 }}>#{lead.id}</span>} />
-                                <InfoRow label="Name" value={editing ? <input className="field-edit" value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} /> : lead.name} />
-                                <InfoRow label="Business" value={editing ? <input className="field-edit" value={editForm.business} onChange={e => setEditForm(p => ({ ...p, business: e.target.value }))} /> : lead.business} />
-                                <InfoRow label="Agent" value={editing ? <input className="field-edit" value={editForm.agent} onChange={e => setEditForm(p => ({ ...p, agent: e.target.value }))} /> : lead.agent} />
-                                <InfoRow label="Priority" value={editing
-                                    ? <select className="field-edit" value={editForm.priority} onChange={e => setEditForm(p => ({ ...p, priority: e.target.value as Lead['priority'] }))}>
+                                <InfoRow label="Name" value={editing && editForm ? <input className="field-edit" value={editForm.name} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, name: e.target.value }) : null)} /> : lead.name} />
+                                <InfoRow label="Business" value={editing && editForm ? <input className="field-edit" value={editForm.business} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, business: e.target.value }) : null)} /> : lead.business} />
+                                <InfoRow label="Agent" value={editing && editForm ? <input className="field-edit" value={editForm.agent} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, agent: e.target.value }) : null)} /> : lead.agent} />
+                                <InfoRow label="Priority" value={editing && editForm
+                                    ? <select className="field-edit" value={editForm.priority} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, priority: e.target.value as Lead['priority'] }) : null)}>
                                         <option>High</option><option>Medium</option><option>Low</option>
                                     </select>
                                     : <span style={{ background: ps.bg, color: ps.color, padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700 }}>{lead.priority}</span>}
                                 />
-                                <InfoRow label="Stage" value={editing
-                                    ? <select className="field-edit" value={editForm.stage} onChange={e => setEditForm(p => ({ ...p, stage: e.target.value }))}>
+                                <InfoRow label="Stage" value={editing && editForm
+                                    ? <select className="field-edit" value={editForm.stage} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, stage: e.target.value }) : null)}>
                                         {Object.entries(STAGE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                                     </select>
                                     : <span style={{ background: STAGE_BG[lead.stage], color: STAGE_COLOR[lead.stage], padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700 }}>{STAGE_LABELS[lead.stage]}</span>}
                                 />
-                                <InfoRow label="Level" value={editing
-                                    ? <select className="field-edit" value={editForm.leadLevel || 'Level 1'} onChange={e => setEditForm(p => ({ ...p, leadLevel: e.target.value }))}>
+                                <InfoRow label="Level" value={editing && editForm
+                                    ? <select className="field-edit" value={editForm.leadLevel || 'Level 1'} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, leadLevel: e.target.value }) : null)}>
                                         <option>Level 1</option><option>Level 2</option>
                                       </select>
                                     : <span style={{ background: '#eef2ff', color: '#4338ca', padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700, border: '1px solid #c7d2fe' }}>{lead.leadLevel || 'Level 1'}</span>}
@@ -429,13 +421,15 @@ export default function LeadDetailPage() {
                             <div className="panel-hdr"><i className="fa-solid fa-coins" style={{ marginRight: 6 }} />Loan Details</div>
                             <div className="custom-scroll" style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', minHeight: 0 }}>
                                 <InfoRow label="Amount" value={
-                                    editing
-                                        ? <input className="field-edit" value={editForm.amount} onChange={e => setEditForm(p => ({ ...p, amount: e.target.value }))} />
+                                    editing && editForm
+                                        ? <input className="field-edit" value={editForm.amount} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, amount: e.target.value }) : null)} />
                                         : <span style={{ fontWeight: 900, fontSize: 13 }}>{lead.amount}</span>
                                 } />
-                                <InfoRow label="Bank" value={editing ? <input className="field-edit" value={editForm.bank} onChange={e => setEditForm(p => ({ ...p, bank: e.target.value }))} /> : lead.bank} />
-                                <InfoRow label="Lender" value={editing ? <input className="field-edit" value={editForm.lender} onChange={e => setEditForm(p => ({ ...p, lender: e.target.value }))} /> : lead.lender} />
-                                <div onClick={() => setLead(p => ({ ...p, payoutStatus: p.payoutStatus === 'Yes' ? 'No' : 'Yes' }))} style={{ cursor: 'pointer' }} title="Click to toggle status">
+                                <InfoRow label="Bank" value={editing && editForm ? <input className="field-edit" value={editForm.bank} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, bank: e.target.value }) : null)} /> : lead.bank} />
+                                <InfoRow label="Lender" value={editing && editForm ? <input className="field-edit" value={editForm.lender} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, lender: e.target.value }) : null)} /> : lead.lender} />
+                                <div onClick={() => {
+                                    if (lead) setLead({ ...lead, payoutStatus: lead.payoutStatus === 'Yes' ? 'No' : 'Yes' });
+                                }} style={{ cursor: 'pointer' }} title="Click to toggle status">
                                     <InfoRow label="Payout" value={
                                         lead.payoutStatus === 'Yes'
                                             ? <span style={{ color: '#10b981', fontWeight: 900, fontSize: 9 }}>✓ CONFIRMED</span>

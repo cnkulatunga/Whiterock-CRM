@@ -172,7 +172,7 @@ export default function LenderManagementPage() {
         setLeftTab('lender');
     }
 
-    function saveForm() {
+    async function saveForm() {
         if (!fName.trim()) { showToast('Lender name is required'); return; }
         const data: Omit<Lender, 'id' | 'added' | 'promotions'> = {
             name: fName.trim(), trading: fTrading.trim(), type: fType, status: fStatus,
@@ -183,22 +183,44 @@ export default function LenderManagementPage() {
             loanMin: parseFloat(fLoanMin) || 0, loanMax: parseFloat(fLoanMax) || 0,
             categories: selCats, notes: fNotes.trim(),
         };
-        if (editId !== null) {
-            setLenders(prev => prev.map(l => l.id === editId ? { ...l, ...data } : l));
-            showToast('Lender updated');
-        } else {
-            const id = nextId; setNextId(id + 1);
-            setLenders(prev => [...prev, { id, added: today, promotions: [], ...data }]);
-            showToast('Lender added');
-        }
-        resetForm();
+
+        try {
+            if (editId !== null) {
+                const res = await fetch('/api/lenders', {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: editId, ...data })
+                });
+                if (res.ok) {
+                    setLenders(prev => prev.map(l => l.id === editId ? { ...l, ...data } : l));
+                    showToast('Lender updated');
+                }
+            } else {
+                const res = await fetch('/api/lenders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.ok) {
+                    const newLender = await res.json();
+                    setLenders(prev => [...prev, newLender]);
+                    showToast('Lender added');
+                }
+            }
+            resetForm();
+        } catch (e) { showToast('Failed to save lender'); }
     }
 
-    function deleteLender(id: number) {
-        setLenders(prev => prev.filter(l => l.id !== id));
-        if (editId === id) resetForm();
-        if (expandedId === id) setExpandedId(null);
-        showToast('Lender deleted');
+    async function deleteLender(id: number) {
+        try {
+            const res = await fetch(`/api/lenders?id=${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                setLenders(prev => prev.filter(l => l.id !== id));
+                if (editId === id) resetForm();
+                if (expandedId === id) setExpandedId(null);
+                showToast('Lender deleted');
+            }
+        } catch (e) { showToast('Failed to delete lender'); }
     }
 
     function toggleCat(cat: string) {
@@ -219,25 +241,51 @@ export default function LenderManagementPage() {
         setEditingPromo(null); setPromoLenderId(''); setPromoName(''); setPromoOffer(''); setPromoExpiry(''); setPromoDoc('');
     }
 
-    function savePromotion() {
+    async function savePromotion() {
         if (!promoLenderId || !promoName.trim()) { showToast('Select a lender and enter promotion name'); return; }
         const lid = parseInt(promoLenderId);
+        const l = lenders.find(x => x.id === lid);
+        if (!l) return;
+
         const p: Promotion = { name: promoName, commission: '', offer: promoOffer, expiry: promoExpiry, document: promoDoc };
+        let newPromos = [...l.promotions];
         if (editingPromo) {
-            setLenders(prev => prev.map(l => l.id === editingPromo.lenderId
-                ? { ...l, promotions: l.promotions.map((pr, i) => i === editingPromo.pIndex ? p : pr) }
-                : l));
-            showToast('Promotion updated');
+            newPromos = newPromos.map((pr, i) => i === editingPromo.pIndex ? p : pr);
         } else {
-            setLenders(prev => prev.map(l => l.id === lid ? { ...l, promotions: [...l.promotions, p] } : l));
-            showToast('Promotion added');
+            newPromos.push(p);
         }
-        resetPromoForm(); setPromoPreview(null);
+
+        try {
+            const res = await fetch('/api/lenders', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: lid, promotions: newPromos })
+            });
+            if (res.ok) {
+                setLenders(prev => prev.map(len => len.id === lid ? { ...len, promotions: newPromos } : len));
+                showToast(editingPromo ? 'Promotion updated' : 'Promotion added');
+                resetPromoForm(); setPromoPreview(null);
+            }
+        } catch (e) { showToast('Failed to save promotion'); }
     }
 
-    function deletePromotion(lenderId: number, pIndex: number) {
-        setLenders(prev => prev.map(l => l.id === lenderId ? { ...l, promotions: l.promotions.filter((_, i) => i !== pIndex) } : l));
-        setPromoPreview(null); showToast('Promotion deleted');
+    async function deletePromotion(lenderId: number, pIndex: number) {
+        const l = lenders.find(x => x.id === lenderId);
+        if (!l) return;
+        const newPromos = l.promotions.filter((_, i) => i !== pIndex);
+
+        try {
+            const res = await fetch('/api/lenders', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: lenderId, promotions: newPromos })
+            });
+            if (res.ok) {
+                setLenders(prev => prev.map(len => len.id === lenderId ? { ...len, promotions: newPromos } : len));
+                setPromoPreview(null);
+                showToast('Promotion deleted');
+            }
+        } catch (e) { showToast('Failed to delete promotion'); }
     }
 
     // --- send application ---

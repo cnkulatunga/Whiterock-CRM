@@ -8,20 +8,22 @@ import { INITIAL_LEADS, INITIAL_LENDERS, INITIAL_TASKS, INITIAL_NOTIFICATIONS, I
 // Using global to persist across hot-reloads in development
 let globalDb: any = (global as any).crm_db;
 
-if (!globalDb) {
+if (!globalDb || !globalDb.leads) {
+    console.log('--- INITIALIZING CRM DATABASE ---');
+    console.log('INITIAL_LEADS count:', INITIAL_LEADS?.length);
     globalDb = {
         users: (INITIAL_USERS as any[]).map(user => ({
             ...user,
             permissions: user.permissions || DEFAULT_ROLE_PERMISSIONS[user.role as keyof typeof DEFAULT_ROLE_PERMISSIONS] || DEFAULT_ROLE_PERMISSIONS['Tele Agent']
         })),
         permissionsMatrix: { ...DEFAULT_ROLE_PERMISSIONS },
-        leads: [...INITIAL_LEADS],
-        lenders: [...INITIAL_LENDERS],
-        tasks: [...INITIAL_TASKS],
-        notifications: [...INITIAL_NOTIFICATIONS],
-        licenses: [...INITIAL_LICENSES],
-        notes: [...INITIAL_NOTES],
-        payouts: [...INITIAL_PAYOUTS],
+        leads: [...(INITIAL_LEADS || [])],
+        lenders: [...(INITIAL_LENDERS || [])],
+        tasks: [...(INITIAL_TASKS || [])],
+        notifications: [...(INITIAL_NOTIFICATIONS || [])],
+        licenses: [...(INITIAL_LICENSES || [])],
+        notes: [...(INITIAL_NOTES || [])],
+        payouts: [...(INITIAL_PAYOUTS || [])],
         audits: [
             { id: 1, user: 'Sarah White', action: 'Modified Permission Matrix', time: '2026-04-23 10:15' }
         ]
@@ -52,7 +54,13 @@ export const db = {
     },
     lenders: {
         getAll: () => globalDb.lenders,
-        create: (lender: any) => { globalDb.lenders.push(lender); return lender; }
+        create: (lender: any) => { globalDb.lenders.push(lender); return lender; },
+        update: (id: number, data: any) => {
+            const idx = globalDb.lenders.findIndex((l: any) => l.id === id);
+            if (idx !== -1) globalDb.lenders[idx] = { ...globalDb.lenders[idx], ...data };
+            return globalDb.lenders[idx];
+        },
+        delete: (id: number) => { globalDb.lenders = globalDb.lenders.filter((l: any) => l.id !== id); }
     },
     permissions: {
         getMatrix: () => globalDb.permissionsMatrix,
@@ -75,11 +83,17 @@ export const db = {
     },
     tasks: {
         getAll: () => globalDb.tasks,
-        create: (task: any) => { globalDb.tasks.push({ ...task, id: Date.now() }); },
-        update: (id: number, status: string) => {
-            const t = globalDb.tasks.find((task: any) => task.id === id);
-            if (t) t.status = status;
-        }
+        create: (task: any) => { 
+            const newTask = { ...task, id: Date.now() };
+            globalDb.tasks.push(newTask); 
+            return newTask;
+        },
+        update: (id: number, data: any) => {
+            const idx = globalDb.tasks.findIndex((t: any) => t.id === id);
+            if (idx !== -1) globalDb.tasks[idx] = { ...globalDb.tasks[idx], ...data };
+            return globalDb.tasks[idx];
+        },
+        delete: (id: number) => { globalDb.tasks = globalDb.tasks.filter((t: any) => t.id !== id); }
     },
     audits: {
         getAll: () => globalDb.audits,
@@ -93,11 +107,30 @@ export const db = {
     },
     licenses: {
         getAll: () => globalDb.licenses,
+        create: (license: any) => { globalDb.licenses.push(license); return license; },
+        update: (id: number, data: any) => {
+            const idx = globalDb.licenses.findIndex((l: any) => l.id === id);
+            if (idx !== -1) globalDb.licenses[idx] = { ...globalDb.licenses[idx], ...data };
+            return globalDb.licenses[idx];
+        },
+        delete: (id: number) => { globalDb.licenses = globalDb.licenses.filter((l: any) => l.id !== id); }
     },
     notes: {
         getAll: () => globalDb.notes,
+        create: (note: any) => { globalDb.notes.unshift(note); return note; },
+        update: (id: number, data: any) => {
+            const idx = globalDb.notes.findIndex((n: any) => n.id === id);
+            if (idx !== -1) globalDb.notes[idx] = { ...globalDb.notes[idx], ...data };
+            return globalDb.notes[idx];
+        },
+        delete: (id: number) => { globalDb.notes = globalDb.notes.filter((n: any) => n.id !== id); }
     },
     payouts: {
         getAll: () => globalDb.payouts,
+        update: (id: string, data: any) => {
+            const idx = globalDb.payouts.findIndex((p: any) => p.id === id);
+            if (idx !== -1) globalDb.payouts[idx] = { ...globalDb.payouts[idx], ...data };
+            return globalDb.payouts[idx];
+        }
     }
 };

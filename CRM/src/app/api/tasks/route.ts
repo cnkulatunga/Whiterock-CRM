@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { db } from '@/lib/db';
 
 export async function GET() {
@@ -12,7 +13,7 @@ export async function POST(request: Request) {
 }
 
 export async function PATCH(request: Request) {
-    const { id, status } = await request.json();
-    db.tasks.update(id, status);
+    const { id, ...updates } = await request.json();
+    db.tasks.update(id, updates);
     return NextResponse.json({ success: true });
 }

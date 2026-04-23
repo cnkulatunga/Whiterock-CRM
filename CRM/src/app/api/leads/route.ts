@@ -1,12 +1,23 @@
 import { NextResponse } from 'next/server';
+export const dynamic = 'force-dynamic';
 import { db } from '@/lib/db';
+import { INITIAL_LEADS } from '@/data/dummy';
 
 export async function GET() {
     try {
-        const leads = db.leads.getAll() || [];
+        let leads = db.leads.getAll();
+        
+        // If DB is empty, something might have failed during initialization
+        if (!leads || leads.length === 0) {
+            console.log('API GET /api/leads: DB was empty, using INITIAL_LEADS fallback.');
+            leads = INITIAL_LEADS;
+        }
+
+        console.log(`API GET /api/leads: Found ${leads.length} leads.`);
         return NextResponse.json(leads);
     } catch (error) {
-        return NextResponse.json([], { status: 200 });
+        console.error('API GET /api/leads ERROR:', error);
+        return NextResponse.json(INITIAL_LEADS || [], { status: 200 });
     }
 }
 
@@ -15,8 +26,8 @@ export async function POST(request: Request) {
         const lead = await request.json();
         const newLead = {
             ...lead,
-            id: `LD-${Math.floor(Math.random() * 900) + 100}`,
-            date: new Date().toISOString().split('T')[0]
+            id: lead.id || `LD-${Math.floor(Math.random() * 900) + 100}`,
+            date: lead.date || new Date().toISOString().split('T')[0]
         };
         db.leads.create(newLead);
         return NextResponse.json(newLead);

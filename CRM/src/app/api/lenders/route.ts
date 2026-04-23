@@ -23,3 +23,26 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Failed' }, { status: 500 });
     }
 }
+
+export async function PATCH(request: Request) {
+    try {
+        const { id, ...updates } = await request.json();
+        const updated = db.lenders.update(id, updates);
+        if (updated) {
+            return NextResponse.json(updated);
+        }
+        return NextResponse.json({ error: 'Lender not found' }, { status: 404 });
+    } catch (error) {
+        return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
+    }
+}
+
+export async function DELETE(request: Request) {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (id) {
+        db.lenders.delete(parseInt(id));
+        return NextResponse.json({ success: true });
+    }
+    return NextResponse.json({ error: 'ID required' }, { status: 400 });
+}

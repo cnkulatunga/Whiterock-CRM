@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { licenses as initialLicenses } from '@/data/dummy';
 
 type License = {
@@ -21,29 +21,35 @@ export default function LicensesCard() {
     const [selected, setSelected] = useState<License | null>(null);
     const [form, setForm] = useState({ type: 'License', name: '', desc: '', date: '', remind: '30' });
 
+    useEffect(() => {
+        fetch('/api/licenses').then(res => res.json()).then(data => setLicenses(data));
+    }, []);
+
     const openDetail = (l: License) => { setSelected(l); setView('detail'); };
     const closeDetail = () => { setSelected(null); setView('list'); };
 
-    const addLicense = () => {
+    const addLicense = async () => {
         if (!form.name.trim()) return;
-        const newL: License = {
-            id: Date.now(),
-            type: form.type,
-            name: form.name,
-            desc: form.desc,
-            date: form.date,
-            remind: parseInt(form.remind),
-            status: 'ACTIVE',
-        };
-        setLicenses([...licenses, newL]);
-        setForm({ type: 'License', name: '', desc: '', date: '', remind: '30' });
-        setView('list');
+        const res = await fetch('/api/licenses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(form)
+        });
+        if (res.ok) {
+            const newL = await res.json();
+            setLicenses([...licenses, newL]);
+            setForm({ type: 'License', name: '', desc: '', date: '', remind: '30' });
+            setView('list');
+        }
     };
 
-    const deleteLicense = (id: number) => {
-        setLicenses(licenses.filter(l => l.id !== id));
-        setView('list');
-        setSelected(null);
+    const deleteLicense = async (id: number) => {
+        const res = await fetch(`/api/licenses?id=${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            setLicenses(licenses.filter(l => l.id !== id));
+            setView('list');
+            setSelected(null);
+        }
     };
 
     const openEditForm = () => {
@@ -52,11 +58,19 @@ export default function LicensesCard() {
         setView('editForm');
     };
 
-    const saveEdit = () => {
+    const saveEdit = async () => {
         if (!selected) return;
-        setLicenses(licenses.map(l => l.id === selected.id ? { ...l, ...form, remind: parseInt(form.remind) } : l));
-        setSelected({ ...selected, ...form, remind: parseInt(form.remind) });
-        setView('detail');
+        const res = await fetch('/api/licenses', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: selected.id, ...form, remind: parseInt(form.remind) })
+        });
+        if (res.ok) {
+            const updated = await res.json();
+            setLicenses(licenses.map(l => l.id === selected.id ? updated : l));
+            setSelected(updated);
+            setView('detail');
+        }
     };
 
     const statusColor = (s: string) => s === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';

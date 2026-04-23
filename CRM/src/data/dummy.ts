@@ -13,6 +13,40 @@ export const INITIAL_LEADS = [
     { id: 'AL-209', name: 'Kevin Malone', company: 'Malone Paints', email: 'kevin@malonepaints.com', phone: '07123 888999', amount: '£25,000', agent: 'James White', status: 'rejected', priority: 'cool', days: 1, lender: '—', notes: 'Low credit score and high existing debt.', quality: 'cool', type: 'Asset Finance', leadLevel: 'Level 2' },
 ] as any[];
 
+export const LENDERS_DB: Record<string, { contact: string; email: string; terms: string; phone: string }> = {
+    'NAB': { contact: 'Mark Sterling', email: 'm.sterling@nab-business.com', terms: 'Next Day Payout', phone: '+44 20 7123 4567' },
+    'ANZ': { contact: 'David Low', email: 'd.low@anz.bank', terms: 'Standard Terms', phone: '+44 20 8888 7777' },
+    'Westpac': { contact: 'Emily Thorne', email: 'e.thorne@westpac.com', terms: 'Instant Payout', phone: '+44 20 6666 5555' },
+    'Starling': { contact: 'James Cole', email: 'j.cole@starling.com', terms: '2-Day Payout', phone: '+44 20 5555 6666' },
+    'Barclays': { contact: 'Rachel Adams', email: 'r.adams@barclays.co.uk', terms: 'Standard Terms', phone: '+44 20 1234 5678' },
+    'HSBC': { contact: 'Tom Harding', email: 't.harding@hsbc.co.uk', terms: '3-Day Settlement', phone: '+44 20 9876 5432' },
+};
+
+export const STAGE_LABELS: Record<string, string> = { collecting: 'Doc Collection', verified: 'Doc Verified', lender: 'Lender Selection', approved: 'Loan Approved', completed: 'Completed', rejected: 'Rejected' };
+export const STAGE_COLOR: Record<string, string> = { collecting: '#64748b', verified: '#3b82f6', lender: '#8b5cf6', approved: '#22c55e', completed: '#0f172a', rejected: '#ef4444' };
+export const STAGE_BG: Record<string, string> = { collecting: '#f1f5f9', verified: '#eff6ff', lender: '#f5f3ff', approved: '#f0fdf4', completed: '#f1f5f9', rejected: '#fef2f2' };
+export const PRIO_STYLE: Record<string, { bg: string; color: string; border: string }> = {
+    High: { bg: '#fee2e2', color: '#b91c1c', border: '#fecaca' },
+    Medium: { bg: '#fffbeb', color: '#92400e', border: '#fde68a' },
+    Low: { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
+};
+
+export const REM_COLOR: Record<string, string> = { Call: '#3b82f6', Meeting: '#8b5cf6', 'Follow-up': '#f59e0b', Document: '#10b981' };
+export const REM_ICON: Record<string, string> = { Call: 'fa-phone', Meeting: 'fa-users', 'Follow-up': 'fa-rotate-right', Document: 'fa-file' };
+export const STATUS_COLOR: Record<string, string> = { Pending: '#f59e0b', Completed: '#10b981', Overdue: '#ef4444' };
+
+export const TYPE_META: Record<string, { emoji: string, color: string }> = {
+    'Call': { emoji: '📞', color: 'text-blue-500' },
+    'Meeting': { emoji: '🤝', color: 'text-purple-500' },
+    'Follow-up': { emoji: '🔁', color: 'text-indigo-500' },
+    'Email': { emoji: '📨', color: 'text-rose-500' },
+    'Document': { emoji: '📄', color: 'text-amber-500' },
+    'Research': { emoji: '📊', color: 'text-emerald-500' },
+    'Outbound': { emoji: '📞', color: 'text-blue-500' },
+};
+
+export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
 export const INITIAL_LENDERS = [
     { id: 1, name: 'ANZ Bank', trading: 'ANZ', type: 'Bank', status: 'Active', email: 'broker@anz.com.au', manager: 'Sarah Collins', managerEmail: 's.collins@anz.com.au', address: '242 Pitt Street, Sydney NSW 2000', regAddress: '242 Pitt Street, Sydney NSW 2000', tradingYears: 185, rateMin: 5.74, rateMax: 9.49, loanMin: 20000, loanMax: 5000000, categories: ['Secured', 'Commercial', 'Refinance'], notes: "One of Australia's Big Four banks.", added: '2026-01-10', promotions: [] },
     { id: 2, name: 'Commonwealth Bank', trading: 'CommBank', type: 'Bank', status: 'Active', email: 'broker@cba.com.au', manager: 'James Wu', managerEmail: 'j.wu@cba.com.au', address: '201 Sussex St, Sydney', regAddress: '201 Sussex St, Sydney', tradingYears: 112, rateMin: 5.69, rateMax: 9.99, loanMin: 10000, loanMax: 10000000, categories: ['Secured', 'Commercial', 'Unsecured'], notes: "Australia's largest bank.", added: '2026-01-10', promotions: [] },

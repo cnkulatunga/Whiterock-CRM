@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { notes as initialNotes } from '@/data/dummy';
 
 type Note = { id: number; text: string; date: string; pinned: boolean; highlighted: boolean };
@@ -9,15 +9,56 @@ export default function NotesCard() {
     const [notes, setNotes] = useState<Note[]>(initialNotes);
     const [input, setInput] = useState('');
 
-    const addNote = () => {
+    useEffect(() => {
+        fetch('/api/notes').then(res => res.json()).then(data => setNotes(data));
+    }, []);
+
+    const addNote = async () => {
         if (!input.trim()) return;
-        setNotes([{ id: Date.now(), text: input, date: new Date().toLocaleString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }), pinned: false, highlighted: false }, ...notes]);
-        setInput('');
+        const res = await fetch('/api/notes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: input })
+        });
+        if (res.ok) {
+            const newNote = await res.json();
+            setNotes([newNote, ...notes]);
+            setInput('');
+        }
     };
 
-    const togglePin = (id: number) => setNotes(notes.map(n => n.id === id ? { ...n, pinned: !n.pinned } : n));
-    const toggleHighlight = (id: number) => setNotes(notes.map(n => n.id === id ? { ...n, highlighted: !n.highlighted } : n));
-    const deleteNote = (id: number) => setNotes(notes.filter(n => n.id !== id));
+    const togglePin = async (id: number) => {
+        const note = notes.find(n => n.id === id);
+        if (!note) return;
+        const res = await fetch('/api/notes', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, pinned: !note.pinned })
+        });
+        if (res.ok) {
+            setNotes(notes.map(n => n.id === id ? { ...n, pinned: !n.pinned } : n));
+        }
+    };
+
+    const toggleHighlight = async (id: number) => {
+        const note = notes.find(n => n.id === id);
+        if (!note) return;
+        const res = await fetch('/api/notes', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, highlighted: !note.highlighted })
+        });
+        if (res.ok) {
+            setNotes(notes.map(n => n.id === id ? { ...n, highlighted: !n.highlighted } : n));
+        }
+    };
+
+    const deleteNote = async (id: number) => {
+        const res = await fetch(`/api/notes?id=${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            setNotes(notes.filter(n => n.id !== id));
+        }
+    };
 
     const sorted = [...notes].sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
 

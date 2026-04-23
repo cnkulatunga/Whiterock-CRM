@@ -1,41 +1,38 @@
 'use client';
 
 import { useState, useEffect, Fragment } from 'react';
-import { followups as initialFollowups, leads, promotions, teamMembers } from '@/data/dummy';
+import { leads, promotions, teamMembers, TYPE_META, MONTHS } from '@/data/dummy';
 import { usePermissions } from '@/hooks/usePermissions';
-
-const TYPE_META: Record<string, { emoji: string, color: string }> = {
-    'Call': { emoji: '📞', color: 'text-blue-500' },
-    'Meeting': { emoji: '🤝', color: 'text-purple-500' },
-    'Follow-up': { emoji: '🔁', color: 'text-indigo-500' },
-    'Email': { emoji: '📨', color: 'text-rose-500' },
-    'Document': { emoji: '📄', color: 'text-amber-500' },
-    'Research': { emoji: '📊', color: 'text-emerald-500' },
-    'Outbound': { emoji: '📞', color: 'text-blue-500' },
-};
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function TasksPage() {
     const { hasAction, userRole } = usePermissions();
     const canAssign = hasAction('tasks', 'assign');
 
     // --- State Management ---
-    const [tasks, setTasks] = useState(initialFollowups.map((f) => ({
-        id: f.id,
-        title: f.title,
-        type: f.type,
-        typeColor: TYPE_META[f.type.split(' ')[1]]?.color || 'text-blue-500',
-        client: f.client,
-        phone: f.phone,
-        email: f.email,
-        date: f.date,
-        time: f.time,
-        taskStatus: 'To Do',
-        leadStatus: f.priority as any,
-        assignee: f.assignee,
-        notes: f.description
-    })));
+    const [tasks, setTasks] = useState<any[]>([]);
+
+    useEffect(() => {
+        fetch('/api/tasks')
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map((f: any) => ({
+                    id: f.id,
+                    title: f.title,
+                    type: f.type,
+                    typeColor: TYPE_META[f.type.split(' ')[1]]?.color || 'text-blue-500',
+                    client: f.client,
+                    phone: f.phone,
+                    email: f.email,
+                    date: f.date,
+                    time: f.time,
+                    taskStatus: f.status || 'To Do',
+                    leadStatus: f.priority as any,
+                    assignee: f.assignee,
+                    notes: f.description
+                }));
+                setTasks(mapped);
+            });
+    }, []);
 
     const [expandedId, setExpandedId] = useState<number | null>(null);
     const [selectedDate, setSelectedDate] = useState(new Date());
@@ -101,30 +98,56 @@ export default function TasksPage() {
     };
 
     // --- Actions ---
-    const handleCreateTask = () => {
+    const handleCreateTask = async () => {
         if (!formData.title || !formData.leadId) return;
         const meta = TYPE_META[formData.type] || { emoji: '📋', color: 'text-gray-500' };
-        const newTask = {
-            id: tasks.length + 1,
+        const payload = {
             title: formData.title,
             type: formData.type,
-            typeColor: meta.color,
-            client: leads.find(l => l.id === formData.leadId)?.name || 'Direct Lead',
+            client: leads.find((l: any) => l.id === formData.leadId)?.name || 'Direct Lead',
             phone: formData.phone,
             email: formData.email,
             date: formData.date,
             time: formData.time,
-            taskStatus: formData.taskStatus,
-            leadStatus: formData.leadStatus as any,
+            status: formData.taskStatus,
+            priority: formData.leadStatus,
             assignee: formData.assignee,
-            notes: formData.notes
+            description: formData.notes
         };
-        setTasks([newTask, ...tasks]);
-        setFormData({ ...formData, title: '', leadId: '', notes: '' });
+
+        try {
+            const res = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                const data = await fetch('/api/tasks').then(r => r.json());
+                const mapped = data.map((f: any) => ({
+                    id: f.id,
+                    title: f.title,
+                    type: f.type,
+                    typeColor: TYPE_META[f.type.split(' ')[1]]?.color || 'text-blue-500',
+                    client: f.client,
+                    phone: f.phone,
+                    email: f.email,
+                    date: f.date,
+                    time: f.time,
+                    taskStatus: f.status || 'To Do',
+                    leadStatus: f.priority as any,
+                    assignee: f.assignee,
+                    notes: f.description
+                }));
+                setTasks(mapped);
+                setFormData({ ...formData, title: '', leadId: '', notes: '' });
+            }
+        } catch (e) {
+            console.error('Failed to create task', e);
+        }
     };
 
     const onLeadSelect = (id: string) => {
-        const lead = leads.find(l => l.id === id);
+        const lead = leads.find((l: any) => l.id === id);
         if (lead) {
             setFormData({
                 ...formData,
@@ -149,7 +172,7 @@ export default function TasksPage() {
         return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + `, ${time}`;
     };
 
-    const filteredCalTasks = tasks.filter(t => t.date === selectedDate.toISOString().split('T')[0]);
+    const filteredCalTasks = tasks.filter((t: any) => t.date === selectedDate.toISOString().split('T')[0]);
 
     return (
         <div className="flex-1 flex flex-col h-full overflow-hidden bg-[#f8fafc]">
@@ -167,7 +190,7 @@ export default function TasksPage() {
                 <div className="flex items-center gap-5">
                     <div className="flex items-center gap-2">
                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Active Tasks</span>
-                        <span className="text-[11px] font-black text-slate-900">{tasks.filter(t => t.taskStatus !== 'Complete').length}</span>
+                        <span className="text-[11px] font-black text-slate-900">{tasks.filter((t: any) => t.taskStatus !== 'Complete').length}</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Due Today</span>
@@ -214,7 +237,7 @@ export default function TasksPage() {
                                 <label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Lead</label>
                                 <select value={formData.leadId} onChange={e => onLeadSelect(e.target.value)} className="w-full h-8 px-2 bg-slate-50 border border-slate-100 rounded-lg text-[10px] font-bold outline-none">
                                     <option value="">Select lead...</option>
-                                    {leads.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                                    {leads.map((l: any) => <option key={l.id} value={l.id}>{l.name}</option>)}
                                 </select>
                             </div>
                         </div>
@@ -321,7 +344,7 @@ export default function TasksPage() {
                             {filteredCalTasks.length === 0 ? (
                                 <p className="text-[9px] text-slate-300 font-bold italic py-4">No tasks found.</p>
                             ) : (
-                                filteredCalTasks.map(t => (
+                                filteredCalTasks.map((t: any) => (
                                     <div key={t.id} className="p-3 bg-slate-50/50 border border-slate-100 rounded-xl hover:translate-x-1 transition-all cursor-pointer group">
                                         <div className="flex items-center justify-between mb-1">
                                             <span className="text-[8px] font-black text-indigo-600 uppercase tracking-tighter">{t.time} • {t.type}</span>
@@ -392,9 +415,19 @@ export default function TasksPage() {
                                                 <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
                                                     <select
                                                         value={t.taskStatus}
-                                                        onChange={e => {
-                                                            const newTasks = tasks.map(tk => tk.id === t.id ? { ...tk, taskStatus: e.target.value } : tk);
-                                                            setTasks(newTasks as any);
+                                                        onChange={async e => {
+                                                            const newStatus = e.target.value;
+                                                            try {
+                                                                await fetch('/api/tasks', {
+                                                                    method: 'PATCH',
+                                                                    headers: { 'Content-Type': 'application/json' },
+                                                                    body: JSON.stringify({ id: t.id, status: newStatus })
+                                                                });
+                                                                const newTasks = tasks.map(tk => tk.id === t.id ? { ...tk, taskStatus: newStatus } : tk);
+                                                                setTasks(newTasks as any);
+                                                            } catch (err) {
+                                                                console.error('Update failed', err);
+                                                            }
                                                         }}
                                                         className={`h-6 px-2 text-[8px] font-black border border-slate-100 rounded-lg outline-none uppercase tracking-tighter cursor-pointer transition-all
                                                             ${t.taskStatus === 'Complete' ? 'bg-emerald-50 text-emerald-600' :
@@ -475,7 +508,7 @@ export default function TasksPage() {
                         <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
                     </div>
                     <div className="flex-1 overflow-y-auto custom-scrollbar">
-                        {promotions.map((p, i) => (
+                        {promotions.map((p: any, i: number) => (
                             <div
                                 key={i}
                                 onClick={() => { setSelectedPromo(p); setIsPromoModalOpen(true); }}

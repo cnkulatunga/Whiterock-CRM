@@ -1,17 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { leads } from '@/data/dummy';
 
 import { pipelineStages as STAGES } from '@/data/dummy';
 
 export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: string }) {
+    const [leads, setLeads] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState('');
     const [stageFilter, setStageFilter] = useState('');
 
+    useEffect(() => {
+        fetch('/api/leads')
+            .then(res => res.json())
+            .then(data => {
+                setLeads(data);
+                setLoading(false);
+            })
+            .catch(err => {
+                console.error(err);
+                setLoading(false);
+            });
+    }, []);
+
+    // Calculate dynamic counts for pipeline stages
+    const dynamicStages = STAGES.map(s => ({
+        ...s,
+        count: leads.filter(l => l.status === s.key).length
+    }));
+
     const filteredLeads = leads.filter(l => {
-        if (search && !l.name.toLowerCase().includes(search.toLowerCase())) return false;
+        if (search && !(l.name?.toLowerCase().includes(search.toLowerCase()) || l.company?.toLowerCase().includes(search.toLowerCase()))) return false;
         if (stageFilter && l.status !== stageFilter) return false;
         return true;
     });
@@ -41,17 +62,15 @@ export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: str
                     onChange={(e) => setStageFilter(e.target.value)}
                     className="bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-[9px] text-white outline-none focus:border-indigo-500 cursor-pointer"
                 >
-                    <option value="" className="bg-[#0f172a]">All Stages</option>
-                    {STAGES.map(s => <option key={s.key} value={s.key} className="bg-[#0f172a]">{s.label}</option>)}
+                    {dynamicStages.map(s => <option key={s.key} value={s.key} className="bg-[#0f172a]">{s.label}</option>)}
                 </select>
                 <button className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5 hover:bg-emerald-500 transition-all">
                     <i className="fa-solid fa-plus"></i> New Lead
                 </button>
             </div>
 
-            {/* Pipeline Strip */}
             <div className="flex border-b border-slate-100 bg-slate-50/50 shrink-0">
-                {STAGES.map((s, idx) => (
+                {dynamicStages.map((s, idx) => (
                     <div
                         key={s.label}
                         onClick={() => setStageFilter(s.key)}

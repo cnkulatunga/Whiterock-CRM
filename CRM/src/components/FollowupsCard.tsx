@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { followups as initialFollowups, leads, teamMembers } from '@/data/dummy';
 import { usePermissions } from '@/hooks/usePermissions';
 
@@ -27,9 +27,41 @@ export default function FollowupsCard() {
     const { hasAction } = usePermissions();
     const canAssign = hasAction('tasks', 'assign');
 
-    const [followups, setFollowups] = useState<Followup[]>(seed);
+    const [followups, setFollowups] = useState<Followup[]>([]);
     const [view, setView] = useState<View>('list');
     const [selected, setSelected] = useState<Followup | null>(null);
+
+    const loadTasks = () => {
+        fetch('/api/tasks')
+            .then(res => res.json())
+            .then(data => {
+                const mapped = data.map((f: any) => {
+                    let normalizedPrio = f.priority || 'Warm';
+                    if (normalizedPrio === 'High') normalizedPrio = 'Hot';
+                    if (normalizedPrio === 'Medium') normalizedPrio = 'Warm';
+                    if (normalizedPrio === 'Low') normalizedPrio = 'Cool';
+                    
+                    const datePart = f.date || 'TBD';
+                    const timePart = (f.time && f.time !== 'undefined') ? f.time : '';
+
+                    return {
+                        id: f.id,
+                        title: f.title,
+                        desc: f.description,
+                        client: f.client,
+                        time: datePart + (timePart ? ' ' + timePart : ''),
+                        rawTime: datePart + 'T' + timePart,
+                        priority: normalizedPrio as any,
+                        assignee: f.assignee
+                    };
+                });
+                setFollowups(mapped);
+            });
+    };
+
+    useEffect(() => {
+        loadTasks();
+    }, []);
 
     // Add form state
     const [addForm, setAddForm] = useState({ title: '', priority: 'Hot', time: '', lead: '', remarks: '', assignee: 'Thanushika' });
@@ -85,44 +117,71 @@ export default function FollowupsCard() {
         setView('editForm');
     };
 
-    const saveEdit = () => {
+    const saveEdit = async () => {
         if (!selected || !editForm.title.trim()) return;
-        const updated: Followup = {
-            ...selected,
+        const payload = {
+            id: selected.id,
             title: editForm.title,
-            priority: editForm.priority as 'Hot' | 'Warm' | 'Cool',
-            time: editForm.time ? fmtTime(editForm.time) : selected.time,
-            rawTime: editForm.time,
-            client: editForm.lead || selected.client,
-            desc: editForm.remarks || selected.desc,
-            assignee: editForm.assignee,
+            priority: editForm.priority,
+            date: editForm.time?.split('T')[0],
+            time: editForm.time?.split('T')[1],
+            client: editForm.lead,
+            description: editForm.remarks,
+            assignee: editForm.assignee
         };
-        setFollowups(followups.map(f => f.id === selected.id ? updated : f));
-        setSelected(updated);
-        setView('detail');
+
+        try {
+            const res = await fetch('/api/tasks', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                loadTasks();
+                setView('list');
+                setSelected(null);
+            }
+        } catch (e) { console.error(e); }
     };
 
-    const addFollowup = () => {
+    const addFollowup = async () => {
         if (!addForm.title.trim() || !addForm.time || !addForm.lead) return;
-        const newF: Followup = {
-            id: `#AF-${Date.now()}`,
+        const payload = {
             title: addForm.title,
-            desc: addForm.remarks || 'No additional remarks.',
+            priority: addForm.priority,
+            date: addForm.time.split('T')[0],
+            time: addForm.time.split('T')[1],
             client: addForm.lead,
-            time: fmtTime(addForm.time),
-            rawTime: addForm.time,
-            priority: addForm.priority as 'Hot' | 'Warm' | 'Cool',
+            description: addForm.remarks,
             assignee: addForm.assignee,
+            status: 'To Do'
         };
-        setFollowups([newF, ...followups]);
-        setAddForm({ title: '', priority: 'Hot', time: '', lead: '', remarks: '', assignee: 'Thanushika' });
-        setView('list');
+
+        try {
+            const res = await fetch('/api/tasks', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                loadTasks();
+                setAddForm({ title: '', priority: 'Hot', time: '', lead: '', remarks: '', assignee: 'Thanushika' });
+                setView('list');
+            }
+        } catch (e) { console.error(e); }
     };
 
-    const completeTask = () => {
+    const completeTask = async () => {
         if (!selected) return;
-        setFollowups(followups.filter(f => f.id !== selected.id));
-        closeDetail();
+        try {
+            await fetch('/api/tasks', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: selected.id, status: 'Complete' })
+            });
+            loadTasks();
+            closeDetail();
+        } catch (e) { console.error(e); }
     };
 
     /* ── render ── */
