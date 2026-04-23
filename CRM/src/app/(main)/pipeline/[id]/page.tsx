@@ -9,43 +9,43 @@ interface Lead {
     agent: string; bank: string; stage: string; priority: 'High' | 'Medium' | 'Low';
     days: number; lender: string; notes: string; payoutStatus: 'Yes' | 'No';
 }
-interface Note      { author: string; time: string; text: string; }
-interface Reminder  { type: string; title: string; assignee: string; due: string; status: string; note?: string; }
+interface Note { author: string; time: string; text: string; }
+interface Reminder { type: string; title: string; assignee: string; due: string; status: string; note?: string; }
 
 /* ── Static data ─────────────────────────────────────────────── */
 const ALL_LEADS: Lead[] = [
-    { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics',      amount: '£12,000',     agent: 'Sarah Jenkins', bank: '—',       stage: 'collecting', priority: 'High',   days: 2,  lender: '—',             notes: 'Waiting for bank statements',            payoutStatus: 'No'  },
-    { id: 'AF-550', name: 'Priya Singh',   business: 'Singh Media',            amount: '£450,000',    agent: 'James White',   bank: '—',       stage: 'collecting', priority: 'Medium', days: 1,  lender: '—',             notes: 'Large expansion loan request.',          payoutStatus: 'No'  },
-    { id: 'AF-027', name: 'John Smith',    business: 'ABC Corp',               amount: '£55,000',     agent: 'Sarah Jenkins', bank: 'Barclays',stage: 'lender',     priority: 'High',   days: 4,  lender: 'Barclays, HSBC',notes: 'Email sent to partners, awaiting offers.',payoutStatus: 'No'  },
-    { id: 'AL-339', name: 'Mike Johnson',  business: 'Urban Scaffolding Ltd',  amount: '£85,000',     agent: 'James White',   bank: '—',       stage: 'verified',   priority: 'Low',    days: 5,  lender: '—',             notes: 'Bank statements audited and approved.',  payoutStatus: 'No'  },
-    { id: 'AF-001', name: 'David Brown',   business: 'Miller Logistics',       amount: '£150,000',    agent: 'Sarah Jenkins', bank: 'Starling',stage: 'approved',   priority: 'High',   days: 12, lender: 'Starling',       notes: 'Offer accepted, final checks in progress.',payoutStatus: 'Yes' },
-    { id: 'AL-209', name: 'Kevin Malone',  business: 'Malone Paints',          amount: '£25,000',     agent: 'James White',   bank: '—',       stage: 'rejected',   priority: 'Low',    days: 1,  lender: '—',             notes: 'Low credit score and high existing debt.',payoutStatus: 'No'  },
-    { id: 'AF-028', name: 'Minosh Example',business: 'ex ABC',                 amount: '£3,456',      agent: 'Sarah White',   bank: 'Starling',stage: 'verified',   priority: 'High',   days: 3,  lender: 'NAB',           notes: 'Awaiting final sign-off.',               payoutStatus: 'Yes' },
-    { id: 'AF-002', name: 'Alice Huang',   business: 'Huang Tech',             amount: '£1,200,000',  agent: 'Leo Kumar',     bank: 'HSBC',    stage: 'lender',     priority: 'High',   days: 4,  lender: 'ANZ',           notes: 'Shortlisting lenders.',                  payoutStatus: 'No'  },
-    { id: 'AF-003', name: 'David Rivera',  business: 'Rivera Designs',         amount: '£85,000',     agent: 'Priya Sharma',  bank: '—',       stage: 'approved',   priority: 'Medium', days: 1,  lender: 'Westpac',       notes: 'Approval letter received.',              payoutStatus: 'Yes' },
+    { id: 'AL-902', name: 'Robert Miller', business: 'Miller Logistics', amount: '£12,000', agent: 'Sarah Jenkins', bank: '—', stage: 'collecting', priority: 'High', days: 2, lender: '—', notes: 'Waiting for bank statements', payoutStatus: 'No' },
+    { id: 'AF-550', name: 'Priya Singh', business: 'Singh Media', amount: '£450,000', agent: 'James White', bank: '—', stage: 'collecting', priority: 'Medium', days: 1, lender: '—', notes: 'Large expansion loan request.', payoutStatus: 'No' },
+    { id: 'AF-027', name: 'John Smith', business: 'ABC Corp', amount: '£55,000', agent: 'Sarah Jenkins', bank: 'Barclays', stage: 'lender', priority: 'High', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', payoutStatus: 'No' },
+    { id: 'AL-339', name: 'Mike Johnson', business: 'Urban Scaffolding Ltd', amount: '£85,000', agent: 'James White', bank: '—', stage: 'verified', priority: 'Low', days: 5, lender: '—', notes: 'Bank statements audited and approved.', payoutStatus: 'No' },
+    { id: 'AF-001', name: 'David Brown', business: 'Miller Logistics', amount: '£150,000', agent: 'Sarah Jenkins', bank: 'Starling', stage: 'approved', priority: 'High', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.', payoutStatus: 'Yes' },
+    { id: 'AL-209', name: 'Kevin Malone', business: 'Malone Paints', amount: '£25,000', agent: 'James White', bank: '—', stage: 'rejected', priority: 'Low', days: 1, lender: '—', notes: 'Low credit score and high existing debt.', payoutStatus: 'No' },
+    { id: 'AF-028', name: 'Minosh Example', business: 'ex ABC', amount: '£3,456', agent: 'Sarah White', bank: 'Starling', stage: 'verified', priority: 'High', days: 3, lender: 'NAB', notes: 'Awaiting final sign-off.', payoutStatus: 'Yes' },
+    { id: 'AF-002', name: 'Alice Huang', business: 'Huang Tech', amount: '£1,200,000', agent: 'Leo Kumar', bank: 'HSBC', stage: 'lender', priority: 'High', days: 4, lender: 'ANZ', notes: 'Shortlisting lenders.', payoutStatus: 'No' },
+    { id: 'AF-003', name: 'David Rivera', business: 'Rivera Designs', amount: '£85,000', agent: 'Priya Sharma', bank: '—', stage: 'approved', priority: 'Medium', days: 1, lender: 'Westpac', notes: 'Approval letter received.', payoutStatus: 'Yes' },
 ];
 
 const LENDERS_DB: Record<string, { contact: string; email: string; terms: string; phone: string }> = {
-    'NAB':      { contact: 'Mark Sterling',   email: 'm.sterling@nab-business.com', terms: 'Next Day Payout',   phone: '+44 20 7123 4567' },
-    'ANZ':      { contact: 'David Low',        email: 'd.low@anz.bank',             terms: 'Standard Terms',     phone: '+44 20 8888 7777' },
-    'Westpac':  { contact: 'Emily Thorne',     email: 'e.thorne@westpac.com',       terms: 'Instant Payout',     phone: '+44 20 6666 5555' },
-    'Starling': { contact: 'James Cole',       email: 'j.cole@starling.com',        terms: '2-Day Payout',       phone: '+44 20 5555 6666' },
-    'Barclays': { contact: 'Rachel Adams',     email: 'r.adams@barclays.co.uk',     terms: 'Standard Terms',     phone: '+44 20 1234 5678' },
-    'HSBC':     { contact: 'Tom Harding',      email: 't.harding@hsbc.co.uk',       terms: '3-Day Settlement',   phone: '+44 20 9876 5432' },
+    'NAB': { contact: 'Mark Sterling', email: 'm.sterling@nab-business.com', terms: 'Next Day Payout', phone: '+44 20 7123 4567' },
+    'ANZ': { contact: 'David Low', email: 'd.low@anz.bank', terms: 'Standard Terms', phone: '+44 20 8888 7777' },
+    'Westpac': { contact: 'Emily Thorne', email: 'e.thorne@westpac.com', terms: 'Instant Payout', phone: '+44 20 6666 5555' },
+    'Starling': { contact: 'James Cole', email: 'j.cole@starling.com', terms: '2-Day Payout', phone: '+44 20 5555 6666' },
+    'Barclays': { contact: 'Rachel Adams', email: 'r.adams@barclays.co.uk', terms: 'Standard Terms', phone: '+44 20 1234 5678' },
+    'HSBC': { contact: 'Tom Harding', email: 't.harding@hsbc.co.uk', terms: '3-Day Settlement', phone: '+44 20 9876 5432' },
 };
 
-const STAGE_ORDER  = ['collecting', 'verified', 'lender', 'approved', 'completed'];
+const STAGE_ORDER = ['collecting', 'verified', 'lender', 'approved', 'completed'];
 const STAGE_LABELS: Record<string, string> = { collecting: 'Doc Collection', verified: 'Doc Verified', lender: 'Lender Selection', approved: 'Loan Approved', completed: 'Completed', rejected: 'Rejected' };
-const STAGE_COLOR:  Record<string, string> = { collecting: '#64748b', verified: '#3b82f6', lender: '#8b5cf6', approved: '#22c55e', completed: '#0f172a', rejected: '#ef4444' };
-const STAGE_BG:     Record<string, string> = { collecting: '#f1f5f9', verified: '#eff6ff', lender: '#f5f3ff', approved: '#f0fdf4', completed: '#f1f5f9', rejected: '#fef2f2' };
-const PRIO_STYLE:   Record<string, { bg: string; color: string; border: string }> = {
-    High:   { bg: '#fee2e2', color: '#b91c1c', border: '#fecaca' },
+const STAGE_COLOR: Record<string, string> = { collecting: '#64748b', verified: '#3b82f6', lender: '#8b5cf6', approved: '#22c55e', completed: '#0f172a', rejected: '#ef4444' };
+const STAGE_BG: Record<string, string> = { collecting: '#f1f5f9', verified: '#eff6ff', lender: '#f5f3ff', approved: '#f0fdf4', completed: '#f1f5f9', rejected: '#fef2f2' };
+const PRIO_STYLE: Record<string, { bg: string; color: string; border: string }> = {
+    High: { bg: '#fee2e2', color: '#b91c1c', border: '#fecaca' },
     Medium: { bg: '#fffbeb', color: '#92400e', border: '#fde68a' },
-    Low:    { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
+    Low: { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
 };
 
 const REM_COLOR: Record<string, string> = { Call: '#3b82f6', Meeting: '#8b5cf6', 'Follow-up': '#f59e0b', Document: '#10b981' };
-const REM_ICON:  Record<string, string> = { Call: 'fa-phone', Meeting: 'fa-users', 'Follow-up': 'fa-rotate-right', Document: 'fa-file' };
+const REM_ICON: Record<string, string> = { Call: 'fa-phone', Meeting: 'fa-users', 'Follow-up': 'fa-rotate-right', Document: 'fa-file' };
 const STATUS_COLOR: Record<string, string> = { Pending: '#f59e0b', Completed: '#10b981', Overdue: '#ef4444' };
 
 function now() {
@@ -58,58 +58,58 @@ function now() {
 ═══════════════════════════════════════════════════════════════ */
 export default function LeadDetailPage() {
     const { id } = useParams<{ id: string }>();
-    const router  = useRouter();
+    const router = useRouter();
 
     const found = ALL_LEADS.find(l => l.id === id) ?? ALL_LEADS[0];
 
-    const [lead,      setLead]      = useState<Lead>({ ...found });
-    const [editing,   setEditing]   = useState(false);
-    const [aiState,   setAiState]   = useState<'idle' | 'loading' | 'done'>('idle');
-    const [aiText,    setAiText]    = useState('');
-    const [notes,     setNotes]     = useState<Note[]>([
-        { author: found.agent,  time: '2026-04-10 10:22', text: found.notes },
-        { author: 'Cody Lane',  time: '2026-04-08 15:40', text: 'Client confirmed availability for lender call next week.' },
-        { author: 'System',     time: '2026-04-07 09:00', text: 'Automated reminder sent to client for outstanding documents.' },
+    const [lead, setLead] = useState<Lead>({ ...found });
+    const [editing, setEditing] = useState(false);
+    const [aiState, setAiState] = useState<'idle' | 'loading' | 'done'>('idle');
+    const [aiText, setAiText] = useState('');
+    const [notes, setNotes] = useState<Note[]>([
+        { author: found.agent, time: '2026-04-10 10:22', text: found.notes },
+        { author: 'Cody Lane', time: '2026-04-08 15:40', text: 'Client confirmed availability for lender call next week.' },
+        { author: 'System', time: '2026-04-07 09:00', text: 'Automated reminder sent to client for outstanding documents.' },
     ]);
     const [reminders, setReminders] = useState<Reminder[]>([
-        { type: 'Call',      title: 'Follow up on bank statements', assignee: found.agent, due: '2026-04-18', status: 'Pending' },
-        { type: 'Meeting',   title: 'Lender introduction call',     assignee: found.agent, due: '2026-04-20', status: 'Pending' },
-        { type: 'Follow-up', title: 'Check document verification',  assignee: found.agent, due: '2026-04-12', status: 'Overdue' },
-        { type: 'Document',  title: 'Request updated payslips',     assignee: 'Sarah White', due: '2026-04-15', status: 'Completed' },
+        { type: 'Call', title: 'Follow up on bank statements', assignee: found.agent, due: '2026-04-18', status: 'Pending' },
+        { type: 'Meeting', title: 'Lender introduction call', assignee: found.agent, due: '2026-04-20', status: 'Pending' },
+        { type: 'Follow-up', title: 'Check document verification', assignee: found.agent, due: '2026-04-12', status: 'Overdue' },
+        { type: 'Document', title: 'Request updated payslips', assignee: 'Sarah White', due: '2026-04-15', status: 'Completed' },
     ]);
-    const [previewDoc,    setPreviewDoc]    = useState<string | null>(null);
-    const [notifyDone,    setNotifyDone]    = useState(false);
+    const [previewDoc, setPreviewDoc] = useState<string | null>(null);
+    const [notifyDone, setNotifyDone] = useState(false);
 
     /* edit form state */
     const [editForm, setEditForm] = useState({ ...found });
 
     /* add-note / add-reminder form */
-    const [noteText,  setNoteText]  = useState('');
-    const [remType,   setRemType]   = useState('Call');
-    const [remTitle,  setRemTitle]  = useState('');
-    const [remDate,   setRemDate]   = useState('');
-    const [remNote,   setRemNote]   = useState('');
+    const [noteText, setNoteText] = useState('');
+    const [remType, setRemType] = useState('Call');
+    const [remTitle, setRemTitle] = useState('');
+    const [remDate, setRemDate] = useState('');
+    const [remNote, setRemNote] = useState('');
 
     /* docs */
     const docs = [
-        { name: 'Passport_ID.pdf',         type: 'Identity',    date: '2026-03-11', status: 'Verified' },
-        { name: 'Bank_Statement_3mo.pdf',  type: 'Financial',   date: '2026-03-12', status: 'Verified' },
-        { name: 'Payslips_x3.pdf',         type: 'Income',      date: '2026-03-14', status: lead.stage === 'collecting' ? 'Pending'  : 'Verified' },
-        { name: 'Employment_Letter.pdf',   type: 'Employment',  date: '2026-03-15', status: lead.stage === 'collecting' ? 'Missing'  : 'Verified' },
-        { name: 'Credit_Report.pdf',       type: 'Credit',      date: '2026-03-16', status: lead.stage === 'rejected'   ? 'Failed'   : 'Verified' },
+        { name: 'Passport_ID.pdf', type: 'Identity', date: '2026-03-11', status: 'Verified' },
+        { name: 'Bank_Statement_3mo.pdf', type: 'Financial', date: '2026-03-12', status: 'Verified' },
+        { name: 'Payslips_x3.pdf', type: 'Income', date: '2026-03-14', status: lead.stage === 'collecting' ? 'Pending' : 'Verified' },
+        { name: 'Employment_Letter.pdf', type: 'Employment', date: '2026-03-15', status: lead.stage === 'collecting' ? 'Missing' : 'Verified' },
+        { name: 'Credit_Report.pdf', type: 'Credit', date: '2026-03-16', status: lead.stage === 'rejected' ? 'Failed' : 'Verified' },
     ];
 
     /* timeline */
-    const stageStep  = STAGE_ORDER.indexOf(lead.stage);
+    const stageStep = STAGE_ORDER.indexOf(lead.stage);
     const isRejected = lead.stage === 'rejected';
     const timeline = [
-        { icon: 'fa-plus',           color: '#6366f1', label: 'Lead Created',        sub: 'By ' + lead.agent,         time: '2026-03-10 09:12', minStage: 0 },
-        { icon: 'fa-file-arrow-up',  color: '#3b82f6', label: 'Documents Collected', sub: 'All files submitted',      time: '2026-03-14 14:05', minStage: 1 },
-        { icon: 'fa-file-circle-check', color: '#10b981', label: 'Docs Verified',   sub: 'Reviewed & approved',      time: '2026-03-17 11:20', minStage: 2 },
-        { icon: 'fa-building-columns',  color: '#8b5cf6', label: 'Lender Selected', sub: 'Shortlist confirmed',       time: '2026-03-25 10:00', minStage: 3 },
+        { icon: 'fa-plus', color: '#6366f1', label: 'Lead Created', sub: 'By ' + lead.agent, time: '2026-03-10 09:12', minStage: 0 },
+        { icon: 'fa-file-arrow-up', color: '#3b82f6', label: 'Documents Collected', sub: 'All files submitted', time: '2026-03-14 14:05', minStage: 1 },
+        { icon: 'fa-file-circle-check', color: '#10b981', label: 'Docs Verified', sub: 'Reviewed & approved', time: '2026-03-17 11:20', minStage: 2 },
+        { icon: 'fa-building-columns', color: '#8b5cf6', label: 'Lender Selected', sub: 'Shortlist confirmed', time: '2026-03-25 10:00', minStage: 3 },
         isRejected
-            ? { icon: 'fa-circle-xmark',  color: '#ef4444', label: 'Loan Rejected',  sub: 'Application declined',    time: '2026-04-01 09:00', minStage: 4 }
-            : { icon: 'fa-circle-check',  color: '#22c55e', label: 'Loan Confirmed', sub: 'Funds approved',           time: '2026-04-01 09:00', minStage: 4 },
+            ? { icon: 'fa-circle-xmark', color: '#ef4444', label: 'Loan Rejected', sub: 'Application declined', time: '2026-04-01 09:00', minStage: 4 }
+            : { icon: 'fa-circle-check', color: '#22c55e', label: 'Loan Confirmed', sub: 'Funds approved', time: '2026-04-01 09:00', minStage: 4 },
     ].map(t => ({ ...t, done: isRejected ? t.minStage < 4 : t.minStage <= stageStep }));
 
     /* ── AI Summary ─────────────────────────────────────────── */
@@ -165,7 +165,8 @@ export default function LeadDetailPage() {
                 .custom-scroll::-webkit-scrollbar { width: 3px; }
                 .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
                 .panel-hdr { padding: 7px 12px; font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: #64748b; border-bottom: 1px solid #f1f5f9; background: #f8fafc; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
-                .info-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid #f8fafc; }
+                .info-row { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid #f8fafc; transition: background .15s; }
+                .info-row:hover { background: #f8fafc; }
                 .info-lbl { font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #94a3b8; width: 58px; flex-shrink: 0; }
                 .info-val { font-size: 10px; font-weight: 600; color: #0f172a; flex: 1; min-width: 0; }
                 .note-item { padding: 7px 9px; border-radius: 7px; background: #f8fafc; margin-bottom: 5px; border: 1px solid #f1f5f9; }
@@ -203,7 +204,7 @@ export default function LeadDetailPage() {
                         {editing ? (
                             <>
                                 <button onClick={saveChanges} className="btn-sm" style={{ background: '#eef2ff', color: '#4338ca' }}><i className="fa-solid fa-check" /> Save Changes</button>
-                                <button onClick={cancelEdit}  className="btn-sm" style={{ background: '#f1f5f9', color: '#475569' }}><i className="fa-solid fa-xmark" /> Cancel</button>
+                                <button onClick={cancelEdit} className="btn-sm" style={{ background: '#f1f5f9', color: '#475569' }}><i className="fa-solid fa-xmark" /> Cancel</button>
                             </>
                         ) : (
                             <button onClick={() => { setEditForm({ ...lead }); setEditing(true); }} className="btn-sm" style={{ background: '#f1f5f9', color: '#475569' }}>
@@ -355,20 +356,20 @@ export default function LeadDetailPage() {
                                 }
                             </div>
                             <div className="custom-scroll" style={{ flex: 1, overflowY: 'auto', padding: '10px 12px', minHeight: 0 }}>
-                                <InfoRow label="ID"       value={<span style={{ fontFamily: 'monospace', fontWeight: 900 }}>#{lead.id}</span>} />
-                                <InfoRow label="Name"     value={editing ? <input className="field-edit" value={editForm.name}     onChange={e => setEditForm(p => ({ ...p, name:     e.target.value }))} /> : lead.name} />
+                                <InfoRow label="ID" value={<span style={{ fontFamily: 'monospace', fontWeight: 900 }}>#{lead.id}</span>} />
+                                <InfoRow label="Name" value={editing ? <input className="field-edit" value={editForm.name} onChange={e => setEditForm(p => ({ ...p, name: e.target.value }))} /> : lead.name} />
                                 <InfoRow label="Business" value={editing ? <input className="field-edit" value={editForm.business} onChange={e => setEditForm(p => ({ ...p, business: e.target.value }))} /> : lead.business} />
-                                <InfoRow label="Agent"    value={editing ? <input className="field-edit" value={editForm.agent}    onChange={e => setEditForm(p => ({ ...p, agent:    e.target.value }))} /> : lead.agent} />
+                                <InfoRow label="Agent" value={editing ? <input className="field-edit" value={editForm.agent} onChange={e => setEditForm(p => ({ ...p, agent: e.target.value }))} /> : lead.agent} />
                                 <InfoRow label="Priority" value={editing
                                     ? <select className="field-edit" value={editForm.priority} onChange={e => setEditForm(p => ({ ...p, priority: e.target.value as Lead['priority'] }))}>
                                         <option>High</option><option>Medium</option><option>Low</option>
-                                      </select>
+                                    </select>
                                     : <span style={{ background: ps.bg, color: ps.color, padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700 }}>{lead.priority}</span>}
                                 />
                                 <InfoRow label="Stage" value={editing
                                     ? <select className="field-edit" value={editForm.stage} onChange={e => setEditForm(p => ({ ...p, stage: e.target.value }))}>
                                         {Object.entries(STAGE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-                                      </select>
+                                    </select>
                                     : <span style={{ background: STAGE_BG[lead.stage], color: STAGE_COLOR[lead.stage], padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700 }}>{STAGE_LABELS[lead.stage]}</span>}
                                 />
                                 <InfoRow label="Days" value={`${lead.days}d in stage`} />
@@ -384,13 +385,15 @@ export default function LeadDetailPage() {
                                         ? <input className="field-edit" value={editForm.amount} onChange={e => setEditForm(p => ({ ...p, amount: e.target.value }))} />
                                         : <span style={{ fontWeight: 900, fontSize: 13 }}>{lead.amount}</span>
                                 } />
-                                <InfoRow label="Bank"   value={editing ? <input className="field-edit" value={editForm.bank}   onChange={e => setEditForm(p => ({ ...p, bank:   e.target.value }))} /> : lead.bank} />
+                                <InfoRow label="Bank" value={editing ? <input className="field-edit" value={editForm.bank} onChange={e => setEditForm(p => ({ ...p, bank: e.target.value }))} /> : lead.bank} />
                                 <InfoRow label="Lender" value={editing ? <input className="field-edit" value={editForm.lender} onChange={e => setEditForm(p => ({ ...p, lender: e.target.value }))} /> : lead.lender} />
-                                <InfoRow label="Payout" value={
-                                    lead.payoutStatus === 'Yes'
-                                        ? <span style={{ color: '#10b981', fontWeight: 900, fontSize: 9 }}>✓ CONFIRMED</span>
-                                        : <span style={{ color: '#f59e0b', fontWeight: 900, fontSize: 9 }}>⏳ PENDING</span>
-                                } />
+                                <div onClick={() => setLead(p => ({ ...p, payoutStatus: p.payoutStatus === 'Yes' ? 'No' : 'Yes' }))} style={{ cursor: 'pointer' }} title="Click to toggle status">
+                                    <InfoRow label="Payout" value={
+                                        lead.payoutStatus === 'Yes'
+                                            ? <span style={{ color: '#10b981', fontWeight: 900, fontSize: 9 }}>✓ CONFIRMED</span>
+                                            : <span style={{ color: '#f59e0b', fontWeight: 900, fontSize: 9 }}>⏳ PENDING</span>
+                                    } />
+                                </div>
                                 {lead.payoutStatus !== 'Yes' ? (
                                     <div className="info-row" style={{ marginTop: 4 }}>
                                         <button
@@ -404,7 +407,7 @@ export default function LeadDetailPage() {
                                 ) : (
                                     <>
                                         <InfoRow label="Contact" value={<span style={{ fontSize: 9 }}>{LENDERS_DB[lead.lender]?.contact || 'N/A'}</span>} />
-                                        <InfoRow label="Terms"   value={<span style={{ fontSize: 9 }}>{LENDERS_DB[lead.lender]?.terms   || 'N/A'}</span>} />
+                                        <InfoRow label="Terms" value={<span style={{ fontSize: 9 }}>{LENDERS_DB[lead.lender]?.terms || 'N/A'}</span>} />
                                     </>
                                 )}
                             </div>
@@ -437,7 +440,7 @@ export default function LeadDetailPage() {
                                 {docs.map((d, i) => {
                                     const sc = d.status === 'Verified' ? '#10b981' : d.status === 'Missing' || d.status === 'Failed' ? '#ef4444' : '#f59e0b';
                                     return (
-                                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 0', borderBottom: i < docs.length - 1 ? '1px solid #f8fafc' : 'none' }}>
+                                        <div key={i} onClick={() => setPreviewDoc(d.name)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderBottom: i < docs.length - 1 ? '1px solid #f8fafc' : 'none', cursor: 'pointer', borderRadius: 6, transition: 'background .15s' }} className="hover:bg-slate-50">
                                             <div style={{ width: 18, height: 18, background: '#f1f5f9', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                                                 <i className="fa-regular fa-file-pdf" style={{ fontSize: 8, color: '#94a3b8' }} />
                                             </div>

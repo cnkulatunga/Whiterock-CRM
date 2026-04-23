@@ -53,9 +53,9 @@ export const INITIAL_NOTES = [
 ];
 
 export const INITIAL_PAYOUTS = [
-    { id: '#PO-1022', client: 'Acme Corp', lender: 'Barclays', amount: '£4,500', status: 'Pending Approval', statusColor: 'amber', time: '2h ago' },
-    { id: '#PO-0985', client: 'John Doe Ltd', lender: 'HSBC', amount: '£2,100', status: 'Verified', statusColor: 'emerald', time: '5h ago' },
-    { id: '#PO-1104', client: 'Sky High Ltd', lender: 'Starling', amount: '£12,300', status: 'In Review', statusColor: 'indigo', time: '1d ago' },
+    { id: '#PO-1022', client: 'ABC Corp', lender: 'Barclays', amount: '£4,500', status: 'Pending Approval', statusColor: 'amber', time: '2h ago', leadId: 'AF-027' },
+    { id: '#PO-0985', client: 'Malone Paints', lender: 'HSBC', amount: '£2,100', status: 'Verified', statusColor: 'emerald', time: '5h ago', leadId: 'AL-209' },
+    { id: '#PO-1104', client: 'Miller Logistics', lender: 'Starling', amount: '£12,300', status: 'In Review', statusColor: 'indigo', time: '1d ago', leadId: 'AL-902' },
 ];
 
 export const INITIAL_TELE_AGENTS = [

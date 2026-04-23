@@ -366,14 +366,6 @@ export default function PipelinePage() {
                             <option value="warm">Warm</option>
                             <option value="cool">Cool</option>
                         </select>
-                        {hasAction('leads', 'add') && (
-                            <button
-                                onClick={() => setAddDrawerOpen(true)}
-                                style={{ background: '#0f172a', color: '#fff', border: 'none', borderRadius: 8, padding: '7px 16px', fontSize: 9, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-                            >
-                                <i className="fa-solid fa-plus" style={{ fontSize: 10 }} /> Add Lead
-                            </button>
-                        )}
                     </div>
                 </div>
 
@@ -456,7 +448,7 @@ export default function PipelinePage() {
 
                                 {isToReject ? (
                                     <div style={{ display: 'flex', gap: 8 }}>
-                                        <div style={{ flex: 1, padding: '8px 0', borderRadius: 8, textAlign: 'center', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}>{STAGE_META[l.stage as Stage].label}</div>
+                                        <div style={{ flex: 1, padding: '8px 0', borderRadius: 8, textAlign: 'center', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', background: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}>{STAGE_META[l.status as Stage].label}</div>
                                         <i className="fa-solid fa-arrow-right" style={{ alignSelf: 'center', color: '#cbd5e1' }} />
                                         <div style={{ flex: 1, padding: '8px 0', borderRadius: 8, textAlign: 'center', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca' }}>{STAGE_META[to].label}</div>
                                     </div>
@@ -476,7 +468,7 @@ export default function PipelinePage() {
             {/* Update / Audit Modal */}
             {updateOpen && pendingId && pendingStage && (() => {
                 const l = leads.find(x => x.id === pendingId)!;
-                const from = l.stage as Stage;
+                const from = l.status as Stage;
                 const to = pendingStage;
                 return (
                     <>

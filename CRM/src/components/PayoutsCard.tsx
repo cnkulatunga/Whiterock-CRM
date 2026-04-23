@@ -1,8 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { payouts } from '@/data/dummy';
 
 export default function PayoutsCard() {
+    const router = useRouter();
     return (
         <div className="glass-card flex flex-col h-[280px] overflow-hidden">
             <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between bg-white/50">
@@ -19,9 +21,10 @@ export default function PayoutsCard() {
             </div>
 
             <div className="flex-1 p-2 overflow-y-auto custom-scrollbar space-y-1.5">
-                {payouts.map((p) => (
+                {payouts.map((p: any) => (
                     <div
                         key={p.id}
+                        onClick={() => p.leadId && router.push(`/pipeline/${p.leadId}`)}
                         className="p-2 bg-white border border-slate-100 rounded-xl flex flex-col gap-1 hover:border-emerald-200 transition-all group cursor-pointer"
                     >
                         <div className="flex justify-between items-start">
