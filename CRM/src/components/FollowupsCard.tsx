@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { followups as initialFollowups, leads } from '@/data/dummy';
+import { followups as initialFollowups, leads, teamMembers } from '@/data/dummy';
+import { usePermissions } from '@/hooks/usePermissions';
 
 type Followup = {
     id: string;
@@ -11,6 +12,7 @@ type Followup = {
     time: string;
     rawTime: string;
     priority: 'Hot' | 'Warm' | 'Cool';
+    assignee?: string;
 };
 
 type View = 'list' | 'addForm' | 'detail' | 'editForm';
@@ -18,18 +20,22 @@ type View = 'list' | 'addForm' | 'detail' | 'editForm';
 const seed: Followup[] = (initialFollowups as any[]).map(f => ({
     ...f,
     rawTime: '',
+    assignee: f.assignee || 'Thanushika'
 }));
 
 export default function FollowupsCard() {
+    const { hasAction } = usePermissions();
+    const canAssign = hasAction('tasks', 'assign');
+
     const [followups, setFollowups] = useState<Followup[]>(seed);
     const [view, setView] = useState<View>('list');
     const [selected, setSelected] = useState<Followup | null>(null);
 
     // Add form state
-    const [addForm, setAddForm] = useState({ title: '', priority: 'Hot', time: '', lead: '', remarks: '' });
+    const [addForm, setAddForm] = useState({ title: '', priority: 'Hot', time: '', lead: '', remarks: '', assignee: 'Thanushika' });
 
     // Edit form state
-    const [editForm, setEditForm] = useState({ title: '', priority: 'Hot', time: '', lead: '', remarks: '' });
+    const [editForm, setEditForm] = useState({ title: '', priority: 'Hot', time: '', lead: '', remarks: '', assignee: '' });
 
     /* ── helpers ── */
     const fmtTime = (raw: string) => {
@@ -45,15 +51,15 @@ export default function FollowupsCard() {
         p === 'Hot'
             ? 'bg-red-50 text-red-600'
             : p === 'Warm'
-            ? 'bg-amber-50 text-amber-600'
-            : 'bg-slate-100 text-slate-600';
+                ? 'bg-amber-50 text-amber-600'
+                : 'bg-slate-100 text-slate-600';
 
     const prioBg = (p: string) =>
         p === 'Hot'
             ? 'bg-red-50/50 border-red-100 hover:bg-red-50'
             : p === 'Warm'
-            ? 'bg-amber-50/50 border-amber-100 hover:bg-amber-50'
-            : 'bg-slate-50 border-slate-100 hover:bg-slate-100';
+                ? 'bg-amber-50/50 border-amber-100 hover:bg-amber-50'
+                : 'bg-slate-50 border-slate-100 hover:bg-slate-100';
 
     /* ── actions ── */
     const openDetail = (f: Followup) => {
@@ -74,6 +80,7 @@ export default function FollowupsCard() {
             time: selected.rawTime,
             lead: selected.client,
             remarks: selected.desc,
+            assignee: selected.assignee || 'Thanushika',
         });
         setView('editForm');
     };
@@ -88,6 +95,7 @@ export default function FollowupsCard() {
             rawTime: editForm.time,
             client: editForm.lead || selected.client,
             desc: editForm.remarks || selected.desc,
+            assignee: editForm.assignee,
         };
         setFollowups(followups.map(f => f.id === selected.id ? updated : f));
         setSelected(updated);
@@ -104,9 +112,10 @@ export default function FollowupsCard() {
             time: fmtTime(addForm.time),
             rawTime: addForm.time,
             priority: addForm.priority as 'Hot' | 'Warm' | 'Cool',
+            assignee: addForm.assignee,
         };
         setFollowups([newF, ...followups]);
-        setAddForm({ title: '', priority: 'Hot', time: '', lead: '', remarks: '' });
+        setAddForm({ title: '', priority: 'Hot', time: '', lead: '', remarks: '', assignee: 'Thanushika' });
         setView('list');
     };
 
@@ -213,6 +222,21 @@ export default function FollowupsCard() {
                             </select>
                         </div>
                         <div className="col-span-2">
+                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Assign To</label>
+                            <select
+                                disabled={!canAssign}
+                                value={addForm.assignee}
+                                onChange={e => setAddForm({ ...addForm, assignee: e.target.value })}
+                                className={`w-full border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none transition-all ${!canAssign ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white focus:border-indigo-500'
+                                    }`}
+                            >
+                                {!canAssign && <option value={addForm.assignee}>{addForm.assignee}</option>}
+                                {canAssign && teamMembers.map(m => (
+                                    <option key={m.name} value={m.name}>{m.name} ({m.role})</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="col-span-2">
                             <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Remarks</label>
                             <textarea
                                 value={addForm.remarks}
@@ -250,13 +274,27 @@ export default function FollowupsCard() {
                             className={`p-3 rounded-xl border group transition-all cursor-pointer ${prioBg(f.priority)}`}
                         >
                             <div className="flex items-center justify-between mb-1">
-                                <span className={`text-[8px] font-black uppercase ${prioTextColor(f.priority)}`}>
-                                    Priority: {f.priority}
-                                </span>
+                                <select
+                                    value={f.priority}
+                                    onChange={e => {
+                                        e.stopPropagation();
+                                        setFollowups(followups.map(tk => tk.id === f.id ? { ...tk, priority: e.target.value as any } : tk));
+                                    }}
+                                    className={`text-[8px] font-black uppercase rounded px-1.5 py-0.5 border-none outline-none cursor-pointer transition-all ${prioBadge(f.priority)}`}
+                                >
+                                    <option>Hot</option>
+                                    <option>Warm</option>
+                                    <option>Cool</option>
+                                </select>
                                 <span className="text-[8px] font-bold text-slate-400">{f.time}</span>
                             </div>
                             <h4 className="text-[10px] font-black text-slate-900">{f.title}</h4>
-                            <p className="text-[8px] text-slate-500 mt-1 line-clamp-1">{f.desc}</p>
+                            <div className="flex items-center justify-between mt-1">
+                                <p className="text-[8px] text-slate-500 line-clamp-1 flex-1">{f.desc}</p>
+                                <span className="text-[7px] font-black bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded uppercase tracking-tighter ml-2 shrink-0">
+                                    {f.assignee?.split(' ')[0]}
+                                </span>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -299,6 +337,19 @@ export default function FollowupsCard() {
                                 <i className="fa-solid fa-align-left text-indigo-400"></i> Narrative & Remarks
                             </p>
                             <p className="text-[9px] font-bold text-slate-600 leading-relaxed">{selected.desc}</p>
+                        </div>
+
+                        {/* Assignee */}
+                        <div className="p-3 bg-indigo-50/30 border border-indigo-100 rounded-xl">
+                            <div className="flex items-center gap-2">
+                                <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[7px] font-black uppercase">
+                                    {selected.assignee?.charAt(0)}
+                                </div>
+                                <div>
+                                    <p className="text-[6px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Assigned To</p>
+                                    <p className="text-[9px] font-black text-indigo-900 leading-none">{selected.assignee}</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -360,6 +411,21 @@ export default function FollowupsCard() {
                                 <option value="">-- Select Lead --</option>
                                 {leads.map(l => (
                                     <option key={l.id} value={l.name}>{l.name} ({l.id})</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="text-[7px] font-black text-slate-400 uppercase mb-1 block">Assign To</label>
+                            <select
+                                disabled={!canAssign}
+                                value={editForm.assignee}
+                                onChange={e => setEditForm({ ...editForm, assignee: e.target.value })}
+                                className={`w-full border border-slate-200 rounded-lg px-2.5 py-2 text-[10px] font-bold outline-none transition-all ${!canAssign ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white focus:border-indigo-500'
+                                    }`}
+                            >
+                                {!canAssign && <option value={editForm.assignee}>{editForm.assignee}</option>}
+                                {canAssign && teamMembers.map(m => (
+                                    <option key={m.name} value={m.name}>{m.name} ({m.role})</option>
                                 ))}
                             </select>
                         </div>
