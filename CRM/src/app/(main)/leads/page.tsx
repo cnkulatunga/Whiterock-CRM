@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { INITIAL_LEADS as DUMMY_LEADS, followups } from '@/data/dummy';
 
 const INDUSTRIES = [
@@ -44,15 +45,31 @@ const labelCls = 'text-[9px] font-bold text-[#475569] mb-1 block';
 import { usePermissions } from '@/hooks/usePermissions';
 
 export default function LeadsPage() {
+  return (
+    <Suspense fallback={<div className="flex-1 bg-slate-50 animate-pulse" />}>
+      <LeadsPageInner />
+    </Suspense>
+  );
+}
+
+function LeadsPageInner() {
   const { hasAction, hasFeature, isLoading } = usePermissions();
+  const searchParams = useSearchParams();
+  const preselectedId = searchParams.get('id');
   const [leadList, setLeadList] = useState<Lead[]>(DUMMY_LEADS);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(preselectedId);
   const [activeTab, setActiveTab] = useState('details');
   const [isEditing, setIsEditing] = useState(false);
   const [expandedRows, setExpandedRows] = useState<string[]>([]);
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<any>(() => {
+    if (preselectedId) {
+      const found = DUMMY_LEADS.find(l => l.id === preselectedId);
+      return found ? { ...found } : {};
+    }
+    return {};
+  });
   const [showColMenu, setShowColMenu] = useState(false);
   const [visibleCols, setVisibleCols] = useState({ company: true, need: true, status: true });
 
@@ -65,7 +82,7 @@ export default function LeadsPage() {
   const [panelTasks] = useState(followups.slice(0, 3));
   const [aiGenerated, setAiGenerated] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadLeads();
   }, []);
 
@@ -74,20 +91,26 @@ export default function LeadsPage() {
       const res = await fetch('/api/leads');
       if (!res.ok) throw new Error('API Error');
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setLeadList(data);
-        if (!selectedId) setSelectedId(data[0].id);
-      } else {
-        setLeadList(DUMMY_LEADS);
-        if (!selectedId && DUMMY_LEADS.length > 0) setSelectedId(DUMMY_LEADS[0].id);
+      const list = Array.isArray(data) && data.length > 0 ? data : DUMMY_LEADS;
+      setLeadList(list);
+      // pick preselected or first
+      const targetId = preselectedId ?? list[0]?.id ?? null;
+      setSelectedId(targetId);
+      if (targetId) {
+        const found = list.find((l: Lead) => l.id === targetId);
+        if (found) setFormData({ ...found });
       }
     } catch (err) {
       console.error('API Error: Failed to fetch leads', err);
       setLeadList(DUMMY_LEADS);
-      if (!selectedId && DUMMY_LEADS.length > 0) setSelectedId(DUMMY_LEADS[0].id);
+      const targetId = preselectedId ?? DUMMY_LEADS[0]?.id ?? null;
+      setSelectedId(targetId);
+      if (targetId) {
+        const found = DUMMY_LEADS.find(l => l.id === targetId);
+        if (found) setFormData({ ...found });
+      }
     }
   };
-
   if (isLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
 
   const selectedLead = leadList.find(l => l.id === selectedId) || null;

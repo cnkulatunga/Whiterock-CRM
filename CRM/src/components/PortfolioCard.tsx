@@ -1,9 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { leads as initialLeads } from '@/data/dummy';
 
 export default function PortfolioCard() {
+    const router = useRouter();
     const [leads, setLeads] = useState<any[]>(initialLeads);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all');
@@ -82,7 +84,7 @@ export default function PortfolioCard() {
                                 </tr>
                             ) : (
                                 filteredLeads.map((lead) => (
-                                    <tr key={lead.id} className="hover:bg-slate-50/50 transition-colors cursor-pointer group">
+                                    <tr key={lead.id} onClick={() => router.push(`/pipeline/${lead.id}`)} className="hover:bg-slate-50/50 transition-colors cursor-pointer group">
                                         <td className="py-2.5 w-[60%]">
                                             <div className="flex flex-col">
                                                 <span className="text-[9px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
