@@ -467,27 +467,6 @@ export default function LenderManagementPage() {
                                             <option>Active</option><option>Inactive</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <span style={s.labelText}>Type</span>
-                                        <select value={fType} onChange={e => setFType(e.target.value)} style={s.inputCompact}>
-                                            <option>Bank</option><option>Non-Bank</option><option>Credit Union</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <span style={s.labelText}>Trading Years</span>
-                                        <input type="number" value={fTradingYears} onChange={e => setFTradingYears(e.target.value)} placeholder="e.g. 25" style={s.inputCompact} />
-                                    </div>
-                                </div>
-
-                                {/* Rates & Loan */}
-                                <div style={s.formSec}>
-                                    <p style={s.formSecTitle}><i className="fa-solid fa-percent" style={{ fontSize: 8 }} /> Rates & Loan Range</p>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                                        <div><span style={s.labelText}>Rate Min (%)</span><input type="number" value={fRateMin} onChange={e => setFRateMin(e.target.value)} placeholder="e.g. 5.74" style={s.inputCompact} /></div>
-                                        <div><span style={s.labelText}>Rate Max (%)</span><input type="number" value={fRateMax} onChange={e => setFRateMax(e.target.value)} placeholder="e.g. 9.49" style={s.inputCompact} /></div>
-                                        <div><span style={s.labelText}>Loan Min ($)</span><input type="number" value={fLoanMin} onChange={e => setFLoanMin(e.target.value)} placeholder="e.g. 20000" style={s.inputCompact} /></div>
-                                        <div><span style={s.labelText}>Loan Max ($)</span><input type="number" value={fLoanMax} onChange={e => setFLoanMax(e.target.value)} placeholder="e.g. 5000000" style={s.inputCompact} /></div>
-                                    </div>
                                 </div>
 
                                 {/* Contact */}
@@ -605,8 +584,42 @@ export default function LenderManagementPage() {
                                                 <input type="date" value={promoExpiry} onChange={e => setPromoExpiry(e.target.value)} style={{ ...s.inputCompact, background: '#fff' }} />
                                             </div>
                                             <div>
-                                                <span style={s.labelText}>Document Name</span>
-                                                <input value={promoDoc} onChange={e => setPromoDoc(e.target.value)} placeholder="e.g. TC_ANZ.pdf" style={{ ...s.inputCompact, background: '#fff' }} />
+                                                <span style={s.labelText}>Supporting Document</span>
+                                                <div
+                                                    onClick={() => document.getElementById('p-file-input')?.click()}
+                                                    onDragOver={e => { e.preventDefault(); (e.currentTarget as HTMLElement).style.borderColor = '#3b82f6'; (e.currentTarget as HTMLElement).style.background = '#eff6ff'; }}
+                                                    onDragLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#cbd5e1'; (e.currentTarget as HTMLElement).style.background = '#fff'; }}
+                                                    onDrop={e => {
+                                                        e.preventDefault();
+                                                        (e.currentTarget as HTMLElement).style.borderColor = '#cbd5e1';
+                                                        (e.currentTarget as HTMLElement).style.background = '#fff';
+                                                        const file = e.dataTransfer.files[0];
+                                                        if (file) setPromoDoc(file.name);
+                                                    }}
+                                                    style={{ border: '1px dashed #cbd5e1', background: '#fff', borderRadius: 8, padding: '8px 10px', textAlign: 'center', cursor: 'pointer', transition: 'all .2s', position: 'relative', minHeight: 52 }}
+                                                >
+                                                    {promoDoc ? (
+                                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                                                            <span style={{ fontSize: 8, fontFamily: 'monospace', color: '#0f172a', background: '#f1f5f9', padding: '2px 6px', borderRadius: 4 }}>{promoDoc}</span>
+                                                            <button
+                                                                onClick={e => { e.stopPropagation(); setPromoDoc(''); }}
+                                                                style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, lineHeight: 1 }}
+                                                            >
+                                                                <i className="fa-solid fa-circle-xmark" />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div>
+                                                            <i className="fa-solid fa-cloud-arrow-up" style={{ fontSize: 10, color: '#94a3b8', display: 'block', marginBottom: 2 }} />
+                                                            <span style={{ fontSize: 8, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '.05em' }}>Drop PDF/JPG or Click</span>
+                                                        </div>
+                                                    )}
+                                                    <input
+                                                        type="file" id="p-file-input" className="hidden"
+                                                        accept=".pdf,.jpg,.jpeg,.png"
+                                                        onChange={e => { const f = e.target.files?.[0]; if (f) setPromoDoc(f.name); e.target.value = ''; }}
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                         <button onClick={savePromotion} style={{ width: '100%', padding: '10px 0', background: '#374151', color: '#fff', border: 'none', borderRadius: 8, fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer' }}>
