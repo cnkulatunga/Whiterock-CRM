@@ -3,17 +3,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { usePermissions } from '@/hooks/usePermissions';
-import { 
-    AGENTS, teamMembers, LENDERS_DB, STAGE_LABELS, STAGE_COLOR, 
-    STAGE_BG, PRIO_STYLE, REM_COLOR, REM_ICON, STATUS_COLOR 
+import {
+    AGENTS, teamMembers, LENDERS_DB, STAGE_LABELS, STAGE_COLOR,
+    STAGE_BG, PRIO_STYLE, REM_COLOR, REM_ICON, STATUS_COLOR
 } from '@/data/dummy';
 
 /* ── Types ──────────────────────────────────────────────────── */
 interface Lead {
     id: string; name: string; business: string; amount: string;
-    agent: string; bank: string; stage: string; priority: 'High' | 'Medium' | 'Low';
+    agent: string; bank: string; stage: string; priority: string;
     days: number; lender: string; notes: string; payoutStatus: 'Yes' | 'No';
-    leadLevel?: string;
+    leadLevel?: string; quality?: string;
 }
 interface Note { author: string; time: string; text: string; }
 interface Reminder { type: string; title: string; assignee: string; due: string; status: string; note?: string; }
@@ -40,6 +40,18 @@ export default function LeadDetailPage() {
     const [aiState, setAiState] = useState<'idle' | 'loading' | 'done'>('idle');
     const [aiText, setAiText] = useState('');
     const [notes, setNotes] = useState<Note[]>([]);
+
+    /* Move these up to avoid TDZ and break Rules of Hooks */
+    const [reminders, setReminders] = useState<Reminder[]>([]);
+    const [previewDoc, setPreviewDoc] = useState<string | null>(null);
+    const [notifyDone, setNotifyDone] = useState(false);
+    const [editForm, setEditForm] = useState<Lead | null>(null);
+    const [noteText, setNoteText] = useState('');
+    const [remType, setRemType] = useState('Call');
+    const [remTitle, setRemTitle] = useState('');
+    const [remDate, setRemDate] = useState('');
+    const [remAssignee, setRemAssignee] = useState('');
+    const [remNote, setRemNote] = useState('');
 
     useEffect(() => {
         fetch(`/api/leads/${id}`)
@@ -69,20 +81,6 @@ export default function LeadDetailPage() {
 
     if (loading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
     if (!lead) return <div className="flex-1 flex items-center justify-center">Lead not found</div>;
-    const [reminders, setReminders] = useState<Reminder[]>([]);
-    const [previewDoc, setPreviewDoc] = useState<string | null>(null);
-    const [notifyDone, setNotifyDone] = useState(false);
-
-    /* edit form state */
-    const [editForm, setEditForm] = useState<Lead | null>(null);
-
-    /* add-note / add-reminder form */
-    const [noteText, setNoteText] = useState('');
-    const [remType, setRemType] = useState('Call');
-    const [remTitle, setRemTitle] = useState('');
-    const [remDate, setRemDate] = useState('');
-    const [remAssignee, setRemAssignee] = useState('');
-    const [remNote, setRemNote] = useState('');
 
     /* docs */
     const docs = [
@@ -115,7 +113,8 @@ export default function LeadDetailPage() {
         if (aiState === 'loading') return;
         setAiState('loading');
         setTimeout(() => {
-            setAiText(`${lead.priority}-priority lead requiring ${lead.priority === 'High' ? 'immediate' : 'timely'} attention. ${lead.name} (${lead.business}) seeking ${lead.amount} for business funding${lead.bank !== '—' ? ', banking with ' + lead.bank : ''}. Currently at <strong>${STAGE_LABELS[lead.stage]}</strong> stage with ${lead.days} day${lead.days !== 1 ? 's' : ''} elapsed. ${lead.payoutStatus === 'Yes' ? 'Payout confirmed via ' + (lead.lender || 'lender') + '.' : 'Payout pending — account manager action required.'}`);
+            const isHigh = lead.priority === 'High' || lead.priority === 'hot';
+            setAiText(`${lead.priority}-priority lead requiring ${isHigh ? 'immediate' : 'timely'} attention. ${lead.name} (${lead.business}) seeking ${lead.amount} for business funding${lead.bank !== '—' ? ', banking with ' + lead.bank : ''}. Currently at <strong>${STAGE_LABELS[lead.stage]}</strong> stage with ${lead.days} day${lead.days !== 1 ? 's' : ''} elapsed. ${lead.payoutStatus === 'Yes' ? 'Payout confirmed via ' + (lead.lender || 'lender') + '.' : 'Payout pending — account manager action required.'}`);
             setAiState('done');
         }, 1400);
     };
@@ -166,7 +165,7 @@ export default function LeadDetailPage() {
     };
 
     /* ── Helpers ─────────────────────────────────────────────── */
-    const ps = PRIO_STYLE[lead.priority];
+    const ps = PRIO_STYLE[lead.priority] || PRIO_STYLE['Medium'] || PRIO_STYLE['warm'];
 
     /* ═════════════════════════════════════════════════════════
        RENDER
@@ -395,8 +394,13 @@ export default function LeadDetailPage() {
                                 <InfoRow label="Business" value={editing && editForm ? <input className="field-edit" value={editForm.business} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, business: e.target.value }) : null)} /> : lead.business} />
                                 <InfoRow label="Agent" value={editing && editForm ? <input className="field-edit" value={editForm.agent} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, agent: e.target.value }) : null)} /> : lead.agent} />
                                 <InfoRow label="Priority" value={editing && editForm
-                                    ? <select className="field-edit" value={editForm.priority} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, priority: e.target.value as Lead['priority'] }) : null)}>
-                                        <option>High</option><option>Medium</option><option>Low</option>
+                                    ? <select className="field-edit" value={editForm.priority} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, priority: e.target.value }) : null)}>
+                                        <option value="High">High</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Low">Low</option>
+                                        <option value="hot">Hot</option>
+                                        <option value="warm">Warm</option>
+                                        <option value="cool">Cool</option>
                                     </select>
                                     : <span style={{ background: ps.bg, color: ps.color, padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700 }}>{lead.priority}</span>}
                                 />
@@ -409,7 +413,7 @@ export default function LeadDetailPage() {
                                 <InfoRow label="Level" value={editing && editForm
                                     ? <select className="field-edit" value={editForm.leadLevel || 'Level 1'} onChange={e => setEditForm((p: Lead | null) => p ? ({ ...p, leadLevel: e.target.value }) : null)}>
                                         <option>Level 1</option><option>Level 2</option>
-                                      </select>
+                                    </select>
                                     : <span style={{ background: '#eef2ff', color: '#4338ca', padding: '1px 8px', borderRadius: 8, fontSize: 8, fontWeight: 700, border: '1px solid #c7d2fe' }}>{lead.leadLevel || 'Level 1'}</span>}
                                 />
                                 <InfoRow label="Days" value={`${lead.days}d in stage`} />
