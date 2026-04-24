@@ -129,9 +129,16 @@ export default function LoginPage() {
                                 />
                             </div>
                             <p className="text-[9px] font-bold text-slate-400 mt-1.5 flex flex-wrap gap-x-2 gap-y-1">
-                                <span>Super Admin: <span className="text-slate-600">ceo@whiterock.com</span> (Whiterock@2026)</span>
+                                <span>Super Admin: <span className="text-slate-600">ceo@whiterock.com</span></span>
                                 <span className="opacity-50">|</span>
-                                <span>Admin: <span className="text-slate-600">admin.ops@whiterock.com</span> (Admin@2026)</span>
+                                <span>Admin: <span className="text-slate-600">admin.ops@whiterock.com</span></span>
+                                <span className="opacity-50">|</span>
+                                <span>Team Lead: <span className="text-slate-600">m.chen@whiterock.com</span></span>
+                                <span className="opacity-50">|</span>
+                                <span>Tele Agent: <span className="text-slate-600">cody@whiterock.com</span></span>
+                                <span className="opacity-50">|</span>
+                                <span>Accounts: <span className="text-slate-600">leo@whiterock.com</span></span>
+                                <span className="mt-1 block w-full text-indigo-500 italic">Pass: Admin@123 or CEO@123</span>
                             </p>
                         </div>
 

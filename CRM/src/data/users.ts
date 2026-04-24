@@ -21,5 +21,19 @@ export const INITIAL_USERS = [
         email: 'm.chen@whiterock.com',
         role: 'Team Leader',
         status: 'Active'
+    },
+    {
+        id: 'USR-301',
+        name: 'Cody Lane',
+        email: 'cody@whiterock.com',
+        role: 'Tele Agent',
+        status: 'Active'
+    },
+    {
+        id: 'USR-401',
+        name: 'Leo Kumar',
+        email: 'leo@whiterock.com',
+        role: 'Accounts Manager',
+        status: 'Active'
     }
 ];
