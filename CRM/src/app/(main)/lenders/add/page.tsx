@@ -850,13 +850,15 @@ export default function LenderManagementPage() {
                                             <tr>
                                                 <td colSpan={5} style={{ padding: 0 }}>
                                                     <div style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', borderBottom: '2px solid #e2e8f0', padding: '16px 24px' }}>
-                                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
+                                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
                                                             {/* Identity */}
                                                             <div>
                                                                 <p style={{ ...s.labelText, marginBottom: 8 }}><i className="fa-solid fa-building-columns" style={{ marginRight: 4 }} />Identity</p>
                                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                                                                     {l.trading && <div><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Trading As</p><p style={{ fontSize: 10, fontWeight: 600, color: '#1f2937' }}>{l.trading}</p></div>}
                                                                     {l.tradingYears ? <div><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Trading Years</p><p style={{ fontSize: 10, fontWeight: 600, color: '#1f2937' }}>{l.tradingYears} yrs</p></div> : null}
+                                                                    <div><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Rate Range</p><p style={{ fontSize: 10, fontWeight: 600, color: '#1f2937' }}>{l.rateMin}% – {l.rateMax}%</p></div>
+                                                                    <div><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Loan Range</p><p style={{ fontSize: 10, fontWeight: 600, color: '#1f2937' }}>{fmt$(l.loanMin)} – {fmt$(l.loanMax)}</p></div>
                                                                 </div>
                                                             </div>
                                                             {/* Contact */}
@@ -868,19 +870,14 @@ export default function LenderManagementPage() {
                                                                     {l.managerEmail && <div><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Manager Email</p><a href={`mailto:${l.managerEmail}`} onClick={e => e.stopPropagation()} style={{ fontSize: 9, fontWeight: 600, color: '#2563eb', textDecoration: 'none', wordBreak: 'break-all' }}>{l.managerEmail}</a></div>}
                                                                 </div>
                                                             </div>
-                                                            {/* Address */}
-                                                            <div>
-                                                                <p style={{ ...s.labelText, marginBottom: 8 }}><i className="fa-solid fa-location-dot" style={{ marginRight: 4 }} />Address</p>
-                                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                                                                    {l.address && <div><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Trading</p><p style={{ fontSize: 9, fontWeight: 600, color: '#374151', lineHeight: 1.4 }}>{l.address}</p></div>}
-                                                                    {l.regAddress && <div><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Registered</p><p style={{ fontSize: 9, color: l.regAddress === l.address ? '#9ca3af' : '#374151', fontWeight: 600, lineHeight: 1.4 }}>{l.regAddress === l.address ? 'Same as trading' : l.regAddress}</p></div>}
-                                                                </div>
-                                                            </div>
-                                                            {/* Categories + actions */}
+                                                            {/* Address + actions */}
                                                             <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                                                                 <div>
-                                                                    <p style={{ ...s.labelText, marginBottom: 8 }}><i className="fa-solid fa-tags" style={{ marginRight: 4 }} />Categories</p>
-                                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 8 }}>{l.categories.map(c => <span key={c} style={s.categoryChip}>{c}</span>)}</div>
+                                                                    <p style={{ ...s.labelText, marginBottom: 8 }}><i className="fa-solid fa-location-dot" style={{ marginRight: 4 }} />Address</p>
+                                                                    {l.address && <div style={{ marginBottom: 6 }}><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Trading</p><p style={{ fontSize: 9, fontWeight: 600, color: '#374151', lineHeight: 1.4 }}>{l.address}</p></div>}
+                                                                    {l.regAddress && <div style={{ marginBottom: 10 }}><p style={{ fontSize: 7, color: '#9ca3af', fontWeight: 700, textTransform: 'uppercase' }}>Registered</p><p style={{ fontSize: 9, color: l.regAddress === l.address ? '#9ca3af' : '#374151', fontWeight: 600, lineHeight: 1.4 }}>{l.regAddress === l.address ? 'Same as trading' : l.regAddress}</p></div>}
+                                                                    <p style={{ ...s.labelText, marginBottom: 6 }}><i className="fa-solid fa-tags" style={{ marginRight: 4 }} />Categories</p>
+                                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>{l.categories.map(c => <span key={c} style={s.categoryChip}>{c}</span>)}</div>
                                                                     {l.notes && <p style={{ fontSize: 8, color: '#9ca3af', lineHeight: 1.5 }}>{l.notes}</p>}
                                                                 </div>
                                                                 <div>
