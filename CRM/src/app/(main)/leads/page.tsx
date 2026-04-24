@@ -53,6 +53,11 @@ export default function LeadsPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [expandedRows, setExpandedRows] = useState<string[]>([]);
   const [formData, setFormData] = useState<any>({});
+  const [showColMenu, setShowColMenu] = useState(false);
+  const [visibleCols, setVisibleCols] = useState({ company: true, need: true, status: true });
+
+  const toggleCol = (col: keyof typeof visibleCols) =>
+    setVisibleCols(p => ({ ...p, [col]: !p[col] }));
   const [panelNotes, setPanelNotes] = useState<{ id: number; text: string; date: string }[]>([
     { id: 1, text: 'Client interested in expansion loan. Needs follow-up by end of week.', date: '2026-04-10 | 10:30 AM' },
   ]);
@@ -196,9 +201,45 @@ export default function LeadsPage() {
               <span className="text-[13px] font-black text-red-100 font-mono">{stats.hot}</span>
               <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Hot</span>
             </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
               <span className="text-[13px] font-black text-amber-100 font-mono">{stats.warm}</span>
               <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Warm</span>
+            </div>
+
+            {/* Column hider */}
+            <div className="relative px-2.5 py-2">
+              <button
+                onClick={() => setShowColMenu(v => !v)}
+                className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[8px] font-bold text-gray-400 hover:text-white hover:bg-white/10 transition-all uppercase tracking-widest"
+                style={{ border: '1px solid rgba(255,255,255,.1)' }}
+              >
+                <i className="fa-solid fa-eye text-[9px]"></i> Columns
+              </button>
+              {showColMenu && (
+                <div
+                  className="absolute right-0 top-full mt-1 z-50 rounded-xl overflow-hidden shadow-2xl"
+                  style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,.1)', minWidth: 160 }}
+                >
+                  <div className="px-3 py-2 border-b" style={{ borderColor: 'rgba(255,255,255,.08)' }}>
+                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Toggle Columns</p>
+                  </div>
+                  {([
+                    { key: 'company', label: 'Company' },
+                    { key: 'need', label: 'Need' },
+                    { key: 'status', label: 'Status' },
+                  ] as { key: keyof typeof visibleCols; label: string }[]).map(col => (
+                    <button
+                      key={col.key}
+                      onClick={() => toggleCol(col.key)}
+                      className="w-full flex items-center justify-between px-3 py-2 text-[9px] font-bold transition-all hover:bg-white/5"
+                      style={{ color: visibleCols[col.key] ? '#fff' : '#475569' }}
+                    >
+                      <span>{col.label}</span>
+                      <i className={`fa-solid ${visibleCols[col.key] ? 'fa-eye text-indigo-400' : 'fa-eye-slash text-gray-600'} text-[9px]`}></i>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </header>
@@ -210,9 +251,9 @@ export default function LeadsPage() {
             <thead className="sticky top-0 bg-slate-50 border-b border-gray-100 z-10">
               <tr>
                 <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Lead</th>
-                <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Company</th>
-                <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Need</th>
-                <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Status</th>
+                {visibleCols.company && <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Company</th>}
+                {visibleCols.need && <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Need</th>}
+                {visibleCols.status && <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Status</th>}
                 <th className="px-2 py-1.5 w-6"></th>
               </tr>
             </thead>
@@ -237,13 +278,15 @@ export default function LeadsPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="px-3 py-2 text-[10px] text-slate-600 font-medium">{lead.company}</td>
-                      <td className="px-3 py-2">
-                        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-bold uppercase ${qualityBadge(lead.quality)}`}>
-                          {lead.quality}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2 text-[9px] text-slate-500 font-medium">{lead.status}</td>
+                      {visibleCols.company && <td className="px-3 py-2 text-[10px] text-slate-600 font-medium">{lead.company}</td>}
+                      {visibleCols.need && (
+                        <td className="px-3 py-2">
+                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-bold uppercase ${qualityBadge(lead.quality)}`}>
+                            {lead.quality}
+                          </span>
+                        </td>
+                      )}
+                      {visibleCols.status && <td className="px-3 py-2 text-[9px] text-slate-500 font-medium">{lead.status}</td>}
                       <td className="px-2 py-2">
                         <button
                           onClick={e => toggleRow(lead.id, e)}
@@ -253,27 +296,135 @@ export default function LeadsPage() {
                         </button>
                       </td>
                     </tr>
-                    {expanded && (
-                      <tr>
-                        <td colSpan={5} className="p-0">
-                          <div className="bg-slate-50 border-t border-b-2 border-slate-200 px-4 py-3" style={{ animation: 'expandDown .18s ease' }}>
-                            <div className="grid grid-cols-4 gap-3">
-                              {[
-                                { label: 'Phone', value: lead.phone },
-                                { label: 'Email', value: lead.email },
-                                { label: 'Amount', value: lead.amount },
-                                { label: 'Type', value: lead.type },
-                              ].map(p => (
-                                <div key={p.label}>
-                                  <p className="text-[7px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">{p.label}</p>
-                                  <p className="text-[10px] font-semibold text-slate-700 truncate">{p.value}</p>
+                    {expanded && (() => {
+                      const latestTask = panelTasks.find(t => t.client === lead.name || t.client === lead.company) || panelTasks[0];
+                      return (
+                        <tr>
+                          <td colSpan={2 + (visibleCols.company ? 1 : 0) + (visibleCols.need ? 1 : 0) + (visibleCols.status ? 1 : 0)} className="p-0">
+                            <div className="bg-[#f8fafc] border-t border-b-2 border-[#e2e8f0] px-5 py-3" style={{ animation: 'expandDown .18s ease' }}>
+                              <div className="grid gap-3" style={{ gridTemplateColumns: '1fr 1fr 1fr 1.4fr 1.1fr 1.4fr' }}>
+
+                                {/* 1. Company */}
+                                <div>
+                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
+                                    <i className="fa-solid fa-building text-[#2447d7]"></i> Company
+                                  </p>
+                                  <div className="space-y-1">
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Business</p><p className="text-[9px] font-semibold text-gray-800 truncate">{lead.company}</p></div>
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Job Title</p><p className="text-[9px] font-semibold text-gray-800">{(lead as any).jobTitle || 'N/A'}</p></div>
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Industry</p><p className="text-[9px] font-semibold text-gray-800">{(lead as any).industry || 'General'}</p></div>
+                                  </div>
                                 </div>
-                              ))}
+
+                                {/* 2. Contact */}
+                                <div>
+                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
+                                    <i className="fa-solid fa-address-card text-[#2447d7]"></i> Contact
+                                  </p>
+                                  <div className="space-y-1">
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Email</p><p className="text-[9px] font-semibold text-blue-600 truncate">{lead.email}</p></div>
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Phone</p><p className="text-[9px] font-semibold text-gray-800">{lead.phone}</p></div>
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Preferred</p><p className="text-[9px] font-semibold text-gray-800">{(lead as any).preferredMethod || 'Email'}</p></div>
+                                  </div>
+                                </div>
+
+                                {/* 3. Funding */}
+                                <div>
+                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
+                                    <i className="fa-solid fa-sack-dollar text-[#2447d7]"></i> Funding
+                                  </p>
+                                  <div className="space-y-1">
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Amount</p><p className="text-[9px] font-semibold text-gray-800">{lead.amount}</p></div>
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Purpose</p><p className="text-[9px] font-semibold text-gray-700">{(lead as any).loanPurpose || 'N/A'}</p></div>
+                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Type</p><p className="text-[9px] font-semibold text-gray-800">{lead.type || 'N/A'}</p></div>
+                                  </div>
+                                </div>
+
+                                {/* 4. Note */}
+                                <div>
+                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
+                                    <i className="fa-solid fa-note-sticky text-[#2447d7]"></i> Note
+                                  </p>
+                                  <p className="text-[8px] text-gray-500 leading-relaxed italic line-clamp-3">
+                                    {(lead as any).notes || `${lead.name} from ${lead.company} seeking ${lead.amount} for ${lead.type || 'financing'}.`}
+                                  </p>
+                                  <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-gray-100">
+                                    <div className="w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                                      <span className="text-[6px] font-black text-indigo-600">
+                                        {((lead as any).agent || 'Admin').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <p className="text-[7px] font-black text-gray-700 leading-none">{(lead as any).agent || 'Admin'}</p>
+                                      <p className="text-[6px] text-gray-400 mt-0.5">{(lead as any).createdAt || 'Recently'}</p>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* 5. Assigned Agents */}
+                                <div>
+                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
+                                    <i className="fa-solid fa-users text-[#2447d7]"></i> Agents
+                                  </p>
+                                  <div className="rounded-lg overflow-hidden border border-gray-100">
+                                    {[
+                                      { label: 'Registered', icon: 'fa-user-plus', bg: '#eef2ff', color: '#4f46e5', sub: (lead as any).agent || 'Admin', done: true },
+                                      { label: 'Contacted', icon: 'fa-phone', bg: '#f0fdf4', color: '#16a34a', sub: lead.quality !== 'cool' ? ((lead as any).agent || 'Admin') : 'Pending', done: lead.quality !== 'cool' },
+                                      { label: 'Qualified', icon: 'fa-star', bg: '#fef3c7', color: '#d97706', sub: lead.quality === 'hot' ? 'Hot Lead' : 'Pending', done: lead.quality === 'hot' },
+                                      { label: 'Submitted', icon: 'fa-paper-plane', bg: '#f1f5f9', color: '#cbd5e1', sub: 'Pending', done: false },
+                                    ].map((step, si) => (
+                                      <div key={si} className={`flex items-center gap-1.5 px-2 py-1 border-b border-gray-50 last:border-0 ${step.done ? 'bg-white' : 'bg-gray-50/60'}`}>
+                                        <div className="w-3.5 h-3.5 rounded flex items-center justify-center shrink-0" style={{ background: step.done ? step.bg : '#f1f5f9' }}>
+                                          <i className={`fa-solid ${step.icon}`} style={{ fontSize: 6, color: step.done ? step.color : '#cbd5e1' }}></i>
+                                        </div>
+                                        <div className="flex-1 min-w-0 leading-none">
+                                          <p className="text-[6.5px] font-bold text-gray-400 uppercase">{step.label}</p>
+                                          <p className={`text-[8px] font-bold mt-0.5 truncate ${step.sub === 'Pending' ? 'text-gray-300 italic' : 'text-gray-900'}`}>{step.sub}</p>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+
+                                {/* 6. Latest Follow-up */}
+                                <div>
+                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
+                                    <i className="fa-solid fa-list-check text-[#2447d7]"></i> Latest Follow-up
+                                  </p>
+                                  {latestTask ? (
+                                    <div className="bg-white border border-[#e2e8f0] rounded-lg p-2 space-y-1">
+                                      <div className="flex items-start justify-between gap-1">
+                                        <p className="text-[9px] font-bold text-slate-800 leading-tight line-clamp-2">{latestTask.title}</p>
+                                        <span className={`shrink-0 text-[6.5px] font-black px-1.5 py-0.5 rounded-full uppercase ${
+                                          latestTask.priority === 'High' ? 'bg-red-50 text-red-600' :
+                                          latestTask.priority === 'Medium' ? 'bg-amber-50 text-amber-600' :
+                                          'bg-blue-50 text-blue-600'
+                                        }`}>{latestTask.priority}</span>
+                                      </div>
+                                      <div className="flex items-center gap-2 text-[7px] text-gray-400">
+                                        <span><i className="fa-solid fa-calendar mr-0.5"></i>{latestTask.date}</span>
+                                        <span><i className="fa-solid fa-clock mr-0.5"></i>{latestTask.time}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between pt-1 border-t border-gray-50">
+                                        <span className="text-[7px] font-bold text-slate-500">{latestTask.type}</span>
+                                        <span className={`text-[6.5px] font-black px-1.5 py-0.5 rounded-full uppercase ${
+                                          latestTask.status === 'Done' ? 'bg-emerald-50 text-emerald-600' :
+                                          latestTask.status === 'In Progress' ? 'bg-indigo-50 text-indigo-600' :
+                                          'bg-slate-100 text-slate-500'
+                                        }`}>{latestTask.status}</span>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <p className="text-[8px] text-gray-300 italic text-center py-3">No follow-ups yet</p>
+                                  )}
+                                </div>
+
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                      </tr>
-                    )}
+                          </td>
+                        </tr>
+                      );
+                    })()}
                   </React.Fragment>
                 );
               })}
@@ -556,43 +707,116 @@ function DetailTab({ fd, setFd, isEditing, onDelete, hasDeleteAccess }: {
 }
 
 function TasksTab({ tasks }: { tasks: any[] }) {
-  const typeColor = (t: string) => {
-    if (t?.includes('Call')) return 'bg-blue-50 text-blue-700';
-    if (t?.includes('Meeting')) return 'bg-purple-50 text-purple-700';
-    if (t?.includes('Email')) return 'bg-green-50 text-green-700';
-    if (t?.includes('Document')) return 'bg-amber-50 text-amber-700';
-    return 'bg-slate-50 text-slate-600';
+  const [localTasks, setLocalTasks] = React.useState(tasks);
+  const [ptType, setPtType] = React.useState('Call');
+  const [ptDate, setPtDate] = React.useState('');
+  const [ptDesc, setPtDesc] = React.useState('');
+
+  const typeIcon: Record<string, string> = {
+    Call: 'fa-phone', Meeting: 'fa-calendar', Email: 'fa-envelope',
+    Document: 'fa-file', 'Follow-up': 'fa-rotate-right',
+    'Priority Call': 'fa-phone-volume', 'Case Research': 'fa-magnifying-glass',
+    'Critical Document': 'fa-file-circle-exclamation',
   };
+
+  const addTask = () => {
+    if (!ptDesc.trim()) return;
+    setLocalTasks(p => [{ id: Date.now(), type: ptType, date: ptDate, desc: ptDesc, title: ptDesc }, ...p]);
+    setPtDesc(''); setPtDate('');
+  };
+
   return (
-    <div className="p-4 space-y-2">
-      {tasks.length === 0 && (
-        <p className="text-[9px] text-gray-300 text-center py-8 italic">No tasks scheduled for this lead</p>
-      )}
-      {tasks.map(t => (
-        <div key={t.id} className="p-3 border border-[#e2e8f0] bg-[#f8fafc] rounded-lg">
-          <div className="flex items-start justify-between gap-2 mb-1">
-            <p className="text-[10px] font-bold text-slate-800">{t.title}</p>
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[7px] font-bold uppercase shrink-0 ${typeColor(t.type)}`}>
-              {t.type}
-            </span>
+    <div className="p-4 space-y-3">
+      {/* Task list */}
+      <div className="space-y-2">
+        {localTasks.length === 0 && (
+          <p className="text-[9px] text-gray-300 text-center py-6 italic">No tasks yet</p>
+        )}
+        {localTasks.map(t => (
+          <div key={t.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 32, height: 32, background: '#f1f5f9', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <i className={`fa-solid ${typeIcon[t.type] || 'fa-phone'}`} style={{ fontSize: 11, color: '#64748b' }}></i>
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#0f172a', margin: 0 }}>{t.title || t.desc || t.type}</p>
+              <p style={{ fontSize: 9, color: '#94a3b8', margin: '2px 0 0' }}>
+                {t.type}{t.time ? ` · ${t.time}` : ''}{t.date ? ` · ${t.date}` : ''}
+              </p>
+            </div>
           </div>
-          <p className="text-[9px] text-slate-500 mb-2 leading-relaxed">{t.desc}</p>
-          <div className="flex items-center gap-3 text-[8px] text-slate-400">
-            <span><i className="fa-solid fa-calendar mr-1"></i>{t.date}</span>
-            <span><i className="fa-solid fa-clock mr-1"></i>{t.time}</span>
-            <span className={`ml-auto px-2 py-0.5 rounded-full font-bold uppercase text-[7px] ${t.priority === 'Hot' ? 'bg-red-50 text-red-600' : t.priority === 'Warm' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
-              }`}>{t.priority}</span>
+        ))}
+      </div>
+
+      {/* Add Follow-up form */}
+      <div className="pt-3 border-t border-gray-100">
+        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Add Follow-up</p>
+        <div className="grid grid-cols-2 gap-2 mb-2">
+          <div>
+            <label className="text-[9px] font-bold text-[#475569] mb-1 block">Type</label>
+            <select value={ptType} onChange={e => setPtType(e.target.value)}
+              className="w-full bg-white border border-[#e2e8f0] rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[#1e293b] outline-none focus:border-[#2447d7]">
+              {['Call','Meeting','Follow-up','Email','Document'].map(o => <option key={o}>{o}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="text-[9px] font-bold text-[#475569] mb-1 block">Date</label>
+            <input type="date" value={ptDate} onChange={e => setPtDate(e.target.value)}
+              className="w-full bg-white border border-[#e2e8f0] rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[#1e293b] outline-none focus:border-[#2447d7]" />
           </div>
         </div>
-      ))}
+        <div className="mb-2">
+          <label className="text-[9px] font-bold text-[#475569] mb-1 block">Description</label>
+          <input type="text" value={ptDesc} onChange={e => setPtDesc(e.target.value)}
+            placeholder="Task description..."
+            className="w-full bg-white border border-[#e2e8f0] rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[#1e293b] outline-none focus:border-[#2447d7]" />
+        </div>
+        <button onClick={addTask}
+          className="w-full py-2 bg-gray-900 text-white text-[8px] font-black uppercase tracking-widest rounded-lg hover:bg-black transition-all">
+          <i className="fa-solid fa-plus mr-1"></i>Add Task
+        </button>
+      </div>
     </div>
   );
 }
 
 function AITab({ lead, generated, onGenerate }: { lead: any; generated: boolean; onGenerate: () => void }) {
-  const summary = `${lead.name} from ${lead.company} is a ${lead.quality.toUpperCase()} priority lead at the "${lead.status}" stage, seeking ${lead.amount} for ${lead.type || 'financing'}. Contact via ${lead.email} or ${lead.phone}. Recommend prioritising follow-up within 48 hours.`;
+  const [loading, setLoading] = React.useState(false);
+
+  const handleGenerate = () => {
+    setLoading(true);
+    setTimeout(() => { setLoading(false); onGenerate(); }, 900);
+  };
+
+  const summary = (() => {
+    const statusMap: Record<string, string> = {
+      hot: 'High-priority lead requiring immediate attention.',
+      warm: 'Engaged lead showing strong interest.',
+      cool: 'Early-stage lead, nurturing recommended.',
+    };
+    const opener = statusMap[lead.quality] || 'Active lead.';
+    const existing = lead.existingLoan === 'Yes' ? ' with existing finance in place' : '';
+    const homeOwner = lead.homeOwner === 'Yes' ? 'a homeowner' : 'non-homeowner';
+    const urgency = lead.fundingTimeline ? ` Funding required ${lead.fundingTimeline.toLowerCase()}.` : '';
+    const creditNote = lead.creditConsent === 'No' ? ' Client has not consented to credit search.' : '';
+    const turnoverNote = lead.businessAnnualTurnover ? ` Annual turnover ${lead.businessAnnualTurnover}.` : '';
+    const bankNote = lead.companyBank ? ` Banks with ${lead.companyBank}.` : '';
+    return `${opener} ${lead.company}${lead.industry ? ` (${lead.industry})` : ''} seeking ${lead.amount} for ${lead.type || 'business needs'}, ${homeOwner}${existing}.${turnoverNote}${bankNote}${urgency}${creditNote}`;
+  })();
+
+  const dataPoints = [
+    { label: 'Status', value: lead.quality?.toUpperCase() },
+    { label: 'Amount', value: lead.amount },
+    { label: 'Purpose', value: lead.loanPurpose || lead.type || '—' },
+    { label: 'Bank', value: lead.companyBank || '—' },
+    { label: 'Industry', value: lead.industry || '—' },
+    { label: 'Source', value: lead.leadSource || '—' },
+    { label: 'Home Owner', value: lead.homeOwner || '—' },
+    { label: 'Credit', value: lead.creditConsent || '—' },
+  ].filter(p => p.value && p.value !== '—');
+
   return (
     <div className="p-4 space-y-3">
+      {/* Summary card */}
       <div style={{ background: 'linear-gradient(135deg,#eef2ff,#f5f3ff)', border: '1px solid #e0e7ff', borderRadius: 12, padding: 16 }}>
         <div className="flex items-center gap-2.5 mb-3">
           <div style={{ width: 32, height: 32, background: '#4f46e5', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -602,36 +826,42 @@ function AITab({ lead, generated, onGenerate }: { lead: any; generated: boolean;
             <p style={{ fontSize: 11, fontWeight: 800, color: '#3730a3' }}>AI Lead Summary</p>
             <p style={{ fontSize: 8, color: '#6366f1', fontWeight: 600 }}>Powered by lead data</p>
           </div>
-          <button onClick={onGenerate}
-            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, fontSize: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer' }}>
-            <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 8 }}></i> Generate
+          <button
+            onClick={handleGenerate} disabled={loading}
+            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, fontSize: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.8 : 1 }}>
+            <i className={`fa-solid ${loading ? 'fa-spinner fa-spin' : generated ? 'fa-rotate-right' : 'fa-wand-magic-sparkles'}`} style={{ fontSize: 8 }}></i>
+            {loading ? 'Generating...' : generated ? 'Regenerate' : 'Generate'}
           </button>
         </div>
-        {!generated ? (
+        {!generated && !loading ? (
           <div style={{ textAlign: 'center', padding: '16px 0' }}>
             <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 22, color: '#c7d2fe', marginBottom: 8, display: 'block' }}></i>
             <p style={{ fontSize: 9, color: '#a5b4fc', fontWeight: 600 }}>Click Generate to create an AI summary for this lead</p>
+          </div>
+        ) : loading ? (
+          <div style={{ textAlign: 'center', padding: '16px 0' }}>
+            <i className="fa-solid fa-circle-notch fa-spin" style={{ fontSize: 22, color: '#c7d2fe', marginBottom: 8, display: 'block' }}></i>
+            <p style={{ fontSize: 9, color: '#a5b4fc', fontWeight: 600 }}>Analysing lead data...</p>
           </div>
         ) : (
           <p style={{ fontSize: 11, color: '#1e1b4b', lineHeight: 1.8, fontStyle: 'italic' }}>{summary}</p>
         )}
       </div>
-      <div className="bg-white border border-gray-100 rounded-xl p-3">
-        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Key Data Points</p>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { label: 'Amount', value: lead.amount },
-            { label: 'Status', value: lead.status },
-            { label: 'Quality', value: lead.quality.toUpperCase() },
-            { label: 'Type', value: lead.type },
-          ].map(p => (
-            <div key={p.label} className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-2.5">
-              <p className="text-[8px] font-bold text-[#94a3b8] uppercase tracking-[.05em]">{p.label}</p>
-              <p className="text-[13px] font-black text-[#0f172a] leading-none mt-0.5">{p.value}</p>
-            </div>
-          ))}
+
+      {/* Key data points — only shown after generation */}
+      {generated && (
+        <div className="bg-white border border-gray-100 rounded-xl p-3">
+          <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Key Data Points</p>
+          <div className="grid grid-cols-2 gap-2">
+            {dataPoints.map(p => (
+              <div key={p.label} className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-2.5">
+                <p className="text-[8px] font-bold text-[#94a3b8] uppercase tracking-[.05em]">{p.label}</p>
+                <p className="text-[12px] font-black text-[#0f172a] leading-none mt-0.5">{p.value}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -665,46 +895,178 @@ function NotesTab({ notes, noteInput, setNoteInput, onAdd }: {
 }
 
 function DocsTab() {
-  const [docs, setDocs] = useState<{ name: string; size: string; date: string }[]>([]);
-  const handleFiles = (files: FileList | null) => {
-    if (!files) return;
-    setDocs(p => [...p, ...Array.from(files).map(f => ({
-      name: f.name,
-      size: `${(f.size / 1024).toFixed(1)} KB`,
-      date: new Date().toLocaleDateString(),
-    }))]);
+  type Doc = { id: number; name: string; size: string; date: string; type: string; status: 'Pending' | 'Approved' | 'Rejected' | 'Re-upload'; dataUrl?: string };
+  const [docs, setDocs] = useState<Doc[]>([]);
+  const [preview, setPreview] = useState<Doc | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editName, setEditName] = useState('');
+
+  const statusCfg = {
+    Pending:  { bg: '#f1f5f9', color: '#475569' },
+    Approved: { bg: '#dcfce7', color: '#15803d' },
+    Rejected: { bg: '#fee2e2', color: '#b91c1c' },
+    'Re-upload': { bg: '#fef3c7', color: '#b45309' },
   };
+
+  const fileIcon = (ext: string) => {
+    const e = ext.toUpperCase();
+    if (e === 'PDF') return 'fa-file-pdf text-red-400';
+    if (['JPG','JPEG','PNG'].includes(e)) return 'fa-file-image text-blue-400';
+    if (['XLSX','XLS'].includes(e)) return 'fa-file-excel text-green-500';
+    if (['DOC','DOCX'].includes(e)) return 'fa-file-word text-blue-500';
+    return 'fa-file-lines text-gray-400';
+  };
+
+  const addFiles = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).forEach(f => {
+      const reader = new FileReader();
+      reader.onload = ev => {
+        setDocs(p => [...p, {
+          id: Date.now() + Math.random(),
+          name: f.name,
+          size: `${(f.size / 1024).toFixed(1)} KB`,
+          date: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          type: f.name.split('.').pop()?.toUpperCase() || 'FILE',
+          status: 'Pending',
+          dataUrl: ev.target?.result as string,
+        }]);
+      };
+      reader.readAsDataURL(f);
+    });
+  };
+
+  const setStatus = (id: number, status: Doc['status']) =>
+    setDocs(p => p.map(d => d.id === id ? { ...d, status } : d));
+
+  const saveRename = (id: number) => {
+    if (editName.trim()) setDocs(p => p.map(d => d.id === id ? { ...d, name: editName.trim() } : d));
+    setEditingId(null);
+  };
+
   return (
     <div className="p-4 space-y-3">
+      {/* Upload zone */}
       <div
-        onClick={() => document.getElementById('doc-file-input')?.click()}
+        onClick={() => document.getElementById('leads-doc-input')?.click()}
         onDragOver={e => { e.preventDefault(); (e.currentTarget as HTMLElement).style.borderColor = '#2447d7'; }}
         onDragLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'; }}
-        onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files); (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'; }}
+        onDrop={e => { e.preventDefault(); addFiles(e.dataTransfer.files); (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'; }}
         style={{ border: '2px dashed #e2e8f0', borderRadius: 12, padding: 20, textAlign: 'center', cursor: 'pointer', background: '#f8fafc', transition: 'all .2s' }}
       >
         <i className="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 mb-2 block"></i>
         <p className="text-[10px] font-bold text-gray-500">Click or drag files to upload</p>
         <p className="text-[8px] text-gray-400 mt-1">PDF, JPG, PNG, XLSX accepted</p>
-        <input type="file" id="doc-file-input" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
+        <input id="leads-doc-input" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.xlsx,.xls,.doc,.docx" className="hidden" onChange={e => addFiles(e.target.files)} />
       </div>
-      {docs.length === 0 && (
-        <p className="text-[9px] text-gray-300 text-center py-4 italic">No documents uploaded yet</p>
+
+      {/* Doc list */}
+      {docs.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: '#cbd5e1' }}>
+          <i className="fa-solid fa-folder-open text-4xl mb-3 block"></i>
+          <p style={{ fontSize: 10, fontWeight: 700 }}>No documents uploaded yet</p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {docs.map(doc => {
+            const st = statusCfg[doc.status];
+            return (
+              <div key={doc.id}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#fff', border: '1px solid #f1f5f9', borderRadius: 12, transition: 'box-shadow .15s' }}
+                onMouseOver={e => (e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.06)')}
+                onMouseOut={e => (e.currentTarget.style.boxShadow = 'none')}
+              >
+                <i className={`fa-solid ${fileIcon(doc.type)}`} style={{ fontSize: 20, flexShrink: 0 }}></i>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {editingId === doc.id ? (
+                    <input
+                      autoFocus value={editName} onChange={e => setEditName(e.target.value)}
+                      onBlur={() => saveRename(doc.id)}
+                      onKeyDown={e => e.key === 'Enter' && saveRename(doc.id)}
+                      style={{ fontSize: 10, fontWeight: 700, border: '1px solid #6366f1', borderRadius: 4, padding: '2px 6px', outline: 'none', width: '100%' }}
+                    />
+                  ) : (
+                    <p style={{ fontSize: 10, fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{doc.name}</p>
+                  )}
+                  <p style={{ fontSize: 8, color: '#94a3b8', marginTop: 1 }}>{doc.type} · {doc.size} · {doc.date}</p>
+                </div>
+                {/* Status badge */}
+                <span style={{ fontSize: 7, fontWeight: 800, padding: '3px 8px', borderRadius: 99, background: st.bg, color: st.color, textTransform: 'uppercase', flexShrink: 0 }}>{doc.status}</span>
+                {/* Action buttons */}
+                <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                  <button onClick={() => setPreview(doc)} title="Preview"
+                    style={{ width: 26, height: 26, borderRadius: 6, background: '#f1f5f9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-eye text-gray-400" style={{ fontSize: 9 }}></i>
+                  </button>
+                  <button onClick={() => { setEditingId(doc.id); setEditName(doc.name); }} title="Rename"
+                    style={{ width: 26, height: 26, borderRadius: 6, background: '#f1f5f9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-pencil text-gray-400" style={{ fontSize: 9 }}></i>
+                  </button>
+                  {doc.status === 'Rejected' ? (
+                    <button onClick={() => setStatus(doc.id, 'Re-upload')} title="Re-upload"
+                      style={{ padding: '3px 8px', fontSize: 8, fontWeight: 700, background: '#fef3c7', color: '#b45309', border: 'none', borderRadius: 5, cursor: 'pointer' }}>
+                      <i className="fa-solid fa-rotate-right" style={{ marginRight: 3 }}></i>Re-upload
+                    </button>
+                  ) : (
+                    <>
+                      <button onClick={() => setStatus(doc.id, 'Approved')} title="Approve"
+                        style={{ width: 26, height: 26, borderRadius: 6, background: '#dcfce7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="fa-solid fa-check text-green-600" style={{ fontSize: 9 }}></i>
+                      </button>
+                      <button onClick={() => setStatus(doc.id, 'Rejected')} title="Reject"
+                        style={{ width: 26, height: 26, borderRadius: 6, background: '#fee2e2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <i className="fa-solid fa-xmark text-red-500" style={{ fontSize: 9 }}></i>
+                      </button>
+                    </>
+                  )}
+                  <button onClick={() => setDocs(p => p.filter(d => d.id !== doc.id))} title="Delete"
+                    style={{ width: 26, height: 26, borderRadius: 6, background: '#fee2e2', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <i className="fa-solid fa-trash text-red-400" style={{ fontSize: 9 }}></i>
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       )}
-      {docs.map((d, i) => (
-        <div key={i} className="flex items-center justify-between p-2.5 bg-[#f8fafc] rounded-lg border border-[#e2e8f0]">
-          <div className="flex items-center gap-2">
-            <i className="fa-solid fa-file-lines text-indigo-400 text-sm"></i>
-            <div>
-              <p className="text-[10px] font-semibold text-slate-700">{d.name}</p>
-              <p className="text-[8px] text-slate-400">{d.size} · {d.date}</p>
+
+      {/* Preview modal */}
+      {preview && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          onClick={() => setPreview(null)}>
+          <div style={{ background: '#fff', borderRadius: 20, width: 560, maxHeight: '80vh', display: 'flex', flexDirection: 'column', boxShadow: '0 25px 60px rgba(0,0,0,0.2)' }}
+            onClick={e => e.stopPropagation()}>
+            {/* Modal header */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <i className={`fa-solid ${fileIcon(preview.type)}`} style={{ fontSize: 18 }}></i>
+                <div>
+                  <p style={{ fontSize: 11, fontWeight: 800, color: '#0f172a' }}>{preview.name}</p>
+                  <p style={{ fontSize: 8, color: '#94a3b8', marginTop: 2 }}>{preview.type} · {preview.size} · {preview.date}</p>
+                </div>
+              </div>
+              <button onClick={() => setPreview(null)}
+                style={{ width: 28, height: 28, borderRadius: '50%', background: '#f1f5f9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <i className="fa-solid fa-xmark text-gray-500 text-xs"></i>
+              </button>
+            </div>
+            {/* Modal body */}
+            <div style={{ flex: 1, overflow: 'auto', padding: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: '0 0 20px 20px', minHeight: 300 }}>
+              {preview.dataUrl && preview.type === 'PDF' ? (
+                <iframe src={preview.dataUrl} style={{ width: '100%', height: 400, border: 'none', borderRadius: 8 }} />
+              ) : preview.dataUrl && ['JPG','JPEG','PNG'].includes(preview.type) ? (
+                <img src={preview.dataUrl} style={{ maxWidth: '100%', maxHeight: 400, borderRadius: 8, objectFit: 'contain' }} />
+              ) : (
+                <div style={{ textAlign: 'center' }}>
+                  <i className={`fa-solid ${fileIcon(preview.type)}`} style={{ fontSize: 64, color: '#c7d2fe' }}></i>
+                  <p style={{ fontSize: 11, color: '#94a3b8', marginTop: 12, fontWeight: 600 }}>{preview.name}</p>
+                  <p style={{ fontSize: 9, color: '#cbd5e1', marginTop: 4 }}>Preview not available for this file type</p>
+                </div>
+              )}
             </div>
           </div>
-          <button onClick={() => setDocs(p => p.filter((_, j) => j !== i))} className="text-gray-300 hover:text-red-400 transition-all">
-            <i className="fa-solid fa-xmark text-xs"></i>
-          </button>
         </div>
-      ))}
+      )}
     </div>
   );
 }

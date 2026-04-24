@@ -8,6 +8,7 @@ export default function LoginPage() {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -47,7 +48,7 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex h-screen overflow-hidden bg-[#f8fafc]">
+        <div className="flex w-full h-screen overflow-hidden bg-[#f8fafc]">
             {/* Left Panel */}
             <div className="w-[420px] shrink-0 bg-[#0f172a] hidden md:flex flex-col justify-between p-12 relative overflow-hidden">
                 <div className="absolute top-[-80px] left-[-80px] w-[400px] h-[400px] rounded-full bg-indigo-500/10 blur-3xl pointer-events-none"></div>
@@ -68,13 +69,13 @@ export default function LoginPage() {
                     </p>
                     <ul className="mt-8 space-y-3">
                         {[
-                            { label: 'Real-time Pipeline Intelligence', color: 'indigo' },
-                            { label: 'Role-Based Access Control', color: 'emerald' },
-                            { label: 'Automated Document Vault', color: 'amber' },
-                            { label: 'Live Team Activity Monitor', color: 'rose' },
+                            { label: 'Real-time Pipeline Intelligence', color: '#6366f1' },
+                            { label: 'Role-Based Access Control', color: '#10b981' },
+                            { label: 'Automated Document Vault', color: '#f59e0b' },
+                            { label: 'Live Team Activity Monitor', color: '#ec4899' },
                         ].map((f, i) => (
                             <li key={i} className="flex items-center gap-3 text-[12px] font-bold text-slate-400">
-                                <div className={`w-1.5 h-1.5 rounded-full bg-${f.color}-500 shrink-0`}></div>
+                                <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: f.color }}></div>
                                 {f.label}
                             </li>
                         ))}
@@ -120,25 +121,23 @@ export default function LoginPage() {
                             <div className="relative">
                                 <i className="fa-solid fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[11px]"></i>
                                 <input
-                                    type="password"
+                                    type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-[13px] font-medium outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                    className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl py-2.5 pl-10 pr-10 text-[13px] font-medium outline-none focus:bg-white focus:border-indigo-500 transition-all"
                                     placeholder="••••••••"
                                     required
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(v => !v)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-[11px]`}></i>
+                                </button>
                             </div>
-                            <p className="text-[9px] font-bold text-slate-400 mt-1.5 flex flex-wrap gap-x-2 gap-y-1">
-                                <span>Super Admin: <span className="text-slate-600">ceo@whiterock.com</span></span>
-                                <span className="opacity-50">|</span>
-                                <span>Admin: <span className="text-slate-600">admin.ops@whiterock.com</span></span>
-                                <span className="opacity-50">|</span>
-                                <span>Team Lead: <span className="text-slate-600">m.chen@whiterock.com</span></span>
-                                <span className="opacity-50">|</span>
-                                <span>Tele Agent: <span className="text-slate-600">cody@whiterock.com</span></span>
-                                <span className="opacity-50">|</span>
-                                <span>Accounts: <span className="text-slate-600">leo@whiterock.com</span></span>
-                                <span className="mt-1 block w-full text-indigo-500 italic">Pass: Admin@123 or CEO@123</span>
+                            <p className="text-[9px] font-semibold text-slate-400 mt-1.5">
+                                Demo password for all roles: <span className="font-mono bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">Pass@123</span>
                             </p>
                         </div>
 
