@@ -169,7 +169,7 @@ export default function PermissionMatrixPage() {
                             {(activeCategory === 'all' || activeCategory === 'modules') && (
                                 <>
                                     <tr className="bg-indigo-50/30">
-                                        <td colSpan={4} className="px-6 py-3">
+                                        <td colSpan={ROLES.length + 1} className="px-6 py-3">
                                             <div className="flex items-center gap-2">
                                                 <i className="fa-solid fa-puzzle-piece text-indigo-600 text-[10px]"></i>
                                                 <span className="text-[10px] font-black text-indigo-900 uppercase tracking-[.2em]">Core Module Permissions</span>
@@ -259,7 +259,7 @@ export default function PermissionMatrixPage() {
                             {(activeCategory === 'all' || activeCategory === 'features') && (
                                 <>
                                     <tr className="bg-emerald-50/30">
-                                        <td colSpan={4} className="px-6 py-3">
+                                        <td colSpan={ROLES.length + 1} className="px-6 py-3">
                                             <div className="flex items-center gap-2">
                                                 <i className="fa-solid fa-bolt text-emerald-600 text-[10px]"></i>
                                                 <span className="text-[10px] font-black text-emerald-900 uppercase tracking-[.2em]">Global System Enhancements</span>
@@ -295,7 +295,7 @@ export default function PermissionMatrixPage() {
                             {(activeCategory === 'all' || activeCategory === 'dashboards') && (
                                 <>
                                     <tr className="bg-rose-50/30">
-                                        <td colSpan={4} className="px-6 py-3">
+                                        <td colSpan={ROLES.length + 1} className="px-6 py-3">
                                             <div className="flex items-center gap-2">
                                                 <i className="fa-solid fa-chart-line text-rose-600 text-[10px]"></i>
                                                 <span className="text-[10px] font-black text-rose-900 uppercase tracking-[.2em]">Visual Data Widgets</span>
