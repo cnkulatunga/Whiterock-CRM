@@ -58,11 +58,11 @@ services:
       - crm-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health/')"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.settimeout(5); s.connect(('localhost', 8000)); s.close()"]
+      interval: 20s
+      timeout: 10s
+      retries: 6
+      start_period: 120s
 
   # ── Celery Worker ───────────────────────────────────────────────────────────
   celery-worker:
