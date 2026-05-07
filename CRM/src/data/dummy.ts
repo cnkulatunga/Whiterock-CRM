@@ -30,6 +30,9 @@ export const PRIO_STYLE: Record<string, { bg: string; color: string; border: str
     High: { bg: '#fee2e2', color: '#b91c1c', border: '#fecaca' },
     Medium: { bg: '#fffbeb', color: '#92400e', border: '#fde68a' },
     Low: { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
+    hot: { bg: '#fee2e2', color: '#b91c1c', border: '#fecaca' },
+    warm: { bg: '#fffbeb', color: '#92400e', border: '#fde68a' },
+    cool: { bg: '#f0fdf4', color: '#166534', border: '#bbf7d0' },
 };
 
 export const REM_COLOR: Record<string, string> = { Call: '#3b82f6', Meeting: '#8b5cf6', 'Follow-up': '#f59e0b', Document: '#10b981' };

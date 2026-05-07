@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { INITIAL_LEADS as DUMMY_LEADS } from '@/data/dummy';
@@ -48,7 +48,7 @@ export default function LeadsPage() {
   const toggleCol = (col: keyof typeof visibleCols) =>
     setVisibleCols(p => ({ ...p, [col]: !p[col] }));
 
-  React.useEffect(() => {
+  useEffect(() => {
     loadLeads();
   }, []);
 
@@ -67,7 +67,6 @@ export default function LeadsPage() {
       setDataLoading(false);
     }
   };
-
   if (isLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
 
   const filtered = leadList.filter(l => {
