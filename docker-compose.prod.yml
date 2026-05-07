@@ -7,13 +7,12 @@ services:
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=https://${DOMAIN}
+      - NEXT_PUBLIC_API_URL=http://${DOMAIN}
       - BACKEND_URL=http://backend:8000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.frontend.rule=Host(`${DOMAIN}`)"
-      - "traefik.http.routers.frontend.entrypoints=websecure"
-      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.services.frontend.loadbalancer.server.port=3000"
     depends_on:
       backend:
@@ -36,15 +35,14 @@ services:
       - MONGODB_NAME=${MONGODB_NAME:-whiterock_crm}
       - REDIS_URL=redis://:White@1122@redis:6379/0
       - ALLOWED_HOSTS=${DOMAIN},www.${DOMAIN},backend
-      - CORS_ALLOWED_ORIGINS=https://${DOMAIN},https://www.${DOMAIN}
+      - CORS_ALLOWED_ORIGINS=http://${DOMAIN},http://www.${DOMAIN}
       - GMAIL_CLIENT_ID=${GMAIL_CLIENT_ID:-}
       - GMAIL_CLIENT_SECRET=${GMAIL_CLIENT_SECRET:-}
       - GMAIL_SENDER_EMAIL=${GMAIL_SENDER_EMAIL:-}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
-      - "traefik.http.routers.backend.entrypoints=websecure"
-      - "traefik.http.routers.backend.tls=true"
+      - "traefik.http.routers.backend.entrypoints=web"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
     volumes:
       - backend_data:/app/data
