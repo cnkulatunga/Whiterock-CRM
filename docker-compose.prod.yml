@@ -34,7 +34,7 @@ services:
       - DEBUG=False
       - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017
       - MONGODB_NAME=${MONGODB_NAME:-whiterock_crm}
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - REDIS_URL=redis://:White@1122@redis:6379/0
       - ALLOWED_HOSTS=${DOMAIN},www.${DOMAIN},backend
       - CORS_ALLOWED_ORIGINS=https://${DOMAIN},https://www.${DOMAIN}
       - GMAIL_CLIENT_ID=${GMAIL_CLIENT_ID:-}
@@ -76,7 +76,7 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017
       - MONGODB_NAME=${MONGODB_NAME:-whiterock_crm}
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - REDIS_URL=redis://:White@1122@redis:6379/0
       - GMAIL_CLIENT_ID=${GMAIL_CLIENT_ID:-}
       - GMAIL_CLIENT_SECRET=${GMAIL_CLIENT_SECRET:-}
       - GMAIL_SENDER_EMAIL=${GMAIL_SENDER_EMAIL:-}
@@ -106,7 +106,7 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - MONGODB_URI=mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongodb:27017
       - MONGODB_NAME=${MONGODB_NAME:-whiterock_crm}
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - REDIS_URL=redis://:White@1122@redis:6379/0
     volumes:
       - backend_data:/app/data
     depends_on:
@@ -142,16 +142,14 @@ services:
   # ── Redis ───────────────────────────────────────────────────────────────────
   redis:
     image: redis:7-alpine
-    command: redis-server --requirepass ${REDIS_PASSWORD}
-    environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: redis-server --requirepass White@1122
     volumes:
       - redis_data:/data
     networks:
       - crm-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a $$REDIS_PASSWORD ping | grep -q PONG"]
+      test: ["CMD", "redis-cli", "-a", "White@1122", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
