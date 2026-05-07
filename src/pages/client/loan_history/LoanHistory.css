@@ -1,0 +1,189 @@
+.loan-history-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 32px;
+}
+
+.history-header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a202c;
+    margin-bottom: 8px;
+}
+
+.history-header p {
+    font-size: 15px;
+    color: #718096;
+    line-height: 1.6;
+}
+
+/* ── HISTORY SECTION ── */
+.history-section {
+    position: relative;
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    color: #2447d7;
+}
+
+.section-title h2 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a202c;
+}
+
+/* ── TABLE CARD ── */
+.history-table-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    overflow: hidden;
+    margin-bottom: 40px;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table th {
+    background: #f8fafc;
+    padding: 16px 24px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 800;
+    color: #a0aec0;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.history-table td {
+    padding: 20px 24px;
+    font-size: 14px;
+    color: #4a5568;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.lead-num {
+    font-weight: 700;
+    color: #1a202c;
+}
+
+.amount-cell {
+    font-weight: 600;
+    color: #1a202c;
+}
+
+/* ── OUTCOME PILLS ── */
+.outcome-pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+    text-transform: capitalize;
+}
+
+.outcome-pill.approved {
+    background: #f0fff4;
+    color: #38a169;
+}
+
+.outcome-pill.closed {
+    background: #ebf0ff;
+    color: #2447d7;
+}
+
+.outcome-pill.withdrawn {
+    background: #fff5f5;
+    color: #e53e3e;
+}
+
+/* ── TABLE FOOTER ── */
+.table-footer {
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    font-size: 13px;
+    color: #a0aec0;
+}
+
+.pagination-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.page-btn {
+    padding: 8px 16px;
+    border: 1px solid #edf2f7;
+    background: white;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4a5568;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.page-btn:hover:not(:disabled) {
+    border-color: #2447d7;
+    color: #2447d7;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ── RESPONSIVE OVERRIDES ── */
+@media (max-width: 768px) {
+    .history-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .history-header h1 {
+        font-size: 24px;
+    }
+
+    .table-footer {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+    }
+}
+
+@media (max-width: 640px) {
+
+    /* Hide non-essential columns on mobile */
+    .history-table th:nth-child(2),
+    .history-table td:nth-child(2),
+    .history-table th:nth-child(3),
+    .history-table td:nth-child(3) {
+        display: none;
+    }
+
+    .history-table th:last-child,
+    .history-table td:last-child {
+        text-align: right;
+    }
+
+    .history-table td {
+        padding: 16px;
+    }
+}
