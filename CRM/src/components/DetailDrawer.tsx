@@ -7,9 +7,10 @@ interface DetailDrawerProps {
     onClose: () => void;
     entity: any;
     type: 'task' | 'lead' | 'agent' | 'promotion' | 'lender' | null;
+    showQuickEdit?: boolean;
 }
 
-export default function DetailDrawer({ isOpen, onClose, entity, type }: DetailDrawerProps) {
+export default function DetailDrawer({ isOpen, onClose, entity, type, showQuickEdit = false }: DetailDrawerProps) {
     const [isVisible, setIsVisible] = useState(false);
 
     useEffect(() => {
@@ -38,15 +39,15 @@ export default function DetailDrawer({ isOpen, onClose, entity, type }: DetailDr
                         </section>
                         <section className="grid grid-cols-3 gap-4">
                             <div className="p-4 bg-white border border-slate-100 rounded-2xl">
-                                <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Status</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Status</p>
                                 <p className="text-[11px] font-black text-indigo-600">IN PROGRESS</p>
                             </div>
                             <div className="p-4 bg-white border border-slate-100 rounded-2xl">
-                                <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Assignee</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Assignee</p>
                                 <p className="text-[11px] font-black text-slate-900">{entity.assignee || 'Unassigned'}</p>
                             </div>
                             <div className="p-4 bg-white border border-slate-100 rounded-2xl">
-                                <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Due Date</p>
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Due Date</p>
                                 <p className="text-[11px] font-black text-slate-900">{entity.time}</p>
                             </div>
                         </section>
@@ -84,7 +85,7 @@ export default function DetailDrawer({ isOpen, onClose, entity, type }: DetailDr
                                 { label: 'Calls', value: '142', color: 'blue' },
                             ].map((stat, i) => (
                                 <div key={i} className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center group hover:bg-white hover:border-indigo-200 transition-all">
-                                    <p className="text-[8px] font-black text-slate-400 uppercase mb-1">{stat.label}</p>
+                                    <p className="text-[10px] font-black text-slate-400 uppercase mb-1">{stat.label}</p>
                                     <p className="text-lg font-black text-slate-900">{stat.value}</p>
                                 </div>
                             ))}
@@ -114,30 +115,36 @@ export default function DetailDrawer({ isOpen, onClose, entity, type }: DetailDr
                             </div>
                         </div>
                         <section className="space-y-6">
-                            <div>
-                                <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-3">Rate Breakdown</h4>
-                                <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl">
-                                    <div className="flex justify-between items-center mb-4">
-                                        <span className="text-[11px] font-bold text-slate-500">Variable Rate</span>
-                                        <span className="text-xl font-black text-indigo-600">{entity.rate}</span>
-                                    </div>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-[11px] font-bold text-slate-500">Comparison Rate</span>
-                                        <span className="text-xl font-black text-slate-900">6.14% p.a.</span>
+                            {entity.rate > 0 && (
+                                <div>
+                                    <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-3">Rate Breakdown</h4>
+                                    <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-[11px] font-bold text-slate-500">Rate</span>
+                                            <span className="text-xl font-black text-indigo-600">{entity.rate}% p.a.</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div>
-                                <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-3">Incentives & Notes</h4>
-                                <ul className="space-y-3">
-                                    {['$4k Cashback for Refinance', 'No Valuation Fees', 'Dedicated BDM Support'].map((note, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-[11px] font-medium text-slate-600">
-                                            <i className="fa-solid fa-circle-check text-emerald-500"></i>
-                                            {note}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
+                            )}
+                            {entity.valid_until && (
+                                <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+                                    <i className="fa-solid fa-calendar-xmark text-amber-500"></i>
+                                    <div>
+                                        <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Expires</p>
+                                        <p className="text-[11px] font-bold text-slate-700">
+                                            {new Date(entity.valid_until).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+                            {entity.description && (
+                                <div>
+                                    <h4 className="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-3">Description</h4>
+                                    <p className="text-[12px] text-slate-600 leading-relaxed font-medium bg-slate-50 border border-slate-100 rounded-2xl p-5">
+                                        {entity.description}
+                                    </p>
+                                </div>
+                            )}
                         </section>
                     </div>
                 );
@@ -165,10 +172,12 @@ export default function DetailDrawer({ isOpen, onClose, entity, type }: DetailDr
                         </span>
                     </div>
                     <div className="flex items-center gap-4">
-                        <button className="h-10 px-6 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2">
-                            <i className="fa-solid fa-pen-to-square"></i>
-                            Quick Edit
-                        </button>
+                        {showQuickEdit && (
+                            <button className="h-10 px-6 bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2">
+                                <i className="fa-solid fa-pen-to-square"></i>
+                                Quick Edit
+                            </button>
+                        )}
                         <button
                             onClick={onClose}
                             className="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all"

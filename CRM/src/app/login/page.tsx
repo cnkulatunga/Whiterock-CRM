@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -11,9 +11,37 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [locked, setLocked] = useState(false);
+    const [lockedUntil, setLockedUntil] = useState<Date | null>(null);
+    const [countdown, setCountdown] = useState('');
+    const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+    useEffect(() => {
+        if (!lockedUntil) return;
+        const tick = () => {
+            const now = new Date();
+            const diff = Math.max(0, Math.floor((lockedUntil.getTime() - now.getTime()) / 1000));
+            if (diff === 0) {
+                setLocked(false);
+                setLockedUntil(null);
+                setCountdown('');
+                setError('');
+                if (timerRef.current) clearInterval(timerRef.current);
+                return;
+            }
+            const h = Math.floor(diff / 3600);
+            const m = Math.floor((diff % 3600) / 60);
+            const s = diff % 60;
+            setCountdown(h > 0 ? `${h}h ${m}m ${s}s` : `${m}m ${s}s`);
+        };
+        tick();
+        timerRef.current = setInterval(tick, 1000);
+        return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }, [lockedUntil]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (locked) return;
         setError('');
         setLoading(true);
 
@@ -24,24 +52,37 @@ export default function LoginPage() {
                 body: JSON.stringify({ email, password }),
             });
 
+            const data = await response.json();
+
             if (!response.ok) {
-                const data = await response.json();
-                throw new Error(data.error || 'Authentication failed');
+                if (data.locked) {
+                    setLocked(true);
+                    if (data.locked_until) setLockedUntil(new Date(data.locked_until));
+                    setError(data.error || data.detail || 'Account locked.');
+                } else {
+                    setError(data.error || data.detail || 'Authentication failed');
+                }
+                return;
             }
 
-            const session = await response.json();
+            const roleDashMap: Record<string, string> = {
+                'Super Admin': '/dashboard/super_admin',
+                'Admin': '/dashboard/super_admin',
+                'Accounts Manager': '/dashboard/accounts_manager',
+                'Team Leader': '/dashboard/team_lead',
+                'Tele Agent': '/dashboard/tele_agent',
+            };
+            const landingPath = roleDashMap[data.role] ?? '/dashboard/tele_agent';
+            const session = { ...data, landing: landingPath };
+            sessionStorage.setItem('crm_session', JSON.stringify(session));
 
-            // Map common dashboard paths
-            const landingPath = session.role === 'Super Admin'
-                ? '/dashboard/super_admin'
-                : session.role === 'Admin'
-                    ? '/dashboard/super_admin' // Admin currently shares the super admin dash in this structure
-                    : '/dashboard/tele_agent';
-
-            sessionStorage.setItem('crm_session', JSON.stringify({ ...session, landing: landingPath }));
-            router.push(landingPath);
-        } catch (err: any) {
-            setError(err.message);
+            if (data.must_set_password) {
+                router.push('/set-password');
+            } else {
+                router.push(landingPath);
+            }
+        } catch {
+            setError('Unable to connect. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -65,7 +106,7 @@ export default function LoginPage() {
                 <div className="relative z-10">
                     <h1 className="text-3xl font-black text-white leading-[1.2] mb-3 tracking-tighter">Precision Lending, Simplified.</h1>
                     <p className="text-[13px] text-slate-400 font-medium leading-relaxed max-w-[320px]">
-                        The all-in-one platform for managing leads, loans, teams and documents — built for modern mortgage brokers.
+                        The all-in-one platform for managing leads, loans, teams and documents — built for modern finance brokers.
                     </p>
                     <ul className="mt-8 space-y-3">
                         {[
@@ -93,7 +134,34 @@ export default function LoginPage() {
                     <h2 className="text-2xl font-black text-slate-900 tracking-tight">Welcome back</h2>
                     <p className="text-[12px] text-slate-400 font-bold mt-1">Sign in to your account to continue</p>
 
-                    {error && (
+                    {/* Lockout banner */}
+                    {locked && (
+                        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                            <div className="flex items-start gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                                    <i className="fa-solid fa-lock text-red-500 text-[12px]"></i>
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-[12px] font-black text-red-700 mb-1">Account Temporarily Locked</p>
+                                    <p className="text-[11px] font-medium text-red-500 leading-relaxed">
+                                        Too many failed login attempts. Access will be restored in:
+                                    </p>
+                                    {countdown && (
+                                        <div className="mt-2 inline-flex items-center gap-1.5 bg-red-100 rounded-lg px-2.5 py-1">
+                                            <i className="fa-solid fa-clock text-red-400 text-[10px]"></i>
+                                            <span className="text-[13px] font-black text-red-600 tabular-nums">{countdown}</span>
+                                        </div>
+                                    )}
+                                    <p className="text-[10px] font-bold text-red-400 mt-2">
+                                        Need immediate access? Contact your administrator to reset your account.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* General error (non-lockout) */}
+                    {error && !locked && (
                         <div className="mt-6 p-3 bg-red-50 border border-red-100 rounded-xl flex items-center gap-2 text-[11px] font-bold text-red-600">
                             <i className="fa-solid fa-circle-exclamation"></i>
                             {error}
@@ -109,8 +177,9 @@ export default function LoginPage() {
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-[13px] font-medium outline-none focus:bg-white focus:border-indigo-500 transition-all"
-                                    placeholder="you@taskflow.com"
+                                    disabled={locked}
+                                    className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-[13px] font-medium outline-none focus:bg-white focus:border-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                    placeholder="you@alphafunding.com"
                                     required
                                 />
                             </div>
@@ -124,32 +193,36 @@ export default function LoginPage() {
                                     type={showPassword ? 'text' : 'password'}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl py-2.5 pl-10 pr-10 text-[13px] font-medium outline-none focus:bg-white focus:border-indigo-500 transition-all"
+                                    disabled={locked}
+                                    className="w-full bg-[#f8fafc] border border-slate-200 rounded-xl py-2.5 pl-10 pr-10 text-[13px] font-medium outline-none focus:bg-white focus:border-indigo-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     placeholder="••••••••"
                                     required
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(v => !v)}
+                                    disabled={locked}
                                     className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                                 >
                                     <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-[11px]`}></i>
                                 </button>
                             </div>
-                            <p className="text-[9px] font-semibold text-slate-400 mt-1.5">
-                                Demo password for all roles: <span className="font-mono bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded">Pass@123</span>
-                            </p>
                         </div>
 
                         <button
                             type="submit"
-                            disabled={loading}
-                            className={`w-full bg-slate-900 text-white rounded-xl py-3 text-[12px] font-black uppercase tracking-widest mt-2 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 ${loading ? 'opacity-70 pointer-events-none' : ''}`}
+                            disabled={loading || locked}
+                            className="w-full bg-slate-900 text-white rounded-xl py-3 text-[12px] font-black uppercase tracking-widest mt-2 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {loading ? (
                                 <>
                                     <i className="fa-solid fa-circle-notch fa-spin text-[10px]"></i>
                                     Authenticating...
+                                </>
+                            ) : locked ? (
+                                <>
+                                    <i className="fa-solid fa-lock text-[10px]"></i>
+                                    Account Locked
                                 </>
                             ) : (
                                 <>

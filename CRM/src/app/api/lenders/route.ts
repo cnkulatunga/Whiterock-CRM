@@ -1,48 +1,44 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { djangoApi, extractToken } from '@/lib/api';
 
-export async function GET() {
-    try {
-        const lenders = db.lenders.getAll() || [];
-        return NextResponse.json(lenders);
-    } catch (error) {
-        return NextResponse.json([], { status: 200 }); // Return empty array instead of failing
-    }
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: Request) {
+    const token = await extractToken(request);
+    const url = new URL(request.url);
+    const qs = url.searchParams.toString();
+    const path = qs ? `/lenders/?${qs}` : '/lenders/';
+
+    const { data, status, error } = await djangoApi.get(path, token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json(data);
 }
 
 export async function POST(request: Request) {
-    try {
-        const data = await request.json();
-        const newLender = db.lenders.create({
-            ...data,
-            id: Math.floor(Math.random() * 10000),
-            added: new Date().toISOString().split('T')[0]
-        });
-        return NextResponse.json(newLender);
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed' }, { status: 500 });
-    }
+    const token = await extractToken(request);
+    const body = await request.json();
+
+    const { data, status, error } = await djangoApi.post('/lenders/', body, token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json(data, { status: 201 });
 }
 
 export async function PATCH(request: Request) {
-    try {
-        const { id, ...updates } = await request.json();
-        const updated = db.lenders.update(id, updates);
-        if (updated) {
-            return NextResponse.json(updated);
-        }
-        return NextResponse.json({ error: 'Lender not found' }, { status: 404 });
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to update' }, { status: 500 });
-    }
+    const token = await extractToken(request);
+    const { id, ...updates } = await request.json();
+
+    const { data, status, error } = await djangoApi.patch(`/lenders/${id}/`, updates, token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json(data);
 }
 
 export async function DELETE(request: Request) {
+    const token = await extractToken(request);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    if (id) {
-        db.lenders.delete(parseInt(id));
-        return NextResponse.json({ success: true });
-    }
-    return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+    const { status, error } = await djangoApi.delete(`/lenders/${id}/`, token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json({ success: true });
 }

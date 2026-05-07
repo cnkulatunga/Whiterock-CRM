@@ -5,8 +5,9 @@
 ═══════════════════════════════════════════════════════════════ */
 
 export const INITIAL_LEADS = [
-    { id: 'AL-902', name: 'Robert Miller', company: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', phone: '07123 456789', amount: '£12,000', agent: 'Sarah Jenkins', status: 'collecting', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements', quality: 'hot', type: 'Asset Finance', leadLevel: 'Level 1' },
-    { id: 'AF-550', name: 'Priya Singh', company: 'Singh Media', email: 'contact@singhmedia.com', phone: '07123 987654', amount: '£450,000', agent: 'James White', status: 'collecting', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.', quality: 'warm', type: 'Commercial', leadLevel: 'Level 2' },
+    { id: 'AL-902', name: 'Robert Miller', company: 'Miller Logistics', email: 'robert.m@miller-logistics.co.uk', phone: '07123 456789', amount: '£12,000', agent: 'Sarah Jenkins', status: 'new', priority: 'hot', days: 2, lender: '—', notes: 'Waiting for bank statements', quality: 'hot', type: 'Asset Finance', leadLevel: 'Level 1' },
+    { id: 'AF-550', name: 'Priya Singh', company: 'Singh Media', email: 'contact@singhmedia.com', phone: '07123 987654', amount: '£450,000', agent: 'James White', status: 'new', priority: 'warm', days: 1, lender: '—', notes: 'Large expansion loan request.', quality: 'warm', type: 'Commercial', leadLevel: 'Level 2' },
+    { id: 'AF-103', name: 'Lisa Chen', company: 'Chen Retail Ltd', email: 'lisa@chenretail.co.uk', phone: '07123 321654', amount: '£78,000', agent: 'Sarah Jenkins', status: 'collecting', priority: 'warm', days: 3, lender: '—', notes: 'Bank statements submitted, awaiting ID verification.', quality: 'warm', type: 'Commercial', leadLevel: 'Level 1' },
     { id: 'AF-027', name: 'John Smith', company: 'ABC Corp', email: 'jsmith@abccorp.uk', phone: '07123 111222', amount: '£55,000', agent: 'Sarah Jenkins', status: 'lender', priority: 'hot', days: 4, lender: 'Barclays, HSBC', notes: 'Email sent to partners, awaiting offers.', quality: 'hot', type: 'Asset Finance', leadLevel: 'Level 1' },
     { id: 'AL-339', name: 'Mike Johnson', company: 'Urban Scaffolding Ltd', email: 'mike@urban-scaff.co.uk', phone: '07123 444555', amount: '£85,000', agent: 'James White', status: 'verified', priority: 'cool', days: 5, lender: '—', notes: 'Bank statements audited and approved.', quality: 'cool', type: 'Invoice Finance', leadLevel: 'Level 2' },
     { id: 'AF-001', name: 'David Brown', company: 'Miller Logistics', email: 'd.brown@miller-logistics.co.uk', phone: '07123 666777', amount: '£150,000', agent: 'Sarah Jenkins', status: 'approved', priority: 'hot', days: 12, lender: 'Starling', notes: 'Offer accepted, final checks in progress.', quality: 'hot', type: 'Commercial', leadLevel: 'Level 1' },
@@ -22,9 +23,9 @@ export const LENDERS_DB: Record<string, { contact: string; email: string; terms:
     'HSBC': { contact: 'Tom Harding', email: 't.harding@hsbc.co.uk', terms: '3-Day Settlement', phone: '+44 20 9876 5432' },
 };
 
-export const STAGE_LABELS: Record<string, string> = { collecting: 'Doc Collection', verified: 'Doc Verified', lender: 'Lender Selection', approved: 'Loan Approved', completed: 'Completed', rejected: 'Rejected' };
-export const STAGE_COLOR: Record<string, string> = { collecting: '#64748b', verified: '#3b82f6', lender: '#8b5cf6', approved: '#22c55e', completed: '#0f172a', rejected: '#ef4444' };
-export const STAGE_BG: Record<string, string> = { collecting: '#f1f5f9', verified: '#eff6ff', lender: '#f5f3ff', approved: '#f0fdf4', completed: '#f1f5f9', rejected: '#fef2f2' };
+export const STAGE_LABELS: Record<string, string> = { new: 'New Lead', collecting: 'Doc Collection', verified: 'Doc Verified', lender: 'Lender Selection', approved: 'Loan Approved', completed: 'Completed', rejected: 'Rejected' };
+export const STAGE_COLOR: Record<string, string> = { new: '#b45309', collecting: '#64748b', verified: '#3b82f6', lender: '#8b5cf6', approved: '#22c55e', completed: '#0f172a', rejected: '#ef4444' };
+export const STAGE_BG: Record<string, string> = { new: '#fef9c3', collecting: '#f1f5f9', verified: '#eff6ff', lender: '#f5f3ff', approved: '#f0fdf4', completed: '#f1f5f9', rejected: '#fef2f2' };
 export const PRIO_STYLE: Record<string, { bg: string; color: string; border: string }> = {
     High: { bg: '#fee2e2', color: '#b91c1c', border: '#fecaca' },
     Medium: { bg: '#fffbeb', color: '#92400e', border: '#fde68a' },
@@ -125,10 +126,11 @@ export const ACTIVITIES = [
 ];
 
 // Pipeline shared constants
-export const STAGES = ['collecting', 'verified', 'lender', 'approved', 'rejected'] as const;
+export const STAGES = ['new', 'collecting', 'verified', 'lender', 'approved', 'rejected'] as const;
 export type Stage = typeof STAGES[number];
 
 export const STAGE_META: Record<Stage, { label: string; icon: string; hdr: string; body: string; cnt: string }> = {
+    new: { label: 'New Leads', icon: 'fa-bolt', hdr: '#fef9c3', body: '#fefce8', cnt: '#854d0e' },
     collecting: { label: 'Doc Collection', icon: 'fa-file-arrow-up', hdr: '#f1f5f9', body: '#f8fafc', cnt: '#475569' },
     verified: { label: 'Doc Verified', icon: 'fa-file-circle-check', hdr: '#eff6ff', body: '#f0f7ff', cnt: '#1d4ed8' },
     lender: { label: 'Lender Selection', icon: 'fa-building-columns', hdr: '#f5f3ff', body: '#f6f4ff', cnt: '#6d28d9' },
@@ -137,7 +139,7 @@ export const STAGE_META: Record<Stage, { label: string; icon: string; hdr: strin
 };
 
 export const PIPELINE_STAGES = [
-    { label: 'Created', count: 12, color: 'slate', key: 'collecting' },
+    { label: 'Created', count: 12, color: 'slate', key: 'created' },
     { label: 'Pending Docs', count: 8, color: 'amber', key: 'collecting' },
     { label: 'Doc Verify', count: 5, color: 'blue', key: 'verified' },
     { label: 'Lender', count: 4, color: 'indigo', key: 'lender' },

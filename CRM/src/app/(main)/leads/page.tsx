@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { INITIAL_LEADS as DUMMY_LEADS, followups } from '@/data/dummy';
+import { useRouter } from 'next/navigation';
+import { INITIAL_LEADS as DUMMY_LEADS } from '@/data/dummy';
+import { usePermissions } from '@/hooks/usePermissions';
 
 const INDUSTRIES = [
   'Software', 'Hardware', 'IT Services', 'Telecommunications', 'E-commerce', 'Digital Media',
@@ -33,68 +35,47 @@ const qualityBadge = (q: string) => {
   return 'bg-blue-50 text-blue-700';
 };
 
-const inputCls = (disabled: boolean) =>
-  `w-full bg-[#fdfdfd] border border-[#e2e8f0] rounded-lg px-3 py-2 text-[10px] font-semibold text-[#1e293b] outline-none transition-all ${disabled
-    ? 'bg-[#f8fafc] border-[#f1f5f9] text-[#64748b] cursor-not-allowed'
-    : 'focus:border-[#2447d7] focus:bg-white focus:shadow-[0_0_0_4px_rgba(36,71,215,0.05)]'
-  }`;
-
-const labelCls = 'text-[9px] font-bold text-[#475569] mb-1 block';
-
-import { usePermissions } from '@/hooks/usePermissions';
-
 export default function LeadsPage() {
-  const { hasAction, hasFeature, isLoading } = usePermissions();
+  const router = useRouter();
+  const { hasAction, isLoading } = usePermissions();
   const [leadList, setLeadList] = useState<Lead[]>(DUMMY_LEADS);
+  const [dataLoading, setDataLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('details');
-  const [isEditing, setIsEditing] = useState(false);
-  const [expandedRows, setExpandedRows] = useState<string[]>([]);
-  const [formData, setFormData] = useState<any>({});
   const [showColMenu, setShowColMenu] = useState(false);
-  const [visibleCols, setVisibleCols] = useState({ company: true, need: true, status: true });
+  const [visibleCols, setVisibleCols] = useState({ company: true, need: true, status: true, last_note: true });
 
   const toggleCol = (col: keyof typeof visibleCols) =>
     setVisibleCols(p => ({ ...p, [col]: !p[col] }));
-  const [panelNotes, setPanelNotes] = useState<{ id: number; text: string; date: string }[]>([
-    { id: 1, text: 'Client interested in expansion loan. Needs follow-up by end of week.', date: '2026-04-10 | 10:30 AM' },
-  ]);
-  const [noteInput, setNoteInput] = useState('');
-  const [panelTasks] = useState(followups.slice(0, 3));
-  const [aiGenerated, setAiGenerated] = useState(false);
 
   React.useEffect(() => {
     loadLeads();
   }, []);
 
   const loadLeads = async () => {
+    setDataLoading(true);
     try {
       const res = await fetch('/api/leads');
       if (!res.ok) throw new Error('API Error');
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setLeadList(data);
-        if (!selectedId) setSelectedId(data[0].id);
-      } else {
-        setLeadList(DUMMY_LEADS);
-        if (!selectedId && DUMMY_LEADS.length > 0) setSelectedId(DUMMY_LEADS[0].id);
-      }
-    } catch (err) {
-      console.error('API Error: Failed to fetch leads', err);
+      const list = Array.isArray(data) ? data : (data?.results ?? []);
+      if (list.length > 0) setLeadList(list);
+      else setLeadList(DUMMY_LEADS);
+    } catch {
       setLeadList(DUMMY_LEADS);
-      if (!selectedId && DUMMY_LEADS.length > 0) setSelectedId(DUMMY_LEADS[0].id);
+    } finally {
+      setDataLoading(false);
     }
   };
 
   if (isLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
 
-  const selectedLead = leadList.find(l => l.id === selectedId) || null;
-
   const filtered = leadList.filter(l => {
     const q = (search || '').toLowerCase();
-    const matchSearch = (l.name || '').toLowerCase().includes(q) || (l.company || '').toLowerCase().includes(q) || (l.id || '').toLowerCase().includes(q);
+    const matchSearch =
+      (l.name || '').toLowerCase().includes(q) ||
+      (l.company || '').toLowerCase().includes(q) ||
+      (l.id || '').toLowerCase().includes(q);
     const matchStatus = statusFilter === 'All' || (l.quality || '').toLowerCase() === statusFilter.toLowerCase();
     return matchSearch && matchStatus;
   });
@@ -105,796 +86,203 @@ export default function LeadsPage() {
     warm: leadList.filter(l => l.quality === 'warm').length,
   };
 
-  const toggleRow = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedRows(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
-  };
-
-  const selectLead = (lead: Lead) => {
-    setSelectedId(lead.id);
-    setIsEditing(false);
-    setFormData({ ...lead });
-    setActiveTab('details');
-    setAiGenerated(false);
-  };
-
-  const startEdit = () => { if (selectedLead) setFormData({ ...selectedLead }); setIsEditing(true); };
-
-  const saveChanges = async () => {
-    if (!formData.id) return;
-    try {
-      const res = await fetch('/api/leads', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-      if (res.ok) {
-        loadLeads();
-        setIsEditing(false);
-      }
-    } catch (err) {
-      alert('Save operation failed');
-    }
-  };
-
-  const deleteLead = async () => {
-    if (!selectedId || !confirm('Delete this lead?')) return;
-    try {
-      const res = await fetch(`/api/leads?id=${selectedId}`, { method: 'DELETE' });
-      if (res.ok) {
-        setLeadList(prev => prev.filter(l => l.id !== selectedId));
-        setSelectedId(null);
-      }
-    } catch (err) {
-      alert('Delete failed');
-    }
-  };
-
-  const fd = (key: string) => formData[key] ?? selectedLead?.[key] ?? '';
-  const setFd = (key: string, val: string) => setFormData((p: any) => ({ ...p, [key]: val }));
-
   return (
-    <div className="flex flex-1 overflow-hidden" style={{ height: '100%' }}>
+    <div className="flex flex-1 overflow-hidden flex-col" style={{ height: '100%' }}>
 
-      {/* ── LEFT: Lead Database ── */}
-      <section className="flex-1 flex flex-col overflow-hidden bg-white border-r border-slate-100">
-        {/* Dark header */}
-        <header className="bg-[#0f172a] px-4 flex items-center gap-3 shrink-0" style={{ minHeight: 48 }}>
-          <div className="shrink-0">
-            <h2 className="text-[9px] font-bold uppercase tracking-widest text-white leading-none">Lead Database</h2>
-            <span className="text-[8px] font-bold text-gray-500 font-mono">{filtered.length} records</span>
+      {/* Dark header */}
+      <header className="bg-[#0f172a] px-4 flex items-center gap-3 shrink-0" style={{ minHeight: 48 }}>
+        <div className="shrink-0">
+          <h2 className="text-[9px] font-bold uppercase tracking-widest text-white leading-none">Lead Database</h2>
+          <span className="text-[10px] font-bold text-gray-500 font-mono">{filtered.length} records</span>
+        </div>
+
+        <div className="relative flex-1 min-w-0">
+          <i className="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px]" style={{ color: 'rgba(255,255,255,.3)' }}></i>
+          <input
+            type="text" placeholder="Search leads..." value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full h-7.5 pl-7 pr-3 text-xs font-semibold text-white outline-none rounded-lg"
+            style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)' }}
+          />
+        </div>
+
+        {hasAction('leads', 'add') && (
+          <Link href="/leads/add" className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all shrink-0">
+            <i className="fa-solid fa-plus text-[10px]"></i> Add Lead
+          </Link>
+        )}
+
+        <select
+          value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+          className="h-7.5 px-2 text-xs font-bold text-gray-300 outline-none cursor-pointer rounded-lg shrink-0"
+          style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)', appearance: 'none' }}
+        >
+          <option value="All" className="bg-[#1e293b]">All Status</option>
+          <option value="hot" className="bg-[#1e293b]">Hot</option>
+          <option value="warm" className="bg-[#1e293b]">Warm</option>
+          <option value="cool" className="bg-[#1e293b]">Cool</option>
+        </select>
+
+        <div className="flex items-center gap-0 shrink-0 border-l border-white/10 pl-3">
+          <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
+            <span className="text-[13px] font-black text-white font-mono">{stats.total}</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Total</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
+            <span className="text-[13px] font-black text-red-100 font-mono">{stats.hot}</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Hot</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
+            <span className="text-[13px] font-black text-amber-100 font-mono">{stats.warm}</span>
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Warm</span>
           </div>
 
-          <div className="relative flex-1 min-w-0">
-            <i className="fa-solid fa-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-[8px]" style={{ color: 'rgba(255,255,255,.3)' }}></i>
-            <input
-              type="text" placeholder="Search leads..." value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="w-full h-[30px] pl-7 pr-3 text-[9px] font-semibold text-white outline-none rounded-lg"
-              style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)' }}
-            />
-          </div>
-
-          {hasAction('leads', 'Add_Lead') && (
-            <Link href="/leads/add" className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-[9px] font-bold uppercase tracking-widest transition-all shrink-0">
-              <i className="fa-solid fa-plus text-[7px]"></i> Add Lead
-            </Link>
-          )}
-
-          <select
-            value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
-            className="h-[30px] px-2 text-[9px] font-bold text-gray-300 outline-none cursor-pointer rounded-lg shrink-0"
-            style={{ background: 'rgba(255,255,255,.07)', border: '1px solid rgba(255,255,255,.1)', appearance: 'none' }}
-          >
-            <option value="All" className="bg-[#1e293b]">All Status</option>
-            <option value="hot" className="bg-[#1e293b]">Hot</option>
-            <option value="warm" className="bg-[#1e293b]">Warm</option>
-            <option value="cool" className="bg-[#1e293b]">Cool</option>
-          </select>
-
-          <div className="flex items-center gap-0 shrink-0 border-l border-white/10 pl-3">
-            <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
-              <span className="text-[13px] font-black text-white font-mono">{stats.total}</span>
-              <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Total</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
-              <span className="text-[13px] font-black text-red-100 font-mono">{stats.hot}</span>
-              <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Hot</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-2.5 py-2 border-r border-white/10">
-              <span className="text-[13px] font-black text-amber-100 font-mono">{stats.warm}</span>
-              <span className="text-[7px] font-bold text-gray-500 uppercase tracking-widest">Warm</span>
-            </div>
-
-            {/* Column hider */}
-            <div className="relative px-2.5 py-2">
-              <button
-                onClick={() => setShowColMenu(v => !v)}
-                className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[8px] font-bold text-gray-400 hover:text-white hover:bg-white/10 transition-all uppercase tracking-widest"
-                style={{ border: '1px solid rgba(255,255,255,.1)' }}
+          {/* Column hider */}
+          <div className="relative px-2.5 py-2">
+            <button
+              onClick={() => setShowColMenu(v => !v)}
+              className="flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold text-gray-400 hover:text-white hover:bg-white/10 transition-all uppercase tracking-widest"
+              style={{ border: '1px solid rgba(255,255,255,.1)' }}
+            >
+              <i className="fa-solid fa-eye text-[9px]"></i> Columns
+            </button>
+            {showColMenu && (
+              <div
+                className="absolute right-0 top-full mt-1 z-50 rounded-xl overflow-hidden shadow-2xl"
+                style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,.1)', minWidth: 160 }}
               >
-                <i className="fa-solid fa-eye text-[9px]"></i> Columns
-              </button>
-              {showColMenu && (
-                <div
-                  className="absolute right-0 top-full mt-1 z-50 rounded-xl overflow-hidden shadow-2xl"
-                  style={{ background: '#1e293b', border: '1px solid rgba(255,255,255,.1)', minWidth: 160 }}
-                >
-                  <div className="px-3 py-2 border-b" style={{ borderColor: 'rgba(255,255,255,.08)' }}>
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">Toggle Columns</p>
-                  </div>
-                  {([
-                    { key: 'company', label: 'Company' },
-                    { key: 'need', label: 'Need' },
-                    { key: 'status', label: 'Status' },
-                  ] as { key: keyof typeof visibleCols; label: string }[]).map(col => (
-                    <button
-                      key={col.key}
-                      onClick={() => toggleCol(col.key)}
-                      className="w-full flex items-center justify-between px-3 py-2 text-[9px] font-bold transition-all hover:bg-white/5"
-                      style={{ color: visibleCols[col.key] ? '#fff' : '#475569' }}
-                    >
-                      <span>{col.label}</span>
-                      <i className={`fa-solid ${visibleCols[col.key] ? 'fa-eye text-indigo-400' : 'fa-eye-slash text-gray-600'} text-[9px]`}></i>
-                    </button>
-                  ))}
+                <div className="px-3 py-2 border-b" style={{ borderColor: 'rgba(255,255,255,.08)' }}>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Toggle Columns</p>
                 </div>
-              )}
-            </div>
-          </div>
-        </header>
-
-        {/* Table */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          <style>{`@keyframes expandDown{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}`}</style>
-          <table className="w-full text-left">
-            <thead className="sticky top-0 bg-slate-50 border-b border-gray-100 z-10">
-              <tr>
-                <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Lead</th>
-                {visibleCols.company && <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Company</th>}
-                {visibleCols.need && <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Need</th>}
-                {visibleCols.status && <th className="px-3 py-1.5 text-[8px] font-bold text-gray-400 uppercase tracking-widest">Status</th>}
-                <th className="px-2 py-1.5 w-6"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-50">
-              {filtered.map(lead => {
-                const expanded = expandedRows.includes(lead.id);
-                const selected = selectedId === lead.id;
-                return (
-                  <React.Fragment key={lead.id}>
-                    <tr
-                      onClick={() => selectLead(lead)}
-                      className={`cursor-pointer transition-colors ${selected ? 'bg-slate-50' : 'hover:bg-[#f8fafc]'}`}
-                    >
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[8px] font-black text-indigo-600 shrink-0">
-                            {lead.name.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="text-[10px] font-bold text-slate-800 leading-none">{lead.name}</p>
-                            <p className="text-[8px] text-slate-400 font-mono mt-0.5">{lead.id}</p>
-                          </div>
-                        </div>
-                      </td>
-                      {visibleCols.company && <td className="px-3 py-2 text-[10px] text-slate-600 font-medium">{lead.company}</td>}
-                      {visibleCols.need && (
-                        <td className="px-3 py-2">
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-bold uppercase ${qualityBadge(lead.quality)}`}>
-                            {lead.quality}
-                          </span>
-                        </td>
-                      )}
-                      {visibleCols.status && <td className="px-3 py-2 text-[9px] text-slate-500 font-medium">{lead.status}</td>}
-                      <td className="px-2 py-2">
-                        <button
-                          onClick={e => toggleRow(lead.id, e)}
-                          className="w-5 h-5 flex items-center justify-center rounded text-gray-300 hover:text-gray-600 transition-all"
-                        >
-                          <i className={`fa-solid fa-chevron-right text-[8px] transition-transform duration-200 ${expanded ? 'rotate-90' : ''}`}></i>
-                        </button>
-                      </td>
-                    </tr>
-                    {expanded && (() => {
-                      const latestTask = panelTasks.find(t => t.client === lead.name || t.client === lead.company) || panelTasks[0];
-                      return (
-                        <tr>
-                          <td colSpan={2 + (visibleCols.company ? 1 : 0) + (visibleCols.need ? 1 : 0) + (visibleCols.status ? 1 : 0)} className="p-0">
-                            <div className="bg-[#f8fafc] border-t border-b-2 border-[#e2e8f0] px-5 py-3" style={{ animation: 'expandDown .18s ease' }}>
-                              <div className="grid gap-3" style={{ gridTemplateColumns: '1fr 1fr 1fr 1.4fr 1.1fr 1.4fr' }}>
-
-                                {/* 1. Company */}
-                                <div>
-                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
-                                    <i className="fa-solid fa-building text-[#2447d7]"></i> Company
-                                  </p>
-                                  <div className="space-y-1">
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Business</p><p className="text-[9px] font-semibold text-gray-800 truncate">{lead.company}</p></div>
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Job Title</p><p className="text-[9px] font-semibold text-gray-800">{(lead as any).jobTitle || 'N/A'}</p></div>
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Industry</p><p className="text-[9px] font-semibold text-gray-800">{(lead as any).industry || 'General'}</p></div>
-                                  </div>
-                                </div>
-
-                                {/* 2. Contact */}
-                                <div>
-                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
-                                    <i className="fa-solid fa-address-card text-[#2447d7]"></i> Contact
-                                  </p>
-                                  <div className="space-y-1">
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Email</p><p className="text-[9px] font-semibold text-blue-600 truncate">{lead.email}</p></div>
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Phone</p><p className="text-[9px] font-semibold text-gray-800">{lead.phone}</p></div>
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Preferred</p><p className="text-[9px] font-semibold text-gray-800">{(lead as any).preferredMethod || 'Email'}</p></div>
-                                  </div>
-                                </div>
-
-                                {/* 3. Funding */}
-                                <div>
-                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
-                                    <i className="fa-solid fa-sack-dollar text-[#2447d7]"></i> Funding
-                                  </p>
-                                  <div className="space-y-1">
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Amount</p><p className="text-[9px] font-semibold text-gray-800">{lead.amount}</p></div>
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Purpose</p><p className="text-[9px] font-semibold text-gray-700">{(lead as any).loanPurpose || 'N/A'}</p></div>
-                                    <div><p className="text-[6.5px] text-gray-400 uppercase font-bold">Type</p><p className="text-[9px] font-semibold text-gray-800">{lead.type || 'N/A'}</p></div>
-                                  </div>
-                                </div>
-
-                                {/* 4. Note */}
-                                <div>
-                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
-                                    <i className="fa-solid fa-note-sticky text-[#2447d7]"></i> Note
-                                  </p>
-                                  <p className="text-[8px] text-gray-500 leading-relaxed italic line-clamp-3">
-                                    {(lead as any).notes || `${lead.name} from ${lead.company} seeking ${lead.amount} for ${lead.type || 'financing'}.`}
-                                  </p>
-                                  <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-gray-100">
-                                    <div className="w-4 h-4 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                                      <span className="text-[6px] font-black text-indigo-600">
-                                        {((lead as any).agent || 'Admin').split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2)}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <p className="text-[7px] font-black text-gray-700 leading-none">{(lead as any).agent || 'Admin'}</p>
-                                      <p className="text-[6px] text-gray-400 mt-0.5">{(lead as any).createdAt || 'Recently'}</p>
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* 5. Assigned Agents */}
-                                <div>
-                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
-                                    <i className="fa-solid fa-users text-[#2447d7]"></i> Agents
-                                  </p>
-                                  <div className="rounded-lg overflow-hidden border border-gray-100">
-                                    {[
-                                      { label: 'Registered', icon: 'fa-user-plus', bg: '#eef2ff', color: '#4f46e5', sub: (lead as any).agent || 'Admin', done: true },
-                                      { label: 'Contacted', icon: 'fa-phone', bg: '#f0fdf4', color: '#16a34a', sub: lead.quality !== 'cool' ? ((lead as any).agent || 'Admin') : 'Pending', done: lead.quality !== 'cool' },
-                                      { label: 'Qualified', icon: 'fa-star', bg: '#fef3c7', color: '#d97706', sub: lead.quality === 'hot' ? 'Hot Lead' : 'Pending', done: lead.quality === 'hot' },
-                                      { label: 'Submitted', icon: 'fa-paper-plane', bg: '#f1f5f9', color: '#cbd5e1', sub: 'Pending', done: false },
-                                    ].map((step, si) => (
-                                      <div key={si} className={`flex items-center gap-1.5 px-2 py-1 border-b border-gray-50 last:border-0 ${step.done ? 'bg-white' : 'bg-gray-50/60'}`}>
-                                        <div className="w-3.5 h-3.5 rounded flex items-center justify-center shrink-0" style={{ background: step.done ? step.bg : '#f1f5f9' }}>
-                                          <i className={`fa-solid ${step.icon}`} style={{ fontSize: 6, color: step.done ? step.color : '#cbd5e1' }}></i>
-                                        </div>
-                                        <div className="flex-1 min-w-0 leading-none">
-                                          <p className="text-[6.5px] font-bold text-gray-400 uppercase">{step.label}</p>
-                                          <p className={`text-[8px] font-bold mt-0.5 truncate ${step.sub === 'Pending' ? 'text-gray-300 italic' : 'text-gray-900'}`}>{step.sub}</p>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-
-                                {/* 6. Latest Follow-up */}
-                                <div>
-                                  <p className="text-[7px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1 border-b border-slate-100 pb-1">
-                                    <i className="fa-solid fa-list-check text-[#2447d7]"></i> Latest Follow-up
-                                  </p>
-                                  {latestTask ? (
-                                    <div className="bg-white border border-[#e2e8f0] rounded-lg p-2 space-y-1">
-                                      <div className="flex items-start justify-between gap-1">
-                                        <p className="text-[9px] font-bold text-slate-800 leading-tight line-clamp-2">{latestTask.title}</p>
-                                        <span className={`shrink-0 text-[6.5px] font-black px-1.5 py-0.5 rounded-full uppercase ${
-                                          latestTask.priority === 'High' ? 'bg-red-50 text-red-600' :
-                                          latestTask.priority === 'Medium' ? 'bg-amber-50 text-amber-600' :
-                                          'bg-blue-50 text-blue-600'
-                                        }`}>{latestTask.priority}</span>
-                                      </div>
-                                      <div className="flex items-center gap-2 text-[7px] text-gray-400">
-                                        <span><i className="fa-solid fa-calendar mr-0.5"></i>{latestTask.date}</span>
-                                        <span><i className="fa-solid fa-clock mr-0.5"></i>{latestTask.time}</span>
-                                      </div>
-                                      <div className="flex items-center justify-between pt-1 border-t border-gray-50">
-                                        <span className="text-[7px] font-bold text-slate-500">{latestTask.type}</span>
-                                        <span className={`text-[6.5px] font-black px-1.5 py-0.5 rounded-full uppercase ${
-                                          latestTask.status === 'Done' ? 'bg-emerald-50 text-emerald-600' :
-                                          latestTask.status === 'In Progress' ? 'bg-indigo-50 text-indigo-600' :
-                                          'bg-slate-100 text-slate-500'
-                                        }`}>{latestTask.status}</span>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <p className="text-[8px] text-gray-300 italic text-center py-3">No follow-ups yet</p>
-                                  )}
-                                </div>
-
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })()}
-                  </React.Fragment>
-                );
-              })}
-            </tbody>
-          </table>
-          {filtered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-16 text-center">
-              <i className="fa-solid fa-users text-3xl text-gray-200 mb-3"></i>
-              <p className="text-[10px] font-bold text-gray-400">No leads match your filters</p>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-3 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between shrink-0">
-          <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest">Showing {filtered.length} leads</span>
-          {hasAction('leads', 'Add_Lead') && (
-            <Link href="/leads/add" className="text-[8px] font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-all">
-              <i className="fa-solid fa-plus mr-1"></i>New Lead
-            </Link>
-          )}
-        </div>
-      </section>
-
-      {/* ── RIGHT: Detail Panel ── */}
-      <div className="w-[480px] flex flex-col bg-white shrink-0">
-        {/* Panel header */}
-        <div className="px-3 py-2 border-b border-gray-50 flex items-center justify-between bg-white sticky top-0 z-10">
-          <div>
-            {selectedLead ? (
-              <>
-                <h2 className="text-[12px] font-black text-gray-900 leading-none">{selectedLead.name}</h2>
-                <p className="text-[9px] text-[#2447d7] font-extrabold mt-0.5 tracking-wider">{selectedLead.id}</p>
-              </>
-            ) : (
-              <>
-                <h2 className="text-[12px] font-black text-gray-900 leading-none">SELECT A LEAD</h2>
-                <p className="text-[9px] text-[#2447d7] font-extrabold mt-0.5 tracking-wider">CHOOSE FROM THE LIST</p>
-              </>
-            )}
-          </div>
-          <div className="flex items-center gap-3">
-            {selectedLead && (
-              <div className="flex items-center gap-3 pr-3 border-r border-gray-100">
-                <div className="flex items-center gap-1.5">
-                  <label className="text-[8px] font-bold text-gray-400 uppercase tracking-tight">Status</label>
-                  <select
-                    value={fd('quality')} onChange={e => setFd('quality', e.target.value)} disabled={!isEditing}
-                    className="w-16 h-6 px-1.5 text-[9px] font-bold border rounded bg-gray-50/50 outline-none"
+                {([
+                  { key: 'company', label: 'Company' },
+                  { key: 'need', label: 'Need' },
+                  { key: 'status', label: 'Status' },
+                  { key: 'last_note', label: 'Last Note' },
+                ] as { key: keyof typeof visibleCols; label: string }[]).map(col => (
+                  <button
+                    key={col.key}
+                    onClick={() => toggleCol(col.key)}
+                    className="w-full flex items-center justify-between px-3 py-2 text-xs font-bold transition-all hover:bg-white/5"
+                    style={{ color: visibleCols[col.key] ? '#fff' : '#475569' }}
                   >
-                    <option value="hot">Hot</option>
-                    <option value="warm">Warm</option>
-                    <option value="cool">Cool</option>
-                  </select>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <label className="text-[8px] font-bold text-gray-400 uppercase tracking-tight">ID</label>
-                  <input type="text" value={selectedLead.id} disabled
-                    className="w-20 h-6 px-1.5 text-[9px] font-mono font-bold border rounded bg-gray-50/50 outline-none text-blue-600" />
-                </div>
+                    <span>{col.label}</span>
+                    <i className={`fa-solid ${visibleCols[col.key] ? 'fa-eye text-indigo-400' : 'fa-eye-slash text-gray-600'} text-[9px]`}></i>
+                  </button>
+                ))}
               </div>
             )}
-            {selectedLead && !isEditing && hasAction('leads', 'Edit_Lead') && (
-              <button onClick={startEdit} className="h-7 px-3 bg-gray-900 text-white text-[8px] font-bold rounded-lg uppercase tracking-widest hover:bg-black transition-all">
-                Edit Lead
-              </button>
-            )}
-            {selectedLead && isEditing && (
-              <button onClick={saveChanges} className="h-7 px-3 bg-amber-600 text-white text-[8px] font-bold rounded-lg uppercase tracking-widest hover:bg-amber-700 transition-all">
-                Save Changes
-              </button>
-            )}
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
           </div>
         </div>
+      </header>
 
-        {/* Tab nav */}
-        {selectedLead && (
-          <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-gray-100 bg-white shrink-0 overflow-x-hidden">
-            {[
-              { key: 'details', icon: 'fa-address-card', label: 'Contact Info' },
-              { key: 'tasks', icon: 'fa-list-check', label: 'Follow-ups' },
-              ...(hasFeature('ai_assistant') ? [{ key: 'ai', icon: 'fa-robot', label: 'AI Summary' }] : []),
-              { key: 'notes', icon: 'fa-note-sticky', label: 'Notes' },
-              { key: 'docs', icon: 'fa-folder-open', label: 'Docs' },
-            ].map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-[.06em] cursor-pointer transition-all whitespace-nowrap border-none ${activeTab === tab.key ? 'bg-[#ebf0ff] text-[#2447d7]' : 'bg-transparent text-slate-400 hover:bg-slate-50 hover:text-slate-600'
-                  }`}
-              >
-                <i className={`fa-solid ${tab.icon} text-[9px]`}></i> {tab.label}
-              </button>
+      {/* Table */}
+      <div className="flex-1 overflow-y-auto custom-scrollbar bg-white">
+        <table className="w-full text-left">
+          <thead className="sticky top-0 bg-slate-50 border-b border-gray-100 z-10">
+            <tr>
+              <th className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Lead</th>
+              {visibleCols.company && <th className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Company</th>}
+              {visibleCols.need && <th className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Need</th>}
+              {visibleCols.status && <th className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Status</th>}
+              {visibleCols.last_note && <th className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Last Note</th>}
+              <th className="px-3 py-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-50">
+            {dataLoading && Array.from({ length: 8 }).map((_, i) => (
+              <tr key={i} className="animate-pulse">
+                <td className="px-3 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-slate-100 shrink-0" />
+                    <div className="space-y-1.5">
+                      <div className="h-2.5 w-28 bg-slate-100 rounded" />
+                      <div className="h-2 w-16 bg-slate-50 rounded" />
+                    </div>
+                  </div>
+                </td>
+                {visibleCols.company && <td className="px-3 py-2.5"><div className="h-2.5 w-24 bg-slate-100 rounded" /></td>}
+                {visibleCols.need && <td className="px-3 py-2.5"><div className="h-5 w-12 bg-slate-100 rounded-full" /></td>}
+                {visibleCols.status && <td className="px-3 py-2.5"><div className="h-2.5 w-16 bg-slate-100 rounded" /></td>}
+                {visibleCols.last_note && <td className="px-3 py-2.5"><div className="h-2.5 w-32 bg-slate-100 rounded" /></td>}
+                <td className="px-3 py-2.5">
+                  <div className="flex items-center justify-end gap-2">
+                    <div className="h-6 w-14 bg-slate-100 rounded-lg" />
+                    <div className="h-6 w-14 bg-slate-100 rounded-lg" />
+                  </div>
+                </td>
+              </tr>
             ))}
+            {!dataLoading && filtered.map(lead => (
+              <tr key={lead.id} className="hover:bg-[#f8fafc] transition-colors">
+                <td className="px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] font-black text-indigo-600 shrink-0">
+                      {lead.name.charAt(0)}
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold text-slate-800 leading-none">{lead.name}</p>
+                      <p className="text-[10px] text-slate-400 font-mono mt-0.5">{lead.id}</p>
+                    </div>
+                  </div>
+                </td>
+                {visibleCols.company && <td className="px-3 py-2 text-[10px] text-slate-600 font-medium">{lead.company}</td>}
+                {visibleCols.need && (
+                  <td className="px-3 py-2">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${qualityBadge(lead.quality)}`}>
+                      {lead.quality}
+                    </span>
+                  </td>
+                )}
+                {visibleCols.status && <td className="px-3 py-2 text-xs text-slate-500 font-medium">{lead.status}</td>}
+                {visibleCols.last_note && (
+                  <td className="px-3 py-2 max-w-50">
+                    {lead.last_note ? (
+                      <span className="text-[10px] text-slate-500 font-medium truncate block" title={lead.last_note}>
+                        {lead.last_note.length > 60 ? lead.last_note.slice(0, 60) + '…' : lead.last_note}
+                      </span>
+                    ) : (
+                      <span className="text-[10px] text-slate-300 italic">—</span>
+                    )}
+                  </td>
+                )}
+                <td className="px-3 py-2">
+                  <div className="flex items-center justify-end">
+                    <Link
+                      href={`/leads/${lead.id}`}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-widest transition-all"
+                      style={{ background: '#eef2ff', color: '#4338ca', border: '1px solid #c7d2fe', textDecoration: 'none' }}
+                    >
+                      <i className="fa-solid fa-eye text-xs"></i> View
+                    </Link>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!dataLoading && filtered.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="w-14 h-14 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-200">
+              <i className="fa-solid fa-user-slash text-2xl"></i>
+            </div>
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">No leads found</h3>
+            <p className="text-xs font-bold text-slate-300 mt-1">
+              {search || statusFilter !== 'All' ? 'Adjust your search or filters' : 'Add a lead to get started'}
+            </p>
           </div>
         )}
-
-        {/* Tab content */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar" style={{ background: '#fcfcfd' }}>
-          {!selectedLead ? (
-            <div className="flex flex-col items-center justify-center h-full text-center p-8">
-              <i className="fa-solid fa-user-group text-4xl text-gray-200 mb-4"></i>
-              <p className="text-[11px] font-bold text-gray-400">Select a lead to view details</p>
-              <p className="text-[9px] text-gray-300 mt-1">Click any row in the table</p>
-            </div>
-          ) : activeTab === 'details' ? (
-            <DetailTab fd={fd} setFd={setFd} isEditing={isEditing} onDelete={deleteLead} hasDeleteAccess={hasAction('leads', 'Delete_Lead')} />
-          ) : activeTab === 'tasks' ? (
-            <TasksTab tasks={panelTasks} />
-          ) : activeTab === 'ai' ? (
-            <AITab lead={selectedLead} generated={aiGenerated} onGenerate={() => setAiGenerated(true)} />
-          ) : activeTab === 'notes' ? (
-            <NotesTab
-              notes={panelNotes} noteInput={noteInput} setNoteInput={setNoteInput}
-              onAdd={() => {
-                if (!noteInput.trim()) return;
-                setPanelNotes(p => [...p, { id: Date.now(), text: noteInput, date: new Date().toLocaleString() }]);
-                setNoteInput('');
-              }}
-            />
-          ) : (
-            <DocsTab />
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Sub-components ────────────────────────────────────────────────────────────
-
-function SectionHeader({ icon, children }: { icon: string; children: React.ReactNode }) {
-  return (
-    <div className="flex items-center gap-1.5 text-[9px] font-black text-[#1e293b] uppercase tracking-[.12em] mb-3 pb-2 border-b-2 border-[#f1f5f9]">
-      <i className={`fa-solid ${icon} text-[9px]`}></i>{children}
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <label className={labelCls}>{label}</label>
-      {children}
-    </div>
-  );
-}
-
-function DetailTab({ fd, setFd, isEditing, onDelete, hasDeleteAccess }: {
-  fd: (k: string) => any; setFd: (k: string, v: string) => void;
-  isEditing: boolean; onDelete: () => void; hasDeleteAccess?: boolean;
-}) {
-  return (
-    <div className="p-4 space-y-5">
-      <section>
-        <SectionHeader icon="fa-address-card">Contact Information</SectionHeader>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Title">
-            <input value={fd('title')} onChange={e => setFd('title', e.target.value)} disabled={!isEditing}
-              placeholder="e.g. Mr, Mrs, Dr..." className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Full Name *">
-            <input value={fd('name')} onChange={e => setFd('name', e.target.value)} disabled={!isEditing}
-              placeholder="e.g. Jonathan Doe" className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Date of Birth">
-            <input type="date" value={fd('dob')} onChange={e => setFd('dob', e.target.value)} disabled={!isEditing}
-              className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Company Name *">
-            <input value={fd('company')} onChange={e => setFd('company', e.target.value)} disabled={!isEditing}
-              placeholder="Registered name..." className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Company House Number">
-            <input value={fd('companyHouseNumber')} onChange={e => setFd('companyHouseNumber', e.target.value)} disabled={!isEditing}
-              placeholder="e.g. 12345678" className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Annual Turnover">
-            <input value={fd('businessAnnualTurnover')} onChange={e => setFd('businessAnnualTurnover', e.target.value)} disabled={!isEditing}
-              placeholder="£0.00" className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Job Title">
-            <input value={fd('jobTitle')} onChange={e => setFd('jobTitle', e.target.value)} disabled={!isEditing}
-              placeholder="Managing Director" className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Industry">
-            <select value={fd('industry')} onChange={e => setFd('industry', e.target.value)} disabled={!isEditing}
-              className={inputCls(!isEditing)}>
-              <option value="">Select industry...</option>
-              {INDUSTRIES.map(i => <option key={i}>{i}</option>)}
-            </select>
-          </Field>
-          <Field label="Email Address *">
-            <input type="email" value={fd('email')} onChange={e => setFd('email', e.target.value)} disabled={!isEditing}
-              placeholder="client@example.com" className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Phone Number *">
-            <input type="tel" value={fd('phone')} onChange={e => setFd('phone', e.target.value)} disabled={!isEditing}
-              placeholder="+44 77..." className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Preferred Method">
-            <div className="flex gap-1.5">
-              {['Email', 'Phone', 'WhatsApp', 'Other'].map(m => (
-                <button key={m} type="button" disabled={!isEditing}
-                  onClick={() => setFd('preferredMethod', m)}
-                  className={`flex-1 py-1.5 rounded-lg text-[8px] font-bold border transition-all ${fd('preferredMethod') === m
-                    ? 'border-[#2447d7] bg-[#ebf0ff] text-[#2447d7]'
-                    : 'border-[#e2e8f0] bg-white text-[#64748b] hover:bg-slate-50'
-                    } ${!isEditing ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}
-                >{m}</button>
-              ))}
-            </div>
-          </Field>
-          <Field label="Home Owner">
-            <select value={fd('homeOwner') || 'Yes'} onChange={e => setFd('homeOwner', e.target.value)} disabled={!isEditing}
-              className={inputCls(!isEditing)}>
-              <option>Yes</option><option>No</option>
-            </select>
-          </Field>
-          <div className="col-span-2">
-            <Field label="Residential Address *">
-              <input value={fd('residentialAddress')} onChange={e => setFd('residentialAddress', e.target.value)} disabled={!isEditing}
-                placeholder="Full address..." className={inputCls(!isEditing)} />
-            </Field>
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <SectionHeader icon="fa-sack-dollar">Loan Details</SectionHeader>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Amount Needed *">
-            <input value={fd('amount')} onChange={e => setFd('amount', e.target.value)} disabled={!isEditing}
-              placeholder="£0.00" className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Loan Purpose">
-            <input value={fd('loanPurpose')} onChange={e => setFd('loanPurpose', e.target.value)} disabled={!isEditing}
-              placeholder="Business expansion..." className={inputCls(!isEditing)} />
-          </Field>
-          <Field label="Existing Loan">
-            <select value={fd('existingLoan') || 'No'} onChange={e => setFd('existingLoan', e.target.value)} disabled={!isEditing}
-              className={inputCls(!isEditing)}>
-              <option>No</option><option>Yes</option>
-            </select>
-          </Field>
-          <Field label="Bank Institution">
-            <select value={fd('companyBank') || ''} onChange={e => setFd('companyBank', e.target.value)} disabled={!isEditing}
-              className={inputCls(!isEditing)}>
-              <option value="">Select a bank...</option>
-              {BANKS.map(b => <option key={b}>{b}</option>)}
-            </select>
-          </Field>
-          <Field label="Lead Source">
-            <select value={fd('leadSource') || ''} onChange={e => setFd('leadSource', e.target.value)} disabled={!isEditing}
-              className={inputCls(!isEditing)}>
-              <option value="">Select source...</option>
-              {SOURCES.map(s => <option key={s}>{s}</option>)}
-            </select>
-          </Field>
-          <Field label="Credit Search Consent *">
-            <select value={fd('creditConsent') || 'Yes'} onChange={e => setFd('creditConsent', e.target.value)} disabled={!isEditing}
-              className={inputCls(!isEditing)}>
-              <option>Yes</option><option>No</option>
-            </select>
-          </Field>
-        </div>
-      </section>
-
-      {hasDeleteAccess && (
-        <div className="pt-4 border-t border-gray-100">
-          <button onClick={onDelete}
-            className="w-full py-2.5 border border-red-100 text-red-400 text-[8px] font-bold uppercase tracking-widest rounded-lg hover:border-red-300 hover:text-red-600 transition-all">
-            <i className="fa-solid fa-trash text-[7px] mr-1.5"></i>Delete Lead
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TasksTab({ tasks }: { tasks: any[] }) {
-  const [localTasks, setLocalTasks] = React.useState(tasks);
-  const [ptType, setPtType] = React.useState('Call');
-  const [ptDate, setPtDate] = React.useState('');
-  const [ptDesc, setPtDesc] = React.useState('');
-
-  const typeIcon: Record<string, string> = {
-    Call: 'fa-phone', Meeting: 'fa-calendar', Email: 'fa-envelope',
-    Document: 'fa-file', 'Follow-up': 'fa-rotate-right',
-    'Priority Call': 'fa-phone-volume', 'Case Research': 'fa-magnifying-glass',
-    'Critical Document': 'fa-file-circle-exclamation',
-  };
-
-  const addTask = () => {
-    if (!ptDesc.trim()) return;
-    setLocalTasks(p => [{ id: Date.now(), type: ptType, date: ptDate, desc: ptDesc, title: ptDesc }, ...p]);
-    setPtDesc(''); setPtDate('');
-  };
-
-  return (
-    <div className="p-4 space-y-3">
-      {/* Task list */}
-      <div className="space-y-2">
-        {localTasks.length === 0 && (
-          <p className="text-[9px] text-gray-300 text-center py-6 italic">No tasks yet</p>
-        )}
-        {localTasks.map(t => (
-          <div key={t.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: '12px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 32, height: 32, background: '#f1f5f9', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <i className={`fa-solid ${typeIcon[t.type] || 'fa-phone'}`} style={{ fontSize: 11, color: '#64748b' }}></i>
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: '#0f172a', margin: 0 }}>{t.title || t.desc || t.type}</p>
-              <p style={{ fontSize: 9, color: '#94a3b8', margin: '2px 0 0' }}>
-                {t.type}{t.time ? ` · ${t.time}` : ''}{t.date ? ` · ${t.date}` : ''}
-              </p>
-            </div>
-          </div>
-        ))}
       </div>
 
-      {/* Add Follow-up form */}
-      <div className="pt-3 border-t border-gray-100">
-        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Add Follow-up</p>
-        <div className="grid grid-cols-2 gap-2 mb-2">
-          <div>
-            <label className="text-[9px] font-bold text-[#475569] mb-1 block">Type</label>
-            <select value={ptType} onChange={e => setPtType(e.target.value)}
-              className="w-full bg-white border border-[#e2e8f0] rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[#1e293b] outline-none focus:border-[#2447d7]">
-              {['Call','Meeting','Follow-up','Email','Document'].map(o => <option key={o}>{o}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="text-[9px] font-bold text-[#475569] mb-1 block">Date</label>
-            <input type="date" value={ptDate} onChange={e => setPtDate(e.target.value)}
-              className="w-full bg-white border border-[#e2e8f0] rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[#1e293b] outline-none focus:border-[#2447d7]" />
-          </div>
-        </div>
-        <div className="mb-2">
-          <label className="text-[9px] font-bold text-[#475569] mb-1 block">Description</label>
-          <input type="text" value={ptDesc} onChange={e => setPtDesc(e.target.value)}
-            placeholder="Task description..."
-            className="w-full bg-white border border-[#e2e8f0] rounded-lg px-2 py-1.5 text-[10px] font-semibold text-[#1e293b] outline-none focus:border-[#2447d7]" />
-        </div>
-        <button onClick={addTask}
-          className="w-full py-2 bg-gray-900 text-white text-[8px] font-black uppercase tracking-widest rounded-lg hover:bg-black transition-all">
-          <i className="fa-solid fa-plus mr-1"></i>Add Task
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function AITab({ lead, generated, onGenerate }: { lead: any; generated: boolean; onGenerate: () => void }) {
-  const summary = `${lead.name} from ${lead.company} is a ${lead.quality.toUpperCase()} priority lead at the "${lead.status}" stage, seeking ${lead.amount} for ${lead.type || 'financing'}. Contact via ${lead.email} or ${lead.phone}. Recommend prioritising follow-up within 48 hours.`;
-  return (
-    <div className="p-4 space-y-3">
-      <div style={{ background: 'linear-gradient(135deg,#eef2ff,#f5f3ff)', border: '1px solid #e0e7ff', borderRadius: 12, padding: 16 }}>
-        <div className="flex items-center gap-2.5 mb-3">
-          <div style={{ width: 32, height: 32, background: '#4f46e5', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 13, color: '#fff' }}></i>
-          </div>
-          <div className="flex-1">
-            <p style={{ fontSize: 11, fontWeight: 800, color: '#3730a3' }}>AI Lead Summary</p>
-            <p style={{ fontSize: 8, color: '#6366f1', fontWeight: 600 }}>Powered by lead data</p>
-          </div>
-          <button onClick={onGenerate}
-            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px', background: '#4f46e5', color: '#fff', border: 'none', borderRadius: 8, fontSize: 8, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.06em', cursor: 'pointer' }}>
-            <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 8 }}></i> Generate
-          </button>
-        </div>
-        {!generated ? (
-          <div style={{ textAlign: 'center', padding: '16px 0' }}>
-            <i className="fa-solid fa-wand-magic-sparkles" style={{ fontSize: 22, color: '#c7d2fe', marginBottom: 8, display: 'block' }}></i>
-            <p style={{ fontSize: 9, color: '#a5b4fc', fontWeight: 600 }}>Click Generate to create an AI summary for this lead</p>
-          </div>
-        ) : (
-          <p style={{ fontSize: 11, color: '#1e1b4b', lineHeight: 1.8, fontStyle: 'italic' }}>{summary}</p>
+      {/* Footer */}
+      <div className="p-3 border-t border-gray-50 bg-gray-50/30 flex items-center justify-between shrink-0">
+        <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Showing {filtered.length} leads</span>
+        {hasAction('leads', 'add') && (
+          <Link href="/leads/add" className="text-xs font-bold text-gray-400 uppercase tracking-widest hover:text-gray-900 transition-all">
+            <i className="fa-solid fa-plus mr-1"></i>New Lead
+          </Link>
         )}
       </div>
-      <div className="bg-white border border-gray-100 rounded-xl p-3">
-        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-3">Key Data Points</p>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { label: 'Amount', value: lead.amount },
-            { label: 'Status', value: lead.status },
-            { label: 'Quality', value: lead.quality.toUpperCase() },
-            { label: 'Type', value: lead.type },
-          ].map(p => (
-            <div key={p.label} className="bg-[#f8fafc] border border-[#f1f5f9] rounded-lg p-2.5">
-              <p className="text-[8px] font-bold text-[#94a3b8] uppercase tracking-[.05em]">{p.label}</p>
-              <p className="text-[13px] font-black text-[#0f172a] leading-none mt-0.5">{p.value}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function NotesTab({ notes, noteInput, setNoteInput, onAdd }: {
-  notes: { id: number; text: string; date: string }[];
-  noteInput: string; setNoteInput: (v: string) => void; onAdd: () => void;
-}) {
-  return (
-    <div className="p-4 space-y-3">
-      <div className="space-y-2">
-        {notes.map(n => (
-          <div key={n.id} className="p-3 bg-[#f8fafc] border border-[#e2e8f0] rounded-lg">
-            <p className="text-[10px] text-slate-700 leading-relaxed">{n.text}</p>
-            <p className="text-[8px] text-slate-400 mt-1.5 font-mono">{n.date}</p>
-          </div>
-        ))}
-      </div>
-      <div className="pt-3 border-t border-gray-100">
-        <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-2">Add Note</p>
-        <textarea rows={4} value={noteInput} onChange={e => setNoteInput(e.target.value)}
-          placeholder="Write a note..."
-          className="w-full bg-white border border-[#e2e8f0] rounded-lg px-3 py-2 text-[10px] font-semibold text-[#1e293b] outline-none resize-none mb-2 focus:border-[#2447d7]" />
-        <button onClick={onAdd}
-          className="w-full py-2 bg-gray-900 text-white text-[8px] font-black uppercase tracking-widest rounded-lg hover:bg-black transition-all">
-          <i className="fa-solid fa-plus mr-1"></i>Save Note
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function DocsTab() {
-  const [docs, setDocs] = useState<{ name: string; size: string; date: string }[]>([]);
-  const handleFiles = (files: FileList | null) => {
-    if (!files) return;
-    setDocs(p => [...p, ...Array.from(files).map(f => ({
-      name: f.name,
-      size: `${(f.size / 1024).toFixed(1)} KB`,
-      date: new Date().toLocaleDateString(),
-    }))]);
-  };
-  return (
-    <div className="p-4 space-y-3">
-      <div
-        onClick={() => document.getElementById('doc-file-input')?.click()}
-        onDragOver={e => { e.preventDefault(); (e.currentTarget as HTMLElement).style.borderColor = '#2447d7'; }}
-        onDragLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'; }}
-        onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files); (e.currentTarget as HTMLElement).style.borderColor = '#e2e8f0'; }}
-        style={{ border: '2px dashed #e2e8f0', borderRadius: 12, padding: 20, textAlign: 'center', cursor: 'pointer', background: '#f8fafc', transition: 'all .2s' }}
-      >
-        <i className="fa-solid fa-cloud-arrow-up text-2xl text-gray-300 mb-2 block"></i>
-        <p className="text-[10px] font-bold text-gray-500">Click or drag files to upload</p>
-        <p className="text-[8px] text-gray-400 mt-1">PDF, JPG, PNG, XLSX accepted</p>
-        <input type="file" id="doc-file-input" multiple className="hidden" onChange={e => handleFiles(e.target.files)} />
-      </div>
-      {docs.length === 0 && (
-        <p className="text-[9px] text-gray-300 text-center py-4 italic">No documents uploaded yet</p>
-      )}
-      {docs.map((d, i) => (
-        <div key={i} className="flex items-center justify-between p-2.5 bg-[#f8fafc] rounded-lg border border-[#e2e8f0]">
-          <div className="flex items-center gap-2">
-            <i className="fa-solid fa-file-lines text-indigo-400 text-sm"></i>
-            <div>
-              <p className="text-[10px] font-semibold text-slate-700">{d.name}</p>
-              <p className="text-[8px] text-slate-400">{d.size} · {d.date}</p>
-            </div>
-          </div>
-          <button onClick={() => setDocs(p => p.filter((_, j) => j !== i))} className="text-gray-300 hover:text-red-400 transition-all">
-            <i className="fa-solid fa-xmark text-xs"></i>
-          </button>
-        </div>
-      ))}
     </div>
   );
 }

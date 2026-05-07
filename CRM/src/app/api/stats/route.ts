@@ -1,24 +1,11 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { djangoApi, extractToken } from '@/lib/api';
 
-export async function GET() {
-    const allLeads = db.leads.getAll();
-    const audits = db.audits.getAll();
+export const dynamic = 'force-dynamic';
 
-    // Simulate real-time aggregation
-    const stats = {
-        totalLeads: allLeads.length + 1240,
-        conversionRate: 64,
-        totalRevenue: '£4.2M',
-        activeCases: allLeads.length || 42,
-        pipelineValue: '£12.8M',
-        leadsByQuality: {
-            hot: allLeads.filter((l: any) => l.quality === 'hot').length + 45,
-            warm: allLeads.filter((l: any) => l.quality === 'warm').length + 82,
-            cool: allLeads.filter((l: any) => l.quality === 'cool').length + 110
-        },
-        recentActivity: audits.slice(0, 10)
-    };
-
-    return NextResponse.json(stats);
+export async function GET(request: Request) {
+    const token = await extractToken(request);
+    const { data, status, error } = await djangoApi.get('/stats/', token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json(data);
 }

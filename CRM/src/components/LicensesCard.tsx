@@ -82,18 +82,17 @@ export default function LicensesCard() {
     const statusColor = (s: string) => s === 'ACTIVE' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600';
 
     return (
-        <div className="glass-card flex flex-col h-[280px] overflow-hidden">
+        <div className="glass-card card-h-std flex flex-col overflow-hidden">
             {/* Header: List/Form Mode */}
             {(view === 'list' || view === 'form') && (
-                <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between bg-white/50">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-rose-600 flex items-center justify-center text-white shadow-lg shadow-rose-100">
-                            <i className="fa-solid fa-file-shield text-xs"></i>
-                        </div>
-                        <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">Licenses & Insurance</h3>
+                <div className="flex items-center gap-2.5 shrink-0" style={{ background: '#111827', borderBottom: '1px solid rgba(255,255,255,.06)', padding: '0 16px', minHeight: 48 }}>
+                    <i className="fa-solid fa-file-shield" style={{ color: '#f87171', fontSize: 13, flexShrink: 0 }}></i>
+                    <div style={{ flex: 1 }}>
+                        <p style={{ color: '#fff', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.1em', lineHeight: 1, margin: 0 }}>Licenses & Insurance</p>
+                        <p style={{ color: '#475569', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{view === 'form' ? 'New Entry' : 'Compliance Tracker'}</p>
                     </div>
                     <button onClick={() => setView(view === 'form' ? 'list' : 'form')}
-                        className="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all">
+                        style={{ width: 24, height: 24, borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.08)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                         <i className={`fa-solid ${view === 'form' ? 'fa-xmark' : 'fa-plus'} text-[10px]`}></i>
                     </button>
                 </div>
@@ -101,24 +100,27 @@ export default function LicensesCard() {
 
             {/* Header: Detail/Edit Mode */}
             {(view === 'detail' || view === 'editForm') && (
-                <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between bg-white/50">
-                    <div className="flex items-center gap-3">
-                        <button onClick={view === 'editForm' ? () => setView('detail') : closeDetail}
-                            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-all">
-                            <i className="fa-solid fa-arrow-left text-[10px]"></i>
-                        </button>
-                        <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">
+                <div className="flex items-center gap-2.5 shrink-0" style={{ background: '#111827', borderBottom: '1px solid rgba(255,255,255,.06)', padding: '0 16px', minHeight: 48 }}>
+                    <button onClick={view === 'editForm' ? () => setView('detail') : closeDetail}
+                        style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                        <i className="fa-solid fa-arrow-left text-[10px]"></i>
+                    </button>
+                    <div style={{ flex: 1 }}>
+                        <p style={{ color: '#fff', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.1em', lineHeight: 1, margin: 0 }}>
                             {view === 'editForm' ? 'Edit Entry' : selected?.name}
-                        </h3>
+                        </p>
+                        <p style={{ color: '#475569', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>
+                            {view === 'editForm' ? 'Editing' : 'License Detail'}
+                        </p>
                     </div>
                     {view === 'detail' && selected && (
                         <div className="flex items-center gap-1.5">
                             <button onClick={openEditForm}
-                                className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all">
+                                style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.08)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                 <i className="fa-solid fa-pen text-[10px]"></i>
                             </button>
                             <button onClick={() => deleteLicense(selected.id)}
-                                className="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 flex items-center justify-center hover:bg-rose-100 transition-all">
+                                style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,100,100,.2)', background: 'rgba(239,68,68,.1)', color: '#f87171', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                 <i className="fa-solid fa-trash-can text-[10px]"></i>
                             </button>
                         </div>
@@ -131,41 +133,41 @@ export default function LicensesCard() {
                 <div className="flex-1 flex flex-col p-3 bg-slate-50/50 overflow-y-auto custom-scrollbar">
                     <div className="grid grid-cols-2 gap-x-2 gap-y-2">
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Type</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Type</label>
                             <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500">
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500">
                                 <option>License</option><option>Insurance</option>
                             </select>
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Name</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Name</label>
                             <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500"
                                 placeholder="e.g. FCA License" />
                         </div>
                         <div className="col-span-2">
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Description</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Description</label>
                             <textarea value={form.desc} onChange={e => setForm({ ...form, desc: e.target.value })} rows={2}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500 resize-none"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500 resize-none"
                                 placeholder="Brief description..." />
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Expiry Date</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Expiry Date</label>
                             <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500" />
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500" />
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Remind Period</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Remind Period</label>
                             <select value={form.remind} onChange={e => setForm({ ...form, remind: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500">
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500">
                                 <option value="30">30 Days Before</option>
                                 <option value="14">14 Days Before</option>
                                 <option value="7">7 Days Before</option>
                             </select>
                         </div>
                         <div className="col-span-2 flex gap-2 mt-1">
-                            <button onClick={addLicense} className="flex-1 bg-rose-600 text-white py-2 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all">Save</button>
-                            <button onClick={() => setView('list')} className="px-4 bg-slate-200 text-slate-600 py-2 rounded-lg text-[8px] font-black uppercase transition-all">Cancel</button>
+                            <button onClick={addLicense} className="flex-1 bg-rose-600 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all">Save</button>
+                            <button onClick={() => setView('list')} className="px-4 bg-slate-200 text-slate-600 py-2 rounded-lg text-[10px] font-black uppercase transition-all">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -180,12 +182,12 @@ export default function LicensesCard() {
                             <div className="flex justify-between items-start mb-2">
                                 <div>
                                     <h4 className="text-[10px] font-black text-slate-900">{lic.name}</h4>
-                                    <p className="text-[8px] font-bold text-slate-400 uppercase">Expires: {lic.date}</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">Expires: {lic.date}</p>
                                 </div>
-                                <span className={`text-[7px] font-black px-1.5 py-0.5 rounded ${statusColor(lic.status)}`}>{lic.status}</span>
+                                <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${statusColor(lic.status)}`}>{lic.status}</span>
                             </div>
-                            <span className="text-[7px] font-bold text-rose-500 uppercase tracking-tight flex items-center gap-1">
-                                <i className="fa-solid fa-bell text-[7px]"></i> Remind {lic.remind} days before
+                            <span className="text-[10px] font-bold text-rose-500 uppercase tracking-tight flex items-center gap-1">
+                                <i className="fa-solid fa-bell text-[10px]"></i> Remind {lic.remind} days before
                             </span>
                         </div>
                     ))}
@@ -196,15 +198,15 @@ export default function LicensesCard() {
             {view === 'detail' && selected && (
                 <div className="flex-1 flex flex-col p-4 overflow-y-auto custom-scrollbar">
                     <div className="flex items-center gap-2 mb-3">
-                        <span className={`text-[7px] font-black px-2 py-0.5 rounded uppercase ${statusColor(selected.status)}`}>{selected.status}</span>
-                        <span className="text-[7px] font-black px-2 py-0.5 rounded bg-slate-100 text-slate-500 uppercase">{selected.type}</span>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${statusColor(selected.status)}`}>{selected.status}</span>
+                        <span className="text-[10px] font-black px-2 py-0.5 rounded bg-slate-100 text-slate-500 uppercase">{selected.type}</span>
                     </div>
-                    <p className="text-[9px] text-slate-500 leading-relaxed mb-3">{selected.desc}</p>
+                    <p className="text-xs text-slate-500 leading-relaxed mb-3">{selected.desc}</p>
                     <div className="space-y-2 mt-auto">
-                        <div className="flex items-center gap-2 text-[8px] font-bold text-slate-500">
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
                             <i className="fa-solid fa-calendar text-rose-400 w-3"></i> Expires: {selected.date}
                         </div>
-                        <div className="flex items-center gap-2 text-[8px] font-bold text-slate-500">
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500">
                             <i className="fa-solid fa-bell text-rose-400 w-3"></i> Remind {selected.remind} days before
                         </div>
                     </div>
@@ -216,39 +218,39 @@ export default function LicensesCard() {
                 <div className="flex-1 flex flex-col p-3 bg-slate-50/50 overflow-y-auto custom-scrollbar">
                     <div className="grid grid-cols-2 gap-x-2 gap-y-2">
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Type</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Type</label>
                             <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500">
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500">
                                 <option>License</option><option>Insurance</option>
                             </select>
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Name</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Name</label>
                             <input type="text" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500" />
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500" />
                         </div>
                         <div className="col-span-2">
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Description</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Description</label>
                             <textarea value={form.desc} onChange={e => setForm({ ...form, desc: e.target.value })} rows={2}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500 resize-none" />
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500 resize-none" />
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Expiry Date</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Expiry Date</label>
                             <input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500" />
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500" />
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Remind Period</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Remind Period</label>
                             <select value={form.remind} onChange={e => setForm({ ...form, remind: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-rose-500">
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-rose-500">
                                 <option value="30">30 Days Before</option>
                                 <option value="14">14 Days Before</option>
                                 <option value="7">7 Days Before</option>
                             </select>
                         </div>
                         <div className="col-span-2 flex gap-2 mt-1">
-                            <button onClick={saveEdit} className="flex-1 bg-rose-600 text-white py-2 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all">Save Changes</button>
-                            <button onClick={() => setView('detail')} className="px-4 bg-slate-200 text-slate-600 py-2 rounded-lg text-[8px] font-black uppercase transition-all">Cancel</button>
+                            <button onClick={saveEdit} className="flex-1 bg-rose-600 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-rose-700 transition-all">Save Changes</button>
+                            <button onClick={() => setView('detail')} className="px-4 bg-slate-200 text-slate-600 py-2 rounded-lg text-[10px] font-black uppercase transition-all">Cancel</button>
                         </div>
                     </div>
                 </div>

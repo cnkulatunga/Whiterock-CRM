@@ -110,7 +110,7 @@ export default function AiSummaryDrawer({ isOpen, onClose }: AiSummaryDrawerProp
                                         </div>
                                     </div>
                                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${selectedLeadId === l.id ? 'bg-indigo-600 border-indigo-600' : 'border-slate-200 group-hover:border-indigo-300'}`}>
-                                        {selectedLeadId === l.id && <i className="fa-solid fa-check text-[8px] text-white"></i>}
+                                        {selectedLeadId === l.id && <i className="fa-solid fa-check text-[10px] text-white"></i>}
                                     </div>
                                 </div>
                             ))}
@@ -168,13 +168,13 @@ export default function AiSummaryDrawer({ isOpen, onClose }: AiSummaryDrawerProp
 
                                     <div className="grid grid-cols-2 gap-3">
                                         <div className="p-4 bg-white border border-slate-100 rounded-2xl">
-                                            <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Conversion Chance</p>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Conversion Chance</p>
                                             <p className="text-[12px] font-black text-emerald-600 flex items-center gap-1.5">
                                                 High (84%) <i className="fa-solid fa-caret-up"></i>
                                             </p>
                                         </div>
                                         <div className="p-4 bg-white border border-slate-100 rounded-2xl">
-                                            <p className="text-[8px] font-black text-slate-400 uppercase mb-1">Risk Assessment</p>
+                                            <p className="text-[10px] font-black text-slate-400 uppercase mb-1">Risk Assessment</p>
                                             <p className="text-[12px] font-black text-amber-500 flex items-center gap-1.5">
                                                 Low Risk <i className="fa-solid fa-shield-check"></i>
                                             </p>

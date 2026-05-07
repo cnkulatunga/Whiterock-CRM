@@ -1,8 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { leads } from '@/data/dummy';
-
 import { pipelineStages as STAGES } from '@/data/dummy';
 
 export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: string }) {
@@ -42,12 +40,12 @@ export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: str
     const totalPages = Math.ceil(filteredLeads.length / PAGE_SIZE);
 
     return (
-        <div className="glass-card flex flex-col h-[320px] lg:col-span-2 overflow-hidden">
+        <div className="glass-card card-h-tall flex flex-col lg:col-span-2 overflow-hidden">
             {/* Header */}
             <div className="bg-[#0f172a] px-4 min-h-[46px] flex items-center gap-3 shrink-0">
                 <i className="fa-solid fa-user-group text-slate-500 text-sm"></i>
                 <span className="text-[9px] font-black text-white uppercase tracking-widest">{title}</span>
-                <i className="fa-solid fa-chevron-right text-slate-700 text-[8px]"></i>
+                <i className="fa-solid fa-chevron-right text-slate-700 text-[10px]"></i>
                 <span className="text-[9px] font-black text-indigo-500 uppercase tracking-widest">Pipeline</span>
                 <div className="flex-1"></div>
                 <input
@@ -55,16 +53,16 @@ export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: str
                     placeholder="Search..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-[9px] text-white placeholder:text-white/30 outline-none focus:border-indigo-500 w-32"
+                    className="bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-xs text-white placeholder:text-white/30 outline-none focus:border-indigo-500 w-32"
                 />
                 <select
                     value={stageFilter}
                     onChange={(e) => setStageFilter(e.target.value)}
-                    className="bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-[9px] text-white outline-none focus:border-indigo-500 cursor-pointer"
+                    className="bg-white/10 border border-white/10 rounded-lg px-2 py-1 text-xs text-white outline-none focus:border-indigo-500 cursor-pointer"
                 >
                     {dynamicStages.map(s => <option key={s.key} value={s.key} className="bg-[#0f172a]">{s.label}</option>)}
                 </select>
-                <button className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[8px] font-black uppercase tracking-widest flex items-center gap-1.5 hover:bg-emerald-500 transition-all">
+                <button className="bg-emerald-600 text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 hover:bg-emerald-500 transition-all">
                     <i className="fa-solid fa-plus"></i> New Lead
                 </button>
             </div>
@@ -78,7 +76,7 @@ export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: str
                             }`}
                     >
                         <div className={`text-base font-black leading-none text-${s.color}-600`}>{s.count}</div>
-                        <div className="text-[7px] font-black text-slate-400 uppercase tracking-tight mt-1 truncate w-full text-center">{s.label}</div>
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-tight mt-1 truncate w-full text-center">{s.label}</div>
                     </div>
                 ))}
             </div>
@@ -88,29 +86,29 @@ export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: str
                 <table className="w-full text-left">
                     <thead className="sticky top-0 bg-white z-10 border-b border-slate-100">
                         <tr>
-                            <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Lead Name</th>
-                            <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest">Business Name</th>
-                            <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Stage</th>
-                            <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
-                            <th className="px-4 py-2 text-[8px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
+                            <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead Name</th>
+                            <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">Business Name</th>
+                            <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Stage</th>
+                            <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Status</th>
+                            <th className="px-4 py-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Amount</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
                         {paginatedLeads.map((l) => (
-                            <tr key={l.id} className="hover:bg-slate-50 transition-colors cursor-pointer group">
+                            <tr key={l.id} onClick={() => { window.location.href = `/pipeline/${l.id}`; }} className="hover:bg-slate-50 transition-colors cursor-pointer group">
                                 <td className="px-4 py-2.5">
                                     <div className="text-[10px] font-black text-slate-900 group-hover:text-indigo-600">{l.name}</div>
                                 </td>
                                 <td className="px-4 py-2.5">
-                                    <div className="text-[9px] font-bold text-slate-500">{l.company}</div>
+                                    <div className="text-xs font-bold text-slate-500">{l.company}</div>
                                 </td>
                                 <td className="px-4 py-2.5 text-center">
-                                    <span className="text-[8px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 uppercase tracking-tight">
+                                    <span className="text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 uppercase tracking-tight">
                                         {l.status}
                                     </span>
                                 </td>
                                 <td className="px-4 py-2.5 text-center">
-                                    <span className={`text-[7px] font-black px-1.5 py-0.5 rounded-full uppercase ${l.quality === 'hot' ? 'bg-rose-50 text-rose-600' :
+                                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full uppercase ${l.quality === 'hot' ? 'bg-rose-50 text-rose-600' :
                                         l.quality === 'warm' ? 'bg-amber-50 text-amber-600' : 'bg-blue-50 text-blue-600'
                                         }`}>
                                         {l.quality}
@@ -127,7 +125,7 @@ export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: str
 
             {/* Footer / Pagination */}
             <div className="px-4 py-2 border-t border-slate-100 bg-slate-50 flex items-center justify-between shrink-0">
-                <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
                     Showing {(page - 1) * PAGE_SIZE + 1}-{Math.min(page * PAGE_SIZE, filteredLeads.length)} of {filteredLeads.length}
                 </span>
                 <div className="flex gap-1">
@@ -135,13 +133,13 @@ export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: str
                         onClick={() => setPage(p => Math.max(1, p - 1))}
                         className={`w-6 h-6 rounded flex items-center justify-center border border-slate-200 text-slate-400 hover:bg-white hover:text-indigo-600 transition-all ${page === 1 ? 'opacity-30 cursor-not-allowed' : ''}`}
                     >
-                        <i className="fa-solid fa-chevron-left text-[8px]"></i>
+                        <i className="fa-solid fa-chevron-left text-[10px]"></i>
                     </button>
                     {[...Array(totalPages)].map((_, i) => (
                         <button
                             key={i}
                             onClick={() => setPage(i + 1)}
-                            className={`w-6 h-6 rounded flex items-center justify-center text-[9px] font-black transition-all ${page === i + 1 ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-400 hover:text-indigo-600'
+                            className={`w-6 h-6 rounded flex items-center justify-center text-xs font-black transition-all ${page === i + 1 ? 'bg-slate-900 text-white' : 'bg-white border border-slate-200 text-slate-400 hover:text-indigo-600'
                                 }`}
                         >
                             {i + 1}
@@ -151,7 +149,7 @@ export default function TeleAgentLeadsCard({ title = 'My Leads' }: { title?: str
                         onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                         className={`w-6 h-6 rounded flex items-center justify-center border border-slate-200 text-slate-400 hover:bg-white hover:text-indigo-600 transition-all ${page === totalPages ? 'opacity-30 cursor-not-allowed' : ''}`}
                     >
-                        <i className="fa-solid fa-chevron-right text-[8px]"></i>
+                        <i className="fa-solid fa-chevron-right text-[10px]"></i>
                     </button>
                 </div>
             </div>

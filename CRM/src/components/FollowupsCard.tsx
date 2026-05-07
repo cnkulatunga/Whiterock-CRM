@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { followups as initialFollowups, leads, teamMembers } from '@/data/dummy';
 import { usePermissions } from '@/hooks/usePermissions';
 
@@ -9,6 +10,7 @@ type Followup = {
     title: string;
     desc: string;
     client: string;
+    leadId?: string;
     time: string;
     rawTime: string;
     priority: 'Hot' | 'Warm' | 'Cool';
@@ -24,6 +26,7 @@ const seed: Followup[] = (initialFollowups as any[]).map(f => ({
 }));
 
 export default function FollowupsCard() {
+    const router = useRouter();
     const { hasAction } = usePermissions();
     const canAssign = hasAction('tasks', 'assign');
 
@@ -32,28 +35,31 @@ export default function FollowupsCard() {
     const [selected, setSelected] = useState<Followup | null>(null);
 
     const loadTasks = () => {
-        fetch('/api/tasks')
+        fetch('/api/tasks?upcoming=true')
             .then(res => res.ok ? res.json() : Promise.reject('API Error'))
             .then(data => {
-                if (!Array.isArray(data)) return setFollowups([]);
-                const mapped = data.map((f: any) => {
+                const items = Array.isArray(data) ? data : (data?.results ?? []);
+                if (!items.length) return setFollowups([]);
+                const mapped = items.map((f: any) => {
                     let normalizedPrio = f.priority || 'Warm';
                     if (normalizedPrio === 'High') normalizedPrio = 'Hot';
                     if (normalizedPrio === 'Medium') normalizedPrio = 'Warm';
                     if (normalizedPrio === 'Low') normalizedPrio = 'Cool';
-                    
+
                     const datePart = f.date || 'TBD';
                     const timePart = (f.time && f.time !== 'undefined') ? f.time : '';
+                    const assigneeName = f.assignee?.name ?? f.assignee ?? '';
 
                     return {
                         id: f.id,
                         title: f.title,
                         desc: f.description,
                         client: f.client,
+                        leadId: f.lead?.id ?? null,
                         time: datePart + (timePart ? ' ' + timePart : ''),
                         rawTime: datePart + 'T' + timePart,
                         priority: normalizedPrio as any,
-                        assignee: f.assignee
+                        assignee: assigneeName
                     };
                 });
                 setFollowups(mapped);
@@ -202,47 +208,49 @@ export default function FollowupsCard() {
 
     /* ── render ── */
     return (
-        <div className="glass-card flex flex-col h-[280px] overflow-hidden">
+        <div className="glass-card card-h-std flex flex-col overflow-hidden">
 
             {/* ── Header: List / Add Form ── */}
             {(view === 'list' || view === 'addForm') && (
-                <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between bg-white/50 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-                            <i className="fa-solid fa-clock-rotate-left text-xs"></i>
-                        </div>
-                        <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">Upcoming Follow-ups</h3>
+                <div className="flex items-center gap-2.5 shrink-0" style={{ background: '#111827', borderBottom: '1px solid rgba(255,255,255,.06)', padding: '0 16px', minHeight: 48 }}>
+                    <i className="fa-solid fa-clock-rotate-left" style={{ color: '#818cf8', fontSize: 13, flexShrink: 0 }}></i>
+                    <div style={{ flex: 1 }}>
+                        <p style={{ color: '#fff', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.1em', lineHeight: 1, margin: 0 }}>Upcoming Follow-ups</p>
+                        <p style={{ color: '#475569', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>{view === 'addForm' ? 'New Activity' : 'Tasks & Reminders'}</p>
                     </div>
                     <div className="flex items-center gap-2">
                         <button
                             onClick={() => setView(view === 'addForm' ? 'list' : 'addForm')}
-                            className="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all"
+                            style={{ width: 24, height: 24, borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.08)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                         >
                             <i className={`fa-solid ${view === 'addForm' ? 'fa-xmark' : 'fa-plus'} text-[10px]`}></i>
                         </button>
-                        <span className="text-[8px] font-black text-indigo-600 uppercase cursor-pointer hover:underline">View All</span>
+                        <span onClick={() => router.push('/tasks')} style={{ fontSize: 10, fontWeight: 900, color: '#818cf8', textTransform: 'uppercase', cursor: 'pointer', letterSpacing: '.05em' }}>View All</span>
                     </div>
                 </div>
             )}
 
             {/* ── Header: Detail / Edit ── */}
             {(view === 'detail' || view === 'editForm') && (
-                <div className="px-5 py-2.5 border-b border-slate-50 flex items-center justify-between bg-white/50 shrink-0">
-                    <div className="flex items-center gap-3">
-                        <button
-                            onClick={view === 'editForm' ? () => setView('detail') : closeDetail}
-                            className="w-7 h-7 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center hover:bg-slate-200 transition-all"
-                        >
-                            <i className="fa-solid fa-arrow-left text-[10px]"></i>
-                        </button>
-                        <h3 className="text-[11px] font-black uppercase tracking-widest text-slate-900">
+                <div className="flex items-center gap-2.5 shrink-0" style={{ background: '#111827', borderBottom: '1px solid rgba(255,255,255,.06)', padding: '0 16px', minHeight: 48 }}>
+                    <button
+                        onClick={view === 'editForm' ? () => setView('detail') : closeDetail}
+                        style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+                    >
+                        <i className="fa-solid fa-arrow-left text-[10px]"></i>
+                    </button>
+                    <div style={{ flex: 1 }}>
+                        <p style={{ color: '#fff', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.1em', lineHeight: 1, margin: 0 }}>
                             {view === 'editForm' ? 'Edit Follow-up' : 'Follow-up Details'}
-                        </h3>
+                        </p>
+                        <p style={{ color: '#475569', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>
+                            {view === 'editForm' ? 'Editing' : 'Activity Record'}
+                        </p>
                     </div>
                     {view === 'detail' && (
                         <button
                             onClick={openEditForm}
-                            className="w-7 h-7 rounded-lg bg-slate-900 text-white flex items-center justify-center hover:bg-black transition-all"
+                            style={{ width: 26, height: 26, borderRadius: 8, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.08)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
                         >
                             <i className="fa-solid fa-pen text-[10px]"></i>
                         </button>
@@ -255,40 +263,40 @@ export default function FollowupsCard() {
                 <div className="flex-1 flex flex-col p-3 bg-slate-50/50 overflow-y-auto custom-scrollbar">
                     <div className="grid grid-cols-2 gap-x-2 gap-y-2 flex-1">
                         <div className="col-span-2">
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Title / Subject</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Title / Subject</label>
                             <input
                                 type="text"
                                 value={addForm.title}
                                 onChange={e => setAddForm({ ...addForm, title: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-indigo-500"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500"
                                 placeholder="e.g. Contract Signing"
                             />
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Priority</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Priority</label>
                             <select
                                 value={addForm.priority}
                                 onChange={e => setAddForm({ ...addForm, priority: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-indigo-500"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500"
                             >
                                 <option>Hot</option><option>Warm</option><option>Cool</option>
                             </select>
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Date & Time</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Date & Time</label>
                             <input
                                 type="datetime-local"
                                 value={addForm.time}
                                 onChange={e => setAddForm({ ...addForm, time: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-indigo-500"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500"
                             />
                         </div>
                         <div className="col-span-2">
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Linked Lead / ID</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Linked Lead / ID</label>
                             <select
                                 value={addForm.lead}
                                 onChange={e => setAddForm({ ...addForm, lead: e.target.value })}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-indigo-500"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500"
                             >
                                 <option value="">-- Select Lead --</option>
                                 {leads.map(l => (
@@ -297,12 +305,12 @@ export default function FollowupsCard() {
                             </select>
                         </div>
                         <div className="col-span-2">
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Assign To</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Assign To</label>
                             <select
                                 disabled={!canAssign}
                                 value={addForm.assignee}
                                 onChange={e => setAddForm({ ...addForm, assignee: e.target.value })}
-                                className={`w-full border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none transition-all ${!canAssign ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white focus:border-indigo-500'
+                                className={`w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none transition-all ${!canAssign ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-white focus:border-indigo-500'
                                     }`}
                             >
                                 {!canAssign && <option value={addForm.assignee}>{addForm.assignee}</option>}
@@ -312,25 +320,25 @@ export default function FollowupsCard() {
                             </select>
                         </div>
                         <div className="col-span-2">
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-0.5 block">Remarks</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-0.5 block">Remarks</label>
                             <textarea
                                 value={addForm.remarks}
                                 onChange={e => setAddForm({ ...addForm, remarks: e.target.value })}
                                 rows={2}
-                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-[9px] outline-none focus:border-indigo-500 resize-none"
+                                className="w-full bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs outline-none focus:border-indigo-500 resize-none"
                                 placeholder="Enter follow-up details..."
                             />
                         </div>
                         <div className="col-span-2 flex gap-2 pt-1 mt-auto">
                             <button
                                 onClick={addFollowup}
-                                className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all"
+                                className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all"
                             >
                                 Save Activity
                             </button>
                             <button
                                 onClick={() => setView('list')}
-                                className="px-4 bg-slate-200 text-slate-600 py-2 rounded-lg text-[8px] font-black uppercase transition-all"
+                                className="px-4 bg-slate-200 text-slate-600 py-2 rounded-lg text-[10px] font-black uppercase transition-all"
                             >
                                 Cancel
                             </button>
@@ -355,18 +363,18 @@ export default function FollowupsCard() {
                                         e.stopPropagation();
                                         setFollowups(followups.map(tk => tk.id === f.id ? { ...tk, priority: e.target.value as any } : tk));
                                     }}
-                                    className={`text-[8px] font-black uppercase rounded px-1.5 py-0.5 border-none outline-none cursor-pointer transition-all ${prioBadge(f.priority)}`}
+                                    className={`text-[10px] font-black uppercase rounded px-1.5 py-0.5 border-none outline-none cursor-pointer transition-all ${prioBadge(f.priority)}`}
                                 >
                                     <option>Hot</option>
                                     <option>Warm</option>
                                     <option>Cool</option>
                                 </select>
-                                <span className="text-[8px] font-bold text-slate-400">{f.time}</span>
+                                <span className="text-[10px] font-bold text-slate-400">{f.time}</span>
                             </div>
                             <h4 className="text-[10px] font-black text-slate-900">{f.title}</h4>
                             <div className="flex items-center justify-between mt-1">
-                                <p className="text-[8px] text-slate-500 line-clamp-1 flex-1">{f.desc}</p>
-                                <span className="text-[7px] font-black bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded uppercase tracking-tighter ml-2 shrink-0">
+                                <p className="text-[10px] text-slate-500 line-clamp-1 flex-1">{f.desc}</p>
+                                <span className="text-[10px] font-black bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded uppercase tracking-tighter ml-2 shrink-0">
                                     {f.assignee?.split(' ')[0]}
                                 </span>
                             </div>
@@ -380,10 +388,10 @@ export default function FollowupsCard() {
                 <div className="flex-1 flex flex-col p-4 overflow-y-auto custom-scrollbar">
                     {/* Priority + time row */}
                     <div className="flex items-center justify-between mb-3">
-                        <span className={`text-[7px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${prioBadge(selected.priority)}`}>
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${prioBadge(selected.priority)}`}>
                             Priority: {selected.priority}
                         </span>
-                        <span className="text-[7px] font-bold text-slate-400 uppercase">{selected.time}</span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">{selected.time}</span>
                     </div>
 
                     {/* Title */}
@@ -397,12 +405,15 @@ export default function FollowupsCard() {
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-[6px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Associated Lead</p>
-                                <p className="text-[9px] font-black text-slate-900 leading-none truncate">
+                                <p className="text-xs font-black text-slate-900 leading-none truncate">
                                     {selected.client} <span className="text-indigo-600 ml-1">{selected.id}</span>
                                 </p>
                             </div>
-                            <button className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-all shrink-0">
-                                <i className="fa-solid fa-arrow-up-right-from-square text-[8px]"></i>
+                            <button
+                                onClick={() => { window.location.href = selected.leadId ? `/pipeline/${selected.leadId}` : '/pipeline'; }}
+                                className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-all shrink-0"
+                            >
+                                <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                             </button>
                         </div>
 
@@ -411,18 +422,18 @@ export default function FollowupsCard() {
                             <p className="text-[6px] font-black text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
                                 <i className="fa-solid fa-align-left text-indigo-400"></i> Narrative & Remarks
                             </p>
-                            <p className="text-[9px] font-bold text-slate-600 leading-relaxed">{selected.desc}</p>
+                            <p className="text-xs font-bold text-slate-600 leading-relaxed">{selected.desc}</p>
                         </div>
 
                         {/* Assignee */}
                         <div className="p-3 bg-indigo-50/30 border border-indigo-100 rounded-xl">
                             <div className="flex items-center gap-2">
-                                <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[7px] font-black uppercase">
+                                <div className="w-5 h-5 rounded-full bg-indigo-600 flex items-center justify-center text-white text-[10px] font-black uppercase">
                                     {selected.assignee?.charAt(0)}
                                 </div>
                                 <div>
                                     <p className="text-[6px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Assigned To</p>
-                                    <p className="text-[9px] font-black text-indigo-900 leading-none">{selected.assignee}</p>
+                                    <p className="text-xs font-black text-indigo-900 leading-none">{selected.assignee}</p>
                                 </div>
                             </div>
                         </div>
@@ -432,11 +443,11 @@ export default function FollowupsCard() {
                     <div className="mt-4 pt-3 border-t border-slate-50 flex gap-2">
                         <button
                             onClick={completeTask}
-                            className="flex-1 bg-slate-900 text-white py-2 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-black transition-all"
+                            className="flex-1 bg-slate-900 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all"
                         >
                             Complete Task
                         </button>
-                        <button className="px-3 bg-slate-100 text-slate-600 py-2 rounded-lg text-[8px] font-black uppercase hover:bg-slate-200 transition-all">
+                        <button className="px-3 bg-slate-100 text-slate-600 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-slate-200 transition-all">
                             Reschedule
                         </button>
                     </div>
@@ -448,7 +459,7 @@ export default function FollowupsCard() {
                 <div className="flex-1 flex flex-col p-4 overflow-y-auto custom-scrollbar">
                     <div className="space-y-3 flex-1">
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-1 block">Activity Title</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Activity Title</label>
                             <input
                                 value={editForm.title}
                                 onChange={e => setEditForm({ ...editForm, title: e.target.value })}
@@ -457,7 +468,7 @@ export default function FollowupsCard() {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="text-[7px] font-black text-slate-400 uppercase mb-1 block">Priority</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Priority</label>
                                 <select
                                     value={editForm.priority}
                                     onChange={e => setEditForm({ ...editForm, priority: e.target.value })}
@@ -467,7 +478,7 @@ export default function FollowupsCard() {
                                 </select>
                             </div>
                             <div>
-                                <label className="text-[7px] font-black text-slate-400 uppercase mb-1 block">Date & Time</label>
+                                <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Date & Time</label>
                                 <input
                                     type="datetime-local"
                                     value={editForm.time}
@@ -477,7 +488,7 @@ export default function FollowupsCard() {
                             </div>
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-1 block">Linked Lead</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Linked Lead</label>
                             <select
                                 value={editForm.lead}
                                 onChange={e => setEditForm({ ...editForm, lead: e.target.value })}
@@ -490,7 +501,7 @@ export default function FollowupsCard() {
                             </select>
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-1 block">Assign To</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Assign To</label>
                             <select
                                 disabled={!canAssign}
                                 value={editForm.assignee}
@@ -505,7 +516,7 @@ export default function FollowupsCard() {
                             </select>
                         </div>
                         <div>
-                            <label className="text-[7px] font-black text-slate-400 uppercase mb-1 block">Narrative / Remarks</label>
+                            <label className="text-[10px] font-black text-slate-400 uppercase mb-1 block">Narrative / Remarks</label>
                             <textarea
                                 value={editForm.remarks}
                                 onChange={e => setEditForm({ ...editForm, remarks: e.target.value })}
@@ -517,13 +528,13 @@ export default function FollowupsCard() {
                     <div className="flex gap-2 mt-4 pt-4 border-t border-slate-50">
                         <button
                             onClick={saveEdit}
-                            className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-[8px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all"
+                            className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-indigo-700 transition-all"
                         >
                             Update Follow-up
                         </button>
                         <button
                             onClick={() => setView('detail')}
-                            className="px-4 bg-slate-100 text-slate-600 py-2 rounded-lg text-[8px] font-black uppercase hover:bg-slate-200 transition-all"
+                            className="px-4 bg-slate-100 text-slate-600 py-2 rounded-lg text-[10px] font-black uppercase hover:bg-slate-200 transition-all"
                         >
                             Cancel
                         </button>

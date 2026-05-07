@@ -74,7 +74,7 @@ export default function AgentDrawer({ agent, isOpen, onClose }: AgentDrawerProps
                             <div className="w-full bg-slate-100 rounded-full h-1.5">
                                 <div className="bg-indigo-600 h-1.5 rounded-full transition-all" style={{ width: `${Math.min((agent.leads / 50) * 100, 100)}%` }}></div>
                             </div>
-                            <p className="text-[7px] font-bold text-slate-400 uppercase">{agent.leads} of 50 leads capacity</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase">{agent.leads} of 50 leads capacity</p>
                         </div>
                     </div>
 
@@ -86,7 +86,7 @@ export default function AgentDrawer({ agent, isOpen, onClose }: AgentDrawerProps
                                 { label: 'Follow-ups Due', val: agent.status === 'ACTIVE' ? '4' : '0' },
                                 { label: 'Conversions', val: agent.status === 'ACTIVE' ? '3' : '0' },
                             ].map(r => (
-                                <div key={r.label} className="flex justify-between items-center text-[9px] font-bold border-b border-slate-50 pb-1.5 last:border-0 last:pb-0">
+                                <div key={r.label} className="flex justify-between items-center text-xs font-bold border-b border-slate-50 pb-1.5 last:border-0 last:pb-0">
                                     <span className="text-slate-400 uppercase">{r.label}</span>
                                     <span className="text-slate-900">{r.val}</span>
                                 </div>

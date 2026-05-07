@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast, ToastContainer } from '@/components/Toast';
 
 const INDUSTRIES = [
     "Software", "Hardware", "IT Services", "Telecommunications", "E-commerce ",
@@ -24,6 +25,7 @@ const SOURCES = [
 
 export default function RegisterLeadPage() {
     const router = useRouter();
+    const { toasts, remove, toast } = useToast();
     const [caseId, setCaseId] = useState('');
     const [existingLoan, setExistingLoan] = useState('No');
     const [formData, setFormData] = useState<any>({
@@ -43,40 +45,59 @@ export default function RegisterLeadPage() {
 
     const saveLead = async () => {
         if (!formData.fullName) {
-            alert('Full Name is required');
+            toast.warning('Full Name is required');
             return;
         }
+
+        const payload = {
+            name: formData.fullName,
+            title: formData.title || '',
+            company: formData.company || 'Private Individual',
+            email: formData.email || '',
+            phone: formData.phone || '',
+            amount: formData.loanAmount || '£0',
+            status: 'new',
+            priority: formData.quality || 'warm',
+            quality: formData.quality || 'warm',
+            level: formData.leadLevel || 'Level 1',
+            dob: formData.dob || '',
+            notes: formData.additionalComments || '',
+            industry: formData.industry || '',
+            jobTitle: formData.jobTitle || '',
+            companyHouseNumber: formData.companyHouseNumber || '',
+            businessAnnualTurnover: formData.businessAnnualTurnover || '',
+            preferredMethod: formData.preferredMethod || '',
+            homeOwner: formData.homeOwner || 'Yes',
+            residentialAddress: formData.residentialAddress || '',
+            loanPurpose: formData.loanPurpose || '',
+            existingLoan: formData.existingLoan || 'No',
+            companyBank: formData.companyBank || '',
+            leadSource: formData.leadSource || '',
+            creditConsent: formData.creditConsent || 'Yes',
+        };
 
         try {
             const response = await fetch('/api/leads', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    id: caseId,
-                    name: formData.fullName,
-                    company: formData.company || 'Private Individual',
-                    email: formData.email,
-                    phone: formData.phone,
-                    amount: formData.loanAmount || '£0',
-                    status: 'New',
-                    quality: formData.quality || 'warm',
-                    ...formData
-                }),
+                body: JSON.stringify(payload),
             });
 
             if (response.ok) {
-                alert('Lead successfully committed to database.');
+                toast.success('Lead saved successfully.');
                 router.push('/leads');
             } else {
-                throw new Error('Database rejection');
+                const err = await response.json().catch(() => ({}));
+                toast.error(err?.error ? String(err.error) : 'Failed to save lead');
             }
-        } catch (error) {
-            alert('Critical Error: Failed to secure lead registry');
+        } catch {
+            toast.error('Could not reach server. Please try again.');
         }
     };
 
     return (
         <div className="flex-1 flex flex-col bg-[#f8fafc] h-screen overflow-hidden animate-in fade-in duration-300">
+            <ToastContainer toasts={toasts} remove={remove} />
             {/* Registration Header */}
             <header className="h-[52px] bg-white border-b border-slate-100 flex items-center px-5 shrink-0 shadow-sm z-10">
                 <button onClick={handleBack} className="flex items-center gap-2 group mr-6 text-left outline-none">
@@ -91,7 +112,7 @@ export default function RegisterLeadPage() {
                     </div>
                     <div>
                         <h1 className="text-[12px] font-black text-slate-900 uppercase tracking-widest leading-none">Register New Lead</h1>
-                        <p className="text-[8px] text-slate-400 font-bold mt-0.5 uppercase tracking-tighter">Secure Registry Protocol Active</p>
+                        <p className="text-[10px] text-slate-400 font-bold mt-0.5 uppercase tracking-tighter">Secure Registry Protocol Active</p>
                     </div>
                 </div>
                 <div className="flex-1"></div>
@@ -140,7 +161,14 @@ export default function RegisterLeadPage() {
                         <div className="grid grid-cols-3 gap-8">
                             <div>
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Title *</label>
-                                <input value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="e.g. Mr, Mrs, Dr..." className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm" />
+                                <select value={formData.title || ''} onChange={e => setFormData({ ...formData, title: e.target.value })} className="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-[11px] font-black text-slate-900 outline-none focus:bg-white transition-all shadow-sm">
+                                    <option value="">Select...</option>
+                                    <option value="Mr">Mr</option>
+                                    <option value="Mrs">Mrs</option>
+                                    <option value="Ms">Ms</option>
+                                    <option value="Dr">Dr</option>
+                                    <option value="Prof">Prof</option>
+                                </select>
                             </div>
                             <div>
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-2 px-1 text-left">Full Name *</label>
@@ -189,7 +217,7 @@ export default function RegisterLeadPage() {
                                             key={m}
                                             type="button"
                                             onClick={() => setFormData({ ...formData, preferredMethod: m })}
-                                            className={`flex-1 rounded-2xl text-[9px] font-black transition-all border ${formData.preferredMethod === m ? 'bg-indigo-600 text-white border-indigo-600 shadow-md translate-y-[-1px]' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'}`}
+                                            className={`flex-1 rounded-2xl text-xs font-black transition-all border ${formData.preferredMethod === m ? 'bg-indigo-600 text-white border-indigo-600 shadow-md translate-y-[-1px]' : 'bg-white text-slate-400 border-slate-100 hover:bg-slate-50'}`}
                                         >
                                             {m}
                                         </button>

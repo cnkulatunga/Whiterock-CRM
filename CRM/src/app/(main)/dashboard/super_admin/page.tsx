@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import TopActionRow from "@/components/TopActionRow";
 import FollowupsCard from "@/components/FollowupsCard";
 import NotesCard from "@/components/NotesCard";
@@ -14,20 +14,113 @@ import DetailDrawer from "@/components/DetailDrawer";
 import AiSummaryDrawer from "@/components/AiSummaryDrawer";
 
 import { usePermissions } from "@/hooks/usePermissions";
-import { aiOptions } from "@/data/dummy";
+import { useDashboardLayout } from "@/hooks/useDashboardLayout";
+
+function CardWrapper({
+    cardKey,
+    designMode,
+    dragOver,
+    onDragStart,
+    onDragOver,
+    onDragLeave,
+    onDrop,
+    children,
+}: {
+    cardKey: string;
+    designMode: boolean;
+    dragOver: boolean;
+    onDragStart: () => void;
+    onDragOver: (e: React.DragEvent) => void;
+    onDragLeave: () => void;
+    onDrop: (e: React.DragEvent) => void;
+    children: React.ReactNode;
+}) {
+    return (
+        <div
+            draggable={designMode}
+            onDragStart={onDragStart}
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
+            style={{
+                outline: dragOver ? '2px solid #818cf8' : undefined,
+                borderRadius: dragOver ? 16 : undefined,
+                transition: 'outline 0.15s',
+                opacity: 1,
+            }}
+        >
+            {children}
+        </div>
+    );
+}
 
 export default function SuperAdminDashboard() {
     const { canSeeCard, hasFeature, isLoading } = usePermissions();
+    const { cardOrder, saveLayout, resetLayout } = useDashboardLayout('super_admin');
     const [selectedEntity, setSelectedEntity] = useState<any>(null);
     const [drawerType, setDrawerType] = useState<'task' | 'lead' | 'agent' | 'promotion' | 'lender' | null>(null);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [aiSummaryOpen, setAiSummaryOpen] = useState(false);
     const [designMode, setDesignMode] = useState(false);
+    const [dragOverKey, setDragOverKey] = useState<string | null>(null);
+    const dragSrcKey = useRef<string | null>(null);
 
     const handleSelect = (entity: any, type: any) => {
         setSelectedEntity(entity);
         setDrawerType(type);
         setIsDrawerOpen(true);
+    };
+
+    const handleDragStart = (key: string) => {
+        dragSrcKey.current = key;
+    };
+
+    const handleDragOver = (e: React.DragEvent, key: string) => {
+        e.preventDefault();
+        if (dragSrcKey.current !== key) setDragOverKey(key);
+    };
+
+    const handleDragLeave = () => {
+        setDragOverKey(null);
+    };
+
+    const handleDrop = (e: React.DragEvent, targetKey: string) => {
+        e.preventDefault();
+        setDragOverKey(null);
+        const src = dragSrcKey.current;
+        if (!src || src === targetKey) return;
+        const next = [...cardOrder];
+        const fromIdx = next.indexOf(src);
+        const toIdx = next.indexOf(targetKey);
+        if (fromIdx === -1 || toIdx === -1) return;
+        next.splice(fromIdx, 1);
+        next.splice(toIdx, 0, src);
+        saveLayout(next);
+        dragSrcKey.current = null;
+    };
+
+    const handleToggleDesignMode = () => {
+        setDesignMode(d => !d);
+        setDragOverKey(null);
+    };
+
+    const handleResetLayout = () => {
+        resetLayout();
+        setDesignMode(false);
+    };
+
+    const renderCard = (key: string) => {
+        switch (key) {
+            case 'upcoming_followups': return canSeeCard(key) ? <FollowupsCard /> : null;
+            case 'notes': return canSeeCard(key) ? <NotesCard /> : null;
+            case 'license_insurance': return canSeeCard(key) ? <LicensesCard /> : null;
+            case 'online_agents': return canSeeCard(key) ? <TeleAgentsCard /> : null;
+            case 'lead_portfolio': return canSeeCard(key) ? <PortfolioCard /> : null;
+            case 'pending_payouts': return canSeeCard(key) ? <PayoutsCard /> : null;
+            case 'lender_promotions': return canSeeCard(key) ? <PromotionsCard onSelect={handleSelect} /> : null;
+            case 'op_calendar': return canSeeCard(key) ? <CalendarCard /> : null;
+            default: return null;
+        }
     };
 
     if (isLoading) return <div className="flex-1 bg-slate-50 animate-pulse" />;
@@ -36,19 +129,63 @@ export default function SuperAdminDashboard() {
         <div className="flex flex-col flex-1 h-full overflow-hidden">
             <TopActionRow
                 designMode={designMode}
-                onToggleDesignMode={() => setDesignMode(d => !d)}
+                onToggleDesignMode={handleToggleDesignMode}
             />
+
+            {/* Design mode banner */}
+            {designMode && (
+                <div style={{
+                    background: 'linear-gradient(90deg, #312e81 0%, #1e1b4b 100%)',
+                    borderBottom: '1px solid rgba(129,140,248,.2)',
+                    padding: '6px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexShrink: 0,
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <i className="fa-solid fa-arrows-up-down-left-right" style={{ color: '#818cf8', fontSize: 11 }}></i>
+                        <span style={{ color: '#c7d2fe', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.08em' }}>
+                            Design Mode — Drag cards to reorder. Layout saves automatically.
+                        </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <button
+                            onClick={handleResetLayout}
+                            style={{ fontSize: 9, fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.06em', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}
+                        >
+                            Reset Layout
+                        </button>
+                        <button
+                            onClick={handleToggleDesignMode}
+                            style={{ fontSize: 9, fontWeight: 900, color: '#fff', textTransform: 'uppercase', letterSpacing: '.06em', background: '#4f46e5', border: 'none', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}
+                        >
+                            Done
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4">
                 <div id="mainModuleGrid" className={`module-grid${designMode ? ' design-mode' : ''}`}>
-                    {canSeeCard('upcoming_followups') && <FollowupsCard />}
-                    {canSeeCard('notes') && <NotesCard />}
-                    {canSeeCard('license_insurance') && <LicensesCard />}
-                    {canSeeCard('online_agents') && <TeleAgentsCard />}
-                    {canSeeCard('lead_portfolio') && <PortfolioCard />}
-                    {canSeeCard('pending_payouts') && <PayoutsCard />}
-                    {canSeeCard('lender_promotions') && <PromotionsCard onSelect={handleSelect} />}
-                    {canSeeCard('op_calendar') && <CalendarCard />}
+                    {cardOrder.map((key) => {
+                        const card = renderCard(key);
+                        if (!card) return null;
+                        return (
+                            <CardWrapper
+                                key={key}
+                                cardKey={key}
+                                designMode={designMode}
+                                dragOver={dragOverKey === key}
+                                onDragStart={() => handleDragStart(key)}
+                                onDragOver={(e) => handleDragOver(e, key)}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, key)}
+                            >
+                                {card}
+                            </CardWrapper>
+                        );
+                    })}
                 </div>
             </div>
 
@@ -63,8 +200,6 @@ export default function SuperAdminDashboard() {
                 </div>
             )}
 
-
-
             <DetailDrawer
                 isOpen={isDrawerOpen}
                 onClose={() => setIsDrawerOpen(false)}
@@ -72,7 +207,7 @@ export default function SuperAdminDashboard() {
                 type={drawerType}
             />
 
-            <AiSummaryDrawer 
+            <AiSummaryDrawer
                 isOpen={aiSummaryOpen}
                 onClose={() => setAiSummaryOpen(false)}
             />

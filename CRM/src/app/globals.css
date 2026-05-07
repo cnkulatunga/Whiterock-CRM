@@ -15,6 +15,9 @@ body {
   display: flex;
 }
 
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
 .custom-scrollbar::-webkit-scrollbar {
   width: 3px;
   height: 3px;
@@ -69,25 +72,78 @@ body {
 /* Module Grid */
 .module-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
-  max-width: 1800px;
+  grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 22vw, 420px), 1fr));
+  gap: clamp(0.5rem, 1vw, 1rem);
+  padding: clamp(0.5rem, 1vw, 1rem);
+  max-width: 1920px;
   margin: 0 auto;
+}
+
+/* Responsive card heights — scale with viewport height */
+.glass-card {
+  min-height: 0;
+}
+
+/* Cards with fixed heights: override with viewport-relative values */
+.card-h-std {
+  height: clamp(220px, 26vh, 320px);
+}
+.card-h-tall {
+  height: clamp(260px, 30vh, 380px);
+}
+
+/* Stat values scale with viewport */
+.stat-value {
+  font-size: clamp(16px, 2vw, 28px);
+}
+
+/* Font scaling for dense layouts */
+@media (max-width: 1440px) {
+  .stat-value { font-size: clamp(14px, 1.6vw, 22px); }
+}
+
+/* 15-inch: ~1366×768 — tighter grid, smaller cards */
+@media (max-width: 1440px) {
+  .module-grid {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(240px, 20vw, 360px), 1fr));
+    gap: 0.625rem;
+    padding: 0.625rem;
+  }
+}
+
+/* 17-inch: ~1600×900 */
+@media (min-width: 1441px) and (max-width: 1680px) {
+  .module-grid {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 21vw, 380px), 1fr));
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+}
+
+/* 24-inch: ~1920×1080+ */
+@media (min-width: 1681px) {
+  .module-grid {
+    grid-template-columns: repeat(auto-fit, minmax(clamp(280px, 22vw, 440px), 1fr));
+    gap: 1rem;
+    padding: 1rem;
+  }
 }
 
 /* Design Mode */
 .module-grid.design-mode .glass-card {
   cursor: grab;
-  border: 2px dashed #cbd5e1 !important;
+  border: 2px dashed #4f46e5 !important;
   animation: gentleShake 0.3s infinite alternate ease-in-out;
+  user-select: none;
 }
 .module-grid.design-mode .glass-card:active {
   cursor: grabbing;
+  opacity: 0.6;
+  transform: scale(1.02);
 }
 @keyframes gentleShake {
-  from { transform: rotate(-0.2deg); }
-  to   { transform: rotate(0.2deg); }
+  from { transform: rotate(-0.3deg) scale(1); }
+  to   { transform: rotate(0.3deg) scale(1); }
 }
 .sortable-ghost {
   opacity: 0.3;

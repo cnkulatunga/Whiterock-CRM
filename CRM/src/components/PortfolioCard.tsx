@@ -29,23 +29,31 @@ export default function PortfolioCard() {
         : [];
 
     return (
-        <div className="glass-card flex flex-col h-[280px]">
-            <div className="px-4 py-3 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
-                        <i className="fa-solid fa-list-check text-[10px]"></i>
-                    </div>
-                    <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-900 leading-tight">Lead Portfolio</h3>
+        <div className="glass-card card-h-std flex flex-col">
+            <div className="flex items-center gap-2.5 shrink-0" style={{ background: '#111827', borderBottom: '1px solid rgba(255,255,255,.06)', padding: '0 16px', minHeight: 48 }}>
+                <i className="fa-solid fa-list-check" style={{ color: '#818cf8', fontSize: 13, flexShrink: 0 }}></i>
+                <div style={{ flex: 1 }}>
+                    <p style={{ color: '#fff', fontSize: 11, fontWeight: 900, textTransform: 'uppercase', letterSpacing: '.1em', lineHeight: 1, margin: 0 }}>Lead Portfolio</p>
+                    <p style={{ color: '#475569', fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', margin: 0 }}>Pipeline Overview</p>
                 </div>
-                <div className="flex bg-white border border-slate-200 shadow-sm rounded-lg p-0.5">
+                <div style={{ display: 'flex', background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 8, padding: 2, gap: 2 }}>
                     {['all', 'hot', 'warm', 'cool'].map((f) => (
                         <button
                             key={f}
                             onClick={() => setFilter(f)}
-                            className={`px-1.5 py-0.5 text-[7px] font-black uppercase tracking-widest rounded transition-all ${filter === f
-                                    ? 'bg-slate-900 text-white'
-                                    : `text-${f === 'hot' ? 'rose' : f === 'warm' ? 'amber' : f === 'cool' ? 'blue' : 'slate'}-500 hover:bg-slate-50`
-                                }`}
+                            style={{
+                                padding: '2px 7px',
+                                fontSize: 10,
+                                fontWeight: 900,
+                                textTransform: 'uppercase',
+                                letterSpacing: '.05em',
+                                borderRadius: 6,
+                                border: 'none',
+                                cursor: 'pointer',
+                                transition: 'all .15s',
+                                background: filter === f ? '#fff' : 'transparent',
+                                color: filter === f ? '#0f172a' : f === 'hot' ? '#f87171' : f === 'warm' ? '#fbbf24' : f === 'cool' ? '#60a5fa' : '#64748b',
+                            }}
                         >
                             {f}
                         </button>
@@ -56,13 +64,13 @@ export default function PortfolioCard() {
                 <table className="w-full text-left table-fixed">
                     <thead>
                         <tr className="border-b border-slate-50">
-                            <th className="w-[60%] pb-2 text-[7px] font-black text-slate-400 uppercase tracking-widest leading-none">Client</th>
-                            <th className="w-[20%] pb-2 text-[7px] font-black text-slate-400 uppercase tracking-widest text-center leading-none">Status</th>
-                            <th className="w-[20%] pb-2 text-[7px] font-black text-slate-400 uppercase tracking-widest text-right leading-none">Amount</th>
+                            <th className="w-[60%] pb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Client</th>
+                            <th className="w-[20%] pb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-center leading-none">Status</th>
+                            <th className="w-[20%] pb-2 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right leading-none">Amount</th>
                         </tr>
                     </thead>
                 </table>
-                <div className="max-h-[185px] overflow-y-auto custom-scrollbar">
+                <div className="max-h-[clamp(140px,18vh,220px)] overflow-y-auto custom-scrollbar">
                     <table className="w-full text-left table-fixed">
                         <tbody className="divide-y divide-slate-50">
                             {loading ? (
@@ -85,10 +93,10 @@ export default function PortfolioCard() {
                                     <tr key={lead.id} className="hover:bg-slate-50/50 transition-colors cursor-pointer group">
                                         <td className="py-2.5 w-[60%]">
                                             <div className="flex flex-col">
-                                                <span className="text-[9px] font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                                <span className="text-xs font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
                                                     {lead.name}
                                                 </span>
-                                                <span className="text-[7px] font-bold text-slate-400 uppercase mt-0.5">{lead.company}</span>
+                                                <span className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">{lead.company}</span>
                                             </div>
                                         </td>
                                         <td className="py-2.5 w-[20%] text-center">
@@ -104,7 +112,7 @@ export default function PortfolioCard() {
                                             </span>
                                         </td>
                                         <td className="py-2.5 w-[20%] text-right">
-                                            <span className="text-[9px] font-black text-slate-900">{lead.amount}</span>
+                                            <span className="text-xs font-black text-slate-900">{lead.amount}</span>
                                         </td>
                                     </tr>
                                 ))

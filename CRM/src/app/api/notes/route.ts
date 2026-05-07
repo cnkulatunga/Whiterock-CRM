@@ -1,35 +1,43 @@
 import { NextResponse } from 'next/server';
-export const dynamic = 'force-dynamic';
-import { db } from '@/lib/db';
+import { djangoApi, extractToken } from '@/lib/api';
 
-export async function GET() {
-    return NextResponse.json(db.notes.getAll());
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: Request) {
+    const token = await extractToken(request);
+    const url = new URL(request.url);
+    const qs = url.searchParams.toString();
+    const path = qs ? `/notes/?${qs}` : '/notes/';
+    const { data, status, error } = await djangoApi.get(path, token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json(data);
 }
 
 export async function POST(request: Request) {
-    const { text } = await request.json();
-    const newNote = db.notes.create({
-        id: Date.now(),
-        text,
-        date: new Date().toLocaleString('en-GB', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
-        pinned: false,
-        highlighted: false
-    });
-    return NextResponse.json(newNote);
+    const token = await extractToken(request);
+    const body = await request.json();
+
+    const { data, status, error } = await djangoApi.post('/notes/', body, token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json(data, { status: 201 });
 }
 
 export async function PATCH(request: Request) {
+    const token = await extractToken(request);
     const { id, ...updates } = await request.json();
-    const updated = db.notes.update(id, updates);
-    return NextResponse.json(updated);
+
+    const { data, status, error } = await djangoApi.patch(`/notes/${id}/`, updates, token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json(data);
 }
 
 export async function DELETE(request: Request) {
+    const token = await extractToken(request);
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
-    if (id) {
-        db.notes.delete(parseInt(id));
-        return NextResponse.json({ success: true });
-    }
-    return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+    const { status, error } = await djangoApi.delete(`/notes/${id}/`, token);
+    if (error) return NextResponse.json({ error }, { status });
+    return NextResponse.json({ success: true });
 }

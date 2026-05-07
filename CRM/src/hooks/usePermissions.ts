@@ -15,18 +15,37 @@ export function usePermissions() {
                 const data = JSON.parse(session);
                 setUserRole(data.role);
 
-                // Fetch live permissions from the server
-                fetch('/api/permissions')
-                    .then(res => res.json())
+                // Fetch live permissions from the server on every mount — ensures
+                // any changes made by Super Admin are picked up immediately
+                fetch('/api/permissions', { credentials: 'same-origin' })
+                    .then(res => res.ok ? res.json() : Promise.reject(res.status))
                     .then(matrix => {
-                        // Use server-provided matrix, fallback to local defaults if API fails
-                        const livePerms = matrix[data.role] || DEFAULT_ROLE_PERMISSIONS[data.role];
-                        setPermissions(livePerms || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
+                        const livePerms = matrix[data.role];
+                        if (livePerms) {
+                            // Merge each section: use live DB data if non-empty, otherwise fall back
+                            const roleDefaults = DEFAULT_ROLE_PERMISSIONS[data.role] || DEFAULT_ROLE_PERMISSIONS['Tele Agent'];
+                            const resolved = {
+                                modules: (livePerms.modules && Object.keys(livePerms.modules).length > 0) ? livePerms.modules : roleDefaults.modules,
+                                features: (livePerms.features && Object.keys(livePerms.features).length > 0) ? livePerms.features : roleDefaults.features,
+                                dashboardCards: (livePerms.dashboardCards && Object.keys(livePerms.dashboardCards).length > 0) ? livePerms.dashboardCards : roleDefaults.dashboardCards,
+                            };
+                            setPermissions(resolved);
+                            try {
+                                const updated = { ...data, permissions: resolved };
+                                sessionStorage.setItem('crm_session', JSON.stringify(updated));
+                            } catch { /* storage full */ }
+                        } else {
+                            // No entry for this role in matrix — use role defaults
+                            const fallback = DEFAULT_ROLE_PERMISSIONS[data.role] || DEFAULT_ROLE_PERMISSIONS['Tele Agent'];
+                            setPermissions(fallback);
+                        }
                         setIsLoading(false);
                     })
                     .catch(() => {
-                        const fallback = DEFAULT_ROLE_PERMISSIONS[data.role];
-                        setPermissions(fallback || DEFAULT_ROLE_PERMISSIONS['Tele Agent']);
+                        // On network error, use cached permissions from sessionStorage if available
+                        const cached = data.permissions as RolePermissions | undefined;
+                        const fallback = cached || DEFAULT_ROLE_PERMISSIONS[data.role] || DEFAULT_ROLE_PERMISSIONS['Tele Agent'];
+                        setPermissions(fallback);
                         setIsLoading(false);
                     });
             } catch (e) {

@@ -141,7 +141,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, RolePermissions> = {
     'Accounts Manager': {
         modules: {
             tasks: { enabled: true, actions: { add: true, edit: true, delete: false, assign: false }, view: 'all' },
-            leads: { enabled: true, actions: { add: false, edit: false, delete: false, assign: false, upload_docs: false, view_docs: true, approve_docs: true, reject_docs: false, reupload_docs: false }, view: 'all' },
+            leads: { enabled: true, actions: { add: false, edit: true, delete: true, assign: false, upload_docs: false, view_docs: true, approve_docs: true, reject_docs: false, reupload_docs: false }, view: 'all' },
             pipeline: { enabled: true, actions: { full_access: false, view_stages: true, move_stages: false, edit_data: false }, view: 'all' },
             lenders: { enabled: true, actions: { add: true, view: true, edit: true, delete: false }, view: 'all' },
             promotions: { enabled: true, actions: { add: false, edit: false, delete: false, view: true, send_application: false }, view: 'all' },
@@ -159,7 +159,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, RolePermissions> = {
     'Team Leader': {
         modules: {
             tasks: { enabled: true, actions: { add: true, edit: true, delete: false, assign: true }, view: 'team' },
-            leads: { enabled: true, actions: { add: true, edit: true, delete: false, assign: true, upload_docs: true, view_docs: true, approve_docs: true, reject_docs: true, reupload_docs: true }, view: 'team' },
+            leads: { enabled: true, actions: { add: true, edit: false, delete: false, assign: true, upload_docs: true, view_docs: true, approve_docs: true, reject_docs: true, reupload_docs: true }, view: 'team' },
             pipeline: { enabled: true, actions: { full_access: false, view_stages: true, move_stages: true, edit_data: true }, view: 'team' },
             lenders: { enabled: true, actions: { add: false, view: true, edit: false, delete: false }, view: 'all' },
             promotions: { enabled: true, actions: { add: true, edit: true, delete: false, view: true, send_application: true }, view: 'all' },
@@ -177,7 +177,7 @@ export const DEFAULT_ROLE_PERMISSIONS: Record<string, RolePermissions> = {
     'Tele Agent': {
         modules: {
             tasks: { enabled: true, actions: { add: true, edit: true, delete: false, assign: false }, view: 'self' },
-            leads: { enabled: true, actions: { add: true, edit: true, delete: false, assign: false, upload_docs: true, view_docs: true, approve_docs: false, reject_docs: false, reupload_docs: true }, view: 'self' },
+            leads: { enabled: true, actions: { add: true, edit: false, delete: false, assign: false, upload_docs: true, view_docs: true, approve_docs: false, reject_docs: false, reupload_docs: true }, view: 'self' },
             pipeline: { enabled: false, actions: { full_access: false, view_stages: true, move_stages: false, edit_data: false }, view: 'self' },
             lenders: { enabled: false, actions: { add: false, view: true, edit: false, delete: false }, view: 'self' },
             promotions: { enabled: true, actions: { add: false, edit: false, delete: false, view: true, send_application: true }, view: 'all' },
